@@ -1,8 +1,17 @@
 name: Sync full catalog
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/sync-catalog.yml
+  schedule:
+    - cron: '*/15 * * * *'
 permissions:
   contents: write
+concurrency:
+  group: sync-full-catalog
+  cancel-in-progress: true
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -36,9 +45,14 @@ jobs:
               name=f'catalog-{i//chunk+1:03}.json'
               (out/name).write_text(json.dumps(rows[i:i+chunk],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
               parts.append(name)
-          public_manifest={'products':len(rows),'chunk_size':chunk,'parts':parts}
+          public_manifest={
+              'products':len(rows),
+              'chunk_size':chunk,
+              'parts':parts,
+              'with_images':sum(bool(r.get('images')) for r in rows)
+          }
           (out/'manifest.json').write_text(json.dumps(public_manifest,ensure_ascii=False,indent=2),encoding='utf-8')
-          print('verified',len(rows),'products; browser chunks',len(parts))
+          print('verified',len(rows),'products; images',public_manifest['with_images'],'browser chunks',len(parts))
           PY
       - name: Commit complete catalog
         run: |
@@ -46,5 +60,5 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add data/manifest.json data/catalog-*.json
-          git diff --cached --quiet || git commit -m 'Import complete 8552-product catalog'
+          git diff --cached --quiet || git commit -m 'Sync complete catalog with product images'
           git push
