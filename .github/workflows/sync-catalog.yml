@@ -1,9 +1,6 @@
 name: Sync full catalog
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/sync-catalog.yml'
 permissions:
   contents: write
 jobs:
@@ -11,36 +8,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download complete ProfiSport catalog
+      - name: Clone private catalog source
+        env:
+          CATALOG_TOKEN: ${{ secrets.CATALOG_TOKEN }}
         run: |
           set -euo pipefail
-          mkdir -p data
-          base='https://raw.githubusercontent.com/ivankirillov414-art/velo56-parser/main/public-data'
-          curl -fL "$base/manifest.json" -o data/manifest.json
-          python - <<'PY'
-          import json, subprocess
-          m=json.load(open('data/manifest.json',encoding='utf-8'))
-          for name in m['parts']:
-              subprocess.run(['curl','-fL',f'https://raw.githubusercontent.com/ivankirillov414-art/velo56-parser/main/public-data/{name}','-o',f'data/{name}'],check=True)
-          print('downloaded',len(m['parts']),'files /',m['products'],'products')
-          PY
-      - name: Verify catalog
+          git clone --depth 1 "https://x-access-token:${CATALOG_TOKEN}@github.com/ivankirillov414-art/velo56-parser.git" /tmp/velo56-parser
+      - name: Build browser catalog
         run: |
+          set -euo pipefail
           python - <<'PY'
           import json, pathlib
-          m=json.load(open('data/manifest.json',encoding='utf-8'))
-          n=0
-          for name in m['parts']:
-              p=pathlib.Path('data')/name
-              if not p.exists(): raise SystemExit(f'missing {p}')
-              n += len(json.load(open(p,encoding='utf-8')))
-          if n != 8552: raise SystemExit(f'expected 8552, got {n}')
-          print('verified',len(m['parts']),'files /',n,'products')
+          src=pathlib.Path('/tmp/velo56-parser/public-data')
+          manifest=json.loads((src/'manifest.json').read_text(encoding='utf-8'))
+          rows=[]
+          for name in manifest['parts']:
+              rows.extend(json.loads((src/name).read_text(encoding='utf-8')))
+          if len(rows) != 8552:
+              raise SystemExit(f'expected 8552, got {len(rows)}')
+          out=pathlib.Path('data')
+          out.mkdir(exist_ok=True)
+          for p in out.glob('catalog-*.json'):
+              p.unlink()
+          chunk=250
+          parts=[]
+          for i in range(0,len(rows),chunk):
+              name=f'catalog-{i//chunk+1:03}.json'
+              (out/name).write_text(json.dumps(rows[i:i+chunk],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+              parts.append(name)
+          public_manifest={'products':len(rows),'chunk_size':chunk,'parts':parts}
+          (out/'manifest.json').write_text(json.dumps(public_manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('verified',len(rows),'products; browser chunks',len(parts))
           PY
-      - name: Commit catalog
+      - name: Commit complete catalog
         run: |
+          set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add data/manifest.json data/products.public-*.json
+          git add data/manifest.json data/catalog-*.json
           git diff --cached --quiet || git commit -m 'Import complete 8552-product catalog'
           git push
