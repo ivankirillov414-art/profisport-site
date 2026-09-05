@@ -1,0 +1,7 @@
+{
+  "source_products": 8552,
+  "products": 8552,
+  "excluded": 0,
+  "chunk_size": 250,
+  "parts": ["products.public-001.json","products.public-002.json","products.public-003.json","products.public-004.json","products.public-005.json","products.public-006.json","products.public-007.json","products.public-008.json","products.public-009.json","products.public-010.json","products.public-011.json","products.public-012.json","products.public-013.json","products.public-014.json","products.public-015.json","products.public-016.json","products.public-017.json","products.public-018.json","products.public-019.json","products.public-020.json","products.public-021.json","products.public-022.json","products.public-023.json","products.public-024.json","products.public-025.json","products.public-026.json","products.public-027.json","products.public-028.json","products.public-029.json","products.public-030.json","products.public-031.json","products.public-032.json","products.public-033.json","products.public-034.json","products.public-035.json"]
+}
