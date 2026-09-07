@@ -8,8 +8,21 @@ header('Cache-Control: no-store');
 
 function out(array $x,int $code=200): never { http_response_code($code); echo json_encode($x,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE); exit; }
 function norm(string $s): string { return preg_replace('/[^a-zа-я0-9]+/u','',mb_strtolower(trim($s)))??''; }
-function utf8(string $s): string { if(str_starts_with($s,"\xFF\xFE"))return mb_convert_encoding(substr($s,2),'UTF-8','UTF-16LE');if(str_starts_with($s,"\xFE\xFF"))return mb_convert_encoding(substr($s,2),'UTF-8','UTF-16BE');$e=mb_detect_encoding($s,['UTF-8','Windows-1251','CP1251'],true)?:'UTF-8'; return $e==='UTF-8'?$s:mb_convert_encoding($s,'UTF-8',$e); }
-function csvAll(string $path): array { $raw=file_get_contents($path); if($raw===false)throw new RuntimeException('read_failed'); if(str_starts_with($raw,"\xEF\xBB\xBF"))$raw=substr($raw,3); $raw=utf8($raw); if(trim($raw)==='')throw new RuntimeException('csv_empty:'.basename($path));$first=preg_split('/\R/u',$raw,2)[0]??''; $c=[';'=>substr_count($first,';'),','=>substr_count($first,','),"\t"=>substr_count($first,"\t")]; arsort($c);$d=(string)array_key_first($c);$f=fopen('php://temp','r+');fwrite($f,$raw);rewind($f);$h=fgetcsv($f,0,$d)?:[];$rows=[];while(($r=fgetcsv($f,0,$d))!==false){if(count(array_filter($r,fn($v)=>trim((string)$v)!=='')))$rows[]=$r;}fclose($f);return[$h,$rows,$d]; }
+function utf8(string $s): string {
+  if(str_starts_with($s,"\xEF\xBB\xBF")) return substr($s,3);
+  if(str_starts_with($s,"\xFF\xFE")) return mb_convert_encoding(substr($s,2),'UTF-8','UTF-16LE');
+  if(str_starts_with($s,"\xFE\xFF")) return mb_convert_encoding(substr($s,2),'UTF-8','UTF-16BE');
+  $sample=substr($s,0,min(strlen($s),8192));$even=0;$odd=0;$pairs=intdiv(strlen($sample),2);
+  for($i=0;$i+1<strlen($sample);$i+=2){if($sample[$i]==="\0")$even++;if($sample[$i+1]==="\0")$odd++;}
+  if($pairs>20){if($odd/$pairs>0.20&&$even/$pairs<0.10)return mb_convert_encoding($s,'UTF-8','UTF-16LE');if($even/$pairs>0.20&&$odd/$pairs<0.10)return mb_convert_encoding($s,'UTF-8','UTF-16BE');}
+  if(mb_check_encoding($s,'UTF-8')) return $s;
+  return mb_convert_encoding($s,'UTF-8','Windows-1251');
+}
+function csvAll(string $path): array {
+  $raw=file_get_contents($path); if($raw===false)throw new RuntimeException('read_failed');$raw=utf8($raw);$raw=str_replace("\0",'',$raw);if(trim($raw)==='')throw new RuntimeException('csv_empty:'.basename($path));
+  $lines=preg_split('/\r\n|\n|\r/',$raw,2);$first=$lines[0]??'';$c=[';'=>substr_count($first,';'),','=>substr_count($first,','),"\t"=>substr_count($first,"\t")];arsort($c);$d=(string)array_key_first($c);
+  $f=fopen('php://temp','r+');fwrite($f,$raw);rewind($f);$h=fgetcsv($f,0,$d);if($h===false)$h=[];$rows=[];while(($r=fgetcsv($f,0,$d))!==false){if(count(array_filter($r,fn($v)=>trim((string)$v)!=='')))$rows[]=$r;}fclose($f);return[$h,$rows,$d];
+}
 function col(array $h,array $aliases): ?int { foreach($h as $i=>$v){$n=norm((string)$v);foreach($aliases as $a)if($n===norm($a))return $i;}return null; }
 function val(array $r,?int $i): string { return $i===null?'':trim((string)($r[$i]??'')); }
 function money(string $x): int { $x=preg_replace('/[^0-9,.-]/u','',$x)??'';$x=str_replace(',','.',$x);return is_numeric($x)?(int)round((float)$x):0; }
