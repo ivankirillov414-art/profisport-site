@@ -19,17 +19,20 @@ jobs:
       - name: Build private server config
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p server
-          cat > server/config.php <<'PHP'
+          PASS_B64="$(printf '%s' "$PROFISPORT_DB_PASSWORD" | base64 -w 0)"
+          cat > server/config.php <<PHP
           <?php
           return [
               'db_host' => 'sql202.infinityfree.com',
               'db_name' => 'if0_42771076_profisport',
               'db_user' => 'if0_42771076',
-              'db_pass' => getenv('PROFISPORT_DB_PASSWORD'),
-              'bootstrap_password' => getenv('PROFISPORT_DB_PASSWORD'),
+              'db_pass' => base64_decode('${PASS_B64}', true),
+              'bootstrap_password' => base64_decode('${PASS_B64}', true),
           ];
           PHP
+          chmod 600 server/config.php
         env:
           PROFISPORT_DB_PASSWORD: ${{ secrets.FTP_PASSWORD }}
 
