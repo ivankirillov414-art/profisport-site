@@ -67,16 +67,9 @@ jobs:
           a="$(printf '%s' "$challenge" | sed -n 's/.*var a=toNumbers("\([0-9a-f]*\)").*/\1/p')"
           b="$(printf '%s' "$challenge" | sed -n 's/.*b=toNumbers("\([0-9a-f]*\)").*/\1/p')"
           c="$(printf '%s' "$challenge" | sed -n 's/.*c=toNumbers("\([0-9a-f]*\)").*/\1/p')"
+          cookie=''
           if [ -n "$a" ] && [ -n "$b" ] && [ -n "$c" ]; then
-            cookie="$(python3 - "$a" "$b" "$c" <<'PY'
-import subprocess,sys
-key,iv,ct=sys.argv[1:4]
-p=subprocess.run(['openssl','enc','-aes-128-cbc','-d','-K',key,'-iv',iv,'-nopad'],input=bytes.fromhex(ct),stdout=subprocess.PIPE,check=True)
-print(p.stdout.hex())
-PY
-            )"
-          else
-            cookie=''
+            cookie="$(python3 -c 'import subprocess,sys; k,i,c=sys.argv[1:4]; p=subprocess.run(["openssl","enc","-aes-128-cbc","-d","-K",k,"-iv",i,"-nopad"],input=bytes.fromhex(c),stdout=subprocess.PIPE,check=True); print(p.stdout.hex())' "$a" "$b" "$c")"
           fi
           offset=0
           for attempt in $(seq 1 30); do
