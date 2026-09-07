@@ -61,7 +61,7 @@ jobs:
           PROFISPORT_IMPORT_TOKEN: ${{ secrets.CATALOG_TOKEN }}
         run: |
           set -euo pipefail
-          sleep 10
+          sleep 8
           UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36'
           challenge="$(curl --http1.1 --silent --show-error -A "$UA" 'https://ferryffggg.infinityfreeapp.com/server/api.php?action=health')"
           a="$(printf '%s' "$challenge" | sed -n 's/.*var a=toNumbers("\([0-9a-f]*\)").*/\1/p')"
@@ -74,10 +74,14 @@ jobs:
           offset=0
           for attempt in $(seq 1 30); do
             echo "Import batch offset=$offset"
-            args=(--http1.1 --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 -A "$UA" -X POST -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}")
+            args=(--http1.1 --silent --show-error -A "$UA" -X POST -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}")
             if [ -n "$cookie" ]; then args+=(-H "Cookie: __test=${cookie}"); fi
-            body="$(curl "${args[@]}" "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=500&i=1")"
+            response="$(curl "${args[@]}" -w $'\nHTTP_STATUS:%{http_code}' "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=500&i=1")"
+            status="$(printf '%s\n' "$response" | sed -n 's/^HTTP_STATUS://p' | tail -1)"
+            body="$(printf '%s\n' "$response" | sed '/^HTTP_STATUS:/d')"
+            echo "HTTP $status"
             echo "$body"
+            [ "$status" = "200" ] || exit 1
             ok="$(printf '%s' "$body" | jq -r '.ok // false')"
             [ "$ok" = "true" ] || exit 1
             done_flag="$(printf '%s' "$body" | jq -r '.done // false')"
