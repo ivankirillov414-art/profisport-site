@@ -22,6 +22,7 @@ jobs:
           set -euo pipefail
           mkdir -p server
           PASS_B64="$(printf '%s' "$PROFISPORT_DB_PASSWORD" | base64 -w 0)"
+          TOKEN_B64="$(printf '%s' "$PROFISPORT_IMPORT_TOKEN" | base64 -w 0)"
           cat > server/config.php <<PHP
           <?php
           return [
@@ -29,11 +30,13 @@ jobs:
               'db_name' => 'if0_42771076_profisport',
               'db_user' => 'if0_42771076',
               'db_pass' => base64_decode('${PASS_B64}', true),
+              'import_token' => base64_decode('${TOKEN_B64}', true),
           ];
           PHP
           chmod 600 server/config.php
         env:
           PROFISPORT_DB_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          PROFISPORT_IMPORT_TOKEN: ${{ secrets.CATALOG_TOKEN }}
 
       - name: Deploy to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
@@ -51,3 +54,31 @@ jobs:
             .github/**
             import/**
             uploads/**
+
+      - name: Import current 1C catalog into MySQL
+        shell: bash
+        env:
+          PROFISPORT_IMPORT_TOKEN: ${{ secrets.CATALOG_TOKEN }}
+        run: |
+          set -euo pipefail
+          offset=0
+          for attempt in $(seq 1 30); do
+            echo "Import batch offset=$offset"
+            body="$(curl --fail --silent --show-error --retry 3 --retry-delay 2 \
+              -X POST \
+              -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}" \
+              "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=500")"
+            echo "$body"
+            ok="$(printf '%s' "$body" | jq -r '.ok // false')"
+            [ "$ok" = "true" ] || exit 1
+            done_flag="$(printf '%s' "$body" | jq -r '.done // false')"
+            if [ "$done_flag" = "true" ]; then
+              total="$(printf '%s' "$body" | jq -r '.total_rows')"
+              echo "1C import complete: ${total} rows"
+              exit 0
+            fi
+            offset="$(printf '%s' "$body" | jq -r '.next_offset')"
+            sleep 1
+          done
+          echo "Import did not finish within 30 batches" >&2
+          exit 1
