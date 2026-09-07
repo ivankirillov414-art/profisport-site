@@ -29,7 +29,6 @@ jobs:
               'db_name' => 'if0_42771076_profisport',
               'db_user' => 'if0_42771076',
               'db_pass' => base64_decode('${PASS_B64}', true),
-              'bootstrap_password' => base64_decode('${PASS_B64}', true),
           ];
           PHP
           chmod 600 server/config.php
