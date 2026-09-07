@@ -4,6 +4,9 @@ require __DIR__ . '/bootstrap.php';
 start_secure_session();
 $action = $_GET['action'] ?? 'health';
 
+const SETUP_TOKEN_HASH = '80bd038679da7c8b134685ffa8c54c96043f9868e3e0e33b60ca075d7a416b8b';
+const SETUP_TOKEN_EXPIRES = 1788980399;
+
 try {
     if ($action === 'health') {
         $count = (int)$pdo->query('SELECT COUNT(*) FROM products')->fetchColumn();
@@ -18,9 +21,11 @@ try {
 
     if ($action === 'setup' && $_SERVER['REQUEST_METHOD']==='POST') {
         $in=input_json();
-        $bootstrap=(string)($in['bootstrap_password']??''); $new=(string)($in['new_password']??'');
-        global $config;
-        if (!hash_equals((string)$config['bootstrap_password'], $bootstrap)) json_response(['ok'=>false,'error'=>'bootstrap_password'],403);
+        $token=(string)($in['setup_token']??'');
+        $new=(string)($in['new_password']??'');
+        if (time() > SETUP_TOKEN_EXPIRES) json_response(['ok'=>false,'error'=>'setup_token_expired'],403);
+        $tokenHash=hash('sha256',$token);
+        if ($token==='' || !hash_equals(SETUP_TOKEN_HASH,$tokenHash)) json_response(['ok'=>false,'error'=>'setup_token'],403);
         if (mb_strlen($new)<10) json_response(['ok'=>false,'error'=>'password_too_short'],422);
         $s=$pdo->prepare('SELECT id,password_hash,force_password_setup FROM admin_users WHERE username=? LIMIT 1 FOR UPDATE');
         $pdo->beginTransaction(); $s->execute(['Иван Кириллов 414']); $u=$s->fetch();
