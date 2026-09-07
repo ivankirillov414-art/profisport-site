@@ -61,20 +61,29 @@ jobs:
           PROFISPORT_IMPORT_TOKEN: ${{ secrets.CATALOG_TOKEN }}
         run: |
           set -euo pipefail
-          sleep 12
+          sleep 10
           UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36'
-          echo 'Checking site health'
-          curl --http1.1 --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 \
-            -A "$UA" \
-            'https://ferryffggg.infinityfreeapp.com/server/api.php?action=health' || true
+          challenge="$(curl --http1.1 --silent --show-error -A "$UA" 'https://ferryffggg.infinityfreeapp.com/server/api.php?action=health')"
+          a="$(printf '%s' "$challenge" | sed -n 's/.*var a=toNumbers("\([0-9a-f]*\)").*/\1/p')"
+          b="$(printf '%s' "$challenge" | sed -n 's/.*b=toNumbers("\([0-9a-f]*\)").*/\1/p')"
+          c="$(printf '%s' "$challenge" | sed -n 's/.*c=toNumbers("\([0-9a-f]*\)").*/\1/p')"
+          if [ -n "$a" ] && [ -n "$b" ] && [ -n "$c" ]; then
+            cookie="$(python3 - "$a" "$b" "$c" <<'PY'
+import subprocess,sys
+key,iv,ct=sys.argv[1:4]
+p=subprocess.run(['openssl','enc','-aes-128-cbc','-d','-K',key,'-iv',iv,'-nopad'],input=bytes.fromhex(ct),stdout=subprocess.PIPE,check=True)
+print(p.stdout.hex())
+PY
+            )"
+          else
+            cookie=''
+          fi
           offset=0
           for attempt in $(seq 1 30); do
             echo "Import batch offset=$offset"
-            body="$(curl --http1.1 --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 \
-              -A "$UA" \
-              -X POST \
-              -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}" \
-              "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=500")"
+            args=(--http1.1 --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 -A "$UA" -X POST -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}")
+            if [ -n "$cookie" ]; then args+=(-H "Cookie: __test=${cookie}"); fi
+            body="$(curl "${args[@]}" "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=500&i=1")"
             echo "$body"
             ok="$(printf '%s' "$body" | jq -r '.ok // false')"
             [ "$ok" = "true" ] || exit 1
