@@ -61,10 +61,17 @@ jobs:
           PROFISPORT_IMPORT_TOKEN: ${{ secrets.CATALOG_TOKEN }}
         run: |
           set -euo pipefail
+          sleep 12
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36'
+          echo 'Checking site health'
+          curl --http1.1 --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 \
+            -A "$UA" \
+            'https://ferryffggg.infinityfreeapp.com/server/api.php?action=health' || true
           offset=0
           for attempt in $(seq 1 30); do
             echo "Import batch offset=$offset"
-            body="$(curl --fail --silent --show-error --retry 3 --retry-delay 2 \
+            body="$(curl --http1.1 --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 \
+              -A "$UA" \
               -X POST \
               -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}" \
               "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=500")"
