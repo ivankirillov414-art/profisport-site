@@ -16,6 +16,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Build private server config
+        shell: bash
+        run: |
+          mkdir -p server
+          cat > server/config.php <<'PHP'
+          <?php
+          return [
+              'db_host' => 'sql202.infinityfree.com',
+              'db_name' => 'if0_42771076_profisport',
+              'db_user' => 'if0_42771076',
+              'db_pass' => getenv('PROFISPORT_DB_PASSWORD'),
+              'bootstrap_password' => getenv('PROFISPORT_DB_PASSWORD'),
+          ];
+          PHP
+        env:
+          PROFISPORT_DB_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
       - name: Deploy to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
