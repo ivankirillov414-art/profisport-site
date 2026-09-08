@@ -23,6 +23,9 @@ jobs:
           node --check app.js
           node --check checkout.js
           node --check admin/orders.js
+          node --check admin/products.js
+          node --check admin/service.js
+          node --check service.js
           php tests/order-validation.php
       - name: Test checkout with a disposable database
         run: |
