@@ -48,7 +48,7 @@ try{
 
   $items=[];
   $brokenLocal=0;
-  $itemsWithoutImage=0;
+  $itemsWithoutSourceImage=0;
   $itemsWithLocalImage=0;
   $itemsWithRemoteImage=0;
 
@@ -64,19 +64,25 @@ try{
       if($img!==''&&!in_array($img,$images,true))$images[]=$img;
     }
 
-    if(!$images&&!empty($p['main_image'])&&is_string($p['main_image'])&&image_is_usable((string)$p['main_image'],$brokenLocal)){
-      $images[]=(string)$p['main_image'];
+    $main=(string)($p['main_image']??'');
+    if(!$images&&$main!==''&&!in_array($main,$decoded,true)&&image_is_usable($main,$brokenLocal)){
+      $images[]=$main;
     }
 
-    if(!$images)$itemsWithoutImage++;
-    else{
+    $path=(string)($p['category_path']??'');
+    $categoryPath=$path===''?[]:array_values(array_filter(array_map('trim',explode('/',$path))));
+    $cat=$categoryPath?(string)end($categoryPath):'';
+
+    $sourceImageMissing=!$images;
+    if($sourceImageMissing){
+      $itemsWithoutSourceImage++;
+      $images[]='api/product-fallback-image.php?name='.rawurlencode((string)$p['name']).'&cat='.rawurlencode($cat);
+    }else{
       $firstPath=(string)(parse_url($images[0],PHP_URL_PATH)??$images[0]);
       if(str_starts_with($firstPath,'/import/')||str_starts_with($firstPath,'import/'))$itemsWithLocalImage++;
       else $itemsWithRemoteImage++;
     }
 
-    $path=(string)($p['category_path']??'');
-    $categoryPath=$path===''?[]:array_values(array_filter(array_map('trim',explode('/',$path))));
     $items[]=[
       'id'=>(int)$p['id'],
       'source_id'=>$p['source_id'],
@@ -98,6 +104,7 @@ try{
       'specs'=>[],
       'images'=>$images,
       'image'=>$images[0]??null,
+      'image_source_missing'=>$sourceImageMissing,
       'url'=>'product.html?id='.(int)$p['id'],
       'updated_at'=>$p['updated_at']
     ];
@@ -114,7 +121,7 @@ try{
     'total'=>$total,
     'image_health'=>[
       'broken_local_references_removed'=>$brokenLocal,
-      'items_without_image'=>$itemsWithoutImage,
+      'items_without_source_image'=>$itemsWithoutSourceImage,
       'items_with_local_image'=>$itemsWithLocalImage,
       'items_with_remote_image'=>$itemsWithRemoteImage
     ],
