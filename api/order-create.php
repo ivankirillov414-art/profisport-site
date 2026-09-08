@@ -1,44 +1,46 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
+require __DIR__.'/../server/order-validation.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-
-function out(array $x,int $code=200): never { http_response_code($code); echo json_encode($x,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); exit; }
+function order_result(array $row): never {json_response(['ok'=>true,'order_number'=>$row['order_number'],'total_rub'=>(int)$row['total_rub']]);}
 function customer_id_from_session(): ?int {
   if(session_status()===PHP_SESSION_ACTIVE)session_write_close();
+  ini_set('session.use_strict_mode','1');
   session_name('PROFISPORT_CUSTOMER');
   session_set_cookie_params(['lifetime'=>60*60*24*30,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Lax']);
-  @session_start();
-  $id=(int)($_SESSION['customer_id']??0);
-  session_write_close();
-  return $id>0?$id:null;
+  session_start();$id=(int)($_SESSION['customer_id']??0);session_write_close();return $id>0?$id:null;
 }
 try{
-  if($_SERVER['REQUEST_METHOD']!=='POST')out(['ok'=>false,'error'=>'method_not_allowed'],405);
-  $in=input_json();
-  $name=trim((string)($in['name']??''));$phone=trim((string)($in['phone']??''));$email=trim((string)($in['email']??''));$delivery=trim((string)($in['delivery']??'pickup'));$address=trim((string)($in['address']??''));$comment=trim((string)($in['comment']??''));
-  $ids=$in['items']??[];if(!is_array($ids))$ids=[];$ids=array_values(array_filter(array_map('intval',$ids),fn($v)=>$v>0));
-  if(mb_strlen($name)<2||strlen(preg_replace('/\D+/','',$phone)??'')<10||!$ids)out(['ok'=>false,'error'=>'invalid_input'],422);
-  if($email!==''&&!filter_var($email,FILTER_VALIDATE_EMAIL))out(['ok'=>false,'error'=>'bad_email'],422);
-  $groups=[];foreach($ids as $id)$groups[$id]=($groups[$id]??0)+1;
-  $placeholders=implode(',',array_fill(0,count($groups),'?'));
-  $s=$pdo->prepare("SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active FROM products WHERE id IN ($placeholders)");$s->execute(array_keys($groups));$rows=$s->fetchAll();
-  if(count($rows)!==count($groups))out(['ok'=>false,'error'=>'product_missing'],409);
-  $items=[];$total=0;
-  foreach($rows as $p){
-    if(!(int)$p['is_active']||$p['stock_status']==='out_of_stock'||$p['availability']==='out_of_stock')out(['ok'=>false,'error'=>'out_of_stock','product_id'=>(int)$p['id']],409);
-    $qty=$groups[(int)$p['id']];$price=(int)$p['price_rub'];$line=$price*$qty;$total+=$line;
-    $items[]=['id'=>(int)$p['id'],'title'=>(string)$p['name'],'price'=>$price,'qty'=>$qty,'line'=>$line];
-  }
+  if($_SERVER['REQUEST_METHOD']!=='POST')json_response(['ok'=>false,'error'=>'method_not_allowed'],405);
+  $in=validate_order(input_json());
+  $hash=hash('sha256',json_encode($in,JSON_UNESCAPED_UNICODE));
+  $find=$pdo->prepare('SELECT order_number,total_rub,request_hash FROM orders WHERE request_key=?');
+  $find->execute([$in['request_key']]);$existing=$find->fetch();
+  if($existing){if(!hash_equals((string)$existing['request_hash'],$hash))json_response(['ok'=>false,'error'=>'request_conflict'],409);order_result($existing);}
   $customerId=customer_id_from_session();
-  $number='PS-'.date('ymd').'-'.strtoupper(substr(bin2hex(random_bytes(4)),0,6));
+  if($customerId){$c=$pdo->prepare('SELECT id FROM customers WHERE id=? AND is_active=1');$c->execute([$customerId]);if(!$c->fetchColumn())$customerId=null;}
   $pdo->beginTransaction();
-  $o=$pdo->prepare('INSERT INTO orders(customer_id,order_number,customer_name,phone,email,delivery_method,address,comment,status,total_rub) VALUES(?,?,?,?,?,?,?,?,\'new\',?)');
-  $o->execute([$customerId,$number,$name,$phone,$email?:null,$delivery?:'pickup',$address?:null,$comment?:null,$total]);
+  $groups=$in['groups'];$marks=implode(',',array_fill(0,count($groups),'?'));
+  $s=$pdo->prepare("SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active FROM products WHERE id IN ($marks) ORDER BY id FOR UPDATE");
+  $s->execute(array_keys($groups));$calculated=order_lines($s->fetchAll(),$groups);
+  // This is a request for manager confirmation; stock remains owned by the 1C import.
+  $number='PS-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
+  $o=$pdo->prepare("INSERT INTO orders(customer_id,order_number,customer_name,phone,email,delivery_method,address,comment,status,total_rub,request_key,request_hash) VALUES(?,?,?,?,?,?,?,?,'new',?,?,?)");
+  $o->execute([$customerId,$number,$in['name'],$in['phone'],$in['email']?:null,$in['delivery'],$in['address']?:null,$in['comment']?:null,$calculated['total'],$in['request_key'],$hash]);
   $orderId=(int)$pdo->lastInsertId();
   $i=$pdo->prepare('INSERT INTO order_items(order_id,product_id,title,price_rub,quantity,line_total_rub) VALUES(?,?,?,?,?,?)');
-  foreach($items as $x)$i->execute([$orderId,$x['id'],$x['title'],$x['price'],$x['qty'],$x['line']]);
-  $pdo->commit();
-  out(['ok'=>true,'order_number'=>$number,'total_rub'=>$total]);
-}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log($e->__toString());out(['ok'=>false,'error'=>'server_error'],500);}
+  foreach($calculated['items'] as $x)$i->execute([$orderId,$x['id'],$x['title'],$x['price'],$x['qty'],$x['line']]);
+  $pdo->commit();order_result(['order_number'=>$number,'total_rub'=>$calculated['total']]);
+}catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>$e->getMessage()],422);
+}catch(DomainException $e){if($pdo->inTransaction())$pdo->rollBack();json_response(['ok'=>false,'error'=>$e->getMessage()],409);
+}catch(Throwable $e){
+  if($pdo->inTransaction())$pdo->rollBack();
+  // A simultaneous retry can arrive before the first request commits.
+  if($e instanceof PDOException&&$e->getCode()==='23000'&&isset($in,$hash)){
+    $find->execute([$in['request_key']]);$existing=$find->fetch();
+    if($existing&&hash_equals((string)$existing['request_hash'],$hash))order_result($existing);
+  }
+  error_log($e->__toString());json_response(['ok'=>false,'error'=>'server_error'],500);
+}
