@@ -12,4 +12,5 @@ window.getProfisportCsrf=()=>csrf;
 window.refreshProfisportAuth=refreshAuth;
 window.refreshProfisportDashboard=async()=>{try{await dashboard()}catch(e){console.error('dashboard refresh',e)}};
 const refresh=$('refreshImports');if(refresh)refresh.addEventListener('click',loadImportFiles);
+const photosTile=document.querySelector('a[href="#photos"]');if(photosTile)photosTile.href='photos.php';
 (async()=>{try{await refreshAuth();await Promise.allSettled([dashboard(),loadProducts(),loadImportFiles()])}catch(e){console.error('admin boot',e);setText('statProducts','—');setText('statOrders','—')}})();
