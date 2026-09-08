@@ -1,46 +1,6 @@
 const API='../server/api.php';
 let csrf='';
 const $=id=>document.getElementById(id);
-
-// Единая тема админки: графит + кобальт.
-// Оставляем зелёный/красный только для смысловых статусов успеха и ошибки.
-(()=>{
-  const style=document.createElement('style');
-  style.id='profisport-cobalt-theme';
-  style.textContent=`
-    :root{
-      --y:#0047AB!important;
-      --cobalt:#0047AB;
-      --cobalt-dark:#003B8F;
-      --cobalt-soft:#EAF1FF;
-      --graphite:#30353B;
-      --graphite-2:#252A2F;
-      --bg:#F2F3F5!important;
-      --tx:#22272D!important;
-      --muted:#737A82!important;
-      --line:#DDE1E6!important;
-    }
-    .top{background:linear-gradient(135deg,var(--graphite),var(--graphite-2))!important}
-    .brand i,.hero i{color:#5B8DEF!important}
-    .logo{background:var(--cobalt)!important;color:#fff!important}
-    .hero{background:var(--graphite-2)!important}
-    .tile.primary{background:linear-gradient(145deg,#F5F8FF,#E5EEFF)!important;border-color:#AFC6F5!important}
-    .primary .ico,.importIcon{background:var(--cobalt)!important;color:#fff!important}
-    .primary .ico svg{stroke:#fff!important}
-    .btn:not(.secondary),.importBtn{background:var(--cobalt)!important;color:#fff!important}
-    .btn:not(.secondary):active,.importBtn:active{background:var(--cobalt-dark)!important}
-    .secondary{background:#E5E8EC!important;color:#252A2F!important}
-    .cand.selected{border-color:var(--cobalt)!important;background:var(--cobalt-soft)!important}
-    .back{background:#FFFFFF12!important;border-color:#FFFFFF28!important}
-    .healthCard{background:#F4F5F7!important}
-    .summary,.product,.metric,.tile,.panel,.empty{border-color:var(--line)!important}
-    .bottom a:first-child{background:var(--cobalt-soft)!important;color:var(--cobalt)!important}
-    input:focus{outline:2px solid #7EA5E8!important;outline-offset:1px}
-    a:focus-visible,button:focus-visible{outline:2px solid #7EA5E8!important;outline-offset:2px}
-  `;
-  document.head.appendChild(style);
-})();
-
 async function api(action,opts={}){opts.headers={...(opts.headers||{}),'Content-Type':'application/json'};if(csrf)opts.headers['X-CSRF-Token']=csrf;const r=await fetch(`${API}?action=${action}`,opts);const j=await r.json().catch(()=>({error:'bad_json'}));if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);return j}
 function format(n){return Number(n||0).toLocaleString('ru-RU')}
 function setText(id,value){const el=$(id);if(el)el.textContent=value}
