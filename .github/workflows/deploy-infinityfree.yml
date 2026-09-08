@@ -55,50 +55,7 @@ jobs:
             import/**
             uploads/**
 
-      - name: Repair stock from verified 1C column 12
-        shell: bash
-        env:
-          PROFISPORT_IMPORT_TOKEN: ${{ secrets.CATALOG_TOKEN }}
+      - name: Stock safety note
         run: |
-          set -euo pipefail
-          sleep 8
-          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36'
-          challenge="$(curl --http1.1 --silent --show-error -A "$UA" 'https://ferryffggg.infinityfreeapp.com/server/api.php?action=health')"
-          a="$(printf '%s' "$challenge" | sed -n 's/.*var a=toNumbers("\([0-9a-f]*\)").*/\1/p')"
-          b="$(printf '%s' "$challenge" | sed -n 's/.*b=toNumbers("\([0-9a-f]*\)").*/\1/p')"
-          c="$(printf '%s' "$challenge" | sed -n 's/.*c=toNumbers("\([0-9a-f]*\)").*/\1/p')"
-          cookie=''
-          if [ -n "$a" ] && [ -n "$b" ] && [ -n "$c" ]; then
-            cookie="$(python3 -c 'import subprocess,sys; k,i,c=sys.argv[1:4]; p=subprocess.run(["openssl","enc","-aes-128-cbc","-d","-K",k,"-iv",i,"-nopad"],input=bytes.fromhex(c),stdout=subprocess.PIPE,check=True); print(p.stdout.hex())' "$a" "$b" "$c")"
-          fi
-          offset=0
-          created=0
-          updated=0
-          zero=0
-          positive=0
-          archived=0
-          restored=0
-          for attempt in $(seq 1 40); do
-            args=(--http1.1 --silent --show-error -A "$UA" -X POST -H "X-Import-Token: ${PROFISPORT_IMPORT_TOKEN}")
-            if [ -n "$cookie" ]; then args+=(-H "Cookie: __test=${cookie}"); fi
-            response="$(curl "${args[@]}" -w $'\nHTTP_STATUS:%{http_code}' "https://ferryffggg.infinityfreeapp.com/api/import-apply.php?offset=${offset}&limit=250&repair=1")"
-            status="$(printf '%s\n' "$response" | sed -n 's/^HTTP_STATUS://p' | tail -1)"
-            body="$(printf '%s\n' "$response" | sed '/^HTTP_STATUS:/d')"
-            echo "offset=${offset} HTTP=${status} ${body}"
-            [ "$status" = "200" ] || exit 1
-            [ "$(printf '%s' "$body" | jq -r '.ok // false')" = "true" ] || exit 1
-            created=$((created + $(printf '%s' "$body" | jq -r '.created // 0')))
-            updated=$((updated + $(printf '%s' "$body" | jq -r '.updated // 0')))
-            zero=$((zero + $(printf '%s' "$body" | jq -r '.zero_stock // 0')))
-            positive=$((positive + $(printf '%s' "$body" | jq -r '.positive_stock // 0')))
-            archived=$((archived + $(printf '%s' "$body" | jq -r '.archived // 0')))
-            restored=$((restored + $(printf '%s' "$body" | jq -r '.restored // 0')))
-            if [ "$(printf '%s' "$body" | jq -r '.done // false')" = "true" ]; then
-              echo "STOCK_REPAIR_COMPLETE created=${created} updated=${updated} zero=${zero} positive=${positive} archived=${archived} restored=${restored}"
-              echo "FULL_EXPORT_ZERO=$(printf '%s' "$body" | jq -r '.all_zero_stock // -1') FULL_EXPORT_POSITIVE=$(printf '%s' "$body" | jq -r '.all_positive_stock // -1') FULL_EXPORT_ONES=$(printf '%s' "$body" | jq -r '.all_one_stock // -1') STOCK_MAX=$(printf '%s' "$body" | jq -r '.stock_max // -1')"
-              exit 0
-            fi
-            offset="$(printf '%s' "$body" | jq -r '.next_offset')"
-            sleep 1
-          done
-          exit 1
+          echo "Catalog writes are manual only."
+          echo "The importer validates the verified stock field before changing product availability."
