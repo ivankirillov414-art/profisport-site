@@ -8,11 +8,43 @@ header('Cache-Control: no-store');
 function pm_out(array $x,int $code=200): never { http_response_code($code); echo json_encode($x,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE); exit; }
 function pm_norm(string $s): string { $s=mb_strtolower(trim($s)); $s=str_replace(['ё'],'е',$s); $s=preg_replace('/[^a-zа-я0-9]+/u',' ',$s)??''; return trim(preg_replace('/\s+/u',' ',$s)??''); }
 function pm_tokens(string $s): array { $stop=['для','или','при','под','над','без','комплект','набор','шт','мм','см','черный','черная','черное','белый','белая','белое','серый','серая','серое','синий','синяя','синее','красный','красная','красное','зеленый','зеленая','желтый','желтая','купить','цена','фото','товар']; $out=[]; foreach(preg_split('/\s+/u',pm_norm($s))?:[] as $t){ if(mb_strlen($t)<3||in_array($t,$stop,true))continue; $out[$t]=true; } return array_keys($out); }
+function pm_standalone_numbers(string $s): array { $out=[]; if(preg_match_all('/(?<![\p{L}\p{N}])\d+(?:[.,]\d+)?(?![\p{L}\p{N}])/u',$s,$m)){ foreach($m[0] as $n){$n=str_replace(',','.',$n);$n=ltrim($n,'0');if($n===''||str_starts_with($n,'.'))$n='0'.$n;$out[$n]=true;} } return array_keys($out); }
+function pm_distinctive_tokens(string $s,string $brand=''): array { $generic=['велосипед','велосипеды','самокат','самокаты','трюковой','трюковые','подростковый','подростковые','детский','детские','горный','горные','спортивный','спортивные','мат','маты','фитнес','покрытием','размер','модель']; $brandTokens=array_flip(pm_tokens($brand)); $out=[]; foreach(pm_tokens($s) as $t){ if(isset($brandTokens[$t])||in_array($t,$generic,true))continue; $out[$t]=true; } return array_keys($out); }
+function pm_title_relevant(string $candidate,string $name,string $brand,string $model,string $categoryPath=''): bool {
+  $candidate=trim($candidate); if($candidate==='')return false;
+  $cn=pm_norm($candidate); $nn=pm_norm($name); if($cn===''||$nn==='')return false;
+  if($cn===$nn)return true;
+
+  $brandN=pm_norm($brand); $modelN=pm_norm($model);
+  $brandMatch=$brandN!==''&&mb_strlen($brandN)>=3&&str_contains($cn,$brandN);
+  $modelMatch=$modelN!==''&&mb_strlen($modelN)>=2&&str_contains($cn,$modelN);
+
+  // Размеры и номера моделей — сильный сигнал. 24/470 не должны совпадать с 28/300.
+  $targetNums=pm_standalone_numbers($name.' '.$model);
+  $candNums=pm_standalone_numbers($candidate);
+  if($targetNums&&$candNums&&!array_intersect($targetNums,$candNums))return false;
+
+  $targetDistinct=pm_distinctive_tokens($name.' '.$model,$brand);
+  $candDistinct=pm_distinctive_tokens($candidate,$brand);
+  $common=array_values(array_intersect($targetDistinct,$candDistinct));
+
+  // Если бренд в карточке известен, чужой бренд не принимаем без точного совпадения модели.
+  if($brandN!==''&&!$brandMatch&&!$modelMatch)return false;
+  if($modelMatch&&count($common)>=1)return true;
+
+  $need=count($targetDistinct)>=4?2:1;
+  if(count($common)<$need)return false;
+
+  // Для длинных названий одного общего слова недостаточно: нужен хотя бы заметный процент совпадений.
+  $coverage=count($common)/max(1,count($targetDistinct));
+  if(count($targetDistinct)>=6&&$coverage<0.34)return false;
+  return true;
+}
 function pm_local_image_ok(?string $url): bool { if(!$url)return false; $url=trim($url); if($url==='')return false; if(preg_match('~^https?://~i',$url))return true; $path=parse_url($url,PHP_URL_PATH)?:$url; $path=rawurldecode($path); if(str_starts_with($path,'/import/')){ $root=realpath(__DIR__.'/../import'); if(!$root)return false; $rel=ltrim(substr($path,8),'/'); if($rel===''||str_contains($rel,'..'))return false; $full=realpath($root.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$rel)); return $full!==false&&str_starts_with($full,$root.DIRECTORY_SEPARATOR)&&is_file($full); } if(str_starts_with($path,'import/')){ $root=realpath(__DIR__.'/../import'); if(!$root)return false; $rel=substr($path,7); $full=realpath($root.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$rel)); return $full!==false&&is_file($full); } $doc=realpath(__DIR__.'/..'); if(!$doc)return false; $full=realpath($doc.DIRECTORY_SEPARATOR.ltrim($path,'/')); return $full!==false&&is_file($full); }
 function pm_product_broken(array $p): bool { $imgs=json_decode((string)($p['images']??''),true); if(!is_array($imgs))$imgs=[]; $urls=array_values(array_unique(array_filter(array_merge([(string)($p['main_image']??'')],array_map('strval',$imgs))))); if(!$urls)return true; foreach($urls as $u)if(pm_local_image_ok($u))return false; return true; }
 
 function pm_build_index(): array {
-  $cache=__DIR__.'/../uploads/photo-candidate-index-v2.json';
+  $cache=__DIR__.'/../uploads/photo-candidate-index-v3.json';
   if(is_file($cache)&&filemtime($cache)>time()-86400*7){$j=json_decode((string)file_get_contents($cache),true);if(is_array($j))return $j;}
   $dataDir=__DIR__.'/../data'; $items=[];
   foreach(glob($dataDir.'/catalog-*.json')?:[] as $file){
@@ -23,7 +55,8 @@ function pm_build_index(): array {
       if($title===''||!is_array($imgs)||!$imgs)continue;
       $imgs=array_values(array_filter(array_map('strval',$imgs),fn($u)=>preg_match('~^https?://~i',$u)));
       if(!$imgs)continue;
-      $items[]=['title'=>$title,'norm'=>pm_norm($title),'tokens'=>pm_tokens($title),'images'=>array_slice($imgs,0,1),'url'=>(string)($r['url']??'')];
+      $path=$r['category_path']??[]; $cat=is_array($path)?implode(' / ',array_map('strval',$path)):(string)$path;
+      $items[]=['title'=>$title,'norm'=>pm_norm($title),'tokens'=>pm_tokens($title),'category'=>$cat,'images'=>array_slice($imgs,0,1),'url'=>(string)($r['url']??'')];
     }
   }
   if(!is_dir(dirname($cache)))@mkdir(dirname($cache),0755,true);
@@ -31,21 +64,26 @@ function pm_build_index(): array {
   return $items;
 }
 
-function pm_candidates(string $name,string $brand,string $model,array $idx,int $limit=8): array {
+function pm_candidates(string $name,string $brand,string $model,string $categoryPath,array $idx,int $limit=8): array {
   $nameNorm=pm_norm($name); $brandNorm=pm_norm($brand); $modelNorm=pm_norm($model);
-  $needle=pm_norm(trim($name.' '.$brand.' '.$model)); $nt=pm_tokens($needle); $scores=[];
+  $targetDistinct=pm_distinctive_tokens($name.' '.$model,$brand); $targetNums=pm_standalone_numbers($name.' '.$model); $scores=[];
   foreach($idx as $i=>$r){
-    $rn=(string)($r['norm']??''); $rt=$r['tokens']??[]; if(!$rn||!is_array($rt))continue;
-    $inter=count(array_intersect($nt,$rt)); if($inter===0)continue;
-    $coverage=$inter/max(1,count($nt)); $precision=$inter/max(1,count($rt));
+    $title=(string)($r['title']??''); $rn=(string)($r['norm']??''); if($title===''||$rn==='')continue;
+    if(!pm_title_relevant($title,$name,$brand,$model,$categoryPath))continue;
+
+    $candDistinct=pm_distinctive_tokens($title,$brand);
+    $common=count(array_intersect($targetDistinct,$candDistinct));
+    $coverage=$common/max(1,count($targetDistinct));
     $exact=$nameNorm!==''&&$rn===$nameNorm;
-    $contained=$nameNorm!==''&&(str_contains($rn,$nameNorm)||str_contains($nameNorm,$rn));
-    if(!$exact&&!$contained&&$inter<2&&$coverage<0.55)continue;
-    $score=$coverage*120+$precision*80;
-    if($exact)$score+=260; elseif($contained)$score+=110;
-    if($brandNorm!==''&&str_contains($rn,$brandNorm))$score+=40;
-    if($modelNorm!==''&&str_contains($rn,$modelNorm))$score+=90;
-    if($score<60)continue;
+    $modelMatch=$modelNorm!==''&&str_contains($rn,$modelNorm);
+    $brandMatch=$brandNorm!==''&&str_contains($rn,$brandNorm);
+    $numMatches=count(array_intersect($targetNums,pm_standalone_numbers($title)));
+
+    $score=$coverage*180+$common*28+$numMatches*55;
+    if($exact)$score+=420;
+    if($modelMatch)$score+=150;
+    if($brandMatch)$score+=45;
+    if($score<80)continue;
     $scores[]=['score'=>$score,'i'=>$i];
   }
   usort($scores,fn($a,$b)=>$b['score']<=>$a['score']); $out=[];$seen=[];
@@ -72,17 +110,8 @@ function pm_http_get(string $url): string {
 }
 
 function pm_result_relevant(string $title,string $sourceUrl,array $queryTokens,string $brand,string $model,string $name,string $categoryPath): bool {
-  $hay=pm_norm($title.' '.$sourceUrl);
-  if($hay==='')return false;
-  $brandN=pm_norm($brand); $modelN=pm_norm($model); $nameTokens=pm_tokens($name); $catTokens=pm_tokens($categoryPath);
-  if($brandN!==''&&mb_strlen($brandN)>=3&&str_contains($hay,$brandN))return true;
-  if($modelN!==''&&mb_strlen($modelN)>=3&&str_contains($hay,$modelN))return true;
-  $hits=0; foreach($queryTokens as $t){ if(str_contains($hay,$t))$hits++; }
-  $nameHits=0; foreach($nameTokens as $t){ if(str_contains($hay,$t))$nameHits++; }
-  $catHits=0; foreach($catTokens as $t){ if(str_contains($hay,$t))$catHits++; }
-  if($nameHits>=2)return true;
-  if($nameHits>=1&&$catHits>=1)return true;
-  return count($queryTokens)<=2 ? $hits>=1 : $hits>=2;
+  $candidate=trim($title)!==''?$title:$sourceUrl;
+  return pm_title_relevant($candidate,$name,$brand,$model,$categoryPath);
 }
 
 function pm_add_result(array &$out,array &$seen,string $img,string $title,string $src,string $engine,array $queryTokens,string $brand,string $model,string $name,string $categoryPath,int $limit): bool {
@@ -125,7 +154,6 @@ function pm_ddg_candidates(string $query,array &$out,array &$seen,array $queryTo
 }
 
 function pm_internet_candidates(string $name,string $brand,string $model,string $categoryPath,int $limit=8): array {
-  // В интернет отправляется полный контекст товара, кроме артикула.
   $parts=array_values(array_filter([trim($name),trim($categoryPath),trim($brand),trim($model)],fn($v)=>$v!==''));
   $fullQuery=trim(implode(' ',$parts)); if($fullQuery==='')return [];
   $queries=[];
@@ -136,7 +164,7 @@ function pm_internet_candidates(string $name,string $brand,string $model,string 
     trim($name.' '.$categoryPath)
   ] as $q){$n=pm_norm($q);if($n!==''&&!isset($queries[$n]))$queries[$n]=$q;}
   $queries=array_values($queries); $queryTokens=pm_tokens($fullQuery);
-  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v4'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
+  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v5'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
   $cache=$cacheDir.'/'.hash('sha256',pm_norm(implode(' | ',$queries))).'.json';
   if(is_file($cache)&&filemtime($cache)>time()-86400*3){$j=json_decode((string)file_get_contents($cache),true);if(is_array($j))return array_slice($j,0,$limit);}
   $out=[];$seen=[];
@@ -174,6 +202,6 @@ try{
   $sql='SELECT id,name,sku,brand,model,main_image,images,category_path,stock_qty FROM products WHERE '.$where.' ORDER BY id DESC';$st=$pdo->prepare($sql);$st->execute($args);$rows=$st->fetchAll(PDO::FETCH_ASSOC);
   $broken=[];foreach($rows as $p){if(pm_product_broken($p))$broken[]=$p;}
   $total=count($broken);$slice=array_slice($broken,($page-1)*$limit,$limit);$idx=pm_build_index();$items=[];
-  foreach($slice as $p){$items[]=['id'=>(int)$p['id'],'name'=>$p['name'],'sku'=>$p['sku'],'brand'=>$p['brand'],'model'=>$p['model'],'category_path'=>$p['category_path'],'stock_qty'=>$p['stock_qty']!==null?(int)$p['stock_qty']:null,'current_image'=>$p['main_image'],'candidates'=>pm_candidates((string)$p['name'],(string)$p['brand'],(string)$p['model'],$idx,8)];}
+  foreach($slice as $p){$items[]=['id'=>(int)$p['id'],'name'=>$p['name'],'sku'=>$p['sku'],'brand'=>$p['brand'],'model'=>$p['model'],'category_path'=>$p['category_path'],'stock_qty'=>$p['stock_qty']!==null?(int)$p['stock_qty']:null,'current_image'=>$p['main_image'],'candidates'=>pm_candidates((string)$p['name'],(string)$p['brand'],(string)$p['model'],(string)$p['category_path'],$idx,8)];}
   pm_out(['ok'=>true,'page'=>$page,'limit'=>$limit,'total'=>$total,'pages'=>max(1,(int)ceil($total/$limit)),'items'=>$items]);
 }catch(Throwable $e){error_log($e->__toString());pm_out(['ok'=>false,'error'=>'server_error'],500);}
