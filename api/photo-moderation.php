@@ -82,32 +82,49 @@ function pm_result_relevant(string $title,string $sourceUrl,array $queryTokens,s
   return $hits>=2;
 }
 
-function pm_internet_candidates(string $name,string $brand,string $model,int $limit=8): array {
-  $query=trim(implode(' ',array_filter([$brand,$name,$model],fn($v)=>trim((string)$v)!=='')));
-  if($query==='')return [];
-  $queryTokens=pm_tokens($query);
-  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v2'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
-  $cache=$cacheDir.'/'.hash('sha256',pm_norm($query)).'.json';
-  if(is_file($cache)&&filemtime($cache)>time()-86400*3){$j=json_decode((string)file_get_contents($cache),true);if(is_array($j))return array_slice($j,0,$limit);}
-  $url='https://www.bing.com/images/search?q='.rawurlencode($query).'&form=HDRSC2&first=1';
-  $html=pm_http_get($url); if($html==='')return [];
+function pm_internet_candidates(string $name,string $brand,string $model,string $categoryPath,int $limit=8): array {
+  // В интернет уходит максимум контекста о товаре: полное название, тип/категория,
+  // бренд и модель. Артикул принципиально не используется.
+  $parts=array_values(array_filter([trim($name),trim($categoryPath),trim($brand),trim($model)],fn($v)=>$v!==''));
+  $fullQuery=trim(implode(' ',$parts));
+  if($fullQuery==='')return [];
 
-  // Берём только реальные карточки результатов Bing Images, а не любые случайные m="..."
-  // атрибуты со страницы. Именно старый широкий парсер давал посторонние картинки.
-  preg_match_all('/<a\b[^>]*class="[^"]*\biusc\b[^"]*"[^>]*\bm="([^"]+)"[^>]*>/i',$html,$matches);
-  if(empty($matches[1])){
-    preg_match_all('/<a\b[^>]*\bm="([^"]+)"[^>]*class="[^"]*\biusc\b[^"]*"[^>]*>/i',$html,$matches);
+  // Несколько формулировок нужны, чтобы поиск видел именно тип товара.
+  // Например: «Самокат трюковой Provokator 45 ...», а не просто «Provokator 45».
+  $queries=[];
+  foreach([
+    $fullQuery,
+    trim($categoryPath.' '.$name.' '.$brand.' '.$model),
+    trim($name.' '.$categoryPath.' '.$brand.' '.$model)
+  ] as $q){
+    $n=pm_norm($q); if($n!==''&&!isset($queries[$n]))$queries[$n]=$q;
   }
+  $queries=array_values($queries);
+  $queryTokens=pm_tokens($fullQuery);
+
+  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v3'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
+  $cache=$cacheDir.'/'.hash('sha256',pm_norm(implode(' | ',$queries))).'.json';
+  if(is_file($cache)&&filemtime($cache)>time()-86400*3){$j=json_decode((string)file_get_contents($cache),true);if(is_array($j))return array_slice($j,0,$limit);}
 
   $out=[];$seen=[];
-  foreach(($matches[1]??[]) as $attr){
-    $raw=html_entity_decode((string)$attr,ENT_QUOTES|ENT_HTML5,'UTF-8'); $j=json_decode($raw,true); if(!is_array($j))continue;
-    $img=trim((string)($j['murl']??'')); if(!preg_match('~^https?://~i',$img)||isset($seen[$img]))continue;
-    $title=trim((string)($j['t']??$j['desc']??'')); $src=trim((string)($j['purl']??''));
-    if(!pm_result_relevant($title,$src,$queryTokens,$brand,$model))continue;
-    $seen[$img]=1;
-    $out[]=['image'=>$img,'source_title'=>$title!==''?$title:'Результат из интернета','source_url'=>preg_match('~^https?://~i',$src)?$src:'','score'=>0,'source'=>'internet'];
-    if(count($out)>=$limit)break;
+  foreach($queries as $query){
+    $url='https://www.bing.com/images/search?q='.rawurlencode($query).'&form=HDRSC2&first=1';
+    $html=pm_http_get($url); if($html==='')continue;
+
+    preg_match_all('/<a\b[^>]*class="[^"]*\biusc\b[^"]*"[^>]*\bm="([^"]+)"[^>]*>/i',$html,$matches);
+    if(empty($matches[1])){
+      preg_match_all('/<a\b[^>]*\bm="([^"]+)"[^>]*class="[^"]*\biusc\b[^"]*"[^>]*>/i',$html,$matches);
+    }
+
+    foreach(($matches[1]??[]) as $attr){
+      $raw=html_entity_decode((string)$attr,ENT_QUOTES|ENT_HTML5,'UTF-8'); $j=json_decode($raw,true); if(!is_array($j))continue;
+      $img=trim((string)($j['murl']??'')); if(!preg_match('~^https?://~i',$img)||isset($seen[$img]))continue;
+      $title=trim((string)($j['t']??$j['desc']??'')); $src=trim((string)($j['purl']??''));
+      if(!pm_result_relevant($title,$src,$queryTokens,$brand,$model))continue;
+      $seen[$img]=1;
+      $out[]=['image'=>$img,'source_title'=>$title!==''?$title:'Результат из интернета','source_url'=>preg_match('~^https?://~i',$src)?$src:'','score'=>0,'source'=>'internet'];
+      if(count($out)>=$limit)break 2;
+    }
   }
   if($out)@file_put_contents($cache,json_encode($out,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
   return $out;
@@ -126,9 +143,10 @@ try{
 
   if(($_GET['mode']??'')==='internet'){
     $id=(int)($_GET['product_id']??0); if($id<1)pm_out(['ok'=>false,'error'=>'bad_product'],422);
-    $st=$pdo->prepare('SELECT id,name,brand,model FROM products WHERE id=? AND is_active=1 LIMIT 1'); $st->execute([$id]); $p=$st->fetch(); if(!$p)pm_out(['ok'=>false,'error'=>'not_found'],404);
-    $c=pm_internet_candidates((string)$p['name'],(string)$p['brand'],(string)$p['model'],8);
-    pm_out(['ok'=>true,'product_id'=>$id,'query'=>trim((string)$p['brand'].' '.(string)$p['name'].' '.(string)$p['model']),'candidates'=>$c]);
+    $st=$pdo->prepare('SELECT id,name,brand,model,category_path FROM products WHERE id=? AND is_active=1 LIMIT 1'); $st->execute([$id]); $p=$st->fetch(); if(!$p)pm_out(['ok'=>false,'error'=>'not_found'],404);
+    $c=pm_internet_candidates((string)$p['name'],(string)$p['brand'],(string)$p['model'],(string)$p['category_path'],8);
+    $descriptor=trim(implode(' ',array_filter([(string)$p['name'],(string)$p['category_path'],(string)$p['brand'],(string)$p['model']],fn($v)=>trim($v)!=='')));
+    pm_out(['ok'=>true,'product_id'=>$id,'query'=>$descriptor,'candidates'=>$c]);
   }
 
   $page=max(1,(int)($_GET['page']??1));$limit=min(30,max(5,(int)($_GET['limit']??12)));$q=trim((string)($_GET['q']??''));
