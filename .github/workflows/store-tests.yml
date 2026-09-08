@@ -1,0 +1,40 @@
+name: Store checks
+on:
+  push:
+    branches: [feature/store-orders]
+  pull_request:
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-password
+          MYSQL_DATABASE: profisport_test
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptest-only-password" --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check syntax and validation
+        run: |
+          php -v
+          find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
+          node --check app.js
+          node --check checkout.js
+          node --check admin/orders.js
+          php tests/order-validation.php
+      - name: Test checkout with a disposable database
+        run: |
+          cat > server/config.php <<'PHP'
+          <?php return ['db_host'=>'127.0.0.1','db_name'=>'profisport_test','db_user'=>'root','db_pass'=>'test-only-password','import_token'=>'test'];
+          PHP
+          php tests/seed.php
+          php -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          for attempt in 1 2 3 4 5; do
+            curl -s http://127.0.0.1:8080/ > /dev/null && break
+            sleep 1
+          done
+          python3 tests/orders-http.py

@@ -1,0 +1,5 @@
+server/config.php
+.env
+.env.*
+!server/config.example.php
+node_modules/

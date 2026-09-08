@@ -54,6 +54,9 @@ jobs:
             .github/**
             import/**
             uploads/**
+            tests/**
+            docs/**
+            server/config.example.php
 
       - name: Stock safety note
         run: |
