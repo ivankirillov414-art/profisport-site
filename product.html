@@ -1,1 +1,69 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#4b5056"><title>Товар — ПрофиСпорт</title><link rel="stylesheet" href="styles.css?v=12"></head><body><div class="top"><b>Профи<span>Спорт</span></b><div class="topActions"><a href="javascript:history.length>1?history.back():location.href='index.html#catalogProducts'">← Назад</a></div></div><main><div id="productPage"><p>Загрузка товара…</p></div></main><footer><b>Профи<span>Спорт</span></b><span>Оренбург, проспект Победы, 79</span><span>Продажа · Сервис · Доставка · Гарантия</span></footer><script src="catalog-loader.js?v=12"></script><script>const rub=n=>new Intl.NumberFormat('ru-RU').format(n||0)+' ₽',esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));(async()=>{try{const all=await loadRealCatalog(),id=decodeURIComponent(new URLSearchParams(location.search).get('id')||''),p=all.find(x=>String(x.id)===id);if(!p){productPage.innerHTML='<h1>Товар не найден</h1><a class="primary" href="index.html#catalogProducts">Вернуться в каталог</a>';return}document.title=p.name+' — ПрофиСпорт';const specs=Object.entries(p.specs||{}).map(([k,v])=>`<tr><td>${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join(''),crumbs=(p.path||[]).map(esc).join(' → ');productPage.innerHTML=`<div class="breadcrumbs">${crumbs}</div><div class="productDetail"><div class="detailImage">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}">`:'<span>🏷️</span>'}</div><div class="detailInfo"><small>${esc(p.cat)}</small><h1>${esc(p.name)}</h1><p class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</p>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="detailPrice">${rub(p.price)}</div><button id="detailAdd" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'Добавить в корзину'}</button><p>Самовывоз: Оренбург, проспект Победы, 79</p></div></div>${p.description?`<section class="detailSection"><h2>Описание</h2><p>${esc(p.description)}</p></section>`:''}${specs?`<section class="detailSection"><h2>Характеристики</h2><table>${specs}</table></section>`:''}`;if(p.stockCode!=='out')detailAdd.onclick=()=>{const c=JSON.parse(localStorage.getItem('ps-cart')||'[]');c.push(p.id);localStorage.setItem('ps-cart',JSON.stringify(c));detailAdd.textContent='Добавлено ✓'}}catch(e){productPage.innerHTML='<h1>Не удалось загрузить товар</h1><a class="primary" href="index.html#catalogProducts">Вернуться в каталог</a>';console.error(e)}})();</script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#4b5056">
+  <title>Товар — ПрофиСпорт</title>
+  <link rel="stylesheet" href="styles.css?v=12">
+</head>
+<body>
+  <div class="top">
+    <b>Профи<span>Спорт</span></b>
+    <div class="topActions"><a href="javascript:history.length>1?history.back():location.href='index.html#catalogProducts'">← Назад</a></div>
+  </div>
+  <main><div id="productPage"><p>Загрузка товара…</p></div></main>
+  <footer><b>Профи<span>Спорт</span></b><span>Оренбург, проспект Победы, 79</span><span>Продажа · Сервис · Доставка · Гарантия</span></footer>
+  <script src="catalog-loader.js?v=17"></script>
+  <script>
+    const rub=n=>new Intl.NumberFormat('ru-RU').format(n||0)+' ₽';
+    const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    function bindDetailImage(){
+      const img=document.querySelector('.detailImage img[data-fallbacks]');
+      if(!img)return;
+      img.onerror=()=>{
+        let list=[];
+        try{list=JSON.parse(decodeURIComponent(img.dataset.fallbacks||'%5B%5D'))}catch(e){}
+        const next=list.shift();
+        if(next){
+          img.dataset.fallbacks=encodeURIComponent(JSON.stringify(list));
+          img.src=next;
+          return;
+        }
+        const ph=document.createElement('span');
+        ph.textContent='Фото уточняется';
+        ph.className='imagePlaceholder';
+        img.replaceWith(ph);
+      };
+    }
+    (async()=>{
+      try{
+        const all=await loadRealCatalog();
+        const id=decodeURIComponent(new URLSearchParams(location.search).get('id')||'');
+        const p=all.find(x=>String(x.id)===id);
+        if(!p){
+          productPage.innerHTML='<h1>Товар не найден</h1><a class="primary" href="index.html#catalogProducts">Вернуться в каталог</a>';
+          return;
+        }
+        document.title=p.name+' — ПрофиСпорт';
+        const specs=Object.entries(p.specs||{}).map(([k,v])=>`<tr><td>${esc(k)}</td><td><b>${esc(v)}</b></td></tr>`).join('');
+        const crumbs=(p.path||[]).map(esc).join(' → ');
+        const imgs=[...new Set([p.image,...(Array.isArray(p.images)?p.images:[])].filter(Boolean))];
+        const first=imgs.shift();
+        const imageHtml=first?`<img src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" alt="${esc(p.name)}">`:'<span class="imagePlaceholder">Фото уточняется</span>';
+        productPage.innerHTML=`<div class="breadcrumbs">${crumbs}</div><div class="productDetail"><div class="detailImage">${imageHtml}</div><div class="detailInfo"><small>${esc(p.cat)}</small><h1>${esc(p.name)}</h1><p class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</p>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="detailPrice">${rub(p.price)}</div><button id="detailAdd" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'Добавить в корзину'}</button><p>Самовывоз: Оренбург, проспект Победы, 79</p></div></div>${p.description?`<section class="detailSection"><h2>Описание</h2><p>${esc(p.description)}</p></section>`:''}${specs?`<section class="detailSection"><h2>Характеристики</h2><table>${specs}</table></section>`:''}`;
+        bindDetailImage();
+        if(p.stockCode!=='out')detailAdd.onclick=()=>{
+          const c=JSON.parse(localStorage.getItem('ps-cart')||'[]');
+          c.push(p.id);
+          localStorage.setItem('ps-cart',JSON.stringify(c));
+          detailAdd.textContent='Добавлено ✓';
+        };
+      }catch(e){
+        productPage.innerHTML='<h1>Не удалось загрузить товар</h1><a class="primary" href="index.html#catalogProducts">Вернуться в каталог</a>';
+        console.error(e);
+      }
+    })();
+  </script>
+</body>
+</html>
