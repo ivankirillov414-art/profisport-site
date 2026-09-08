@@ -7,7 +7,7 @@ header('Cache-Control: no-store');
 
 function pm_out(array $x,int $code=200): never { http_response_code($code); echo json_encode($x,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE); exit; }
 function pm_norm(string $s): string { $s=mb_strtolower(trim($s)); $s=str_replace(['ё'],'е',$s); $s=preg_replace('/[^a-zа-я0-9]+/u',' ',$s)??''; return trim(preg_replace('/\s+/u',' ',$s)??''); }
-function pm_tokens(string $s): array { $stop=['для','или','при','под','над','без','комплект','набор','шт','мм','см','черный','черная','черное','белый','белая','белое','серый','серая','серое','синий','синяя','синее','красный','красная','красное','зеленый','зеленая','желтый','желтая']; $out=[]; foreach(preg_split('/\s+/u',pm_norm($s))?:[] as $t){ if(mb_strlen($t)<3||in_array($t,$stop,true))continue; $out[$t]=true; } return array_keys($out); }
+function pm_tokens(string $s): array { $stop=['для','или','при','под','над','без','комплект','набор','шт','мм','см','черный','черная','черное','белый','белая','белое','серый','серая','серое','синий','синяя','синее','красный','красная','красное','зеленый','зеленая','желтый','желтая','купить','цена','фото','товар']; $out=[]; foreach(preg_split('/\s+/u',pm_norm($s))?:[] as $t){ if(mb_strlen($t)<3||in_array($t,$stop,true))continue; $out[$t]=true; } return array_keys($out); }
 function pm_local_image_ok(?string $url): bool { if(!$url)return false; $url=trim($url); if($url==='')return false; if(preg_match('~^https?://~i',$url))return true; $path=parse_url($url,PHP_URL_PATH)?:$url; $path=rawurldecode($path); if(str_starts_with($path,'/import/')){ $root=realpath(__DIR__.'/../import'); if(!$root)return false; $rel=ltrim(substr($path,8),'/'); if($rel===''||str_contains($rel,'..'))return false; $full=realpath($root.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$rel)); return $full!==false&&str_starts_with($full,$root.DIRECTORY_SEPARATOR)&&is_file($full); } if(str_starts_with($path,'import/')){ $root=realpath(__DIR__.'/../import'); if(!$root)return false; $rel=substr($path,7); $full=realpath($root.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$rel)); return $full!==false&&is_file($full); } $doc=realpath(__DIR__.'/..'); if(!$doc)return false; $full=realpath($doc.DIRECTORY_SEPARATOR.ltrim($path,'/')); return $full!==false&&is_file($full); }
 function pm_product_broken(array $p): bool { $imgs=json_decode((string)($p['images']??''),true); if(!is_array($imgs))$imgs=[]; $urls=array_values(array_unique(array_filter(array_merge([(string)($p['main_image']??'')],array_map('strval',$imgs))))); if(!$urls)return true; foreach($urls as $u)if(pm_local_image_ok($u))return false; return true; }
 
@@ -23,8 +23,6 @@ function pm_build_index(): array {
       if($title===''||!is_array($imgs)||!$imgs)continue;
       $imgs=array_values(array_filter(array_map('strval',$imgs),fn($u)=>preg_match('~^https?://~i',$u)));
       if(!$imgs)continue;
-      // Для подбора используем главное изображение карточки. Это отсекает повторяющиеся
-      // изображения из галерей соседних товаров, которые встречаются в исходном каталоге.
       $items[]=['title'=>$title,'norm'=>pm_norm($title),'tokens'=>pm_tokens($title),'images'=>array_slice($imgs,0,1),'url'=>(string)($r['url']??'')];
     }
   }
@@ -34,7 +32,6 @@ function pm_build_index(): array {
 }
 
 function pm_candidates(string $name,string $brand,string $model,array $idx,int $limit=8): array {
-  // Артикул намеренно НЕ участвует в подборе. Ищем по названию, бренду и модели.
   $nameNorm=pm_norm($name); $brandNorm=pm_norm($brand); $modelNorm=pm_norm($model);
   $needle=pm_norm(trim($name.' '.$brand.' '.$model)); $nt=pm_tokens($needle); $scores=[];
   foreach($idx as $i=>$r){
@@ -74,21 +71,41 @@ function pm_http_get(string $url): string {
   $body=@file_get_contents($url,false,$ctx); return is_string($body)?$body:'';
 }
 
+function pm_result_relevant(string $title,string $sourceUrl,array $queryTokens,string $brand,string $model): bool {
+  $hay=pm_norm($title.' '.$sourceUrl);
+  if($hay==='')return false;
+  $brand=pm_norm($brand); $model=pm_norm($model);
+  if($brand!==''&&mb_strlen($brand)>=3&&str_contains($hay,$brand))return true;
+  if($model!==''&&mb_strlen($model)>=3&&str_contains($hay,$model))return true;
+  $hits=0; foreach($queryTokens as $t){ if(str_contains($hay,$t))$hits++; }
+  if(count($queryTokens)<=2)return $hits>=1;
+  return $hits>=2;
+}
+
 function pm_internet_candidates(string $name,string $brand,string $model,int $limit=8): array {
-  // Живой поиск также строится только по названию/бренду/модели, без артикула.
   $query=trim(implode(' ',array_filter([$brand,$name,$model],fn($v)=>trim((string)$v)!=='')));
   if($query==='')return [];
-  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v1'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
+  $queryTokens=pm_tokens($query);
+  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v2'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
   $cache=$cacheDir.'/'.hash('sha256',pm_norm($query)).'.json';
   if(is_file($cache)&&filemtime($cache)>time()-86400*3){$j=json_decode((string)file_get_contents($cache),true);if(is_array($j))return array_slice($j,0,$limit);}
-  $url='https://www.bing.com/images/search?q='.rawurlencode($query.' купить фото').'&form=HDRSC2&first=1';
+  $url='https://www.bing.com/images/search?q='.rawurlencode($query).'&form=HDRSC2&first=1';
   $html=pm_http_get($url); if($html==='')return [];
-  preg_match_all('/\bm="([^"]+)"/i',$html,$matches);
+
+  // Берём только реальные карточки результатов Bing Images, а не любые случайные m="..."
+  // атрибуты со страницы. Именно старый широкий парсер давал посторонние картинки.
+  preg_match_all('/<a\b[^>]*class="[^"]*\biusc\b[^"]*"[^>]*\bm="([^"]+)"[^>]*>/i',$html,$matches);
+  if(empty($matches[1])){
+    preg_match_all('/<a\b[^>]*\bm="([^"]+)"[^>]*class="[^"]*\biusc\b[^"]*"[^>]*>/i',$html,$matches);
+  }
+
   $out=[];$seen=[];
   foreach(($matches[1]??[]) as $attr){
     $raw=html_entity_decode((string)$attr,ENT_QUOTES|ENT_HTML5,'UTF-8'); $j=json_decode($raw,true); if(!is_array($j))continue;
     $img=trim((string)($j['murl']??'')); if(!preg_match('~^https?://~i',$img)||isset($seen[$img]))continue;
-    $seen[$img]=1; $title=trim((string)($j['t']??$j['desc']??'Результат из интернета')); $src=trim((string)($j['purl']??''));
+    $title=trim((string)($j['t']??$j['desc']??'')); $src=trim((string)($j['purl']??''));
+    if(!pm_result_relevant($title,$src,$queryTokens,$brand,$model))continue;
+    $seen[$img]=1;
     $out[]=['image'=>$img,'source_title'=>$title!==''?$title:'Результат из интернета','source_url'=>preg_match('~^https?://~i',$src)?$src:'','score'=>0,'source'=>'internet'];
     if(count($out)>=$limit)break;
   }
