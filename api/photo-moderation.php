@@ -63,68 +63,88 @@ function pm_candidates(string $name,string $brand,string $model,array $idx,int $
 function pm_http_get(string $url): string {
   if(function_exists('curl_init')){
     $ch=curl_init($url);
-    curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_FOLLOWLOCATION=>true,CURLOPT_CONNECTTIMEOUT=>4,CURLOPT_TIMEOUT=>9,CURLOPT_USERAGENT=>'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36',CURLOPT_HTTPHEADER=>['Accept-Language: ru-RU,ru;q=0.9,en;q=0.7']]);
+    curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_FOLLOWLOCATION=>true,CURLOPT_CONNECTTIMEOUT=>4,CURLOPT_TIMEOUT=>10,CURLOPT_ENCODING=>'',CURLOPT_USERAGENT=>'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36',CURLOPT_HTTPHEADER=>['Accept-Language: ru-RU,ru;q=0.9,en;q=0.7','Accept: text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8']]);
     $body=curl_exec($ch); $code=(int)curl_getinfo($ch,CURLINFO_RESPONSE_CODE); curl_close($ch);
     return is_string($body)&&$code>=200&&$code<400?$body:'';
   }
-  $ctx=stream_context_create(['http'=>['method'=>'GET','timeout'=>9,'follow_location'=>1,'header'=>"User-Agent: Mozilla/5.0\r\nAccept-Language: ru-RU,ru;q=0.9,en;q=0.7\r\n"]]);
+  $ctx=stream_context_create(['http'=>['method'=>'GET','timeout'=>10,'follow_location'=>1,'header'=>"User-Agent: Mozilla/5.0\r\nAccept-Language: ru-RU,ru;q=0.9,en;q=0.7\r\n"]]);
   $body=@file_get_contents($url,false,$ctx); return is_string($body)?$body:'';
 }
 
-function pm_result_relevant(string $title,string $sourceUrl,array $queryTokens,string $brand,string $model): bool {
+function pm_result_relevant(string $title,string $sourceUrl,array $queryTokens,string $brand,string $model,string $name,string $categoryPath): bool {
   $hay=pm_norm($title.' '.$sourceUrl);
   if($hay==='')return false;
-  $brand=pm_norm($brand); $model=pm_norm($model);
-  if($brand!==''&&mb_strlen($brand)>=3&&str_contains($hay,$brand))return true;
-  if($model!==''&&mb_strlen($model)>=3&&str_contains($hay,$model))return true;
+  $brandN=pm_norm($brand); $modelN=pm_norm($model); $nameTokens=pm_tokens($name); $catTokens=pm_tokens($categoryPath);
+  if($brandN!==''&&mb_strlen($brandN)>=3&&str_contains($hay,$brandN))return true;
+  if($modelN!==''&&mb_strlen($modelN)>=3&&str_contains($hay,$modelN))return true;
   $hits=0; foreach($queryTokens as $t){ if(str_contains($hay,$t))$hits++; }
-  if(count($queryTokens)<=2)return $hits>=1;
-  return $hits>=2;
+  $nameHits=0; foreach($nameTokens as $t){ if(str_contains($hay,$t))$nameHits++; }
+  $catHits=0; foreach($catTokens as $t){ if(str_contains($hay,$t))$catHits++; }
+  if($nameHits>=2)return true;
+  if($nameHits>=1&&$catHits>=1)return true;
+  return count($queryTokens)<=2 ? $hits>=1 : $hits>=2;
+}
+
+function pm_add_result(array &$out,array &$seen,string $img,string $title,string $src,string $engine,array $queryTokens,string $brand,string $model,string $name,string $categoryPath,int $limit): bool {
+  $img=trim($img); if(!preg_match('~^https?://~i',$img)||isset($seen[$img]))return false;
+  if(!pm_result_relevant($title,$src,$queryTokens,$brand,$model,$name,$categoryPath))return false;
+  $seen[$img]=1;
+  $out[]=['image'=>$img,'source_title'=>$title!==''?$title:'Результат из интернета','source_url'=>preg_match('~^https?://~i',$src)?$src:'','score'=>0,'source'=>'internet','engine'=>$engine];
+  return count($out)>=$limit;
+}
+
+function pm_bing_candidates(string $query,array &$out,array &$seen,array $queryTokens,string $brand,string $model,string $name,string $categoryPath,int $limit): void {
+  foreach([
+    'https://www.bing.com/images/search?q='.rawurlencode($query).'&form=HDRSC2&first=1',
+    'https://www.bing.com/images/async?q='.rawurlencode($query).'&first=0&count=35&relp=35&scenario=ImageBasicHover'
+  ] as $url){
+    $html=pm_http_get($url); if($html==='')continue;
+    preg_match_all('/\bm=(?:"([^"]+)"|\'([^\']+)\')/i',$html,$matches,PREG_SET_ORDER);
+    foreach($matches as $m){
+      $attr=$m[1]!==''?$m[1]:($m[2]??''); if($attr==='')continue;
+      $raw=html_entity_decode($attr,ENT_QUOTES|ENT_HTML5,'UTF-8'); $j=json_decode($raw,true); if(!is_array($j))continue;
+      $img=(string)($j['murl']??''); $title=trim((string)($j['t']??$j['desc']??'')); $src=trim((string)($j['purl']??''));
+      if(pm_add_result($out,$seen,$img,$title,$src,'bing',$queryTokens,$brand,$model,$name,$categoryPath,$limit))return;
+    }
+    if(count($out)>=$limit)return;
+  }
+}
+
+function pm_ddg_candidates(string $query,array &$out,array &$seen,array $queryTokens,string $brand,string $model,string $name,string $categoryPath,int $limit): void {
+  $html=pm_http_get('https://duckduckgo.com/?q='.rawurlencode($query)); if($html==='')return;
+  $vqd='';
+  if(preg_match('/vqd=[\'\"]?([0-9-]+)[\'\"]?/i',$html,$m))$vqd=$m[1];
+  if($vqd==='')return;
+  $json=pm_http_get('https://duckduckgo.com/i.js?l=ru-ru&o=json&q='.rawurlencode($query).'&vqd='.rawurlencode($vqd).'&f=,,,,,&p=1'); if($json==='')return;
+  $data=json_decode($json,true); if(!is_array($data))return;
+  foreach(($data['results']??[]) as $r){
+    if(!is_array($r))continue;
+    $img=(string)($r['image']??''); $title=trim((string)($r['title']??'')); $src=trim((string)($r['url']??$r['source']??''));
+    if(pm_add_result($out,$seen,$img,$title,$src,'duckduckgo',$queryTokens,$brand,$model,$name,$categoryPath,$limit))return;
+  }
 }
 
 function pm_internet_candidates(string $name,string $brand,string $model,string $categoryPath,int $limit=8): array {
-  // В интернет уходит максимум контекста о товаре: полное название, тип/категория,
-  // бренд и модель. Артикул принципиально не используется.
+  // В интернет отправляется полный контекст товара, кроме артикула.
   $parts=array_values(array_filter([trim($name),trim($categoryPath),trim($brand),trim($model)],fn($v)=>$v!==''));
-  $fullQuery=trim(implode(' ',$parts));
-  if($fullQuery==='')return [];
-
-  // Несколько формулировок нужны, чтобы поиск видел именно тип товара.
-  // Например: «Самокат трюковой Provokator 45 ...», а не просто «Provokator 45».
+  $fullQuery=trim(implode(' ',$parts)); if($fullQuery==='')return [];
   $queries=[];
   foreach([
     $fullQuery,
     trim($categoryPath.' '.$name.' '.$brand.' '.$model),
-    trim($name.' '.$categoryPath.' '.$brand.' '.$model)
-  ] as $q){
-    $n=pm_norm($q); if($n!==''&&!isset($queries[$n]))$queries[$n]=$q;
-  }
-  $queries=array_values($queries);
-  $queryTokens=pm_tokens($fullQuery);
-
-  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v3'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
+    trim($name.' '.$brand.' '.$model.' '.$categoryPath),
+    trim($name.' '.$categoryPath)
+  ] as $q){$n=pm_norm($q);if($n!==''&&!isset($queries[$n]))$queries[$n]=$q;}
+  $queries=array_values($queries); $queryTokens=pm_tokens($fullQuery);
+  $cacheDir=__DIR__.'/../uploads/photo-internet-cache-v4'; if(!is_dir($cacheDir))@mkdir($cacheDir,0755,true);
   $cache=$cacheDir.'/'.hash('sha256',pm_norm(implode(' | ',$queries))).'.json';
   if(is_file($cache)&&filemtime($cache)>time()-86400*3){$j=json_decode((string)file_get_contents($cache),true);if(is_array($j))return array_slice($j,0,$limit);}
-
   $out=[];$seen=[];
   foreach($queries as $query){
-    $url='https://www.bing.com/images/search?q='.rawurlencode($query).'&form=HDRSC2&first=1';
-    $html=pm_http_get($url); if($html==='')continue;
-
-    preg_match_all('/<a\b[^>]*class="[^"]*\biusc\b[^"]*"[^>]*\bm="([^"]+)"[^>]*>/i',$html,$matches);
-    if(empty($matches[1])){
-      preg_match_all('/<a\b[^>]*\bm="([^"]+)"[^>]*class="[^"]*\biusc\b[^"]*"[^>]*>/i',$html,$matches);
-    }
-
-    foreach(($matches[1]??[]) as $attr){
-      $raw=html_entity_decode((string)$attr,ENT_QUOTES|ENT_HTML5,'UTF-8'); $j=json_decode($raw,true); if(!is_array($j))continue;
-      $img=trim((string)($j['murl']??'')); if(!preg_match('~^https?://~i',$img)||isset($seen[$img]))continue;
-      $title=trim((string)($j['t']??$j['desc']??'')); $src=trim((string)($j['purl']??''));
-      if(!pm_result_relevant($title,$src,$queryTokens,$brand,$model))continue;
-      $seen[$img]=1;
-      $out[]=['image'=>$img,'source_title'=>$title!==''?$title:'Результат из интернета','source_url'=>preg_match('~^https?://~i',$src)?$src:'','score'=>0,'source'=>'internet'];
-      if(count($out)>=$limit)break 2;
-    }
+    pm_bing_candidates($query,$out,$seen,$queryTokens,$brand,$model,$name,$categoryPath,$limit);
+    if(count($out)>=$limit)break;
+    pm_ddg_candidates($query,$out,$seen,$queryTokens,$brand,$model,$name,$categoryPath,$limit);
+    if(count($out)>=$limit)break;
   }
   if($out)@file_put_contents($cache,json_encode($out,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
   return $out;
