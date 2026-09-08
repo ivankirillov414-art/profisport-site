@@ -52,6 +52,25 @@ function normalizeProduct(p,i){
   }
 }
 
+// Bound both the request and response body so a stalled server cannot block startup.
+async function catalogRequest(url,options={},parse=r=>r.json()){
+  const controller=new AbortController();
+  let timer;
+  try{
+    return await Promise.race([
+      (async()=>{
+        const response=await fetch(url,{...options,signal:controller.signal});
+        if(!response.ok)throw Error(`catalog HTTP ${response.status}`);
+        return parse(response);
+      })(),
+      new Promise((_,reject)=>{timer=setTimeout(()=>{
+        reject(Error('catalog request timed out'));
+        controller.abort();
+      },15000)})
+    ]);
+  }finally{clearTimeout(timer)}
+}
+
 let catalogPromise,initialCatalogPromise;
 async function parseCatalogResponse(r){
   if(!r.ok)throw Error(`live catalog HTTP ${r.status}`);
@@ -74,9 +93,7 @@ async function loadInitialCatalog(){
   return initialCatalogPromise
 }
 async function loadStaticCatalog(){
-  const mr=await fetch('data/manifest.json?v=8552',{cache:'default'});
-  if(!mr.ok)throw Error('catalog manifest unavailable');
-  const manifest=await mr.json();
+  const manifest=await catalogRequest('data/manifest.json?v=8552',{cache:'default'});
   if(!Array.isArray(manifest.parts)||!manifest.parts.length)throw Error('empty catalog manifest');
   const key=`ps-catalog-${manifest.products}-${manifest.parts.length}-v4`;
   try{
@@ -87,9 +104,7 @@ async function loadStaticCatalog(){
     }
   }catch(e){}
   const batches=await Promise.all(manifest.parts.map(async name=>{
-    const r=await fetch(`data/${name}?v=8552`,{cache:'force-cache'});
-    if(!r.ok)throw Error(`catalog chunk unavailable: ${name}`);
-    return r.json()
+    return catalogRequest(`data/${name}?v=8552`,{cache:'force-cache'})
   }));
   const rows=batches.flat();
   if(manifest.products&&rows.length!==manifest.products)throw Error(`catalog incomplete: ${rows.length}/${manifest.products}`);
@@ -100,8 +115,7 @@ function startLiveCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const r=await fetch('api/catalog.php?v=imgfix1',{cache:'no-cache'});
-      const j=await parseCatalogResponse(r);
+      const j=await catalogRequest('api/catalog.php?v=imgfix1',{cache:'no-cache'},parseCatalogResponse);
       window.__psImageHealth=j.image_health||null;
       return j.items.map(normalizeProduct)
     }catch(e){
