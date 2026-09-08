@@ -44,4 +44,5 @@ function input_json(): array {$raw=file_get_contents('php://input')?:'';$data=js
 function require_admin(): array {start_secure_session();if(empty($_SESSION['admin']))json_response(['ok'=>false,'error'=>'unauthorized'],401);return $_SESSION['admin'];}
 function csrf_check(): void {start_secure_session();$token=$_SERVER['HTTP_X_CSRF_TOKEN']??'';if(!$token||empty($_SESSION['csrf'])||!hash_equals($_SESSION['csrf'],$token))json_response(['ok'=>false,'error'=>'csrf'],403);}
 function audit(PDO $pdo,string $action,?string $type=null,?string $id=null,array $payload=[]):void{try{$adminId=$_SESSION['admin']['id']??null;$s=$pdo->prepare('INSERT INTO audit_log (admin_user_id,action,entity_type,entity_id,payload) VALUES (?,?,?,?,?)');$s->execute([$adminId,$action,$type,$id,$payload?json_encode($payload,JSON_UNESCAPED_UNICODE):null]);}catch(Throwable $e){error_log('audit_failed: '.$e->getMessage());}}
-$pdo=db();ensure_schema($pdo);
+$pdo=db();
+if(!defined('PROFISPORT_SKIP_SCHEMA') || PROFISPORT_SKIP_SCHEMA!==true) ensure_schema($pdo);
