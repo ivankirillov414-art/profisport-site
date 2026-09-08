@@ -15,7 +15,7 @@ try{
   $root=realpath(__DIR__.'/../import'); if(!$root)throw new RuntimeException('import_missing');
   $pf=findProductFile($root); if(!$pf)throw new RuntimeException('product_csv_missing');
   $rows=csvRows($pf); if(!$rows)throw new RuntimeException('empty_csv');
-  $sample=array_slice($rows,0,min(5000,count($rows))); $maxCols=0; foreach($sample as $r)$maxCols=max($maxCols,count($r));
+  $sample=$rows; $maxCols=0; foreach($sample as $r)$maxCols=max($maxCols,count($r));
   $columns=[];
   for($i=0;$i<$maxCols;$i++){
     $nonblank=$numeric=$zero=$ones=$positive=$negative=$decimal=0; $min=null;$max=null;$freq=[];
@@ -23,10 +23,10 @@ try{
       $raw=trim((string)($r[$i]??'')); if($raw==='')continue; $nonblank++;
       $clean=str_replace(["\xc2\xa0",' ', ','],['','','.'],$raw);
       if(!preg_match('/^-?\d+(?:\.\d+)?$/u',$clean))continue;
-      $numeric++; $v=(float)$clean; if(floor($v)!=$v)$decimal++; if($v===0.0)$zero++; if($v===1.0)$ones++; if($v>0)$positive++; if($v<0)$negative++; $min=$min===null?$v:min($min,$v); $max=$max===null?$v:max($max,$v); $k=(string)$v; if(count($freq)<50||isset($freq[$k]))$freq[$k]=($freq[$k]??0)+1;
+      $numeric++; $v=(float)$clean; if(floor($v)!=$v)$decimal++; if($v===0.0)$zero++; if($v===1.0)$ones++; if($v>0)$positive++; if($v<0)$negative++; $min=$min===null?$v:min($min,$v); $max=$max===null?$v:max($max,$v); $k=(string)$v; $freq[$k]=($freq[$k]??0)+1;
     }
-    arsort($freq); $top=[]; foreach(array_slice($freq,0,12,true) as $v=>$n)$top[]=['v'=>$v,'n'=>$n];
-    $columns[]=['index'=>$i,'column'=>$i+1,'nonblank'=>$nonblank,'numeric'=>$numeric,'numeric_ratio'=>$nonblank?round($numeric/$nonblank,4):0,'zero'=>$zero,'ones'=>$ones,'positive'=>$positive,'negative'=>$negative,'decimal'=>$decimal,'min'=>$min,'max'=>$max,'unique_seen'=>count($freq),'top_values'=>$top];
+    arsort($freq); $top=[]; foreach(array_slice($freq,0,15,true) as $v=>$n)$top[]=['v'=>$v,'n'=>$n];
+    $columns[]=['index'=>$i,'column'=>$i+1,'nonblank'=>$nonblank,'numeric'=>$numeric,'numeric_ratio'=>$nonblank?round($numeric/$nonblank,4):0,'zero'=>$zero,'ones'=>$ones,'positive'=>$positive,'negative'=>$negative,'decimal'=>$decimal,'min'=>$min,'max'=>$max,'unique'=>count($freq),'top_values'=>$top];
   }
-  out(['ok'=>true,'file'=>basename($pf),'rows'=>count($rows),'sample_rows'=>count($sample),'columns'=>$columns]);
+  out(['ok'=>true,'file'=>basename($pf),'rows'=>count($rows),'sample_rows'=>count($sample),'expected_stock_column'=>12,'expected_stock_stats'=>$columns[11]??null,'columns'=>$columns]);
 }catch(Throwable $e){error_log($e->__toString());out(['ok'=>false,'error'=>$e->getMessage()],500);}
