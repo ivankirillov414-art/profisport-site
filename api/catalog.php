@@ -43,6 +43,8 @@ try{
   $limit=max(0,min(500,(int)($_GET['limit']??0)));
   $offset=max(0,(int)($_GET['offset']??0));
   $sql="SELECT id,source_id,name,slug,sku,brand,model,price,old_price,stock_status,stock_qty,short_description,description,specs,main_image,price_rub,old_price_rub,availability,category_path,images,updated_at FROM products WHERE is_active=1 AND COALESCE(stock_status,'unknown')<>'out_of_stock' AND COALESCE(availability,'unknown')<>'out_of_stock' ORDER BY sort_order ASC,id ASC";
+  $productId=max(0,(int)($_GET['id']??0));
+  if($productId>0)$sql=str_replace(' ORDER BY',' AND id='.$productId.' ORDER BY',$sql);
   if($limit>0)$sql.=' LIMIT '.$limit.' OFFSET '.$offset;
   $stmt=$pdo->query($sql);
 

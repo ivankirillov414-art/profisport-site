@@ -1,3 +1,4 @@
+function readStoredArray(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value.filter(x=>typeof x==='string'||typeof x==='number'):[]}catch(e){return[]}}
 function pathOf(p){return p.category_path||p.breadcrumbs||[]}
 function imageUrl(u){
   if(!u)return'';
@@ -128,4 +129,12 @@ function startLiveCatalog(){
 async function loadRealCatalog(){
   try{return await startLiveCatalog()}
   catch(e){catalogPromise=null;throw e}
+}
+
+async function loadProduct(id){
+  if(/^[1-9][0-9]*$/.test(String(id))){
+    const j=await catalogRequest('api/catalog.php?id='+encodeURIComponent(id),{cache:'no-store'},parseCatalogResponse);
+    return j.items.length?normalizeProduct(j.items[0],0):null;
+  }
+  return (await loadRealCatalog()).find(p=>String(p.id)===String(id))||null;
 }
