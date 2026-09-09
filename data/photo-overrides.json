@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-09-09T12:51:08.321728+00:00",
+  "generated_at": "2026-09-09T20:30:49.257377+00:00",
   "items": {
     "велосипед 18 techteam ugen черный": {
       "name": "Велосипед 18 TechTeam UGen черный",
@@ -41,19 +41,35 @@
       "source_title": "Велосипед BMX Tech Team ROUT Street — черный",
       "method": "verified-seed",
       "confidence": 100
+    },
+    "велосипед 24 aria 24 13 бирюзовый": {
+      "name": "Велосипед 24 ARIA 24*13 бирюзовый",
+      "image": "https://velodom-kolomna.ru/wa-data/public/shop/products/57/80/108057/images/67758/67758.750x0.png",
+      "source_url": "https://velodom-kolomna.ru/product/aria-24-13-biryuzovyy/",
+      "source_title": "Купить ARIA 24*13 бирюзовый в Коломне | Велодом",
+      "method": "web-page",
+      "confidence": 100
+    },
+    "велосипед 24 aspect air lite бежевый 2026": {
+      "name": "Велосипед 24 Aspect Air Lite, Бежевый (2026)",
+      "image": "https://cdn.velostrana.ru/upload/models/velo/72282/big.jpg",
+      "source_url": "https://www.velostrana.ru/aspect/air-lite-24/",
+      "source_title": "Подростковый велосипед Aspect Air Lite 24 (2026) купить в Москве, цена, фото в интернет-магазине ВелоСтрана.ру",
+      "method": "web-page",
+      "confidence": 100
     }
   },
   "stats": {
     "catalog_rows": 8552,
     "pending_without_source_image": 4920,
-    "batch_offset": 0,
-    "batch_size": 60,
-    "added_this_run": 0,
-    "source_attempts": 60,
+    "batch_offset": 840,
+    "batch_size": 120,
+    "added_this_run": 2,
+    "source_attempts": 120,
     "source_page_hits": 0,
-    "web_search_hits": 0,
-    "web_searches": 20,
-    "bing_image_candidates_considered": 719,
-    "total_overrides": 5
+    "web_search_hits": 2,
+    "web_searches": 40,
+    "bing_image_candidates_considered": 841,
+    "total_overrides": 7
   }
 }
