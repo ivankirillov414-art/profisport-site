@@ -71,3 +71,31 @@ for page in ['categories.php','stats.php']:
     req=urllib.request.Request(BASE+'admin/'+page,headers={'Cookie':cookie})
     with urllib.request.urlopen(req,timeout=15) as r: assert r.status==200 and r.geturl().endswith(page)
 print('PASS: category filters, live dashboard counts and reports')
+
+# Account workflows and moderation, using only this disposable database.
+customer_csrf=customer['csrf']
+assert call('api/customer.php?action=register',{'name':'Duplicate','email':'buyer@example.test','password':'test-only-password'})[0]==409
+assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'wrong-password'})[0]==401
+assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie)[0]==403
+assert call('api/customer.php?action=favorite',{'product_id':999999},customer_cookie,customer_csrf)[0]==404
+assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie,customer_csrf)[1]['active'] is True
+assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['favorites']==['1']
+review={'product_id':1,'rating':5,'text':'Useful test review for moderation'}
+assert call('api/customer.php?action=review_submit',review,customer_cookie)[0]==403
+assert call('api/customer.php?action=review_submit',{**review,'product_id':999999},customer_cookie,customer_csrf)[0]==404
+assert call('api/customer.php?action=review_submit',{**review,'text':'x'*5001},customer_cookie,customer_csrf)[0]==422
+assert call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf)[0]==200
+assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
+pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1
+approval={'review_id':pending[0]['id'],'action':'approve','bonus':50}
+assert call('api/review-moderation.php',approval,cookie)[0]==403
+assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
+assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
+assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==1
+account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account['customer']['bonus_balance']==50 and len(account['loyalty'])==1
+assert call('api/customer.php?action=logout',{},customer_cookie,customer_csrf)[0]==200
+assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['customer'] is None
+status,logged,h=call('api/customer.php?action=login',{'email':'buyer@example.test','password':'test-only-password'})
+assert status==200 and logged['customer']['bonus_balance']==50
+print('PASS: account login/logout, duplicate account, favorites, review moderation, CSRF and one-time bonus')
