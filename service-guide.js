@@ -22,16 +22,42 @@
     ['Рама',54,38,'Рама соединяет основные узлы велосипеда. Её геометрия и размер определяют посадку.','Трещина, деформация или заметное повреждение соединений.','diagnostics']
   ];
   const selected=new Set();const form=document.getElementById('serviceForm');
-  document.getElementById('workOptions').innerHTML=works.map(([id,title,lead,body],i)=>`<label class="workOption"><input type="checkbox" value="${id}"><span class="workNumber">0${i+1}</span><h3>${title}</h3><b>${lead}</b><p>${body}</p><span class="workChoose">Выбрать работу</span></label>`).join('');
+  const groups=[['all','Все работы'],['care','Диагностика и ТО'],['brakes','Тормоза'],['transmission','Передачи и цепь'],['wheels','Колёса'],['assembly','Сборка']];
+  const groupFor=id=>['diagnostics','maintenance'].includes(id)?'care':id;
+  const details={
+    diagnostics:['Что изменилось в работе велосипеда и когда это началось.','Какие узлы требуют дополнительной проверки.','Какие работы и запчасти могут понадобиться.'],
+    brakes:['Состояние колодок и тормозной поверхности.','Работа ручек, тросов или гидравлического привода.','Необходимость регулировки или замены деталей.'],
+    transmission:['Износ цепи и состояние звёзд.','Точность переключения и состояние тросов.','Совместимость деталей при необходимости замены.'],
+    wheels:['Состояние покрышек и камер.','Биение обода, натяжение спиц и люфт втулок.','Подходящий способ устранения прокола или повреждения.'],
+    maintenance:['Состояние креплений и основных подшипников.','Работа тормозов и трансмиссии.','Какие узлы нуждаются в очистке, смазке или замене.'],
+    assembly:['Комплектность и состояние велосипеда.','Сборка и настройка основных узлов.','Посадка и проверка креплений перед эксплуатацией.']
+  };
+  document.getElementById('workCategories').innerHTML=groups.map(([id,title])=>`<button type="button" data-work-group="${id}" aria-pressed="${id==='all'}">${title}<span>${works.filter(w=>id==='all'||groupFor(w[0])===id).length}</span></button>`).join('');
+  document.getElementById('workOptions').innerHTML=works.map(([id,title,lead,body],i)=>`<article class="workOption" data-work-category="${groupFor(id)}"><label class="workSelect"><input type="checkbox" value="${id}"><span class="workNumber">0${i+1}</span><h3>${title}</h3><b>${lead}</b><p>${body}</p><span class="workChoose">Выбрать работу</span></label><button type="button" class="workMore" data-work-details="${id}">Подробнее об услуге →</button></article>`).join('');
+  document.querySelectorAll('[data-work-group]').forEach(button=>button.onclick=()=>{
+    document.querySelectorAll('[data-work-group]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+    document.querySelectorAll('.workOption').forEach(card=>card.hidden=button.dataset.workGroup!=='all'&&button.dataset.workGroup!==card.dataset.workCategory);
+  });
   const refresh=()=>{
     const titles=works.filter(w=>selected.has(w[0])).map(w=>w[1]);
     document.getElementById('selectedWorkCount').textContent=titles.length?`Выбрано работ: ${titles.length}`:'Работы пока не выбраны';
     document.getElementById('bookingSelection').textContent=titles.length?'Выбрано: '+titles.join(', ')+'.':'Можно отправить заявку без выбора работ.';
     document.querySelectorAll('.workOption').forEach(label=>{const checked=selected.has(label.querySelector('input').value);label.classList.toggle('selected',checked);label.querySelector('.workChoose').textContent=checked?'Выбрано ✓':'Выбрать работу';label.querySelector('input').checked=checked});
+    document.getElementById('selectedWorkChips').innerHTML=works.filter(w=>selected.has(w[0])).map(([id,title])=>`<button type="button" data-remove-work="${id}" aria-label="Убрать работу: ${title}">${title} ×</button>`).join('');
+    document.querySelectorAll('[data-remove-work]').forEach(button=>button.onclick=()=>{selected.delete(button.dataset.removeWork);refresh()});
     form.elements.problem.required=!titles.length;
     if(titles.length)form.elements.type.value=titles.length===1&&selected.has('assembly')?'Сборка велосипеда':titles.length===1&&selected.has('diagnostics')?'Диагностика':'Ремонт велосипеда';
   };
   document.querySelectorAll('.workOption input').forEach(input=>input.onchange=()=>{input.checked?selected.add(input.value):selected.delete(input.value);refresh()});
+  const workDialog=document.getElementById('workDialog');let detailedId='';
+  workDialog.querySelector('.dialogClose').onclick=()=>workDialog.close();
+  document.querySelectorAll('[data-work-details]').forEach(button=>button.onclick=()=>{
+    detailedId=button.dataset.workDetails;const work=works.find(w=>w[0]===detailedId);
+    document.getElementById('workTitle').textContent=work[1];document.getElementById('workDescription').textContent=work[3];
+    document.getElementById('workDetails').innerHTML=details[detailedId].map(text=>`<li>${text}</li>`).join('');
+    document.getElementById('chooseDetailedWork').textContent=selected.has(detailedId)?'Перейти к заявке':'Добавить в заявку';workDialog.showModal();
+  });
+  document.getElementById('chooseDetailedWork').onclick=()=>{selected.add(detailedId);refresh();workDialog.close();document.getElementById('booking').scrollIntoView({behavior:'smooth'})};
   window.selectedServiceWorks=()=>works.filter(w=>selected.has(w[0])).map(w=>w[1]);
   document.getElementById('bikeHotspots').innerHTML=parts.map(([name,x,y],i)=>`<button type="button" data-part="${i}" class="bikeHotspot" style="left:${x}%;top:${y}%" aria-label="${i+1}. ${name}">${i+1}</button>`).join('');
   document.getElementById('bikeParts').innerHTML=parts.map(([name],i)=>`<button type="button" data-part="${i}"><span>${String(i+1).padStart(2,'0')}</span>${name}</button>`).join('');
