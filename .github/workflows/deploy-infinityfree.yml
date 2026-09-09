@@ -61,35 +61,62 @@ jobs:
             docs/**
             server/config.example.php
 
-      - name: Verify live InfinityFree response
+      - name: Verify uploaded files over FTP
+        shell: bash
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          FTP_ROOT='ftp://ftpupload.net/htdocs'
+          AUTH="if0_42771076:${FTP_PASSWORD}"
+          mkdir -p /tmp/profisport-remote/api
+
+          for file in index.html storefront-v2.css app.js catalog-loader.js api/health.php; do
+            echo "Downloading deployed $file for byte-for-byte verification"
+            curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
+              --user "$AUTH" "$FTP_ROOT/$file" -o "/tmp/profisport-remote/$file"
+            cmp -s "$file" "/tmp/profisport-remote/$file" || {
+              echo "Remote $file differs from repository copy" >&2
+              exit 1
+            }
+          done
+
+          grep -Eq 'storefront-v2\.css\?v=[0-9]+' /tmp/profisport-remote/index.html
+          grep -Eq 'app\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
+          grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
+          if grep -Eq 'mobile-layout-fix|mobile-viewport-lock|storefront-kant|theme-clean-v1' /tmp/profisport-remote/index.html; then
+            echo 'Obsolete layout assets are present in deployed index.html' >&2
+            exit 1
+          fi
+          echo 'InfinityFree FTP contents match the repository.'
+
+      - name: Smoke-check public InfinityFree endpoint
         shell: bash
         run: |
           set -euo pipefail
           BASE='https://ferryffggg.infinityfreeapp.com'
           BUST="${GITHUB_SHA}-${GITHUB_RUN_NUMBER}"
-          echo '--- live response headers ---'
-          curl -fsSIL --retry 4 --retry-delay 3 --max-time 30 \
-            -A 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1' \
-            "$BASE/?deploy=$BUST" | sed -n '1,60p'
-          echo '--- live HTML asset/meta tags ---'
-          curl -fsSL --retry 4 --retry-delay 3 --max-time 30 \
-            -A 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1' \
+          UA='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
+
+          curl -fsSIL --retry 4 --retry-delay 3 --max-time 30 -A "$UA" \
+            "$BASE/?deploy=$BUST" | sed -n '1,40p'
+          curl -fsSL --retry 4 --retry-delay 3 --max-time 30 -A "$UA" \
             "$BASE/?deploy=$BUST" -o /tmp/live.html
-          grep -Eio '<meta[^>]+viewport[^>]*>|<link[^>]+stylesheet[^>]*>|<script[^>]+src=[^>]*>' /tmp/live.html || true
-          grep -q 'storefront-v2.css?v=2' /tmp/live.html
-          grep -q 'app.js?v=21' /tmp/live.html
-          grep -q 'catalog-loader.js?v=19' /tmp/live.html
+
+          if grep -Eq '/aes\.js|aes\.js' /tmp/live.html; then
+            echo 'InfinityFree returned its anti-bot browser challenge to the CI runner.'
+            echo 'Public endpoint is reachable; deployed bytes were verified separately over FTP.'
+            exit 0
+          fi
+
+          grep -Eq 'storefront-v2\.css\?v=[0-9]+' /tmp/live.html
+          grep -Eq 'app\.js\?v=[0-9]+' /tmp/live.html
+          grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/live.html
           if grep -Eq 'mobile-layout-fix|mobile-viewport-lock|storefront-kant|theme-clean-v1' /tmp/live.html; then
-            echo 'Old layout assets are still present in live HTML' >&2
+            echo 'Obsolete layout assets are still present in live HTML' >&2
             exit 1
           fi
-          echo '--- compare live assets with repository ---'
-          curl -fsSL --retry 4 --retry-delay 3 --max-time 30 "$BASE/storefront-v2.css?v=2&deploy=$BUST" -o /tmp/live.css
-          curl -fsSL --retry 4 --retry-delay 3 --max-time 30 "$BASE/app.js?v=21&deploy=$BUST" -o /tmp/live-app.js
-          sha256sum storefront-v2.css /tmp/live.css app.js /tmp/live-app.js
-          cmp -s storefront-v2.css /tmp/live.css || { echo 'Live CSS differs from repository CSS' >&2; exit 1; }
-          cmp -s app.js /tmp/live-app.js || { echo 'Live app.js differs from repository app.js' >&2; exit 1; }
-          echo 'Live InfinityFree HTML, CSS and JS match the repository.'
+          echo 'Public InfinityFree storefront HTML passed the smoke check.'
 
       - name: Stock safety note
         run: |
