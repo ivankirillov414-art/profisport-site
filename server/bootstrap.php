@@ -5,8 +5,9 @@ require_once __DIR__.'/order-schema.php';
 $configFile = __DIR__ . '/config.php';
 if (!is_file($configFile)) { http_response_code(500); exit('Server configuration is missing'); }
 $config = require $configFile;
+date_default_timezone_set($config['timezone']??'Asia/Yekaterinburg');
 
-function db(): PDO { static $pdo=null; global $config; if($pdo instanceof PDO)return $pdo; $dsn=sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4',$config['db_host'],$config['db_name']); $pdo=new PDO($dsn,$config['db_user'],$config['db_pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]); return $pdo; }
+function db(): PDO { static $pdo=null; global $config; if($pdo instanceof PDO)return $pdo; $dsn=sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4',$config['db_host'],$config['db_name']); $pdo=new PDO($dsn,$config['db_user'],$config['db_pass'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]); $pdo->exec('SET time_zone = '.$pdo->quote($config['db_timezone']??'+05:00')); return $pdo; }
 function table_columns(PDO $pdo,string $table): array { $out=[];foreach($pdo->query("SHOW COLUMNS FROM `$table`") as $r)$out[(string)$r['Field']]=true;return $out; }
 function ensure_product_columns(PDO $pdo): void {
   $cols=table_columns($pdo,'products');

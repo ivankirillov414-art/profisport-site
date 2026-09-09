@@ -1,4 +1,6 @@
 import json, urllib.request, urllib.error
+from datetime import datetime
+from zoneinfo import ZoneInfo
 BASE='http://127.0.0.1:8080/'
 def call(path, data=None, cookie=None, csrf=None):
     headers={'Content-Type':'application/json'}
@@ -21,6 +23,8 @@ status,auth,h=call('server/api.php?action=login',{'username':'Иван Кири�
 cookies=h.get_all('Set-Cookie');cookie=next(c.split(';')[0] for c in reversed(cookies) if c.startswith('PROFISPORT_ADMIN='));csrf=auth['csrf']
 status,j,_=call('api/orders.php',cookie=cookie);assert status==200 and j['total']==1
 id=j['items'][0]['id']
+created=datetime.fromisoformat(j['items'][0]['created_at']).replace(tzinfo=ZoneInfo('Asia/Yekaterinburg'))
+assert abs((datetime.now(ZoneInfo('Asia/Yekaterinburg'))-created).total_seconds())<120
 status,j,_=call('api/orders.php?id='+str(id),cookie=cookie);assert len(j['items'])==1 and j['items'][0]['quantity']==2
 payload={'id':id,'status':'confirmed','previous_status':'new'}
 assert call('api/orders.php',payload,cookie)[0]==403
