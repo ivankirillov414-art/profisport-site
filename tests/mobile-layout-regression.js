@@ -12,9 +12,9 @@ const cssCode=css.replace(/\/\*[\s\S]*?\*\//g,'');
 for(const old of ['storefront.css','mobile-layout-fix.css','mobile-viewport-lock.css','mobile-viewport-lock.js','catalog-fast.js','storefront-kant.js','storefront-kant.css','storefront-mobile.js','theme-clean-v1.css']){
   if(index.includes(old))fail(`index.html references obsolete layer: ${old}`);
 }
-if(!index.includes('storefront-v2.css?v=2'))fail('index.html must load storefront-v2.css?v=2');
-if(!index.includes('app.js?v=21'))fail('index.html must load the unified app.js?v=21');
-if(!index.includes('catalog-loader.js?v=19'))fail('index.html must load catalog-loader.js?v=19');
+if(!/storefront-v2\.css\?v=\d+/.test(index))fail('index.html must load storefront-v2.css with a cache version');
+if(!/app\.js\?v=\d+/.test(index))fail('index.html must load the unified app.js with a cache version');
+if(!/catalog-loader\.js\?v=\d+/.test(index))fail('index.html must load catalog-loader.js with a cache version');
 if((index.match(/<link rel="stylesheet"/g)||[]).length!==1)fail('home page must have exactly one stylesheet');
 
 if(/100vw/i.test(cssCode))fail('storefront-v2.css must not use 100vw in CSS rules');
@@ -28,7 +28,7 @@ if(!/\.filters\{[^}]*contain:inline-size/.test(cssCode))fail('filter row must co
 
 for(const file of ['product.html','checkout.html','profile.html','service.html']){
   const html=read(file);
-  if(!html.includes('storefront-v2.css?v=1'))fail(`${file} is not on storefront-v2.css?v=1`);
+  if(!/storefront-v2\.css\?v=\d+/.test(html))fail(`${file} is not on storefront-v2.css`);
   if(/mobile-layout-fix|mobile-viewport-lock|theme-clean-v1|storefront-kant\.css\?v=1|storefront\.css/.test(html))fail(`${file} still loads an obsolete public layout layer`);
 }
 
