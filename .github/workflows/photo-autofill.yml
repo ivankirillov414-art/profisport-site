@@ -28,7 +28,10 @@ jobs:
           fetch-depth: 0
 
       - name: Find high-confidence product photos
-        run: python3 scripts/photo_autofill.py --max-products 60 --max-search 20
+        shell: bash
+        run: |
+          OFFSET=$(( GITHUB_RUN_NUMBER * 120 ))
+          python3 scripts/photo_autofill.py --max-products 120 --max-search 40 --offset "$OFFSET"
 
       - name: Validate overrides
         run: |
@@ -43,12 +46,21 @@ jobs:
               u=str(row.get('image',''))
               assert re.match(r'^https?://',u), (key,u)
               assert row.get('name'), key
+              assert int(row.get('confidence',0)) >= 85, (key,row.get('confidence'))
           print('photo overrides:',len(j['items']))
           PY
 
       - name: Commit newly verified photos
+        shell: bash
         run: |
-          if git diff --quiet -- data/photo-overrides.json; then
+          if python3 - <<'PY'
+          import json,subprocess,sys
+          before=json.loads(subprocess.check_output(['git','show','HEAD:data/photo-overrides.json'],text=True))
+          after=json.load(open('data/photo-overrides.json',encoding='utf-8'))
+          sys.exit(0 if before.get('items',{})==after.get('items',{}) else 1)
+          PY
+          then
+            git checkout -- data/photo-overrides.json
             echo 'No new high-confidence photos this run.'
             exit 0
           fi
