@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T14:37:56.637544+00:00",
+  "generated_at": "2026-09-09T14:39:40.786517+00:00",
   "catalog_rows": 8552,
   "summary": {
     "normalized_name_duplicates": 39,
@@ -6780,6 +6780,1448 @@
         "Ботинки NNN"
       ],
       "url": "https://velo56.ru/catalog/begovye-lyzhi/botinki-nnn/botinki-lyzhnye-trek-olimpia-nnn-ik-sereb-logo-siren-8529/"
+    }
+  ],
+  "brand_token_candidates": [
+    {
+      "token": "SHIMANO",
+      "count": 269,
+      "examples": [
+        "Цепь 12 скоростей Shimano CN-M6100, 126 зв. с замком",
+        "Цепь Shimano Deore, HG53, 9ск, 118 зв.,",
+        "Цепь Shimano, LG500, Link Glide, 9/10/11ск, 138 зв., с замком"
+      ]
+    },
+    {
+      "token": "STG",
+      "count": 199,
+      "examples": [
+        "Велосумка под раму, модель STG FB-002, размер 30х17х6 см, черный/зеленый",
+        "Велосумка под раму, модель STG FB-002, размер 30х17х6 см, камуфляж",
+        "Велосумка под раму, модель STG FB-002, размер 30х17х6 см, камуфляж/серый"
+      ]
+    },
+    {
+      "token": "X-TREME",
+      "count": 144,
+      "examples": [
+        "Ось для X-Treme переднего колеса M8*45",
+        "Ось для X-Treme переднего колеса M8*50",
+        "Колесо для самоката X-Treme 100*24мм, Hollow core, yellow transparent"
+      ]
+    },
+    {
+      "token": "NORDSKI",
+      "count": 134,
+      "examples": [
+        "Лосины Nordski Pro Energy Black",
+        "Лосины Nordski Pro Energy Black W",
+        "Лосины Nordski Run Black W"
+      ]
+    },
+    {
+      "token": "ROCKET",
+      "count": 110,
+      "examples": [
+        "Велосипед 20 Rocket Crux 3.0 , цвет красный, размер 11\"",
+        "Велосипед 20 Rocket Crux 4.0 , цвет красный, размер 11\"",
+        "Велосипед 20 Rocket Crux 4.0 , цвет серый, размер 11\""
+      ]
+    },
+    {
+      "token": "ONE",
+      "count": 100,
+      "examples": [
+        "Мазь скольжения PURE ONE WET +10°C/-1°C",
+        "Клюшка FISCHER RC ONE IS1 SR (H125123,59,L92,080)",
+        "Гоночная шапка Nordski Heat Blue/Red (one size)"
+      ]
+    },
+    {
+      "token": "BOYBO",
+      "count": 97,
+      "examples": [
+        "Форма для бокса BoyBo красная, BF402",
+        "Форма для бокса BoyBo синяя, BF402",
+        "Пояс утяжелитель BoyBo CLASSIC с цепью BBW750"
+      ]
+    },
+    {
+      "token": "KENDA",
+      "count": 92,
+      "examples": [
+        "Покрышка 26 KENDA 2.10 K-816 KENDA 22TPI",
+        "Камера 10 Kenda 1.75 a/v с загнутым ниппелем 24409",
+        "\"Камера Kenda 20\"\"x1,75 - 2.125\""
+      ]
+    },
+    {
+      "token": "VINCA",
+      "count": 86,
+      "examples": [
+        "Фляга велосипедная с защитой от пыли 750мл, \"лидер\" лайм, инд.уп. Vinca sport",
+        "Фляга велосипедная с защитой от пыли 750мл, \"Ollie\", инд.уп. Vinca sport",
+        "Фляга велосипедная с защитой от пыли 750мл, рисунок - медведь, инд.уп. Vinca sport"
+      ]
+    },
+    {
+      "token": "STARFIT",
+      "count": 82,
+      "examples": [
+        "Комплект расширителей хвата STARFIT BB-111, d=25 мм, сфера, оранжевый (2 шт)",
+        "Мяч для МФР STARFIT RB-201 9 см, PVC, массажный, серый",
+        "Пояс для похудения STARFIT SU-202 неопреновый, 125x25см,черный"
+      ]
+    },
+    {
+      "token": "MAXXIS",
+      "count": 75,
+      "examples": [
+        "Камера Maxxis Welter Weight 700x23/32C 0.8 мм вело нип. 60 мм",
+        "Велокамера 20 Maxxis Welter Weight 1.5/2.5 0.8mm Автонипель 48мм (б/р)",
+        "Велокамера 24 Maxxis Welter Weight 24x1.5/2.5 0.8mm Автонипель 48мм (uni:one size)"
+      ]
+    },
+    {
+      "token": "STELS",
+      "count": 73,
+      "examples": [
+        "Фляга 600мл CB-15027 STELS полиэтиленовая серебристо-чёрная",
+        "Фляга 600мл CSB-500 STELS полиэтиленовая серебристо-чёрная",
+        "Фляга CSB-505WA 600мл STELS полиэтиленовая молочно-чёрная, со шкалой"
+      ]
+    },
+    {
+      "token": "TECHTEAM",
+      "count": 72,
+      "examples": [
+        "Велосипед 18 TechTeam UGen черный",
+        "Велосипед 20 TechTeam Goof бирюзово-оранжевый 33341",
+        "Велосипед 20 TechTeam Goof черный"
+      ]
+    },
+    {
+      "token": "MAXISCOO",
+      "count": 71,
+      "examples": [
+        "Велосипед 14 Maxiscoo AIR Стандарт Плюс Черный Матовый",
+        "Велосипед 14 Maxiscoo AIR Стандарт Плюс Лавандовый Матовый (2025)",
+        "Велосипед 14 Maxiscoo AIR Стандарт Плюс Обсидиан (2025)"
+      ]
+    },
+    {
+      "token": "NNN",
+      "count": 70,
+      "examples": [
+        "Ботинки лыжные SPINE NNN Comfort (83/4) (белый/бирюзовый)",
+        "Ботинки лыжные SPINE NNN Comfort (83/7) (серо/черный)",
+        "Ботинки лыжные SPINE NNN Concept Classic (294/1-22) (синий)"
+      ]
+    },
+    {
+      "token": "TREK",
+      "count": 65,
+      "examples": [
+        "Ботинки лыжные детские TREK Snowball2 желтый (лого черный) NN75",
+        "Ботинки лыжные TREK Classic НК NN75 (черный, красный)",
+        "Ботинки лыжные TREK Laser NN75 ИК (красн-лого-черн)"
+      ]
+    },
+    {
+      "token": "KENLI",
+      "count": 63,
+      "examples": [
+        "Зажим подседельной трубы KL-M07 Kenli 31,8 мм с эксцентриком, алюминиевый черный 33456",
+        "Зажим подседельной трубы KL-M07 Kenli 34,9 мм с эксцентриком. алюминиевый черный 33457",
+        "Чашки для каретки Kenli KL-106 (прес)"
+      ]
+    },
+    {
+      "token": "VARMA",
+      "count": 59,
+      "examples": [
+        "Велокамера 20\"х1.95/2.125, AV48мм, инд.уп VARMA",
+        "Велокамера 24\"х1,95/2,125 VARMA, 48 мм",
+        "Велосипед 20 VARMA CONRAD H23DA серо-красный р10 7ск"
+      ]
+    },
+    {
+      "token": "UNI",
+      "count": 57,
+      "examples": [
+        "Беговые лыжи Atomic REDSTER C9 CARBON UNI m + SI Re",
+        "Беговые лыжи Atomic REDSTER C9 UNI soft + SI Red/Da",
+        "Беговые лыжи Atomic REDSTER S9 CARBON UNI soft +SI"
+      ]
+    },
+    {
+      "token": "SPOKE",
+      "count": 55,
+      "examples": [
+        "Магнит SIGMA Spoke Magnet (Power) for wireless computers",
+        "Колесо 27,5 заднее 2-е DRAGON LINE, промпод. под трещ.(6б.) спицы CN SPOKE STD СП 6",
+        "Ниппель CN SPOKE латунный 2,0х12 мм BLACK"
+      ]
+    },
+    {
+      "token": "SPINE",
+      "count": 54,
+      "examples": [
+        "Лыжные палки SPINE (10016) Carrera Carbon Карбон 100% (синий)",
+        "Лыжные палки SPINE (13258) Ventura (Алюминий) (синий)",
+        "Лыжные палки SPINE (181) X-Rider (Карбон 40%+Стекло 60%) (серый/желтый)"
+      ]
+    },
+    {
+      "token": "RUSH",
+      "count": 53,
+      "examples": [
+        "Велосумка под раму BA01024 RUSH HOUR",
+        "Фляжка велосипедиста 1000мл с крышкой серый RUSH HOUR",
+        "Флягодержатель на раму алюминий черный RUSH HOUR"
+      ]
+    },
+    {
+      "token": "STD",
+      "count": 53,
+      "examples": [
+        "Колесо 27,5 заднее 2-е DRAGON LINE, промпод. под трещ.(6б.) спицы CN SPOKE STD СП 6",
+        "Спица CN SPOKE STD 14 2,0/170 мм BLACK STAINLESS",
+        "Спица CN SPOKE STD 14 2,0/172 мм BLACK STAINLESS"
+      ]
+    },
+    {
+      "token": "HOUR",
+      "count": 51,
+      "examples": [
+        "Велосумка под раму BA01024 RUSH HOUR",
+        "Фляжка велосипедиста 1000мл с крышкой серый RUSH HOUR",
+        "Флягодержатель на раму алюминий черный RUSH HOUR"
+      ]
+    },
+    {
+      "token": "WANDA",
+      "count": 51,
+      "examples": [
+        "Камера 10 WANDA 2.0, Бутил, Schrader (AV) 15578",
+        "Камера 10 WANDA 2.0, Бутил, Schrader (AV) гнутый нипель 22791",
+        "Велокамера 12 WANDA TU 1/2x21/4, Бутил, Schrader (AV) 27003"
+      ]
+    },
+    {
+      "token": "STAINLESS",
+      "count": 51,
+      "examples": [
+        "Спица CN SPOKE STD 14 2,0/170 мм BLACK STAINLESS",
+        "Спица CN SPOKE STD 14 2,0/172 мм BLACK STAINLESS",
+        "Спица CN SPOKE STD 14 2,0/174 мм BLACK STAINLESS 23628"
+      ]
+    },
+    {
+      "token": "WELT",
+      "count": 50,
+      "examples": [
+        "Беговел Welt Zebra 12 2021 Acid green (дюйм:5)",
+        "Велосипед 20 Welt Moovix 1.0 VB 20 Electric Pink (2026)",
+        "Велосипед 20 Welt Moovix 2.0 V Amazing Pink"
+      ]
+    },
+    {
+      "token": "VIOLET",
+      "count": 47,
+      "examples": [
+        "Клистер KF Violet",
+        "KX35 Violet Spec. Клистер со скребком, +1C/-4C",
+        "Мазь держания GF Violet"
+      ]
+    },
+    {
+      "token": "PROVOKATOR",
+      "count": 45,
+      "examples": [
+        "Самокат трюковой Provokator 43 V2 (черный / black)",
+        "Самокат трюковой Provokator 43 V2 (некрашеный / raw)",
+        "Самокат трюковой Provokator 45 black"
+      ]
+    },
+    {
+      "token": "FIT",
+      "count": 43,
+      "examples": [
+        "Палки лыжные Quantum 5, рук. PCU с темляком Pro Fit 3D, лапка`97 31847",
+        "темляк START FIT RACE COMP 44032, р-р M, Pro Fit, гон., оранж.",
+        "Эспандер FIT кистевой массажный 20 кг. в подарочной упаковке"
+      ]
+    },
+    {
+      "token": "ASPECT",
+      "count": 43,
+      "examples": [
+        "Велосипед 20 Aspect Air Зеленый (2026)",
+        "Велосипед 20 Aspect Aura Бежевый (2026)",
+        "Велосипед 20 Aspect Aura Фиолетовый (2026)"
+      ]
+    },
+    {
+      "token": "BIKE",
+      "count": 42,
+      "examples": [
+        "Велосумка Deuter 2015 Bike Accessoires Bike Bag S black 13389",
+        "Багажник, Корзиночный, HT-WK-050, Bear Bike, коричневый",
+        "Комплект фонарей Briviga USB Bike Light Set: EBL-3291A+EBL-056B"
+      ]
+    },
+    {
+      "token": "V-BRAKE",
+      "count": 42,
+      "examples": [
+        "Крылья 26 под V-brake 27993",
+        "Крылья велосипедные Simpla V-BRAKE SDE для 24\"-26\", к-т, универсальные, черные.",
+        "Колесо 27,5 Переднее, Forward DW, , V-Brake 33472"
+      ]
+    },
+    {
+      "token": "ATEMI",
+      "count": 40,
+      "examples": [
+        "Кинезиологическая лента Atemi, AKT01, 5х500см, бежевая",
+        "Суппорт колена Atemi, ANS02",
+        "Суппорт запястья Atemi, ANS001, эластичный, узкий, полиэстер"
+      ]
+    },
+    {
+      "token": "ESPADO",
+      "count": 40,
+      "examples": [
+        "Кинезио Тейп ESPADO (5 см х 5 м) синий",
+        "Кинезио Тейп ESPADO (5 см х 5 м) зеленый",
+        "Ролик массажный ESPADO зеленый 45х14см ES2702 1/10"
+      ]
+    },
+    {
+      "token": "HIC",
+      "count": 40,
+      "examples": [
+        "Зажим 3 болта N HIC (Old Boy) e-plated",
+        "Hic- компрессия для самоката, комплект.",
+        "Комплект интегрированной гарнитуры для самоката stattum hic"
+      ]
+    },
+    {
+      "token": "NIKA",
+      "count": 39,
+      "examples": [
+        "Коляска комбинированная Nika Наши детки 3-1К НДТ3-1К/2 с облачками голубой",
+        "Коляска комбинированная Nika Наши детки 3-1К НДТ3-1К/6 скандинавский зеленый",
+        "Коляска комбинированная Nika Наши детки 4-2 НДТ4-2/1 с девочкой и слоном красный"
+      ]
+    },
+    {
+      "token": "IFP",
+      "count": 38,
+      "examples": [
+        "Бег. крепления FISCHER CONTROL SKATE STEP-IN IFP",
+        "Бег. крепления FISCHER CONTROL STEP-IN IFP черный/желтый",
+        "Бег. крепления FISCHER RACE COMBI IFP (S57520)"
+      ]
+    },
+    {
+      "token": "DISC",
+      "count": 37,
+      "examples": [
+        "Обод 26” “BRAVE DISC”, 559x23, 36 спиц, двойной, пистонированный, черный.",
+        "Обод 26 DT SWISS M 480 DISC 32H Черный 12873",
+        "Обод 26 Mavic XM 119 Disc 559x19x32H, AL6061, 480g, (2012) 8289"
+      ]
+    },
+    {
+      "token": "FISCHER",
+      "count": 36,
+      "examples": [
+        "Палки лыжные FISCHER XC Sport 12508",
+        "Беговые ботинки FISCHER RCS CLASSIC",
+        "Ботинки лыжные Fischer XC PRO MY STYLE NNN"
+      ]
+    },
+    {
+      "token": "INGAME",
+      "count": 36,
+      "examples": [
+        "Секундомер Ingame I-029",
+        "Секундомер Ingame I-310 Flott",
+        "Набор воланчиков для бадминтона Ingame PRO IN6VP, белый"
+      ]
+    },
+    {
+      "token": "SWIX",
+      "count": 35,
+      "examples": [
+        "Пробка синтетическая SWIX Racing",
+        "растирка SWIX T0020, натуральная пробка",
+        "Фиберлен SWIX T0151, длина 20 м, толщина 0,14м"
+      ]
+    },
+    {
+      "token": "RODE",
+      "count": 35,
+      "examples": [
+        "Ручка RODE AR98 , для роторной щетки, 100мм",
+        "Щётка RODE AR175 COMBI, бронза/нейлон",
+        "Щётка роторная RODE AR78 NYLON SOFT 100мм, мягкий нейлон 7мм, черн."
+      ]
+    },
+    {
+      "token": "SPEED",
+      "count": 35,
+      "examples": [
+        "\"NO-18W \"\"Теплый\"\" парафин North Speed Brick Warm 180 гр\"",
+        "Жидкая мазь скольжения RC SPEED MID +2°C/-4°C",
+        "Порошок FC SPEED MID 0/-6 30гр NEW"
+      ]
+    },
+    {
+      "token": "SCS",
+      "count": 34,
+      "examples": [
+        "Самокат Novatrack Crow 10, 100 мм,SCS, алюминий, синий с серебристым",
+        "Самокат Novatrack Crow 10, 110 мм, SCS, алюминий, синий с серебристым",
+        "Комплект интегрированной гарнитуры для самоката scs neo"
+      ]
+    },
+    {
+      "token": "ZEFIR",
+      "count": 33,
+      "examples": [
+        "Самокат трюковой ТТ Zefir Street black black",
+        "Самокат трюковой ТТ Zefir Street emerald",
+        "Самокат трюковой Zefir Lite V 2 47 black"
+      ]
+    },
+    {
+      "token": "DEORE",
+      "count": 33,
+      "examples": [
+        "Цепь Shimano Deore, HG53, 9ск, 118 зв.,",
+        "Картридж SHIMANO Hollowtech II Deore BB-MT501 BC 137 68/73",
+        "Колесо 26 переднее Mavic под диск. втулка SHIMANO Deore HB-M525A СП20 33724"
+      ]
+    },
+    {
+      "token": "BBB",
+      "count": 32,
+      "examples": [
+        "Велосумка BBB RacePack matt black 16540",
+        "Защитная лента на обод BBB HP 28\"x 22mm 22-622 (2,2 x 94 cm ) 2 pcs черный 22838",
+        "Защитная лента на обод BBB HP 700Cx16mm 16-622 (1,6 x 94 cm) 2 pcs черный 22839"
+      ]
+    },
+    {
+      "token": "SRAM",
+      "count": 31,
+      "examples": [
+        "Цепь 8 скоростей SRAM PC830 с замком POWER LINK 8S 110 LINKS (2758.110.014)",
+        "Каретка с внешними подш, для SRAM DUB, резьба 1.37\"x24T, под ось ?29мм, 68/73мм, алюм, черная, 105г.",
+        "Каретка Sram POWER SPLINE 113 /73"
+      ]
+    },
+    {
+      "token": "FOLDABLE",
+      "count": 30,
+      "examples": [
+        "Велопокрышка 20 Maxxis Grifter 20x2.30 58-406 Foldable EXO (uni:one size)",
+        "Покрышка 26 Maxxis Ikon 2.20 57-559 Foldable (б/р)",
+        "Покрышка 26 Maxxis Pace 2.1053-559 Foldable (б/р)"
+      ]
+    },
+    {
+      "token": "INSANE",
+      "count": 29,
+      "examples": [
+        "Мяч боевой INSANE IN23-FB102 на резинке, красный",
+        "Мяч боевой INSANE IN23-FB103 на резинке, желтый, 80 г, 70 мм",
+        "Мяч боевой INSANE IN23-FB104 на резинке, синий, 60 г, 90 мм"
+      ]
+    },
+    {
+      "token": "ZOOM",
+      "count": 29,
+      "examples": [
+        "Рол.коньки Zoom зеленый",
+        "Хомут подседельного штыря, AT-115, 31,8 мм, ZOOM, 33493",
+        "Хомут подседельного штыря, AT-161, 31,8 мм, ZOOM 33494"
+      ]
+    },
+    {
+      "token": "BRADOS",
+      "count": 28,
+      "examples": [
+        "Палки 100% уголь Brados PRO+",
+        "Палки STC 100 Brados Sport Composite JR 100% стекловолокно",
+        "Палки STC Brados Sport Composite 100% стекловолокно"
+      ]
+    },
+    {
+      "token": "OLD",
+      "count": 28,
+      "examples": [
+        "Мазь скольжения PURE RACE OLD SNOW COLD -2?C/-20?C",
+        "Мазь скольжения PURE RACE OLD SNOW LDR +5?C/-10?C",
+        "Мазь скольжения PURE RACE OLD SNOW WARM +7?C/-3?C"
+      ]
+    },
+    {
+      "token": "GEL",
+      "count": 28,
+      "examples": [
+        "Мяч баскетбольный J?gel JB-100 (100/3-19) №3 1/50",
+        "Мяч баскетбольный J?gel JB-100 №5",
+        "Мяч баскетбольный J?gel JB-100 №6 (BC21) 1/30"
+      ]
+    },
+    {
+      "token": "BENGAL",
+      "count": 28,
+      "examples": [
+        "Адаптер диск. торм. ADU2 чёр BENGAL",
+        "Адаптер диск. торм. BENGAL ADU3 крас.",
+        "Адаптер диск. торм. BENGAL ADU3 син."
+      ]
+    },
+    {
+      "token": "SAFE",
+      "count": 28,
+      "examples": [
+        "Защита Safe fit adult 1.0 black/grey",
+        "Защита Safe fit adult 1.0 multi color",
+        "Защита Safe fit adult 2.0 black"
+      ]
+    },
+    {
+      "token": "DFC",
+      "count": 27,
+      "examples": [
+        "Диск обрезиненный DFC, чёрный, резин.втулка, 26мм, 25кг",
+        "Диск обрезиненный DFC, чёрный, резин.втулка, 31мм, 15кг",
+        "Диск обрезиненный DFC, чёрный, резин.втулка, 31мм, 2,5кг"
+      ]
+    },
+    {
+      "token": "EVOLUTION",
+      "count": 27,
+      "examples": [
+        "Мяч футбольный J?gel League Evolution Pro №5, белый 1/12",
+        "Самокат TT Comfort 210 evolution grey",
+        "Самокат TT Comfort 125 evolution lux blue"
+      ]
+    },
+    {
+      "token": "USB",
+      "count": 27,
+      "examples": [
+        "Самокат четырехколесный складной, свет. эффекты, пар, li-ion 3,7V аккумулятор с USB з/у, синий",
+        "Комплект фонарей Briviga USB Bike Light Set: EBL-3291A+EBL-056B",
+        "Фара с держателем телеф. + сигнал USB FY-319"
+      ]
+    },
+    {
+      "token": "TOURNEY",
+      "count": 27,
+      "examples": [
+        "Шиф/Тор р. Shimano Tourney, EF500, лев, 3ск, тр., цв. черный",
+        "Шиф/Тор р. Shimano Tourney, EF500, прав, 7ск, тр., цв. черный",
+        "Шиф/Тор р. Shimano Tourney, TX800,прав., 8ск, тр. 2050мм, цв. черн."
+      ]
+    },
+    {
+      "token": "IN-MOLD",
+      "count": 27,
+      "examples": [
+        "Шлем детский IN-MOLD черный , инд.уп. Vinca Sport",
+        "Шлем детский IN-MOLD, night vision kids с регулировкой Vinca Sport",
+        "Шлем детский IN-MOLD с регулир.,Northern Hunter Vinca Sport"
+      ]
+    },
+    {
+      "token": "PROTECT",
+      "count": 26,
+      "examples": [
+        "Велосумка Feedbag на раму, серия Bikepacking, р-р 21х10х5 см, цвет черный, PROTECT™",
+        "Велосумка на раму, р-р 19х9х10 см, цвет черный, PROTECT",
+        "Велосумка на раму с отделением для смартфона, р-р 19х10х10 см, цвет желтый, PROTECT™"
+      ]
+    },
+    {
+      "token": "IHC",
+      "count": 26,
+      "examples": [
+        "Самокат трюковый Novatrack Psycho 90, 110 мм, IHC, алюминий, черный с коричневым",
+        "Компрессия IHC 31.8мм",
+        "Н-р для IHC компрессии (Kvant, Twister) пластик, черный"
+      ]
+    },
+    {
+      "token": "SKI",
+      "count": 25,
+      "examples": [
+        "Мазь SKI GO HF RED 90246, красн., высокофтор, +1/-3 С, для всех типов снега, 45г.",
+        "Мазь SKI GO HF VIOLET 90247, фиолет., высокофтор, -2/-15 С, свежий и мелкозерн. снег, 45 г.",
+        "Мазь SKI GO XC RED 90256, красн., 0°/-2°C, для всех типов снега, 45г"
+      ]
+    },
+    {
+      "token": "CR-MO",
+      "count": 25,
+      "examples": [
+        "Руль для X-Treme самоката Hacker Cr-Mo 58x65 34.9мм HIC black",
+        "Педали 4BIKE K311S-OIL ойлслик, 116х98х16,5 мм, 3 пром, подшипника, ось Cr-mo, 20 шипов",
+        "Седло спортивное VELO с принтом без замка, Cr-Mo"
+      ]
+    },
+    {
+      "token": "TPI",
+      "count": 25,
+      "examples": [
+        "Покрышка 20 HOGGER, 20x1.75, HG-2104, Антипрокол эластичная резина 3мм, дорожная, TPI 30, черная",
+        "\"Покрышка 20 Kenda 1.75, K-935, \"\"KHAN\"\", 30 TPI, черная\"",
+        "\"Покрышка Kenda 20\"\"x2.25, K-907, \"\"KRACKPOT\"\", черная, 60 Tpi\""
+      ]
+    },
+    {
+      "token": "WIRE",
+      "count": 25,
+      "examples": [
+        "Покрышка 26 Maxxis Crossmark 2.10 52-559 Wire (б/р)",
+        "Покрышка 26 Maxxis Crossmark 2.25 54-559 Wire (б/р)",
+        "Покрышка 26 Maxxis Holy Roller 26X2.20 52-559 Wire (б/р)"
+      ]
+    },
+    {
+      "token": "AVID",
+      "count": 25,
+      "examples": [
+        "Банджо M8 Banjo для BENGAL/HAYES/TEKTRO/MAGURA/SHIMANO/ AVID",
+        "Башинг для AVID JUICY, CODE, ELIXIR XX",
+        "Болт компрессионный M8*?5.0 для BENGAL/AVID/GIANT/MAGURA/SHIMANO"
+      ]
+    },
+    {
+      "token": "STC",
+      "count": 24,
+      "examples": [
+        "Палки АЛЮМИНИЙ лыжные STC",
+        "Палки STC 100 Brados Sport Composite JR 100% стекловолокно",
+        "Палки STC Brados Sport Composite 100% стекловолокно"
+      ]
+    },
+    {
+      "token": "RAY",
+      "count": 24,
+      "examples": [
+        "Сверло RAY (ЛУЧ) (1602/3,5*9) Сверло (3,5 мм. х 9 мм.)",
+        "Мазь лыжная RAY W-5 -1-4°C синтетическая голубая (35г)",
+        "Мазь лыжная RAY WT-10 -1-12°C синтетическая голубая (35г)"
+      ]
+    },
+    {
+      "token": "RUSCO",
+      "count": 24,
+      "examples": [
+        "Лосины мужские Rusco Sport LION, детский 10 (L)",
+        "Лосины мужские Rusco Sport ONLY BLACK, детский",
+        "Лосины мужские Rusco Sport ONLY BLACK, взрослый"
+      ]
+    },
+    {
+      "token": "PREMIUM",
+      "count": 24,
+      "examples": [
+        "Капа BoyBo Armor MD255 Premium, одночелюстная, чёрный (ТАЙВАНЬ)",
+        "Капа BoyBo Armor MD255 Premium, одночелюстная, синий (ТАЙВАНЬ)",
+        "Капа BoyBo Defender BD150 Premium, одночелюстная, черный (ТАЙВАНЬ)"
+      ]
+    },
+    {
+      "token": "HAGEN",
+      "count": 24,
+      "examples": [
+        "Велосипед 27,5 Hagen 1.10, 2025, темный изумруд, металлик",
+        "Велосипед 27,5 Hagen 1.8, 2025, темный синий, матовый",
+        "Велосипед 27,5 Hagen 1.8, 2026, синий металлик, матовый"
+      ]
+    },
+    {
+      "token": "BASE",
+      "count": 23,
+      "examples": [
+        "Грунт GS Base AT",
+        "Грунт GS Base Super",
+        "Грунт START 01900 BASE WAX EXTRA, 45 г"
+      ]
+    },
+    {
+      "token": "FAT",
+      "count": 23,
+      "examples": [
+        "Шапка Lil Kings Fat (Черный)",
+        "Крылья FAT к-т 2 штуки 1/50 XGNB-062-3 XGNB-062-3",
+        "\"Крылья велосипедные 26\"\" для FAT стальные комплект RUSH HOUR\""
+      ]
+    },
+    {
+      "token": "COVA",
+      "count": 23,
+      "examples": [
+        "Брелок световозвращающий \"Цветочная поляна\", 50х50мм, COVA™",
+        "Брелок световозвращающий \"Футбольный мяч\", синий, ? 50мм, COVA™",
+        "Брелок световозвращающий \"Меридианы\", ? 50мм, COVA™"
+      ]
+    },
+    {
+      "token": "EXO",
+      "count": 23,
+      "examples": [
+        "Каретка FSA M/EXO 24mm to PF30 CFM3-46/Di2",
+        "Велопокрышка 20 Maxxis Grifter 20x2.30 58-406 Foldable EXO (uni:one size)",
+        "Покрышка 27,5 Maxxis Ardent 2.25 TPI 60 кевлар 60a EXO Single (TB85913400)"
+      ]
+    },
+    {
+      "token": "STANT",
+      "count": 23,
+      "examples": [
+        "Велосипед 20 STANT MD200 10\", 6 ск, розовый",
+        "Велосипед 20 STANT MD2000 11\", 7 ск, черный/зеленый",
+        "Велосипед 20 STANT MD2500 10\", 7 ск, красный, АЛЮМИНИЙ"
+      ]
+    },
+    {
+      "token": "SKIN",
+      "count": 22,
+      "examples": [
+        "Камус TWIN SKIN YELLOW MOHAIR MIX (1 пара) (K51116,YLLW)",
+        "Эмульсия для очистки камуса SKIN CLEANER",
+        "Беговые лыжи FISCHER TWIN SKIN ACTIVE MOUNTED с креплениями XC COMPACT"
+      ]
+    },
+    {
+      "token": "SKIGO",
+      "count": 22,
+      "examples": [
+        "Мазь держания SKIGO LF Kickwax Orange (мокрый, грязный снег) (-2°С +3°С) 45 г",
+        "Мазь держания SKIGO LF Kickwax Violet (все типы снега, грязная лыжня) (0°С -6°С) 45",
+        "Парафин SKIGO HF BLUE -3/-10 45гр"
+      ]
+    },
+    {
+      "token": "CHAO",
+      "count": 22,
+      "examples": [
+        "Камера 10 STELS/CHAO YANG 2.0 гнутый AV 42 град., 33207",
+        "Камера 10 STELS/CHAO YANG 2.0 гнутый AV 42 град.,",
+        "Велокамера 12 STELS/CHAO YANG 1/2 x 1.95\"/2\"1/4 автовентиль 33208"
+      ]
+    },
+    {
+      "token": "HAND",
+      "count": 22,
+      "examples": [
+        "Фиксатор цепи Bike Hand YC-207",
+        "Ключ 14мм конусный YC-658 Bike Hand 20473",
+        "Ключ 16мм конусный YC-658 Bike Hand 20475"
+      ]
+    },
+    {
+      "token": "ACTIVE",
+      "count": 21,
+      "examples": [
+        "Беговые лыжи FISCHER TWIN SKIN ACTIVE MOUNTED с креплениями XC COMPACT",
+        "Лыжи STC степ (Active A3 Yellow)",
+        "Лыжи STC степ (Active JR Yellow)"
+      ]
+    },
+    {
+      "token": "WEINMANN",
+      "count": 21,
+      "examples": [
+        "Колесо 26 перед. 2-х слойный WEINMANN DISK BULL втулка NOVATEC D041 SB ПП под диск (6 болтов) экс",
+        "Колесо 26 задн. 2-х слойный WEINMANN DISK BULL втулка NOVATEC D242 SBT SC П/П под диск под трещетку",
+        "Колесо 26 задн. 2-х слойный WEINMANN XTB, втулка NOVATEC D142 SBT П/П под диск, кассету 8/9/10 ск"
+      ]
+    },
+    {
+      "token": "ALHONGA",
+      "count": 21,
+      "examples": [
+        "Адаптер тормоза Postmount Alhonga PI-F203/R180",
+        "ALHONGA Направляющая торм. троса для V-brake гибкая стальная, чёр.",
+        "ALHONGA Направляющая торм. троса для V-brake 110° стальная"
+      ]
+    },
+    {
+      "token": "MAGURA",
+      "count": 21,
+      "examples": [
+        "Банджо M8 Banjo для BENGAL/HAYES/TEKTRO/MAGURA/SHIMANO/ AVID",
+        "Башинг медный для MAGURA ?5.2x?7x7L, ПОШТУЧНО",
+        "Болт компрессионный M8*?5.0 для BENGAL/AVID/GIANT/MAGURA/SHIMANO"
+      ]
+    },
+    {
+      "token": "JAZZ",
+      "count": 21,
+      "examples": [
+        "Велосипед 14 Maxiscoo JAZZ Стандарт Плюс Черный Матовый (2026)",
+        "Велосипед 14 Maxiscoo JAZZ Стандарт Плюс Мятный",
+        "Велосипед 14 Maxiscoo JAZZ Стандарт Плюс Обсидиан"
+      ]
+    },
+    {
+      "token": "PURE",
+      "count": 20,
+      "examples": [
+        "Мазь держания PURE PRO PINK -1?C/-5?C",
+        "Мазь держания PURE PRO VIOLET -2?C/-7?C",
+        "Мазь держания PURE RACE BLUE -5?C/-20?C"
+      ]
+    },
+    {
+      "token": "VORTEX",
+      "count": 20,
+      "examples": [
+        "Эмульсия VORTEX VOR-08 SUPER, фторир., +1/-10 °С, 50 мл",
+        "Эмульсия VORTEX VOR-09 PLUS, фторир., -1/+8 °С, 50 мл",
+        "Эмульсия VORTEX VOR-10 MOLYBDEN, фторир., +5/-5 °С, 50 мл"
+      ]
+    },
+    {
+      "token": "CELADON",
+      "count": 20,
+      "examples": [
+        "Раздвижные коньки Iceroll black/celadon",
+        "Рол.коньки Kidzroll Celadon",
+        "Роликовые коньки Germes, (бирюзовый / celadon)"
+      ]
+    },
+    {
+      "token": "NOVATRACK",
+      "count": 20,
+      "examples": [
+        "Самокат для детей Novatrack RainBow с прозрачной платформой, подростковый, складной механизм на руле",
+        "Самокат Novatrack Disco-kids Start для детей, свет.колеса PU пер.120*24 задн.76*24мм, эргоно",
+        "Самокат Novatrack Crow 10, 100 мм,SCS, алюминий, синий с серебристым"
+      ]
+    },
+    {
+      "token": "DROP",
+      "count": 20,
+      "examples": [
+        "Самокат трюковой Drop 2.0 black",
+        "Самокат трюковой Drop 2.0 pink",
+        "Самокат трюковой Drop 2.0 purple"
+      ]
+    },
+    {
+      "token": "NOVATEC",
+      "count": 20,
+      "examples": [
+        "Эксцентрик заднего околеса Novatec",
+        "Колесо 26 перед. 2-х слойный WEINMANN DISK BULL втулка NOVATEC D041 SB ПП под диск (6 болтов) экс",
+        "Колесо 26 задн. 2-х слойный WEINMANN DISK BULL втулка NOVATEC D242 SBT SC П/П под диск под трещетку"
+      ]
+    },
+    {
+      "token": "YANG",
+      "count": 20,
+      "examples": [
+        "Камера 10 STELS/CHAO YANG 2.0 гнутый AV 42 град., 33207",
+        "Камера 10 STELS/CHAO YANG 2.0 гнутый AV 42 град.,",
+        "Велокамера 12 STELS/CHAO YANG 1/2 x 1.95\"/2\"1/4 автовентиль 33208"
+      ]
+    },
+    {
+      "token": "XTR",
+      "count": 20,
+      "examples": [
+        "Колодки для дискового тормоза инд.упак.,блистер SHIMANO Deore XT BR-M785, SLX M666, XTR 2011 BR-M985",
+        "Колодки для дискового тормоза инд.упак.,блистер Shimano XTR M965/966/Saint M800/Hone M601/Deore XT M",
+        "Колодки для дискового тормоза SHIMANO J04C-MF (DEORE, SLX, XT, XTR), С РАДИАТОРОМ"
+      ]
+    },
+    {
+      "token": "ELVA",
+      "count": 19,
+      "examples": [
+        "Крепления лыжные ELVA 3N NEW (широкая платформа)",
+        "Лыжероллеры классические ELVA CL67-50R",
+        "Лыжероллеры классические ELVA CL70-40R"
+      ]
+    },
+    {
+      "token": "CAP",
+      "count": 19,
+      "examples": [
+        "Беговые лыжи TISA RACE CAP UNIVERSAL JR.",
+        "Шапочка для плавания CAP двухцветная (008D)",
+        "Шапочка для плавания CAP двухцветная (025D)"
+      ]
+    },
+    {
+      "token": "KMC",
+      "count": 19,
+      "examples": [
+        "Цепь 1/2\"х1/8\" 112 звеньев S1 KMC, в индивидуальной упаковке",
+        "Цепь 1/2\"х1/8\" 116 звеньев Z410 KMC",
+        "Цепь 1/2\"х1/8\" 118 звеньев Z410 KMC"
+      ]
+    },
+    {
+      "token": "NECO",
+      "count": 19,
+      "examples": [
+        "Каретка (картридж) квадрат 1,37х24Т 68/122.5mm NECO",
+        "Каретка-картридж NECO B910 73*113,5мм,2промподшипника,под квадрат,300гр",
+        "Каретка-картридж NECO B910 73*116мм,2промподшипника,под квадрат,300гр"
+      ]
+    },
+    {
+      "token": "ROWER",
+      "count": 19,
+      "examples": [
+        "Велосипед 20 Rocket Rower, цвет фиолетовый, размер 11\"",
+        "Велосипед 20 Rocket Rower, цвет салатовый, размер 11\"",
+        "Велосипед 20 Rocket Rower, цвет серый/зеленый, размер 11\""
+      ]
+    },
+    {
+      "token": "UNIVERSAL",
+      "count": 18,
+      "examples": [
+        "Аэрозольный клистер Swix K65 Universal Quick klister",
+        "Клистер KF Universal",
+        "мазь жидкая-клистер RODE K70 KLISTER UNIVERSAL, универсал., +/-0°C, 60 г"
+      ]
+    },
+    {
+      "token": "COLD",
+      "count": 18,
+      "examples": [
+        "Мазь скольжения GW COLD -2?C/-15?C (EV325-GWC60)",
+        "Мазь скольжения GW COLD -2?C/-15?C (EV327-GWC180)",
+        "Мазь скольжения HF COLD 31962"
+      ]
+    },
+    {
+      "token": "SCHWALBE",
+      "count": 18,
+      "examples": [
+        "Ободная лента SCHWALBE, для бескамерных колёс 19мм 10м/рулон",
+        "Ободная лента SCHWALBE, для бескамерных колёс 23мм 10м/рулон",
+        "Ободная лента SCHWALBE, для бескамерных колёс 25мм 10м/рулон"
+      ]
+    },
+    {
+      "token": "CLUXX",
+      "count": 18,
+      "examples": [
+        "Флягодержатель CLUXX Everide 100 Black (uni:one size)",
+        "Флягодержатель CLUXX Everide 100 Deep Blue (uni:one size)",
+        "Флягодержатель CLUXX Everide 100 Deep Red (uni:one size)"
+      ]
+    },
+    {
+      "token": "PROWHEEL",
+      "count": 18,
+      "examples": [
+        "Болт крепления шатуна PROWHEEL 23576",
+        "Металлический шатун левый модель S106 Prowheel 165 мм хромированный",
+        "Шатуны 1/2\"х3/32\" 22/32/42 зуб. 152мм TC-CQ01 PROWHEEL \"под квадрат\" стальные/алюминиевые"
+      ]
+    },
+    {
+      "token": "NEO",
+      "count": 17,
+      "examples": [
+        "Ботинки SPINE NNN Neo (161/1-22) (синий)",
+        "Лыжные ботинки SPINE NNN Neo (161) (синий/черный/салатовый",
+        "Колесо для самоката Big Brock 120 мм, e-plated Neo Chrome"
+      ]
+    },
+    {
+      "token": "KLISTER",
+      "count": 17,
+      "examples": [
+        "Аэрозольный клистер Swix K65 Universal Quick klister",
+        "мазь жидкая-клистер RODE FK50 FAST KLISTER SILVER, серебр., фтор, 0/+5°C, 60 г",
+        "Мазь жидкая-клистер RODE K10 KLISTER BLUE SPECIAL, синяя спец., -6/-14°C, 60 г"
+      ]
+    },
+    {
+      "token": "EVA",
+      "count": 17,
+      "examples": [
+        "Ролик массажный FA-507, EVA/PP, средняя жесткость, 32,5x12,5 cм, мятный/серый",
+        "Коврик для йоги 5 мм-Фиолетовый (EVA 37198",
+        "Коврик для йоги 6 мм Синий (EVA) 37200"
+      ]
+    },
+    {
+      "token": "REACTION",
+      "count": 17,
+      "examples": [
+        "Мяч футбольный ATEMI REACTION, PU, 1.4мм, белый/голубой/черный, р.5, р/ш, 32 п, окруж 68-70",
+        "Мяч футбольный ATEMI REACTION, PU, 1.4мм, белый/зеленый/черный, р.3, р/ш, 32 п, окруж 60-61",
+        "Чехол для лыж \"RW\" Reaction 140 (черный/серый) 32113"
+      ]
+    },
+    {
+      "token": "DARK",
+      "count": 17,
+      "examples": [
+        "Шапка Nordski Retro Dark Blue (one size)",
+        "Лонгслив Nordski Pro Dark Ocean",
+        "Лонгслив Nordski Pro Dark Ocean W"
+      ]
+    },
+    {
+      "token": "CHROME",
+      "count": 17,
+      "examples": [
+        "Колесо для самоката Big Brock 120 мм, e-plated Neo Chrome",
+        "Набор подшипников RIDEX SB, ABEC-7 Chrome, 8 шт.,металлический бокс",
+        "Подшипники 608RS, ABEC- 9, 8 шт.+8 шайб+4 спейсера. В пластиковой коробке. Chrome"
+      ]
+    },
+    {
+      "token": "CHAOYANG",
+      "count": 17,
+      "examples": [
+        "Камера 200x50 Chaoyang TR87-35R (с кривым соском 42\") бутиловая без инд.упак.",
+        "Камера 24 Chaoyang 2,125 A/V 48мм Chaoyang инд.упак. 3082448-005",
+        "Камера 700х18 / 23С F/V -48мм \"Chaoyang\" (ORNATE) нипель \"PRESTA\" инд.упак., рус.дизайн 308700-005"
+      ]
+    },
+    {
+      "token": "TEKTRO",
+      "count": 17,
+      "examples": [
+        "калипер диск.мех.тормоза TEKTRO M280F 20W передний",
+        "Калипер дискового тормоза задний Aries MD-M300 TEKTRO черный",
+        "Банджо M8 Banjo для BENGAL/HAYES/TEKTRO/MAGURA/SHIMANO/ AVID"
+      ]
+    },
+    {
+      "token": "FISH",
+      "count": 16,
+      "examples": [
+        "Сетка для наст. тенниса DOUBLE FISH 2001A/C, в компл. с мет. зажимами, измерит. высоты,,синий",
+        "Мяч для наст. тенниса DOUBLE FISH 3***, V111F10, диам. V40+мм, ITTF Appr,плаcтик,упак.10 шт,белый",
+        "Шапочка для плавания Fish cap (Orange)"
+      ]
+    },
+    {
+      "token": "ELOUS",
+      "count": 16,
+      "examples": [
+        "Очки д/плав. Elous YG-2200 чёрно-белый",
+        "Очки д/плав. Elous YG-2400 черно-зелёный",
+        "Очки д/плав. Elous YG-7006 синий"
+      ]
+    },
+    {
+      "token": "COSMIC",
+      "count": 16,
+      "examples": [
+        "Раздвижные роликовые коньки (со сменными лезвиями) Cosmic Star Pink",
+        "Корзина TRIX Cosmic детская 12\"-16\", крепление на руль, 190х125х140мм, пластиковая, синяя",
+        "Велосипед 14 Maxiscoo COSMIC Стандарт Плюс Черный Глянцевый (2026)"
+      ]
+    },
+    {
+      "token": "STARK",
+      "count": 16,
+      "examples": [
+        "Велокамера KYOWA 29*1.9/2.25(48\\57) F/V,48мм,бутил, STARK",
+        "Подседельный штырь JIESHUN JS-609 STARK д.30,9мм,350мм,крепление 1 болт,черный",
+        "Подшипники в рулевую колонку для STARK TACTIC/ROUTER комп,верх+ниж(42мм-33мм-22шар/50мм-43мм-27шар))"
+      ]
+    },
+    {
+      "token": "SWISS",
+      "count": 16,
+      "examples": [
+        "Обод 26 DT SWISS M 480 DISC 32H Черный 12873",
+        "Ниппель DT Swiss алюминиевый 2,0х14mm 8287",
+        "Ниппель DT Swiss латунь 2,0х12mm Hexagonal 12883"
+      ]
+    },
+    {
+      "token": "TISA",
+      "count": 15,
+      "examples": [
+        "Ботинки лыжные TISA Junior NN75 S7531",
+        "Ботинки лыжные TISA NN75 S75111",
+        "Лыжные ботинки TISA NNN Sport Lady (S80519) (белый/красный)"
+      ]
+    },
+    {
+      "token": "WARM",
+      "count": 15,
+      "examples": [
+        "Чехлы для ботинок SPINE Bootсover Warm (503) (чер/бел)",
+        "Мазь скольжения для базовой обработки SW WARM +7°C/-3°C 180гр.",
+        "Мазь скольжения GW WARM +7?C/-3?C (EV325-GWWA60)"
+      ]
+    },
+    {
+      "token": "VAUHTI",
+      "count": 15,
+      "examples": [
+        "Скребок VAUHTI 870 OLAS SCRAPER, \"карандаш\" , для желобка",
+        "Мазь VAUHTI EV-367-GTR GT RED, смоляная, +1°/-1°С, 45 г",
+        "мазь жидкая-клистер VAUHTI KS BLUE, синяя, 0°/-15°С, 60 г"
+      ]
+    },
+    {
+      "token": "MID",
+      "count": 15,
+      "examples": [
+        "Мазь скольжения HF MID 31963",
+        "Мазь скольжения HF MOLY MID 32506",
+        "Мазь скольжения PURE PRO MID +2°C/-4°C"
+      ]
+    },
+    {
+      "token": "WET",
+      "count": 15,
+      "examples": [
+        "Мазь скольжения HF WET 31965",
+        "Мазь скольжения PURE ONE WET +10°C/-1°C",
+        "Парафин VAUHTI UF WET +10/-6 45гр"
+      ]
+    },
+    {
+      "token": "LED",
+      "count": 15,
+      "examples": [
+        "Раздвижные роликовые коньки Fantom Blue LED подсветка колес",
+        "Раздвижные роликовые коньки X-Comet Blue LED",
+        "Раздвижные роликовые коньки X-Comet Green LED"
+      ]
+    },
+    {
+      "token": "TRACK",
+      "count": 15,
+      "examples": [
+        "Самокат Sky track blue",
+        "Самокат Sky track green",
+        "Самокат Sky track pink"
+      ]
+    },
+    {
+      "token": "RAW",
+      "count": 15,
+      "examples": [
+        "Самокат santa muerte 6,0 d raw",
+        "Самокат трюковой KVANT V3 raw",
+        "Самокат трюковой Provokator 43 V2 (некрашеный / raw)"
+      ]
+    },
+    {
+      "token": "ENLEE",
+      "count": 15,
+      "examples": [
+        "Велобутылка Enlee RR-20 Girl Yellow 0,6 л, желтая",
+        "Набор защитных наклеек для рамы Enlee FG-10 Snake, высокопрочная ПВХ плёнка, принт \"змея\"",
+        "Набор защитных наклеек для рамы Enlee FG-10 Wolf, высокопрочная ПВХ плёнка, принт \"волк\""
+      ]
+    },
+    {
+      "token": "SEYOUN",
+      "count": 15,
+      "examples": [
+        "\"Велокамера 28 STELS/SEYOUN 28\"\"x1.75\"\" автовентиль\"",
+        "Велокамера 29 STELS (Seyoun) 1.75\"/2.10\" STELS (Seyoun) автовентиль 48мм",
+        "Покрышка 16 SEYOUN x 2.125\" PM-B027"
+      ]
+    },
+    {
+      "token": "MICROSHIFT",
+      "count": 15,
+      "examples": [
+        "Шифтер/манетка левый Microshift TS-38-7L 7ми скор. с тросом 2050мм",
+        "Шифтер/манетка левый Microshift TS38-3L 3-х скор. с тросом 1800 мм 33449",
+        "Шифтер/манетка правый Microshift TS38-8R 8-ми скоростной с тросом 2050 мм 33450"
+      ]
+    },
+    {
+      "token": "BCD",
+      "count": 15,
+      "examples": [
+        "Система PROWHEEL MPL-501-TT 28/40T*175mm,FAT Bike,AL-6061-T6,W/PW-BB100,CHAINLINE:69,BCD:104,черн",
+        "Звезда 52Т, на 5-и лапку BCD 110мм, AL7075 фрезерованная, черная.SS-9202CNC",
+        "Звезда 52Т, на 5-и лапку, BCD 130мм, AL7075 CNC, для 9-12 скор, чёрная.SS-9201CNC-52"
+      ]
+    },
+    {
+      "token": "PILOT",
+      "count": 14,
+      "examples": [
+        "Ботинки лыжные SPINE SNS Pilot Matrix Carbon Pro (273K) черный",
+        "Гоночное крепление NNN PILOT Skate",
+        "Комплект втулок для двухподвесной рамы Challenger/Mustang/Pilot 250-270"
+      ]
+    },
+    {
+      "token": "SINGLE",
+      "count": 14,
+      "examples": [
+        "Капа RM-170 single (прозрачная)",
+        "Капа RM-170S single (Red)",
+        "Покрышка 27,5 Maxxis Ardent 2.25 TPI 60 кевлар 60a EXO Single (TB85913400)"
+      ]
+    },
+    {
+      "token": "CHAMPION",
+      "count": 14,
+      "examples": [
+        "Мат 2 в 1 Absolute Champion",
+        "Корзина TRIX Champion детская 12\"-16\", крепление на руль, 190х125х140мм, пластиковая, красная",
+        "Спицы DT Champion 2.0 mm 180 mm 14221"
+      ]
+    },
+    {
+      "token": "SIMPLA",
+      "count": 14,
+      "examples": [
+        "\"Крылья велосипедные Simpla ADHD 27.5\"\"-29\"\"- комплект крыльев для велосипедов с амортизаторами 27.5\"\"-2\"",
+        "\"Крылья велосипедные Simpla ADHD для 27.5\"\"-29\"\", к-т, быстросъемные, черно - синий\"",
+        "\"Крылья велосипедные Simpla ADHD для 27.5\"\"-29\"\" с амортизаторами, к-т, быстросъемные, черно - белые\""
+      ]
+    },
+    {
+      "token": "HAYES",
+      "count": 14,
+      "examples": [
+        "Банджо M8 Banjo для BENGAL/HAYES/TEKTRO/MAGURA/SHIMANO/ AVID",
+        "Болт компрессионный M8*?5.4 для BENGAL/HAYES/TEKTRO",
+        "Коннектор M6*M8 для HAYES/MAGURA"
+      ]
+    },
+    {
+      "token": "GRENT",
+      "count": 14,
+      "examples": [
+        "Цепная велосмазка для сухой погоды с тефлоном GRENT PTFE Dry Lube 60 мл",
+        "Гидравлическая жидкость для тормозов GRENT HYDRAULIC OIL 120 мл",
+        "GRENT AL' ANTI-SEIZE GREASE Антиприкипающая смазка с алюминием 60гр (31619)"
+      ]
+    },
+    {
+      "token": "REX",
+      "count": 13,
+      "examples": [
+        "Мазь REX 105 LIGHT GREEN, светло-зелен., -8°/-15°С, 43 г",
+        "Мазь REX 120 BLUE SPECIAL, син./специал.., -1°/-4°C, 43 г",
+        "Мазь REX 122 VIOLET SPECIAL, фиолет., 0°/-2°C, 45 г"
+      ]
+    },
+    {
+      "token": "SNOW",
+      "count": 13,
+      "examples": [
+        "Мазь скольжения PURE RACE OLD SNOW COLD -2?C/-20?C",
+        "Мазь скольжения PURE RACE OLD SNOW LDR +5?C/-10?C",
+        "Мазь скольжения PURE RACE OLD SNOW WARM +7?C/-3?C"
+      ]
+    },
+    {
+      "token": "PACE",
+      "count": 13,
+      "examples": [
+        "Парафин VAUHTI PACE HF BLACK new snow 45гр",
+        "Парафин VAUHTI PACE HF COLD new snow -2/-20 45гр",
+        "Парафин VAUHTI PACE HF LDR new snow +5/-10 45гр"
+      ]
+    },
+    {
+      "token": "POWDER",
+      "count": 13,
+      "examples": [
+        "порошок HOLMENKOL 24345 SPEED POWDER MATRIX COLD, выс.фтор., -8°/-20°С, 30 г",
+        "порошок VORTEX POWDER TEST 2, фторир., 0/-6 °С, 30 гр",
+        "порошок VORTEX POWDER TEST 4, фторир.,+ 5/-1 °С, 30 гр"
+      ]
+    },
+    {
+      "token": "WEIGHT",
+      "count": 13,
+      "examples": [
+        "Перчатки снарядные Everlast Evergel Weight Lifting 4356BM, M, к/з",
+        "Камера Maxxis Welter Weight 700x23/32C 0.8 мм вело нип. 60 мм",
+        "Велокамера 20 Maxxis Welter Weight 1.5/2.5 0.8mm Автонипель 48мм (б/р)"
+      ]
+    },
+    {
+      "token": "STREET",
+      "count": 13,
+      "examples": [
+        "Мяч футбольный INGAME STREET BROOKLYN, №5 черно-зеленый IFB-125",
+        "Самокат трюковой Street mama black",
+        "Самокат трюковой ТТ Zefir Street black black"
+      ]
+    },
+    {
+      "token": "WERTER",
+      "count": 13,
+      "examples": [
+        "Велосипед 3-х кол WERTER BERGER TRIKE XG 11214-3 черный",
+        "Велосипед 3-х кол WERTER BERGER EVOLUTION AIR 12 XG7236 ЧЕРНЫЙ",
+        "Велосипед 3-х кол WERTER BERGER EVOLUTION AIR 12 XG7236 РОЗОВЫЙ"
+      ]
+    },
+    {
+      "token": "BERGER",
+      "count": 13,
+      "examples": [
+        "Велосипед 3-х кол WERTER BERGER TRIKE XG 11214-3 черный",
+        "Велосипед 3-х кол WERTER BERGER EVOLUTION AIR 12 XG7236 ЧЕРНЫЙ",
+        "Велосипед 3-х кол WERTER BERGER EVOLUTION AIR 12 XG7236 РОЗОВЫЙ"
+      ]
+    },
+    {
+      "token": "SHARK",
+      "count": 13,
+      "examples": [
+        "Брюки Nordski Pro Energy Shark",
+        "Брюки Nordski Pro Energy Shark W",
+        "Носки Nordski Pro Energy White/Shark"
+      ]
+    },
+    {
+      "token": "YURI",
+      "count": 13,
+      "examples": [
+        "Ось для вилки Yuri М6*37.2мм 666173",
+        "Вилка для X-Treme самоката, Yuri Airy fork AL 7075 (SCS/HIC 24x110мм колеса) Black",
+        "Вилка для X-Treme самоката, Yuri Airy fork AL 7075 (SCS/HIC 24x110мм колеса) Black\\Grey"
+      ]
+    },
+    {
+      "token": "GIYO",
+      "count": 13,
+      "examples": [
+        "Манометр GIYO GG-04, для давлений 100 psi и 300 psi, с кнопкой регулировки давления А/V, F/V.",
+        "Насос для велосипеда Giyo GP-48A компактный алюминиевый, 7 атм/100psi, “авто/вело” ниппель, цвет: че",
+        "Насос Giyo GF-2430BLUE напольный алюминиевый со смарт-вентилем, ниппель “авто/вело”"
+      ]
+    },
+    {
+      "token": "BRIVIGA",
+      "count": 13,
+      "examples": [
+        "Комплект фонарей Briviga USB Bike Light Set: EBL-3291A+EBL-056B",
+        "Комплект фонарей Briviga USB bike light set EBL-039+EBL-2265A, перед 380 лм + задний 40 лм.",
+        "Комплект фонарей Briviga USB bike light set EBL-2255A + EBL-056, перед 350 лм + задний 15 люмен."
+      ]
+    },
+    {
+      "token": "SHUNFENG",
+      "count": 13,
+      "examples": [
+        "Эксцентрик переднего колеса, бренд Shunfeng 29907",
+        "Эксцентрик Shunfeng передний 109мм, чёрный",
+        "Колесо 20 задн,ал.дв.серебр.обод,36Н.,1ск.торм.вт.SHUNFENG"
+      ]
+    },
+    {
+      "token": "SLX",
+      "count": 13,
+      "examples": [
+        "Шифтер Shimano SLX M700011R правый 11ск. б/уп",
+        "Переключатель передний, FD-M661, SLX, 3 ск., Direct mount, 44, SHIMANO, SLX (серый, 28309",
+        "Переключатель задний SHIMANO RD-M7100, SLX, SGS 12-SPEED, TOP NORMAL, SHADOW PLUS DESIGN, DIRECT ATT"
+      ]
+    },
+    {
+      "token": "REKON",
+      "count": 13,
+      "examples": [
+        "Покрышка 27,5 Maxxis Rekon Race 2.25 57-584 Foldable Exo/TR (б/р)",
+        "Покрышка 29 Maxxis Rekon Race 2.25 57-622 Foldable Exo/TR/Tanwall",
+        "Велопокрышка 24 Maxxis Rekon 24x2.20 56-507 Foldable (uni:one size)"
+      ]
+    },
+    {
+      "token": "EASING",
+      "count": 13,
+      "examples": [
+        "Вилка аморт., Easing ES-122-2 20\" шток:1 1/8\", под диск. тормоз, ход 100 мм, стальная",
+        "Вилка аморт., Easing ES-245-2 26\" шток:1 1/8\", под диск. тормоз, ход 100 мм, алюм., корона 1/6 ES-2",
+        "Вилка аморт., Easing ES-245-2 27,5\" шток:1 1/8\", под диск. тормоз, ход 100 мм, алюм., корона 1/6 ES"
+      ]
+    },
+    {
+      "token": "NICKEL",
+      "count": 13,
+      "examples": [
+        "Велосипед 27,5 Aspect Nickel (2025) (Серый)",
+        "Велосипед 27,5 Aspect Nickel Elite (2025), Синий",
+        "Велосипед 27,5 Aspect Nickel Pro (2025), Зеленый"
+      ]
+    },
+    {
+      "token": "COMBI",
+      "count": 12,
+      "examples": [
+        "Ботинки лыжные SPINE NNN RC Combi (86M) (синий/черный)",
+        "Лыжные ботинки SPINE NNN Combi (268M) (синий/черный/салатовый)",
+        "Лыжные ботинки SPINE NNN Concept Combi (268/1-22) (синий)"
+      ]
+    },
+    {
+      "token": "SNS",
+      "count": 12,
+      "examples": [
+        "Ботинки лыжные MOTOR MECHANICS SNS ИК (черный, красный)",
+        "Ботинки лыжные MOTOR MECHANICS SNS ИК (серо-черный, синий)",
+        "Ботинки лыжные SPINE Creator (457/20) SNS синтетика"
+      ]
+    },
+    {
+      "token": "SOFT",
+      "count": 12,
+      "examples": [
+        "Щётка роторная RODE AR78 NYLON SOFT 100мм, мягкий нейлон 7мм, черн.",
+        "VR55N Violet Soft Мазь держания с фтором, -3/+2C,45гр",
+        "Крепления лыжные SNOWMATIC KIDC SOFT"
+      ]
+    },
+    {
+      "token": "PVC",
+      "count": 12,
+      "examples": [
+        "Мяч для МФР STARFIT RB-201 9 см, PVC, массажный, серый",
+        "Перчатки боксерские UBG-01 PVC Blue",
+        "Коврик для йоги и фитнеса STARFIT FM-104 PVC, 0,4 см, 183x61см, синий"
+      ]
+    },
+    {
+      "token": "ARMOR",
+      "count": 12,
+      "examples": [
+        "Капа BoyBo Armor MD255 Premium, одночелюстная, чёрный (ТАЙВАНЬ)",
+        "Капа BoyBo Armor MD255 Premium, одночелюстная, синий (ТАЙВАНЬ)",
+        "Комплект защитной экипировки ARMOR BASIC M1 (S) red"
+      ]
+    },
+    {
+      "token": "BOY",
+      "count": 12,
+      "examples": [
+        "Раздвижные коньки Arctic Boy",
+        "Зажим 3 болта N HIC (Old Boy) e-plated",
+        "Самокат TT Surf boy celadon"
+      ]
     }
   ],
   "duplicates": [
