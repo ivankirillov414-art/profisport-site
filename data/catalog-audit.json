@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-09T13:10:33.183559+00:00",
+  "generated_at": "2026-09-09T13:11:13.043084+00:00",
   "catalog_rows": 8552,
   "summary": {
     "normalized_name_duplicates": 39,
     "duplicate_urls": 0,
-    "category_conflicts": 14,
+    "category_conflicts": 3,
     "suspicious_specs": 3,
     "missing_images": 4925,
     "missing_brand": 8459,
@@ -15,8 +15,8 @@
     "bicycle": 627,
     "scooter": 171,
     "skis": 55,
-    "skates": 53,
-    "rollers": 45,
+    "skates": 51,
+    "rollers": 42,
     "skateboard": 32,
     "exercise_bike": 6,
     "longboard": 3,
@@ -398,133 +398,6 @@
         "Коньки фигурные"
       ],
       "url": "https://velo56.ru/catalog/kon-ki-klyushki-aksessuary/kon-ki-figurnye/velosiped-3-h-kol-werter-berger-trike-xg-11214-3-chernyy-54247/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "skates",
-      "name": "Коньки для танцев КВАДЫ Latina District белый/розовый",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Ролики"
-      ],
-      "url": "https://velo56.ru/catalog/rolikovye-kon-ki/kon-ki-dlya-tancev-kvady-latina-district-belyy-rozovyy-53296/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "skates",
-      "name": "Коньки роликовые Axor желтый",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Ролики"
-      ],
-      "url": "https://velo56.ru/catalog/rolikovye-kon-ki/kon-ki-rolikovye-axor-zheltyy-39189/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "longboard",
-      "name": "Лонгборд City Cruiser Green",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Скейтборды"
-      ],
-      "url": "https://velo56.ru/catalog/skeytbordy-i-mini-kruizery/longbord-city-cruiser-green-55515/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "longboard",
-      "name": "Лонгборд City Cruiser Pink",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Скейтборды"
-      ],
-      "url": "https://velo56.ru/catalog/skeytbordy-i-mini-kruizery/longbord-city-cruiser-pink-55516/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "longboard",
-      "name": "Лонгборд Grace 10x46\"",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Скейтборды"
-      ],
-      "url": "https://velo56.ru/catalog/skeytbordy-i-mini-kruizery/longbord-grace-10x46-55517/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики (2шт) для суппорта, 13Т, пром. подшипники, алюминиевые, чёрные. PUL-130",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-2sht-dlya-supporta-13t-prom-podshipniki-alyuminievye-chernye-pul-130-48431/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики переключателя Shimano, 10ск, верхн+нижн, к RD-M593/M610/M615 (10013160/310522/3274282, ЯПОНИЯ",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-10sk-verhn-nizhn-k-rd-m593-m610-m615-10013160-310522-3274282-yaponiya-55919/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики переключателя Shimano, 10ск, верхн+нижн, к RD-M663/M640/M670/M675",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-10sk-verhn-nizhn-k-rd-m663-m640-m670-m675-52340/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики переключателя Shimano, 10ск, верхн+нижн, к RD-M773/M780/M786",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-10sk-verhn-nizhn-k-rd-m773-m780-m786-52343/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики переключателя Shimano, 11ск, верхн+нижн, к RD-6800/6870",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-11sk-verhn-nizhn-k-rd-6800-6870-55920/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики переключателя Shimano, 8/7ск, верхн+нижн, к RD-M310",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-8-7sk-verhn-nizhn-k-rd-m310-40771/"
     },
     {
       "kind": "category_conflict",
