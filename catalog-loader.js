@@ -39,8 +39,12 @@ function primaryProductType(name){
   if(startsAny(n,['электровелосипед','велосипед']))return'bicycle';
   if(startsAny(n,['электросамокат','самокат']))return'scooter';
   if(startsAny(n,['сноуборд']))return'snowboard';
-  if(startsAny(n,['роликовые коньки','ролики']))return'rollers';
+  if(startsAny(n,['роликовые коньки','коньки роликовые','коньки для танцев','квады']))return'rollers';
   if(startsAny(n,['коньки']))return'skates';
+  if(startsAny(n,['ролики'])){
+    if(n.includes('переключател')||n.includes('суппорт')||n.includes('подшипник')||n.includes('направляющ'))return'';
+    return'rollers';
+  }
   if(startsAny(n,['лыжи','лыжи беговые','лыжи горные']))return'skis';
   if(startsAny(n,['скейтборд']))return'skateboard';
   if(startsAny(n,['лонгборд']))return'longboard';
@@ -73,7 +77,7 @@ function departmentFor(name,path){
   if(type==='snowboard')return{key:'snowboard',type,source:'name'};
   if(type==='skates')return{key:'skates',type,source:'name'};
   if(type==='rollers')return{key:'rollers',type,source:'name'};
-  if(['skis'].includes(type))return{key:'skiing',type,source:'name'};
+  if(type==='skis')return{key:'skiing',type,source:'name'};
   if(['skateboard','longboard'].includes(type))return{key:'boards',type,source:'name'};
   if(['treadmill','exercise_bike','elliptical','dumbbell','barbell','kettlebell','trampoline'].includes(type))return{key:'fitness',type,source:'name'};
   if(['tent','sleeping_bag','backpack'].includes(type))return{key:'tourism',type,source:'name'};
@@ -83,8 +87,8 @@ function departmentFor(name,path){
   if(p.includes('велосип')||p.includes('bmx')||p.includes('велозапчаст'))return{key:'cycling',type:'',source:'path'};
   if(p.includes('беговые лыжи')||p.includes('горные лыжи')||p.includes('лыж'))return{key:'skiing',type:'',source:'path'};
   if(p.includes('сноуборд'))return{key:'snowboard',type:'',source:'path'};
-  if(p.includes('коньк'))return{key:'skates',type:'',source:'path'};
   if(p.includes('ролик'))return{key:'rollers',type:'',source:'path'};
+  if(p.includes('коньк'))return{key:'skates',type:'',source:'path'};
   if(p.includes('скейт')||p.includes('лонгборд'))return{key:'boards',type:'',source:'path'};
   if(p.includes('фитнес')||p.includes('тренаж')||p.includes('гантел')||p.includes('штанг'))return{key:'fitness',type:'',source:'path'};
   if(p.includes('туризм')||p.includes('палат')||p.includes('спальн')||p.includes('рюкзак'))return{key:'tourism',type:'',source:'path'};
@@ -105,8 +109,8 @@ function numericFrom(s,min,max){
   return''
 }
 function wheelFacet(name,specs){
-  let v=findSpec(specs,['диаметр колес','диаметр колеса','размер колеса','колеса']);
-  let n=numericFrom(v,10,32);
+  const v=findSpec(specs,['диаметр колес','диаметр колеса','размер колеса','колеса']);
+  const n=numericFrom(v,10,32);
   if(n)return n+'″';
   const m=textNorm(name).match(/(?:велосипед|bmx)[^0-9]{0,18}(12|14|16|18|20|24|26|27[.,]5|28|29)(?=\s|"|'|$)/);
   return m?m[1].replace(',','.')+'″':''
@@ -141,6 +145,8 @@ function normalizeProduct(p,i){
     stockCode=(p.availability==='in_stock'||p.stock_status==='in_stock')?'in':(p.availability==='out_of_stock'||p.stock_status==='out_of_stock')?'out':'unknown',
     name=p.title||p.name||'Товар',
     specs=p.specs||{},
+    brand=String(p.brand||findSpec(specs,['бренд','производитель'])||'').trim(),
+    model=String(p.model||'').trim(),
     description=p.description||'',
     pathText=path.join(' '),
     rawCat=path[path.length-1]||path[0]||'Каталог',
@@ -171,7 +177,7 @@ function normalizeProduct(p,i){
     taxonomySource:tax.source,
     productType:tax.type,
     facets,
-    searchText:[name,p.sku||'',p.brand||'',p.model||'',dep.label,rawCat,pathText,description,Object.entries(specs).flat().join(' ')].join(' ').toLowerCase(),
+    searchText:[name,p.sku||'',brand,model,dep.label,rawCat,pathText,description,Object.entries(specs).flat().join(' ')].join(' ').toLowerCase(),
     icon:'🏷️',
     image:finalImages[0]||'',
     images:finalImages,
@@ -182,8 +188,8 @@ function normalizeProduct(p,i){
     specs,
     description,
     sku:p.sku||'',
-    brand:p.brand||'',
-    model:p.model||''
+    brand,
+    model
   }
 }
 
@@ -218,7 +224,7 @@ async function loadInitialCatalog(){
   initialCatalogPromise=(async()=>{
     try{
       const pre=window.__psFirstCatalogPromise;
-      const j=pre?await pre:await parseCatalogResponse(await fetch('api/catalog.php?limit=24&count=1&v=taxonomy1',{cache:'no-cache'}));
+      const j=pre?await pre:await parseCatalogResponse(await fetch('api/catalog.php?limit=24&count=1&v=taxonomy2',{cache:'no-cache'}));
       return{items:j.items.map(normalizeProduct),total:Number(j.total??j.count??0),imageHealth:j.image_health||null}
     }catch(e){
       console.warn('Fast first catalog page unavailable',e);
@@ -230,7 +236,7 @@ async function loadInitialCatalog(){
 async function loadStaticCatalog(){
   const manifest=await catalogRequest('data/manifest.json?v=8552',{cache:'default'});
   if(!Array.isArray(manifest.parts)||!manifest.parts.length)throw Error('empty catalog manifest');
-  const key=`ps-catalog-${manifest.products}-${manifest.parts.length}-taxonomy1`;
+  const key=`ps-catalog-${manifest.products}-${manifest.parts.length}-taxonomy2`;
   try{
     const cached=sessionStorage.getItem(key);
     if(cached){
@@ -238,9 +244,7 @@ async function loadStaticCatalog(){
       if(rows.length===manifest.products)return rows.map(normalizeProduct)
     }
   }catch(e){}
-  const batches=await Promise.all(manifest.parts.map(async name=>{
-    return catalogRequest(`data/${name}?v=8552`,{cache:'force-cache'})
-  }));
+  const batches=await Promise.all(manifest.parts.map(async name=>catalogRequest(`data/${name}?v=8552`,{cache:'force-cache'})));
   const rows=batches.flat();
   if(manifest.products&&rows.length!==manifest.products)throw Error(`catalog incomplete: ${rows.length}/${manifest.products}`);
   try{sessionStorage.setItem(key,JSON.stringify(rows))}catch(e){}
@@ -250,7 +254,7 @@ function startLiveCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?v=taxonomy1',{cache:'no-cache'},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?v=taxonomy2',{cache:'no-cache'},parseCatalogResponse);
       window.__psImageHealth=j.image_health||null;
       return j.items.map(normalizeProduct)
     }catch(e){
