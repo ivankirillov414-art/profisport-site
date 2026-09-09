@@ -1,15 +1,27 @@
 (()=>{
 const rub2=n=>new Intl.NumberFormat('ru-RU').format(n||0)+' ₽';
-const esc2=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
+const esc2=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const ruMap={'q':'й','w':'ц','e':'у','r':'к','t':'е','y':'н','u':'г','i':'ш','o':'щ','p':'з','[':'х',']':'ъ','a':'ф','s':'ы','d':'в','f':'а','g':'п','h':'р','j':'о','k':'л','l':'д',';':'ж',"'":'э','z':'я','x':'ч','c':'с','v':'м','b':'и','n':'т','m':'ь',',':'б','.':'ю'};
 const enMap=Object.fromEntries(Object.entries(ruMap).map(([a,b])=>[b,a]));
 const swap=(s,map)=>[...String(s||'').toLowerCase()].map(ch=>map[ch]||ch).join('');
-const synonyms=[[/\bвелик\w*/g,'велосип'],[/\bвел\b/g,'велосип'],[/\bmtb\b/g,'велосип'],[/\bгорник\w*/g,'горн'],[/\bзапчасти?\b/g,'запчаст'],[/\bаксессуары?\b/g,'аксессуар'],[/\bлыжи?\b/g,'лыж'],[/\bсноуборды?\b/g,'сноуборд']];
+const synonyms=[[/велик[а-я]*/g,'велосип'],[/^вел$/g,'велосип'],[/\bmtb\b/g,'велосип'],[/горник[а-я]*/g,'горн'],[/запчасти?/g,'запчаст'],[/аксессуары?/g,'аксессуар'],[/лыжи?/g,'лыж'],[/сноуборды?/g,'сноуборд']];
 const canon=s=>{let x=String(s||'').toLowerCase().trim().replace(/ё/g,'е');for(const [r,v] of synonyms)x=x.replace(r,v);return x.replace(/\s+/g,' ')};
 const variants=q=>[canon(q),canon(swap(q,ruMap)),canon(swap(q,enMap))].filter((v,i,a)=>v&&a.indexOf(v)===i);
 function ptext(p){return canon([p.name,p.brand,p.model,p.cat,p.pathText,p.description,Object.entries(p.specs||{}).flat().join(' ')].join(' '))}
-function searchIntent(q){const c=canon(q);if(/^велосип\w*(?:\s|$)/.test(c))return'bicycle';return''}
-function isBicycleProduct(p){const n=canon(p.name||'');if(!/велосип/.test(n))return false;if(/\bдля\s+(?:электро)?велосип/.test(n))return false;const direct=/^(?:(?:детск|подростков|горн|складн|городск|дорожн|женск|мужск|трехколесн|трёхколесн|3[- ]?х колесн)\w*\s+)*(?:электро\s*)?велосип\w*/.test(n)||/^электровелосип\w*/.test(n);if(direct)return true;const accessory=/\b(чехол|сумк|багажник|крыл|фонар|звонок|замок|покрыш|камер|насос|держател|креплен|корзин|зеркал|седл|сиден|педал|грипс|трос|цеп|кассет|звезд|переключ|тормоз|обод|вилк|рам|втулк|спиц|подножк|шлем|перчат|очки|колес)\w*/.test(n);return !accessory&&/(^|\s)(?:электро\s*)?велосип\w*/.test(n)}
+function searchIntent(q){const c=canon(q);if(/^велосип/.test(c))return'bicycle';return''}
+function isBicycleProduct(p){
+  const n=canon(p.name||'').replace(/[.,;:()[\]{}"']/g,' ');
+  if(!n.includes('велосип'))return false;
+  const direct=/^(?:(?:детский|подростковый|горный|складной|городской|дорожный|женский|мужской|трехколесный|3-х колесный)\s+)*(?:электро\s*)?велосипед(?:ы)?(?=\s|$|[0-9-])/.test(n)||/^электровелосипед(?:ы)?(?=\s|$|[0-9-])/.test(n);
+  if(direct)return true;
+  const m=n.match(/(^|\s)(?:электро\s*)?велосипед(?:ы)?(?=\s|$|[0-9-])/);
+  if(!m)return false;
+  const prefix=n.slice(0,m.index||0);
+  const accessoryRoots=['чехол','сумк','багажник','крыл','фонар','звонок','замок','покрыш','камер','насос','держател','креплен','корзин','зеркал','седл','сиден','педал','грипс','трос','цеп','кассет','звезд','переключ','тормоз','обод','вилк','рам','втулк','спиц','подножк','шлем','перчат','очки','колес','подстав','крепеж','адаптер'];
+  if(accessoryRoots.some(root=>prefix.includes(root)))return false;
+  if(/(?:для|на|под|к)\s*$/.test(prefix.trim()))return false;
+  return true;
+}
 function matchesIntent(p,intent){return intent!=='bicycle'||isBicycleProduct(p)}
 function bestQuery(q){const vs=variants(q);if(!vs.length)return'';for(const v of vs){const intent=searchIntent(v);if(products.some(p=>matchesIntent(p,intent)&&ptext(p).includes(v)))return v}return vs[0]}
 function imageOf(p){return p.image||((p.images||[])[0])||''}
