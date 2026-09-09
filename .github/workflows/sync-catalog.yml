@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/sync-catalog.yml
+      - scripts/catalog_audit.py
   schedule:
     - cron: '*/15 * * * *'
 permissions:
