@@ -3,13 +3,15 @@ const form=document.getElementById('order'),summary=document.getElementById('ord
 const rub=n=>Number(n).toLocaleString('ru-RU')+' ₽',esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let cart=[],validCart=[],pending=null;
 try{const saved=JSON.parse(localStorage.getItem('ps-cart')||'[]');if(Array.isArray(saved))cart=saved;pending=JSON.parse(sessionStorage.getItem('ps-order-pending')||'null')}catch(e){}
-function addressState(){const needed=form.elements.delivery.value==='orenburg_delivery';document.getElementById('addressLabel').classList.toggle('hidden',!needed);form.elements.address.required=needed}
+function addressState(){const needed=form.elements.delivery.value==='orenburg_delivery';document.getElementById('addressLabel').hidden=!needed;form.elements.address.required=needed}
 form.elements.delivery.onchange=addressState;addressState();form.elements.phone.oninput=()=>form.elements.phone.setCustomValidity('');
 async function request(url,opts={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);try{const r=await fetch(url,{...opts,signal:controller.signal});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'server_error');return j}finally{clearTimeout(timer)}}
 // Account prefill is optional and never blocks the cart.
 request('api/customer.php?action=me',{cache:'no-store'}).then(j=>{if(j.customer)for(const key of ['name','email','phone'])if(!form.elements[key].value)form.elements[key].value=j.customer[key]||''}).catch(()=>{});
 (async()=>{try{
-const all=await loadRealCatalog(),byId=new Map(all.map(p=>[String(p.id),p])),groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let total=0,invalid=false;
+const ids=[...new Set(cart.map(String))],all=[];
+for(let i=0;i<ids.length;i+=8){const batch=await Promise.all(ids.slice(i,i+8).map(loadProduct));all.push(...batch.filter(Boolean))}
+const byId=new Map(all.map(p=>[String(p.id),p])),groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let total=0,invalid=false;
 const rows=[...groups].map(([id,qty])=>{const p=byId.get(id);const bad=!p||p.stockCode==='out'||p.price<=0||(p.stockQty!==null&&qty>p.stockQty);if(bad)invalid=true;else{for(let i=0;i<qty;i++)validCart.push(p.id);total+=p.price*qty}return `<div class="checkoutRow"><span>${esc(p?.name||'Недоступный товар')} × ${qty}${bad?'<br><strong>Товар недоступен, цена не задана или превышен остаток.</strong>':''}</span><span>${p?rub(p.price*qty):''} <button type="button" data-remove="${esc(id)}">Убрать</button></span></div>`}).join('');
 summary.innerHTML=rows?`${rows}<div class="checkoutTotal">Сумма доступных товаров: <b>${rub(total)}</b></div>`:'<p>Корзина пуста. <a href="index.html">Перейти в каталог</a></p>';
 summary.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart=cart.filter(id=>String(id)!==b.dataset.remove);localStorage.setItem('ps-cart',JSON.stringify(cart));location.reload()});
