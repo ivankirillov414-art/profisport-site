@@ -61,6 +61,8 @@ jobs:
           grep -Fq "COALESCE(price_rub,0)>0" api/catalog.php
           grep -Fq "catalog_sanitize_specs" api/catalog.php
           grep -Fq "catalog_sanitize_old_price" api/catalog.php
+          grep -Fq "catalog_resolve_brand" api/catalog.php
+          grep -Fq "brands_inferred" api/catalog.php
       - name: Test checkout with a disposable database
         run: |
           cat > server/config.php <<'PHP'
