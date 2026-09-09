@@ -50,6 +50,7 @@ jobs:
           node --check product-kant.js
           php tests/order-validation.php
           node tests/mobile-layout-regression.js
+          node tests/catalog-taxonomy-regression.js
       - name: Verify order and catalog schema invariants
         run: |
           grep -Fq 'source_hash,name,slug,sku' api/import-apply.php
