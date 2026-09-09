@@ -1,0 +1,38 @@
+/* Final iOS visual viewport lock. Loaded after all storefront styles. */
+@media(max-width:850px){
+  html,body{
+    width:var(--ps-visible-width,100%)!important;
+    max-width:var(--ps-visible-width,100%)!important;
+    min-width:0!important;
+    overflow-x:hidden!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body{position:relative!important}
+  body>.top,body>main,body>footer,body>header,body>nav:not(.mobileBottomNav){
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  .top{width:100%!important;max-width:100%!important}
+  main{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+  .hero,.categorySection,#catalogProducts,.categories,.filters,.kantFilterRow,.products,.picker,.service{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  .hero,.categorySection,#catalogProducts{overflow:hidden!important}
+  .categories,.filters,.kantFilterRow,.products{grid-auto-columns:minmax(0,1fr)!important}
+  .categories>* ,.filters>* ,.kantFilterRow>* ,.products>*{min-width:0!important;max-width:100%!important}
+  .smartSearchWrap,.smartSearchWrap form,.mobileSearch{width:100%!important;max-width:100%!important;min-width:0!important}
+  .smartSuggest{left:8px!important;right:8px!important;width:auto!important;max-width:calc(var(--ps-visible-width,100vw) - 16px)!important}
+  .mobileBottomNav{left:10px!important;right:10px!important;width:auto!important;max-width:none!important;box-sizing:border-box!important}
+  .drawer{width:min(420px,var(--ps-visible-width,100vw))!important;max-width:var(--ps-visible-width,100vw)!important}
+  .mobileMenu{max-width:min(330px,88%)!important}
+  input,select,textarea{font-size:16px!important;min-width:0!important;max-width:100%!important}
+  img,svg,video,canvas{max-width:100%!important}
+}
