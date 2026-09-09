@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#454b53">
   <meta name="profisport-build" content="2026-09-09-catalog-taxonomy-v2">
   <title>ПрофиСпорт — спортивный магазин</title>
-  <link rel="stylesheet" href="storefront-v2.css?v=4">
+  <link rel="stylesheet" href="storefront-v2.css?v=5">
 </head>
 <body>
   <div class="top">
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <aside id="mobileMenu" class="mobileMenu" aria-hidden="true">
+  <dialog id="mobileMenu" class="mobileMenu" aria-label="Меню магазина">
     <div class="mobileMenuHead"><b>Меню</b><button id="menuClose" class="menuClose" aria-label="Закрыть">×</button></div>
     <a href="#catalog" data-menu-close>Каталог</a>
     <a href="#catalog" data-category="велосипед" data-menu-close>Велосипеды</a>
@@ -33,7 +33,7 @@
     <a href="service.html">Сервис</a>
     <a href="profile.html">Личный кабинет</a>
     <a href="#storeLocation" data-menu-close>Контакты</a>
-  </aside>
+  </dialog>
   <div id="menuBackdrop" class="menuBackdrop"></div>
 
   <header>
@@ -51,7 +51,13 @@
   <div id="megaBackdrop" class="megaCatalogBackdrop"></div>
   <div id="megaCatalog" class="megaCatalog"></div>
 
-  <main>
+  <main class="storefrontHome">
+      <form id="mobileSearch" class="mobileSearch smartSearchHost">
+        <input id="mobileQ" placeholder="Поиск по каталогу" autocomplete="off">
+        <button>Найти</button>
+        <div id="mobileSuggest" class="smartSuggest"></div>
+      </form>
+
     <div class="heroLayout">
     <section class="hero" id="heroSlider">
       <div class="heroTrack">
@@ -66,58 +72,52 @@
     </div>
     <section id="brandShowcase" class="brandShowcase" hidden><div class="sectionHead"><h2>Выбирайте по бренду</h2><a href="#catalogProducts">Все товары →</a></div><div id="brandShortcuts" class="brandShortcuts"></div></section>
     <section id="catalog" class="categorySection">
-      <div class="sectionHead"><h2>Ваш спорт начинается здесь</h2><a href="#catalogProducts">Весь каталог →</a></div>
+      <div class="sectionHead"><h2>Категории</h2><a href="#catalogProducts">Весь каталог →</a></div>
       <div id="categoryTiles" class="categoryTiles"><a href="#catalogProducts" class="categoryTile"><b>Каталог товаров</b><span>Загрузка категорий…</span></a></div>
     </section>
 
     <section id="catalogProducts">
       <div class="sectionHead"><h2>Каталог товаров</h2><span id="catalogStatus">Загрузка…</span></div>
-      <form id="mobileSearch" class="mobileSearch smartSearchHost">
-        <input id="mobileQ" placeholder="Поиск по каталогу" autocomplete="off">
-        <button>Найти</button>
-        <div id="mobileSuggest" class="smartSuggest"></div>
-      </form>
+      <div class="mobileCatalogToolbar"><button type="button" id="openFilters">Фильтры <span id="filterCount"></span></button><label><span class="srOnly">Сортировка товаров</span><select id="mobileSort"><option value="popular">По умолчанию</option><option value="priceAsc">Дешевле</option><option value="priceDesc">Дороже</option><option value="name">По названию</option></select></label></div>
+      <div id="filterHome"><div id="filterControls">
       <div id="categoryShortcuts" class="filterChips" aria-label="Разделы категории"></div>
       <div class="filters">
-        <select id="category"><option value="">Все категории</option></select>
-        <input id="minPrice" type="number" placeholder="Цена от">
-        <input id="maxPrice" type="number" placeholder="Цена до">
-        <select id="sort"><option value="popular">По умолчанию</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="name">По названию</option></select>
-        <button id="applyFilters">Показать</button><button id="resetFilters" class="secondary">Сбросить</button>
+        <select id="category" aria-label="Категория"><option value="">Все категории</option></select>
+        <input min="0" inputmode="numeric" id="minPrice" aria-label="Цена от, рублей" type="number" placeholder="Цена от">
+        <input min="0" inputmode="numeric" id="maxPrice" aria-label="Цена до, рублей" type="number" placeholder="Цена до">
+        <select id="sort" aria-label="Сортировка товаров"><option value="popular">По умолчанию</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="name">По названию</option></select>
+        <div id="filterActions"><button id="resetFilters" class="secondary">Сбросить</button><button id="applyFilters">Показать</button></div>
       </div>
       <div class="kantFilterRow">
-        <select id="brandFilter"><option value="">Все бренды</option></select>
+        <select id="brandFilter" aria-label="Бренд"><option value="">Все бренды</option></select>
         <label class="stockOnly"><input type="checkbox" id="stockOnly"> Только в наличии</label><label class="stockOnly"><input type="checkbox" id="saleOnly"> Со скидкой</label>
       </div>
       <div id="dynamicFilters" class="kantFilterRow" hidden>
-        <select id="facet1" hidden></select>
-        <select id="facet2" hidden></select>
+        <select id="facet1" aria-label="Первый параметр товара" hidden></select>
+        <select id="facet2" aria-label="Второй параметр товара" hidden></select>
       </div>
       <div class="budgetShortcuts" aria-label="Быстрый выбор бюджета"><span>Бюджет</span><button type="button" data-budget="30000">До 30 000 ₽</button><button type="button" data-budget="50000">До 50 000 ₽</button><button type="button" data-budget="100000">До 100 000 ₽</button></div>
+      </div></div>
       <div id="activeFilters" class="filterChips" aria-label="Выбранные фильтры" aria-live="polite"></div>
       <div id="products" class="products"><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article></div>
       <div class="pager"><button id="prevPage">←</button><span id="pageInfo"></span><button id="nextPage">→</button></div>
     </section>
 
-    <section id="picker" class="picker"><small>ПОМОЖЕМ С ВЫБОРОМ</small><h2>Подобрать велосипед</h2><p>По росту, стилю катания и бюджету.</p><div class="pickgrid"><label>Рост<input id="height" type="number" placeholder="175 см"></label><label>Бюджет<input id="budget" type="number" placeholder="50000 ₽"></label><label>Где катаетесь?<select id="ride"><option>Город</option><option>Город + грунт</option><option>Бездорожье</option></select></label><button id="pick">Подобрать</button></div><p id="pickResult"></p></section>
+    <section id="picker" class="picker"><small>ПОМОЖЕМ С ВЫБОРОМ</small><h2 id="pickerTitle">Подобрать велосипед</h2><p>По росту, стилю катания и бюджету.</p><div class="pickgrid"><label>Рост<input id="height" type="number" placeholder="175 см"></label><label>Бюджет<input id="budget" type="number" placeholder="50000 ₽"></label><label>Где катаетесь?<select id="ride"><option>Город</option><option>Город + грунт</option><option>Бездорожье</option></select></label><button id="pick">Подобрать</button></div><p id="pickResult"></p></section>
     <section id="service" class="service"><div><small>ВЕЛОСЕРВИС</small><h2>Сервис велосипедов<br>ПрофиСпорт</h2><p>Ремонт, настройка и техническое обслуживание велосипедов.</p></div><a class="primary" href="service.html">Записаться в сервис →</a></section>
     <section id="storeLocation" class="storeLocation"><div class="locationCard"><small>ПРОФИСПОРТ · ОРЕНБУРГ</small><h2>Будем рады видеть вас</h2><p class="storeAddress">Проспект Победы, 79</p><p>Магазин спортивных товаров</p><a class="primary" href="https://2gis.ru/orenburg/directions/points/%7C55.12148%2C51.788904%3B70000001078514147" target="_blank" rel="noopener noreferrer">Построить маршрут →</a><a class="mapFallback" href="https://2gis.ru/orenburg/firm/70000001078514147" target="_blank" rel="noopener noreferrer">Карточка магазина в 2ГИС</a></div><iframe title="Карта: ПрофиСпорт, Оренбург, проспект Победы, 79" src="https://yandex.ru/map-widget/v1/?ll=55.12148%2C51.788904&amp;z=16&amp;pt=55.12148%2C51.788904%2Cpm2ylm" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></section>
   </main>
 
   <footer id="contacts" class="storeFooter"><div><b>Профи<span>Спорт</span></b><p>Оренбург, проспект Победы, 79</p><a href="#storeLocation">Как добраться →</a></div><div><strong>Магазин</strong><a href="#catalogProducts">Каталог товаров</a><a href="#picker">Подбор велосипеда</a><a href="profile.html">Избранное и заказы</a></div><div><strong>Мастерская</strong><a href="service.html#serviceWorks">Выбрать работы</a><a href="service.html#bikeGuide">Устройство велосипеда</a><a href="service.html#booking">Записаться на обслуживание</a></div></footer>
 
-  <nav class="mobileBottomNav" aria-label="Основная навигация">
-    <a class="active" href="#"><span class="navBubble"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10.5V20h13v-9.5"></path></svg></span><span>Главная</span></a>
-    <a href="#catalogProducts"><span class="navBubble"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"></path></svg></span><span>Каталог</span></a>
-    <a href="service.html"><span class="navBubble"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.4 2.4-3-3z"></path></svg></span><span>Сервис</span></a>
-    <a href="profile.html"><span class="navBubble"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.6 12 20 12 20z"></path></svg></span><span>Избранное</span></a>
-    <a href="profile.html"><span class="navBubble"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.8-4.2 3.3-6.5 7.5-6.5s6.7 2.3 7.5 6.5"></path></svg></span><span>Профиль</span></a>
-  </nav>
+  <nav class="mobileBottomNav" aria-label="Основная навигация"><a href="#catalogProducts" data-nav="catalog" class="active" aria-current="page"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span><span>Каталог</span></a><a href="checkout.html" id="mobileCartBtn" data-nav="cart"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l2-8H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span>Корзина</span></a><a href="service.html" data-nav="service"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.4 2.4-3-3z"/></svg></span><span>Сервис</span></a><a href="profile.html" data-nav="profile"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.2 3.3-6.5 7.5-6.5s6.7 2.3 7.5 6.5"/></svg></span><span>Профиль</span></a></nav>
 
-  <aside id="cart" class="drawer" aria-hidden="true"><button class="close" onclick="toggleCart(false)">×</button><h2>Корзина</h2><div id="cartItems"></div><div class="total">Итого: <b id="total">0 ₽</b></div><button class="checkout">Оформить заказ</button></aside>
+  <dialog id="cart" class="drawer" aria-labelledby="cartTitle"><button class="close" onclick="toggleCart(false)" aria-label="Закрыть корзину">×</button><h2 id="cartTitle">Корзина</h2><div id="cartItems"></div><div class="total">Итого: <b id="total">0 ₽</b></div><button class="checkout">Оформить заказ</button></dialog>
 
+  <dialog id="filterDialog" class="filterDialog" aria-labelledby="filterTitle"><div class="filterDialogHead"><h2 id="filterTitle">Фильтры</h2><button type="button" id="closeFilters" aria-label="Закрыть фильтры">×</button></div><div id="filterDialogBody"></div><div id="filterDialogFooter"></div></dialog>
+  <dialog id="pickerDialog" class="partDialog" aria-labelledby="pickerTitle"><button type="button" class="dialogClose" aria-label="Закрыть подбор велосипеда">×</button></dialog>
   <dialog id="quickView" class="quickView" aria-labelledby="quickTitle"><button type="button" class="dialogClose" aria-label="Закрыть быстрый просмотр">×</button><div id="quickContent"></div></dialog>
   <script src="catalog-loader.js?v=21"></script>
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>

@@ -32,4 +32,13 @@ for(const file of ['product.html','checkout.html','profile.html','service.html']
   if(/mobile-layout-fix|mobile-viewport-lock|theme-clean-v1|storefront-kant\.css\?v=1|storefront\.css/.test(html))fail(`${file} still loads an obsolete public layout layer`);
 }
 
+if((cssCode.match(/@media\(max-width:850px\)/g)||[]).length!==1)fail('mobile storefront must have one layout block');
+if(index.indexOf('id="mobileSearch"')>index.indexOf('id="heroSlider"'))fail('mobile search must precede the banner');
+if(!index.includes('<dialog id="filterDialog"'))fail('mobile filters require a native dialog');
+if(!index.includes('id="filterDialogFooter"'))fail('filter actions must stay outside the scrolling controls');
+for(const file of ['index.html','product.html','checkout.html','profile.html','service.html']){
+  const html=read(file);
+  if(!html.includes('class="mobileBottomNav"'))fail(`${file} must expose shared mobile navigation`);
+  for(const destination of ['catalog','cart','service','profile'])if(!html.includes(`data-nav="${destination}"`))fail(`${file} misses ${destination} navigation`);
+}
 if(!process.exitCode)console.log('Mobile layout regression checks passed.');

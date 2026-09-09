@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#454b53">
   <title>Личный кабинет — ПрофиСпорт</title>
-  <link rel="stylesheet" href="storefront-v2.css?v=2">
-  <style>
-    .profilePage{max-width:900px;margin:20px auto}.profileGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}.profileCard{min-width:0;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 24px #22252a0c;overflow:hidden}.profileCard h2,.profileCard h3{margin-top:0}.authTabs{display:flex;gap:8px;margin-bottom:14px}.authTabs button{box-shadow:none}.authTabs .secondary.active{background:var(--y)}.profileForm{display:grid;gap:11px}.bonus{font-size:42px;font-weight:900}.profileFav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.profileFav a{min-width:0;background:#faf9f5;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;overflow-wrap:anywhere}.loyaltyRow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;min-width:0}.loyaltyRow>*{min-width:0;overflow-wrap:anywhere}.profileMsg{margin-top:10px;font-size:13px}.orderRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}.orderRow button{padding:8px 11px;box-shadow:none}.orderDetails{margin:10px 0 16px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#faf9f5}.orderDetailItem{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e8e5dc;font-size:12px}.orderDetailItem:last-child{border-bottom:0}@media(max-width:700px){.profileGrid{grid-template-columns:minmax(0,1fr)}.profileFav{grid-template-columns:repeat(2,minmax(0,1fr))}.profilePage{margin:0;padding:8px}.profileCard{padding:16px}.orderRow{grid-template-columns:minmax(0,1fr) auto}.orderRow>strong{grid-column:1}.orderRow button{grid-column:2;grid-row:1/3}}
-  </style>
+  <link rel="stylesheet" href="storefront-v2.css?v=5">
+
 </head>
 <body>
   <div class="top"><b>Профи<span>Спорт</span></b><div class="topActions"><a href="index.html">← Магазин</a></div></div>
@@ -39,5 +37,6 @@
     $('#logout').onclick=async()=>{await api('logout',{method:'POST',body:'{}'});csrf='';$('#orderDetails').innerHTML='';await refresh(false)};
     refresh(true).catch(()=>{$('#authMsg').textContent='Кабинет временно недоступен.'});
   </script>
+<nav class="mobileBottomNav" aria-label="Основная навигация"><a href="index.html#catalogProducts" data-nav="catalog"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span><span>Каталог</span></a><a href="checkout.html" data-nav="cart"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l2-8H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span>Корзина</span></a><a href="service.html" data-nav="service"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.4 2.4-3-3z"/></svg></span><span>Сервис</span></a><a href="profile.html" data-nav="profile" class="active" aria-current="page"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.2 3.3-6.5 7.5-6.5s6.7 2.3 7.5 6.5"/></svg></span><span>Профиль</span></a></nav>
 </body>
 </html>

@@ -137,7 +137,7 @@ function openQuickView(id){
   const p=products.find(p=>String(p.id)===String(id));if(!p)return;
   const dialog=$('#quickView'),imgs=imageCandidates(p),first=imgs.shift();
   $('#quickContent').innerHTML=`<div class="quickLayout"><div class="quickPhoto">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" alt="${esc(p.name)}">`:'<p>Фото уточняется</p>'}</div><div><small>${esc(p.cat)}</small><h2 id="quickTitle">${esc(p.name)}</h2>${highlightMarkup(p)}<span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span><div class="price">${rub(p.price)}</div><button type="button" id="quickAdd" ${p.stockCode==='out'?'disabled':''}>В корзину</button><a class="quickDetail" href="product.html?id=${encodeURIComponent(p.id)}">Все характеристики и отзывы →</a></div></div>`;
-  bindProductImages();$('#quickAdd').onclick=()=>{dialog.close();add(p.id)};dialog.showModal();
+  bindProductImages();$('#quickAdd').onclick=()=>{dialog.close();add(p.id)};dialog.showModal();syncBodyLock();
 }
 function render(list=view){
   view=list;
@@ -149,7 +149,7 @@ function render(list=view){
   $$('.quickViewButton').forEach(b=>b.onclick=()=>openQuickView(decodeURIComponent(b.dataset.quickId)));
   $$('.addBtn:not([disabled])').forEach(b=>b.onclick=()=>add(decodeURIComponent(b.dataset.id)));
   $$('.productFavorite').forEach(b=>b.onclick=()=>toggleFavorite(decodeURIComponent(b.dataset.favoriteId),b));
-  catalogStatus.textContent=`Найдено: ${view.length}`;pageInfo.textContent=`${page} / ${pages}`;prevPage.disabled=page<=1;nextPage.disabled=page>=pages;
+  catalogStatus.textContent=`${view.length} товаров`;if($('#mobileSort'))$('#mobileSort').value=sort.value;if($('#filterDialog').open)$('#applyFilters').textContent=`Показать товары (${view.length})`;pageInfo.textContent=`${page} / ${pages}`;prevPage.disabled=page<=1;nextPage.disabled=page>=pages;
 }
 
 function syncState(){
@@ -187,10 +187,12 @@ function add(id){cart.push(id);saveCart();toggleCart(true)}
 function saveCart(){localStorage.setItem('ps-cart',JSON.stringify(cart));count.textContent=cart.length;renderCart()}
 function renderCart(){const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0;cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p)return'';sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';total.textContent=rub(sum)}
 function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x.id)===id);if(i>=0)cart.splice(i,1)}saveCart()}
-function toggleCart(force){const open=force===undefined?!cartEl.classList.contains('open'):force;cartEl.classList.toggle('open',open);cartEl.setAttribute('aria-hidden',String(!open))}
+function toggleCart(force){const open=force===undefined?!cartEl.open:force;cartEl.classList.toggle('open',open);if(open&&!cartEl.open)cartEl.showModal();if(!open&&cartEl.open)cartEl.close();syncBodyLock()}
 window.changeQty=changeQty;window.toggleCart=toggleCart;
 
-function toggleMenu(force){const menu=$('#mobileMenu'),back=$('#menuBackdrop');const open=force===undefined?!menu.classList.contains('open'):force;menu.classList.toggle('open',open);back.classList.toggle('open',open);menu.setAttribute('aria-hidden',String(!open));document.body.style.overflow=open?'hidden':''}
+function syncBodyLock(){document.body.style.overflow=document.querySelector('dialog[open]')?'hidden':''}
+function toggleMenu(force){const menu=$('#mobileMenu');const open=force===undefined?!menu.open:force;menu.classList.toggle('open',open);if(open&&!menu.open)menu.showModal();if(!open&&menu.open)menu.close();syncBodyLock()}
+
 
 async function loadCustomerState(){
   try{const r=await fetch('api/customer.php?action=me',{cache:'no-store'}),j=await r.json();if(r.ok&&j.ok&&j.customer){customerState={logged:true,csrf:j.csrf||''};favorites=new Set((j.favorites||[]).map(String));localStorage.setItem('ps-favorites',JSON.stringify([...favorites]));refreshFavoriteButtons()}}catch(e){}
@@ -273,6 +275,7 @@ function renderFilterChips(){
   if(minPrice.value)chips.push(['min','От '+rub(minPrice.value)]);
   if(maxPrice.value)chips.push(['max','До '+rub(maxPrice.value)]);
   for(const [id,sel] of [['f1',facet1],['f2',facet2]])if(sel?.value)chips.push([id,sel.options[0].text.replace(': все','')+': '+sel.value]);
+  $('#filterCount').textContent=chips.length?String(chips.length):'';
   $('#activeFilters').innerHTML=chips.map(([id,label])=>`<button type="button" class="selected" data-clear="${id}" aria-label="Убрать фильтр: ${esc(label)}">${esc(label)} <span aria-hidden="true">×</span></button>`).join('')+(chips.length?'<button type="button" data-clear="all">Очистить всё</button>':'');
   $$('#activeFilters button').forEach(b=>b.onclick=()=>{
     const id=b.dataset.clear;
@@ -288,8 +291,8 @@ $$('[data-budget]').forEach(b=>b.onclick=()=>{minPrice.value='';maxPrice.value=b
 function setupHero(){
   const slider=$('#heroSlider'),track=slider?.querySelector('.heroTrack'),slides=$$('.heroSlide'),dots=$$('#heroSlider .dots button');if(!slider||!track||!slides.length)return;
   let current=0,startX=0,startY=0,dx=0,dy=0,timer;
-  const setSlide=(n,restart=true)=>{current=(n+slides.length)%slides.length;const mobile=matchMedia('(max-width:850px)').matches;slides.forEach((s,i)=>s.classList.toggle('is-active',i===current));dots.forEach((d,i)=>d.classList.toggle('active',i===current));track.style.transform=mobile?'none':`translateX(${-current*100}%)`;if(restart){clearInterval(timer);timer=setInterval(()=>setSlide(current+1,false),5000)}};
-  dots.forEach((d,i)=>d.onclick=()=>setSlide(i));slider.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;dx=dy=0;clearInterval(timer)},{passive:true});slider.addEventListener('touchmove',e=>{dx=e.touches[0].clientX-startX;dy=e.touches[0].clientY-startY},{passive:true});slider.addEventListener('touchend',()=>{if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.2)setSlide(current+(dx<0?1:-1));else setSlide(current)},{passive:true});window.addEventListener('resize',()=>setSlide(current,false),{passive:true});setSlide(0);
+  const setSlide=(n,restart=true)=>{const mobile=matchMedia('(max-width:850px)').matches;current=mobile?0:(n+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('is-active',i===current));dots.forEach((d,i)=>d.classList.toggle('active',i===current));track.style.transform=mobile?'none':`translateX(${-current*100}%)`;if(restart){clearInterval(timer);if(!mobile&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>setSlide(current+1,false),5000)}};
+  dots.forEach((d,i)=>d.onclick=()=>setSlide(i));slider.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;dx=dy=0;clearInterval(timer)},{passive:true});slider.addEventListener('touchmove',e=>{dx=e.touches[0].clientX-startX;dy=e.touches[0].clientY-startY},{passive:true});slider.addEventListener('touchend',()=>{if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.2)setSlide(current+(dx<0?1:-1));else setSlide(current)},{passive:true});window.addEventListener('resize',()=>setSlide(current,true),{passive:true});setSlide(0);
 }
 
 function populateFilters(){
@@ -299,14 +302,35 @@ function populateFilters(){
 }
 function restoreState(){selectedSubcategory=new URLSearchParams(location.search).get('sub')||'';const sp=new URLSearchParams(location.search),initialQ=sp.get('q')||'';q.value=initialQ;mobileQ.value=initialQ;category.value=sp.get('cat')||'';brandFilter.value=sp.get('brand')||'';stockOnly.checked=sp.get('stock')==='1';saleOnly.checked=sp.get('sale')==='1';minPrice.value=sp.get('min')||'';maxPrice.value=sp.get('max')||'';sort.value=sp.get('sort')||'popular';page=Math.max(1,+sp.get('page')||1);restoredFacetValues=[sp.get('f1')||'',sp.get('f2')||'']}
 
-$('#cartBtn')?.addEventListener('click',()=>toggleCart());$('#searchBtn')?.addEventListener('click',()=>{toggleMenu(false);$('#catalogProducts')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>mobileQ?.focus(),250)});$('#menuBtn')?.addEventListener('click',()=>toggleMenu(true));$('#menuClose')?.addEventListener('click',()=>toggleMenu(false));$('#menuBackdrop')?.addEventListener('click',()=>toggleMenu(false));$$('[data-menu-close]').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape'){toggleMenu(false);toggleCart(false);closeMega()}});$('.checkout')?.addEventListener('click',()=>{if(cart.length)location.href='checkout.html'});
-$('#applyFilters')?.addEventListener('click',e=>{e?.preventDefault();apply(true,true)});$('#resetFilters')?.addEventListener('click',e=>{e?.preventDefault();selectedSubcategory='';category.value='';brandFilter.value='';stockOnly.checked=false;saleOnly.checked=false;minPrice.value='';maxPrice.value='';sort.value='popular';q.value='';mobileQ.value='';if(facet1)facet1.value='';if(facet2)facet2.value='';page=1;configureContextFilters('', '');render(products);renderFilterChips();renderCategoryShortcuts();syncState()});
+$('#cartBtn')?.addEventListener('click',()=>toggleCart());$('#searchBtn')?.addEventListener('click',()=>{toggleMenu(false);mobileQ?.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>mobileQ?.focus({preventScroll:true}),250)});$('#menuBtn')?.addEventListener('click',()=>toggleMenu(true));$('#menuClose')?.addEventListener('click',()=>toggleMenu(false));$('#menuBackdrop')?.addEventListener('click',()=>toggleMenu(false));$$('[data-menu-close]').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape'){toggleMenu(false);toggleCart(false);closeMega()}});$('.checkout')?.addEventListener('click',()=>{if(cart.length)location.href='checkout.html'});
+$('#applyFilters')?.addEventListener('click',e=>{e?.preventDefault();apply(true,true);$('#filterDialog').close()});$('#resetFilters')?.addEventListener('click',e=>{e?.preventDefault();selectedSubcategory='';category.value='';brandFilter.value='';stockOnly.checked=false;saleOnly.checked=false;minPrice.value='';maxPrice.value='';sort.value='popular';q.value='';mobileQ.value='';if(facet1)facet1.value='';if(facet2)facet2.value='';page=1;configureContextFilters('', '');render(products);renderFilterChips();renderCategoryShortcuts();syncState()});
 [category,brandFilter,sort,stockOnly,saleOnly,facet1,facet2].forEach(el=>el?.addEventListener('change',()=>{if(el===category)selectedSubcategory='';apply(true,true)}));
 prevPage?.addEventListener('click',()=>{if(page>1){page--;render(view);syncState();productsEl.scrollIntoView()}});nextPage?.addEventListener('click',()=>{if(page*PAGE<view.length){page++;render(view);syncState();productsEl.scrollIntoView()}});
 $$('[data-category]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const term=a.dataset.category||'';selectedSubcategory='';toggleMenu(false);category.value='';q.value=term;mobileQ.value=term;apply(true,true);productsEl.scrollIntoView({behavior:'smooth'})}));
 $('#search')?.addEventListener('submit',e=>{e.preventDefault();mobileQ.value=q.value;selectedSubcategory='';apply(true,true);$('#desktopSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});$('#mobileSearch')?.addEventListener('submit',e=>{e.preventDefault();q.value=mobileQ.value;selectedSubcategory='';apply(true,true);$('#mobileSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});
 $('#desktopCatalogLink')?.addEventListener('click',e=>{e.preventDefault();$('#megaCatalog')?.classList.contains('open')?closeMega():openMega()});$('#megaBackdrop')?.addEventListener('click',closeMega);
-$('#pick')?.addEventListener('click',()=>{const h=+$('#height').value,b=+$('#budget').value;if(!h||!b){$('#pickResult').textContent='Укажите рост и бюджет.';return}const frame=h<165?'S':h<178?'M':h<188?'L':'XL',matches=products.filter(p=>p.productType==='bicycle'&&p.price<=b&&p.stockCode!=='out');$('#pickResult').innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;page=1;render(matches);productsEl.scrollIntoView({behavior:'smooth'})});
+$('#pick')?.addEventListener('click',()=>{const h=+$('#height').value,b=+$('#budget').value;if(!h||!b){$('#pickResult').textContent='Укажите рост и бюджет.';return}const frame=h<165?'S':h<178?'M':h<188?'L':'XL',matches=products.filter(p=>p.productType==='bicycle'&&p.price<=b&&p.stockCode!=='out');$('#pickResult').innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;$('#resetFilters').click();category.value='bicycle';maxPrice.value=String(b);stockOnly.checked=true;apply();$('#pickerDialog').close();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
+
+// Move the same controls into native mobile dialogs; never clone IDs or filter state.
+const mobileLayout=matchMedia('(max-width:850px)');
+const pickerHome=document.createElement('div');pickerHome.id='pickerHome';
+$('#picker').parentNode.insertBefore(pickerHome,$('#picker'));pickerHome.append($('#picker'));
+function syncMobileLayout(){
+  const filters=$('#filterControls'),picker=$('#picker');
+  if(mobileLayout.matches){$('#filterDialogBody').append(filters);$('#filterDialogFooter').append($('#filterActions'));$('#pickerDialog').append(picker)}
+  else{$('#filterDialog').close();$('#pickerDialog').close();$('#filterHome').append(filters);filters.querySelector('.filters').append($('#filterActions'));pickerHome.append(picker);$('#applyFilters').textContent='Показать'}
+  syncBodyLock();
+}
+$('#openFilters').onclick=()=>{$('#applyFilters').textContent=`Показать товары (${view.length})`;$('#filterDialog').showModal();syncBodyLock()};
+$('#closeFilters').onclick=()=>$('#filterDialog').close();
+$('#mobileSort').onchange=()=>{sort.value=$('#mobileSort').value;apply()};
+$('#mobileCartBtn').onclick=e=>{e.preventDefault();toggleCart(true)};
+$$('a[href="#picker"]').forEach(a=>a.addEventListener('click',e=>{if(mobileLayout.matches){e.preventDefault();toggleMenu(false);$('#pickerDialog').showModal();syncBodyLock()}}));
+$('#pickerDialog .dialogClose').onclick=()=>$('#pickerDialog').close();
+$$('dialog').forEach(dialog=>dialog.addEventListener('close',()=>{dialog.classList.remove('open');syncBodyLock()}));
+$('#quickView').addEventListener('close',syncBodyLock);
+mobileLayout.addEventListener?.('change',syncMobileLayout);syncMobileLayout();
+if(mobileLayout.matches&&location.hash==='#picker'){$('#pickerDialog').showModal();syncBodyLock()}
 
 setupHero();
 bindSuggest(q,$('#desktopSuggest'));bindSuggest(mobileQ,$('#mobileSuggest'));
