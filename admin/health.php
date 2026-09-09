@@ -11,7 +11,8 @@ $required=[
  'service_requests'=>['id','request_number','name','phone','status','request_key'],
 ];
 foreach($required as $table=>$columns){
- try{$present=table_columns($pdo,$table);$missing=array_diff($columns,array_keys($present));$checks['Таблица '.$table]=$missing?'Не хватает полей: '.implode(', ',$missing):'OK';}
+ try{$present=table_columns($pdo,$table);$missing=array_diff($columns,array_keys($present));$checks['Таблица '.$table]=$missing?'Не хватает полей: '.implode(', ',$missing):'OK';
+ if($missing){$metadata=[];foreach($pdo->query("SHOW COLUMNS FROM `$table`") as $column)$metadata[]=$column['Field'].' ('.$column['Type'].', '.($column['Null']==='YES'?'NULL':'NOT NULL').($column['Default']===null?'':', DEFAULT установлен').')';$checks['Структура '.$table]=implode('; ',$metadata);}}
  catch(Throwable $e){$checks['Таблица '.$table]='Не удалось проверить';error_log($e->__toString());}
 }
 try{$pdo->query('SELECT id,order_number,customer_name,phone,status,total_rub,created_at FROM orders ORDER BY id DESC LIMIT 1');$checks['Чтение заказов']='OK';}
