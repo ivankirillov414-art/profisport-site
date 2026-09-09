@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#454b53">
   <meta name="profisport-build" content="2026-09-09-catalog-taxonomy-v2">
   <title>ПрофиСпорт — спортивный магазин</title>
-  <link rel="stylesheet" href="storefront-v2.css?v=2">
+  <link rel="stylesheet" href="storefront-v2.css?v=3">
 </head>
 <body>
   <div class="top">
@@ -62,12 +62,8 @@
     </section>
 
     <section id="catalog" class="categorySection">
-      <div class="categories">
-        <a data-category="велосипед"><span class="catIcon">🚲</span><b>Велосипеды</b></a>
-        <a data-category="запчаст"><span class="catIcon">🔧</span><b>Запчасти</b></a>
-        <a data-category="аксессуар"><span class="catIcon">⛑</span><b>Аксессуары</b></a>
-        <a data-category="фитнес"><span class="catIcon">🏋</span><b>Спорттовары</b></a>
-      </div>
+      <div class="sectionHead"><h2>Ваш спорт начинается здесь</h2><a href="#catalogProducts">Весь каталог →</a></div>
+      <div id="categoryTiles" class="categoryTiles"><a href="#catalogProducts" class="categoryTile"><b>Каталог товаров</b><span>Загрузка категорий…</span></a></div>
     </section>
 
     <section id="catalogProducts">
@@ -77,6 +73,7 @@
         <button>Найти</button>
         <div id="mobileSuggest" class="smartSuggest"></div>
       </form>
+      <div id="categoryShortcuts" class="filterChips" aria-label="Разделы категории"></div>
       <div class="filters">
         <select id="category"><option value="">Все категории</option></select>
         <input id="minPrice" type="number" placeholder="Цена от">
@@ -92,6 +89,8 @@
         <select id="facet1" hidden></select>
         <select id="facet2" hidden></select>
       </div>
+      <div class="budgetShortcuts" aria-label="Быстрый выбор бюджета"><span>Бюджет</span><button type="button" data-budget="30000">До 30 000 ₽</button><button type="button" data-budget="50000">До 50 000 ₽</button><button type="button" data-budget="100000">До 100 000 ₽</button></div>
+      <div id="activeFilters" class="filterChips" aria-label="Выбранные фильтры" aria-live="polite"></div>
       <div id="products" class="products"><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article></div>
       <div class="pager"><button id="prevPage">←</button><span id="pageInfo"></span><button id="nextPage">→</button></div>
     </section>
@@ -100,7 +99,7 @@
     <section id="service" class="service"><div><small>ВЕЛОСЕРВИС</small><h2>Сервис велосипедов<br>ПрофиСпорт</h2><p>Ремонт, настройка и техническое обслуживание велосипедов.</p></div><a class="primary" href="service.html">Записаться в сервис →</a></section>
   </main>
 
-  <footer id="contacts"><b>Профи<span>Спорт</span></b><span>Оренбург, проспект Победы, 79</span><span>Продажа · Сервис · Доставка</span></footer>
+  <footer id="contacts" class="storeFooter"><div><b>Профи<span>Спорт</span></b><p>Оренбург, проспект Победы, 79</p></div><div><strong>Магазин</strong><a href="#catalogProducts">Каталог товаров</a><a href="#picker">Подбор велосипеда</a><a href="profile.html">Избранное и заказы</a></div><div><strong>Мастерская</strong><a href="service.html#serviceWorks">Выбрать работы</a><a href="service.html#bikeGuide">Устройство велосипеда</a><a href="service.html#booking">Записаться на обслуживание</a></div></footer>
 
   <nav class="mobileBottomNav" aria-label="Основная навигация">
     <a class="active" href="#"><span class="navBubble"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10.5V20h13v-9.5"></path></svg></span><span>Главная</span></a>
@@ -112,7 +111,8 @@
 
   <aside id="cart" class="drawer" aria-hidden="true"><button class="close" onclick="toggleCart(false)">×</button><h2>Корзина</h2><div id="cartItems"></div><div class="total">Итого: <b id="total">0 ₽</b></div><button class="checkout">Оформить заказ</button></aside>
 
+  <dialog id="quickView" class="quickView" aria-labelledby="quickTitle"><button type="button" class="dialogClose" aria-label="Закрыть быстрый просмотр">×</button><div id="quickContent"></div></dialog>
   <script src="catalog-loader.js?v=21"></script>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>
