@@ -8,6 +8,22 @@ function norm_key(string $s): string {
     return trim(preg_replace('/\s+/u',' ',$s)??'');
 }
 
+function load_photo_overrides(): array {
+    $file=__DIR__.'/../data/photo-overrides.json';
+    if(!is_file($file))return [];
+    $j=json_decode((string)@file_get_contents($file),true);
+    if(!is_array($j))return [];
+    $items=is_array($j['items']??null)?$j['items']:[];
+    $out=[];
+    foreach($items as $key=>$row){
+        if(is_string($row))$url=trim($row);
+        elseif(is_array($row))$url=trim((string)($row['image']??''));
+        else continue;
+        if($url!==''&&preg_match('~^https?://~i',$url))$out[norm_key((string)$key)]=$url;
+    }
+    return $out;
+}
+
 function load_fallback_index(): array {
     $dataRoot=realpath(__DIR__.'/../data');
     if(!$dataRoot)return ['by_key'=>[],'by_name'=>[]];
@@ -90,6 +106,13 @@ function load_fallback_index(): array {
 $name=norm_key((string)($_GET['name']??''));
 $cat=norm_key((string)($_GET['cat']??''));
 if($name===''){http_response_code(404);exit;}
+
+$overrides=load_photo_overrides();
+if(!empty($overrides[$name])){
+    header('Cache-Control: public, max-age=3600, stale-while-revalidate=86400');
+    header('Location: '.$overrides[$name],true,302);
+    exit;
+}
 
 $index=load_fallback_index();
 $urls=[];
