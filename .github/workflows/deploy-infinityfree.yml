@@ -19,8 +19,10 @@ jobs:
       - name: Verify storefront regressions
         run: |
           node --check service-guide.js
+          node --check catalog-live-paged.js
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
+          node tests/catalog-live-source-regression.js
           php tests/catalog-quality.php
 
       - name: Build private server config
@@ -75,7 +77,7 @@ jobs:
           AUTH="if0_42771076:${FTP_PASSWORD}"
           mkdir -p /tmp/profisport-remote/api /tmp/profisport-remote/server
 
-          for file in index.html product.html checkout.html profile.html service.html service.js service-guide.js storefront-v2.css app.js catalog-loader.js api/health.php api/catalog.php server/catalog-quality.php; do
+          for file in index.html product.html checkout.html profile.html service.html service.js service-guide.js storefront-v2.css app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php server/catalog-quality.php; do
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
               --user "$AUTH" "$FTP_ROOT/$file" -o "/tmp/profisport-remote/$file"
@@ -88,6 +90,7 @@ jobs:
           grep -Eq 'storefront-v2\.css\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'app\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
+          grep -Eq 'catalog-live-paged\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Fq "COALESCE(price_rub,0)>0" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_sanitize_specs" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_resolve_brand" /tmp/profisport-remote/api/catalog.php
@@ -120,6 +123,7 @@ jobs:
           grep -Eq 'storefront-v2\.css\?v=[0-9]+' /tmp/live.html
           grep -Eq 'app\.js\?v=[0-9]+' /tmp/live.html
           grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/live.html
+          grep -Eq 'catalog-live-paged\.js\?v=[0-9]+' /tmp/live.html
           if grep -Eq 'mobile-layout-fix|mobile-viewport-lock|storefront-kant|theme-clean-v1' /tmp/live.html; then
             echo 'Obsolete layout assets are still present in live HTML' >&2
             exit 1
