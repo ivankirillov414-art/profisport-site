@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="theme-color" content="#454b53">
-  <meta name="profisport-build" content="2026-09-09-mobile-v2">
+  <meta name="profisport-build" content="2026-09-09-catalog-taxonomy-v1">
   <title>ПрофиСпорт — спортивный магазин</title>
   <link rel="stylesheet" href="storefront-v2.css?v=2">
 </head>
@@ -88,6 +88,10 @@
         <select id="brandFilter"><option value="">Все бренды</option></select>
         <label class="stockOnly"><input type="checkbox" id="stockOnly"> Только в наличии</label>
       </div>
+      <div id="dynamicFilters" class="kantFilterRow" hidden>
+        <select id="facet1" hidden></select>
+        <select id="facet2" hidden></select>
+      </div>
       <div id="products" class="products"><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article></div>
       <div class="pager"><button id="prevPage">←</button><span id="pageInfo"></span><button id="nextPage">→</button></div>
     </section>
@@ -108,7 +112,7 @@
 
   <aside id="cart" class="drawer" aria-hidden="true"><button class="close" onclick="toggleCart(false)">×</button><h2>Корзина</h2><div id="cartItems"></div><div class="total">Итого: <b id="total">0 ₽</b></div><button class="checkout">Оформить заказ</button></aside>
 
-  <script src="catalog-loader.js?v=19"></script>
-  <script src="app.js?v=21"></script>
+  <script src="catalog-loader.js?v=20"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>
