@@ -4,6 +4,7 @@ declare(strict_types=1);
 $configFile=__DIR__.'/../server/config.php';
 if(!is_file($configFile)){http_response_code(500);exit;}
 $config=require $configFile;
+require __DIR__.'/../server/catalog-quality.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: public, max-age=60, stale-while-revalidate=300');
@@ -40,9 +41,12 @@ try{
     [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]
   );
 
+  $activeWhere="is_active=1 AND COALESCE(stock_status,'unknown')<>'out_of_stock' AND COALESCE(availability,'unknown')<>'out_of_stock'";
+  $excludedMissingPrice=(int)$pdo->query("SELECT COUNT(*) FROM products WHERE $activeWhere AND COALESCE(price_rub,0)<=0")->fetchColumn();
+
   $limit=max(0,min(500,(int)($_GET['limit']??0)));
   $offset=max(0,(int)($_GET['offset']??0));
-  $sql="SELECT id,source_id,name,slug,sku,brand,model,price,old_price,stock_status,stock_qty,short_description,description,specs,main_image,price_rub,old_price_rub,availability,category_path,images,updated_at FROM products WHERE is_active=1 AND COALESCE(stock_status,'unknown')<>'out_of_stock' AND COALESCE(availability,'unknown')<>'out_of_stock' ORDER BY sort_order ASC,id ASC";
+  $sql="SELECT id,source_id,name,slug,sku,brand,model,price,old_price,stock_status,stock_qty,short_description,description,specs,main_image,price_rub,old_price_rub,availability,category_path,images,updated_at FROM products WHERE $activeWhere AND COALESCE(price_rub,0)>0 ORDER BY sort_order ASC,id ASC";
   $productId=max(0,(int)($_GET['id']??0));
   if($productId>0)$sql=str_replace(' ORDER BY',' AND id='.$productId.' ORDER BY',$sql);
   if($limit>0)$sql.=' LIMIT '.$limit.' OFFSET '.$offset;
@@ -53,6 +57,8 @@ try{
   $itemsWithoutSourceImage=0;
   $itemsWithLocalImage=0;
   $itemsWithRemoteImage=0;
+  $removedSuspiciousSpecs=0;
+  $suppressedInvalidOldPrices=0;
 
   while($p=$stmt->fetch()){
     $decoded=json_decode((string)($p['images']??''),true);
@@ -85,6 +91,19 @@ try{
       else $itemsWithRemoteImage++;
     }
 
+    $specs=json_decode((string)($p['specs']??'{}'),true);
+    if(!is_array($specs))$specs=[];
+    $beforeRemoved=$removedSuspiciousSpecs;
+    $specs=catalog_sanitize_specs((string)$p['name'],$specs,$removedSuspiciousSpecs);
+
+    $price=(float)$p['price'];
+    $priceRub=(int)$p['price_rub'];
+    $rawOldPrice=$p['old_price']!==null?(float)$p['old_price']:null;
+    $rawOldPriceRub=$p['old_price_rub']!==null?(int)$p['old_price_rub']:null;
+    $oldPrice=catalog_sanitize_old_price_float($price,$rawOldPrice);
+    $oldPriceRub=catalog_sanitize_old_price($priceRub,$rawOldPriceRub);
+    if($rawOldPriceRub!==null&&$oldPriceRub===null)$suppressedInvalidOldPrices++;
+
     $items[]=[
       'id'=>(int)$p['id'],
       'source_id'=>$p['source_id'],
@@ -94,16 +113,16 @@ try{
       'sku'=>$p['sku'],
       'brand'=>$p['brand'],
       'model'=>$p['model'],
-      'price'=>(float)$p['price'],
-      'price_rub'=>(int)$p['price_rub'],
-      'old_price'=>$p['old_price']!==null?(float)$p['old_price']:null,
-      'old_price_rub'=>$p['old_price_rub']!==null?(int)$p['old_price_rub']:null,
+      'price'=>$price,
+      'price_rub'=>$priceRub,
+      'old_price'=>$oldPrice,
+      'old_price_rub'=>$oldPriceRub,
       'availability'=>$p['availability']?:$p['stock_status'],
       'stock_status'=>$p['stock_status'],
       'stock_qty'=>$p['stock_qty']!==null?(int)$p['stock_qty']:null,
       'category_path'=>$categoryPath,
       'description'=>$p['short_description']?:($p['description']??''),
-      'specs'=>json_decode((string)($p['specs']??'{}'),true)?:[],
+      'specs'=>$specs,
       'images'=>$images,
       'image'=>$images[0]??null,
       'image_source_missing'=>$sourceImageMissing,
@@ -114,7 +133,7 @@ try{
 
   $total=null;
   if(isset($_GET['count'])&&$_GET['count']==='1'){
-    $total=(int)$pdo->query("SELECT COUNT(*) FROM products WHERE is_active=1 AND COALESCE(stock_status,'unknown')<>'out_of_stock' AND COALESCE(availability,'unknown')<>'out_of_stock'")->fetchColumn();
+    $total=(int)$pdo->query("SELECT COUNT(*) FROM products WHERE $activeWhere AND COALESCE(price_rub,0)>0")->fetchColumn();
   }
 
   echo json_encode([
@@ -126,6 +145,11 @@ try{
       'items_without_source_image'=>$itemsWithoutSourceImage,
       'items_with_local_image'=>$itemsWithLocalImage,
       'items_with_remote_image'=>$itemsWithRemoteImage
+    ],
+    'quality_health'=>[
+      'excluded_missing_price'=>$excludedMissingPrice,
+      'suspicious_specs_removed'=>$removedSuspiciousSpecs,
+      'invalid_old_prices_suppressed'=>$suppressedInvalidOldPrices
     ],
     'items'=>$items
   ],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE);
