@@ -23,6 +23,10 @@ TYPE_RULES=[
  ('pool',re.compile(r'^бассейн(?:\s|-)',re.I),('водн','бассейн')),
 ]
 
+BRAND_TOKEN_STOP={
+ 'PRO','SPORT','SPORTS','CARBON','ALU','ALLOY','STEEL','BLACK','WHITE','BLUE','RED','GREEN','GREY','GRAY','PINK','ORANGE','YELLOW','PURPLE','NAVY','SILVER','GOLD','JR','JUNIOR','KIDS','KID','MEN','WOMEN','LADY','MTB','BMX','CITY','ROAD','TRAIL','RACE','RACING','TEAM','CLASSIC','SKATE','STEP','COMFORT','BASIC','START','PLUS','MAX','MINI','SUPER','ULTRA','LIGHT','LITE','AIR','DX','NEW','SET','SIZE'
+}
+
 def norm(s):
  s=str(s or '').strip().lower().replace('ё','е')
  s=re.sub(r'[^a-zа-я0-9-]+',' ',s,flags=re.I)
@@ -42,6 +46,15 @@ def image_values(row):
   value=str(row.get(key) or '').strip()
   if value:values.append(value)
  return list(dict.fromkeys(values))
+def brand_tokens(name):
+ out=[]
+ for raw in re.findall(r'(?<![A-Za-zА-Яа-я0-9])[A-Za-z][A-Za-z0-9&+.-]{2,}',str(name or '')):
+  token=raw.strip('.,+-').upper()
+  if len(token)<3 or token in BRAND_TOKEN_STOP:continue
+  letters=sum(ch.isalpha() for ch in token);digits=sum(ch.isdigit() for ch in token)
+  if letters<2 or (digits>0 and digits>=letters):continue
+  if token not in out:out.append(token)
+ return out
 def is_cycling_pulley(n):
  return n.startswith('ролики ') and (any(x in n for x in ('переключател','суппорт','подшипник','направляющ','shimano','sram')) or re.search(r'(?:^|\s)rd[- ]?[a-z0-9]',n,re.I))
 def classify(name):
@@ -117,6 +130,7 @@ def main():
  rows=load_rows();by_name=defaultdict(list);by_url=defaultdict(list);cats=Counter();types=Counter();issues=[]
  missing_images=0;missing_brand=0;old_price_reversed=0;zero_price=0
  zero_price_items=[];invalid_old_price_items=[];missing_image_items=[];missing_brand_items=[]
+ brand_candidate_counts=Counter();brand_candidate_examples=defaultdict(list)
  for i,row in enumerate(rows):
   name=title(row);n=norm(name);path=path_list(row);ptext=norm(' '.join(path));kind=classify(name)
   if n:by_name[n].append(i)
@@ -132,6 +146,10 @@ def main():
   if not brand:
    missing_brand+=1
    if len(missing_brand_items)<120:missing_brand_items.append(compact_row(row))
+   for token in brand_tokens(name):
+    brand_candidate_counts[token]+=1
+    examples=brand_candidate_examples[token]
+    if len(examples)<3 and name not in examples:examples.append(name)
   price=int(row.get('price_rub') or 0);old=int(row.get('old_price_rub') or 0)
   if price<=0:
    zero_price+=1
@@ -149,6 +167,7 @@ def main():
  duplicate_urls=[{'url':u,'count':len(idxs),'names':[title(rows[x]) for x in idxs[:8]]} for u,idxs in by_url.items() if len(idxs)>1]
  safe_same_sku=sum(1 for x in duplicates if x['same_nonempty_sku'])
  same_price_category=sum(1 for x in duplicates if x['same_price'] and x['same_category'])
+ brand_candidates=[{'token':token,'count':count,'examples':brand_candidate_examples[token]} for token,count in brand_candidate_counts.most_common(160)]
  report={
   'catalog_rows':len(rows),
   'summary':{
@@ -170,6 +189,7 @@ def main():
   'invalid_old_price_items_sample':invalid_old_price_items,
   'missing_image_items_sample':missing_image_items,
   'missing_brand_items_sample':missing_brand_items,
+  'brand_token_candidates':brand_candidates,
   'duplicates':sorted(duplicates,key=lambda x:(-x['count'],x['name']))[:300],
   'duplicate_urls':sorted(duplicate_urls,key=lambda x:-x['count'])[:100]
  }
