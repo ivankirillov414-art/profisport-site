@@ -33,6 +33,15 @@ def path_list(row):
  p=row.get('category_path') or row.get('breadcrumbs') or []
  if isinstance(p,list):return [str(x).strip() for x in p if str(x).strip()]
  return [x.strip() for x in str(p).split('/') if x.strip()]
+def image_values(row):
+ values=[]
+ raw=row.get('images')
+ if isinstance(raw,list):values.extend(str(x).strip() for x in raw if str(x).strip())
+ elif isinstance(raw,str) and raw.strip():values.append(raw.strip())
+ for key in ('main_image','image'):
+  value=str(row.get(key) or '').strip()
+  if value:values.append(value)
+ return list(dict.fromkeys(values))
 def is_cycling_pulley(n):
  return n.startswith('ролики ') and (any(x in n for x in ('переключател','суппорт','подшипник','направляющ','shimano','sram')) or re.search(r'(?:^|\s)rd[- ]?[a-z0-9]',n,re.I))
 def classify(name):
@@ -47,8 +56,15 @@ def expected_stems(kind):
  return ()
 def spec_value(specs,*names):
  wanted={norm(x) for x in names}
- for k,v in specs.items():
-  if norm(k) in wanted and str(v or '').strip():return str(v).strip()
+ if isinstance(specs,dict):
+  for k,v in specs.items():
+   if norm(k) in wanted and str(v or '').strip():return str(v).strip()
+ elif isinstance(specs,list):
+  for item in specs:
+   if not isinstance(item,dict):continue
+   k=item.get('name') or item.get('key') or item.get('title')
+   v=item.get('value')
+   if norm(k) in wanted and str(v or '').strip():return str(v).strip()
  return ''
 def load_rows():
  rows=[]
@@ -108,11 +124,10 @@ def main():
   if u:by_url[u].append(i)
   leaf=path[-1] if path else 'Без категории';cats[leaf]+=1
   if kind:types[kind]+=1
-  images=row.get('images') if isinstance(row.get('images'),list) else []
-  if not any(str(x).strip() for x in images):
+  if not image_values(row):
    missing_images+=1
    if len(missing_image_items)<120:missing_image_items.append(compact_row(row))
-  specs=row.get('specs') if isinstance(row.get('specs'),dict) else {}
+  specs=row.get('specs') or {}
   brand=str(row.get('brand') or '').strip() or spec_value(specs,'Бренд','Производитель')
   if not brand:
    missing_brand+=1
