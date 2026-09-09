@@ -28,4 +28,34 @@ q_assert(catalog_sanitize_old_price(0,55000)===null,'old price must be removed w
 q_assert(catalog_sanitize_old_price_float(50000.0,55000.0)===55000.0,'valid float old price must remain');
 q_assert(catalog_sanitize_old_price_float(50000.0,50000.0)===null,'equal float old price must be removed');
 
+$inferred=false;
+q_assert(catalog_resolve_brand('Велосипед STELS Navigator','Forward',[],$inferred)==='Forward','existing brand must win');
+q_assert($inferred===false,'existing brand must not be marked inferred');
+
+$inferred=false;
+q_assert(catalog_resolve_brand('Товар без бренда','',['Бренд'=>'Fischer'],$inferred)==='Fischer','spec brand must be used');
+q_assert($inferred===false,'spec brand must not be marked inferred');
+
+$inferred=false;
+q_assert(catalog_resolve_brand('Велосипед 24 STELS Turbo 470 MD','',[],$inferred)==='STELS','STELS title brand must be inferred');
+q_assert($inferred===true,'title brand must be marked inferred');
+
+$inferred=false;
+q_assert(catalog_resolve_brand('Самокат трюковой Provokator 47 версия 2','',[],$inferred)==='Provokator','Provokator title brand must be inferred');
+q_assert($inferred===true,'Provokator must be marked inferred');
+
+$inferred=false;
+q_assert(catalog_resolve_brand('Велосумка под раму BA01024 RUSH HOUR','',[],$inferred)==='Rush Hour','multi-word brand must be inferred');
+
+foreach([
+    'Ботинки лыжные NNN Comfort one size',
+    'Мазь скольжения PURE ONE WET',
+    'Спица STD 14 BLACK STAINLESS',
+    'Эспандер FIT кистевой 20 кг',
+] as $name){
+    $inferred=false;
+    q_assert(catalog_resolve_brand($name,'',[],$inferred)==='',"noise token inferred as brand: $name");
+    q_assert($inferred===false,"noise token marked inferred: $name");
+}
+
 echo "Catalog quality checks passed.\n";
