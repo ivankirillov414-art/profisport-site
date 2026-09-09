@@ -1,8 +1,25 @@
 name: Store checks
+
 on:
+  workflow_dispatch:
   push:
-    branches: [feature/store-orders]
+    branches: [main, feature/store-orders]
+    paths:
+      - 'api/**'
+      - 'server/**'
+      - 'admin/**'
+      - 'tests/**'
+      - 'app.js'
+      - 'catalog-loader.js'
+      - 'checkout.js'
+      - 'service.js'
+      - 'product-kant.js'
+      - 'profile.html'
+      - 'checkout.html'
+      - 'product.html'
+      - '.github/workflows/store-tests.yml'
   pull_request:
+
 jobs:
   checkout:
     runs-on: ubuntu-latest
@@ -24,12 +41,21 @@ jobs:
           php -v
           find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check app.js
+          node --check catalog-loader.js
           node --check checkout.js
           node --check admin/orders.js
           node --check admin/products.js
           node --check admin/service.js
           node --check service.js
+          node --check product-kant.js
           php tests/order-validation.php
+          node tests/mobile-layout-regression.js
+      - name: Verify order and catalog schema invariants
+        run: |
+          grep -Fq 'source_hash,name,slug,sku' api/import-apply.php
+          grep -Fq 'SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active FROM products' api/order-create.php
+          grep -Fq "action==='favorites_merge'" api/customer.php
+          grep -Fq "action==='order'" api/customer.php
       - name: Test checkout with a disposable database
         run: |
           cat > server/config.php <<'PHP'
