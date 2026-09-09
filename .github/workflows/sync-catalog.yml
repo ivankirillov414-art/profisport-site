@@ -46,12 +46,23 @@ jobs:
           (out/'manifest.json').write_text(json.dumps(public_manifest,ensure_ascii=False,indent=2),encoding='utf-8')
           print('verified',len(rows),'products; images',public_manifest['with_images'],'browser chunks',len(parts))
           PY
-      - name: Commit complete catalog
+      - name: Generate catalog quality audit
+        run: |
+          set -euo pipefail
+          python3 scripts/catalog_audit.py
+          python3 - <<'PY'
+          import json
+          report=json.load(open('data/catalog-audit.json',encoding='utf-8'))
+          print('catalog audit summary:',json.dumps(report['summary'],ensure_ascii=False))
+          if report['catalog_rows'] != 8552:
+              raise SystemExit(f"audit row mismatch: {report['catalog_rows']}")
+          PY
+      - name: Commit complete catalog and audit
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add data/manifest.json data/catalog-*.json
-          git diff --cached --quiet || git commit -m 'Sync complete catalog with product images'
+          git add data/manifest.json data/catalog-*.json data/catalog-audit.json
+          git diff --cached --quiet || git commit -m 'Sync complete catalog with quality audit'
           git push
 # refresh enriched images now
