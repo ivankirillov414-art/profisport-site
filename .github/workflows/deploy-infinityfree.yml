@@ -16,6 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify clean mobile layout
+        run: node tests/mobile-layout-regression.js
+
       - name: Build private server config
         shell: bash
         run: |
