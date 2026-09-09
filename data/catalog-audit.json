@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-09T13:34:48.077444+00:00",
+  "generated_at": "2026-09-09T13:35:24.249418+00:00",
   "catalog_rows": 8552,
   "summary": {
     "normalized_name_duplicates": 39,
     "duplicate_urls": 0,
-    "category_conflicts": 3,
+    "category_conflicts": 1,
     "suspicious_specs": 3,
     "missing_images": 4925,
     "missing_brand": 8459,
@@ -16,7 +16,7 @@
     "scooter": 171,
     "skis": 55,
     "skates": 51,
-    "rollers": 42,
+    "rollers": 40,
     "skateboard": 32,
     "exercise_bike": 6,
     "longboard": 3,
@@ -398,30 +398,6 @@
         "Коньки фигурные"
       ],
       "url": "https://velo56.ru/catalog/kon-ki-klyushki-aksessuary/kon-ki-figurnye/velosiped-3-h-kol-werter-berger-trike-xg-11214-3-chernyy-54247/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики Shimano, 11ск, верхн+нижн, к RD-R7000",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-shimano-11sk-verhn-nizhn-k-rd-r7000-48515/"
-    },
-    {
-      "kind": "category_conflict",
-      "type": "rollers",
-      "name": "Ролики Shimano, 12ск, верхн+нижн, к RD-M7100",
-      "category_path": [
-        "Главная",
-        "Каталог товаров",
-        "Велозапчасти",
-        "Переключатели"
-      ],
-      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-shimano-12sk-verhn-nizhn-k-rd-m7100-48516/"
     }
   ],
   "duplicates": [
