@@ -27,6 +27,8 @@ assert call('api/orders.php',payload,cookie)[0]==403
 assert call('api/orders.php',payload,cookie,csrf)[0]==200
 assert call('api/orders.php',payload,cookie,csrf)[0]==409
 status,j,_=call('api/orders.php?status=confirmed',cookie=cookie);assert j['total']==1
+assert call('api/orders.php',{'id':id,'status':'processing','previous_status':'confirmed'},cookie,csrf)[0]==200
+assert call('api/orders.php?status=processing',cookie=cookie)[1]['total']==1
 print('PASS: stock, price, address, order persistence, deduplication, admin auth, detail, CSRF, status conflict')
 # Requests reach the workshop and survive a retry.
 service={'name':'Test service','phone':'+79991234567','type':'Диагностика','bike':'Test bike','problem':'Test repair request','request_key':'b'*64}
@@ -53,3 +55,7 @@ status,j,_=call('api/order-create.php',{**base,'items':[1],'request_key':'c'*64}
 status,j,_=call('api/customer.php?action=me',cookie=customer_cookie);assert len(j['orders'])==1 and j['orders'][0]['total_rub']==200
 assert call('api/customer.php?action=me')[1]['customer'] is None
 print('PASS: authenticated checkout and private order history')
+for page in ['photos.php','customers.php','reviews.php','health.php','orders.php']:
+    with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
+        assert r.geturl().endswith('/admin/login.php'),page
+print('PASS: protected admin pages redirect unauthenticated visitors')

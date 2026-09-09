@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/order-schema.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!is_file($configFile)) { http_response_code(500); exit('Server configuration is missing'); }
@@ -32,6 +33,7 @@ if(!isset($cols['request_hash']))$pdo->exec('ALTER TABLE orders ADD COLUMN reque
 $pdo->exec("CREATE TABLE IF NOT EXISTS order_items (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,order_id BIGINT UNSIGNED NOT NULL,product_id BIGINT UNSIGNED NULL,title VARCHAR(500) NOT NULL,price_rub INT NOT NULL,quantity INT NOT NULL DEFAULT 1,line_total_rub INT NOT NULL,CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,INDEX idx_order (order_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS service_requests (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,request_number VARCHAR(40) NOT NULL UNIQUE,name VARCHAR(200) NOT NULL,phone VARCHAR(40) NOT NULL,service_type VARCHAR(100) NOT NULL,bike VARCHAR(300) NOT NULL,problem TEXT NOT NULL,status VARCHAR(30) NOT NULL DEFAULT 'new',request_key CHAR(64) NOT NULL UNIQUE,request_hash CHAR(64) NOT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,INDEX idx_service_status(status)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS audit_log (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,admin_user_id INT UNSIGNED NULL,action VARCHAR(100) NOT NULL,entity_type VARCHAR(50) NULL,entity_id VARCHAR(100) NULL,payload LONGTEXT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,INDEX idx_created (created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+ensure_order_columns($pdo);
 $stmt=$pdo->prepare("INSERT IGNORE INTO admin_users (username,password_hash,role,is_active,force_password_setup) VALUES (?,NULL,'owner',1,1)");$stmt->execute(['Иван Кириллов 414']);
 }
 function start_secure_session(): void { if(session_status()===PHP_SESSION_ACTIVE)return; ini_set('session.use_strict_mode','1'); ini_set('session.gc_maxlifetime',(string)(60*60*24*14)); session_name('PROFISPORT_ADMIN'); session_set_cookie_params(['lifetime'=>60*60*24*14,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Lax']); session_start(); }

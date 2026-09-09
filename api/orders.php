@@ -3,7 +3,7 @@ declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
 require_admin();
 try{
-  $statuses=['new','confirmed','ready','completed','cancelled'];
+  $statuses=['new','confirmed','processing','ready','completed','cancelled'];
   if($_SERVER['REQUEST_METHOD']==='POST'){
     csrf_check();$in=input_json();$id=(int)($in['id']??0);$status=$in['status']??'';
     if($id<1||!in_array($status,$statuses,true))json_response(['ok'=>false,'error'=>'invalid_input'],422);
