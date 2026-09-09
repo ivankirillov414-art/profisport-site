@@ -11,10 +11,13 @@ pre,code,table{max-width:100%}
   body>main,body>footer,body>.top,body>header,body>nav:not(.mobileBottomNav){width:100%;max-width:100%;box-sizing:border-box}
   main{width:100%;max-width:100%;margin-left:0;margin-right:0}
 
-  /* Header: fixed right-side budget, flexible logo. */
+  /* Header: fixed right-side budget for icon header, flexible logo everywhere. */
   .top{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:6px;overflow:clip;box-sizing:border-box}
   .top>b{min-width:0;max-width:100%;font-size:clamp(19px,5.6vw,23px);letter-spacing:-1.35px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
-  .topActions{min-width:0;max-width:100%;display:grid;grid-auto-flow:column;grid-auto-columns:36px;gap:2px;align-items:center;justify-content:end}
+  .topActions{min-width:0;max-width:100%}
+  .topActions:has(.topIconBtn){display:grid;grid-auto-flow:column;grid-auto-columns:36px;gap:2px;align-items:center;justify-content:end}
+  .topActions:not(:has(.topIconBtn)){display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:7px;font-size:12px}
+  .topActions:not(:has(.topIconBtn)) a{white-space:nowrap}
   .topActions>.topIconBtn{width:36px;height:36px;min-width:36px;max-width:36px;padding:0}
   .topIconBtn svg{width:20px;height:20px}
   .cartCount{right:-2px;top:-4px}
@@ -73,7 +76,7 @@ pre,code,table{max-width:100%}
 @media(max-width:430px){
   .top{padding-left:10px!important;padding-right:8px!important;gap:4px}
   .top>b{font-size:20px!important;letter-spacing:-1.45px}
-  .topActions{grid-auto-columns:34px;gap:2px}
+  .topActions:has(.topIconBtn){grid-auto-columns:34px;gap:2px}
   .topActions>.topIconBtn{width:34px;height:34px;min-width:34px;max-width:34px;border-radius:9px}
   .topIconBtn svg{width:19px;height:19px}
   .categories{gap:5px}
@@ -84,7 +87,7 @@ pre,code,table{max-width:100%}
 @media(max-width:380px){
   .top{padding-left:8px!important;padding-right:6px!important;gap:3px}
   .top>b{font-size:18px!important;letter-spacing:-1.35px}
-  .topActions{grid-auto-columns:31px;gap:1px}
+  .topActions:has(.topIconBtn){grid-auto-columns:31px;gap:1px}
   .topActions>.topIconBtn{width:31px;height:31px;min-width:31px;max-width:31px}
   .topIconBtn svg{width:18px;height:18px}
   .categories{gap:4px}
