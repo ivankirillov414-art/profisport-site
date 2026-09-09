@@ -34,6 +34,12 @@ function cleanPath(path){
   return list.filter(x=>!['главная','каталог товаров','каталог'].includes(textNorm(x)))
 }
 function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-'))}
+function isCyclingPulleyName(n){
+  return n.startsWith('ролики ')&&(
+    n.includes('переключател')||n.includes('суппорт')||n.includes('подшипник')||n.includes('направляющ')||
+    n.includes('shimano')||n.includes('sram')||/(?:^|\s)rd[- ]?[a-z0-9]/.test(n)
+  )
+}
 function primaryProductType(name){
   const n=textNorm(name);
   if(startsAny(n,['электровелосипед','велосипед']))return'bicycle';
@@ -42,7 +48,7 @@ function primaryProductType(name){
   if(startsAny(n,['роликовые коньки','коньки роликовые','коньки для танцев','квады']))return'rollers';
   if(startsAny(n,['коньки']))return'skates';
   if(startsAny(n,['ролики'])){
-    if(n.includes('переключател')||n.includes('суппорт')||n.includes('подшипник')||n.includes('направляющ'))return'';
+    if(isCyclingPulleyName(n))return'';
     return'rollers';
   }
   if(startsAny(n,['лыжи','лыжи беговые','лыжи горные']))return'skis';
@@ -223,56 +229,24 @@ async function loadInitialCatalog(){
   if(initialCatalogPromise)return initialCatalogPromise;
   initialCatalogPromise=(async()=>{
     try{
-      const pre=window.__psFirstCatalogPromise;
-      const j=pre?await pre:await parseCatalogResponse(await fetch('api/catalog.php?limit=24&count=1&v=taxonomy2',{cache:'no-cache'}));
-      return{items:j.items.map(normalizeProduct),total:Number(j.total??j.count??0),imageHealth:j.image_health||null}
-    }catch(e){
-      console.warn('Fast first catalog page unavailable',e);
-      return{items:[],total:0,imageHealth:null}
-    }
+      const j=await catalogRequest('api/catalog.php?limit=24&v=imgfix1',{},parseCatalogResponse);
+      return j.items.map(normalizeProduct);
+    }catch(e){return[]}
   })();
-  return initialCatalogPromise
+  return initialCatalogPromise;
 }
-async function loadStaticCatalog(){
-  const manifest=await catalogRequest('data/manifest.json?v=8552',{cache:'default'});
-  if(!Array.isArray(manifest.parts)||!manifest.parts.length)throw Error('empty catalog manifest');
-  const key=`ps-catalog-${manifest.products}-${manifest.parts.length}-taxonomy2`;
-  try{
-    const cached=sessionStorage.getItem(key);
-    if(cached){
-      const rows=JSON.parse(cached);
-      if(rows.length===manifest.products)return rows.map(normalizeProduct)
-    }
-  }catch(e){}
-  const batches=await Promise.all(manifest.parts.map(async name=>catalogRequest(`data/${name}?v=8552`,{cache:'force-cache'})));
-  const rows=batches.flat();
-  if(manifest.products&&rows.length!==manifest.products)throw Error(`catalog incomplete: ${rows.length}/${manifest.products}`);
-  try{sessionStorage.setItem(key,JSON.stringify(rows))}catch(e){}
-  return rows.map(normalizeProduct)
-}
-function startLiveCatalog(){
+async function loadRealCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?v=taxonomy2',{cache:'no-cache'},parseCatalogResponse);
-      window.__psImageHealth=j.image_health||null;
-      return j.items.map(normalizeProduct)
-    }catch(e){
-      console.warn('Live 1C catalog unavailable, static fallback is used',e);
-      return loadStaticCatalog()
-    }
+      const j=await catalogRequest('api/catalog.php?v=imgfix1',{},parseCatalogResponse);
+      if(j.items.length){const items=j.items.map(normalizeProduct);window.CATALOG_SOURCE='live';return items}
+    }catch(e){}
+    const manifest=await catalogRequest('data/manifest.json',{},r=>r.json());
+    const parts=Array.isArray(manifest.parts)?manifest.parts:[];
+    const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
+    window.CATALOG_SOURCE='static';
+    return arrays.flat().map(normalizeProduct)
   })();
-  return catalogPromise
-}
-async function loadRealCatalog(){
-  try{return await startLiveCatalog()}
-  catch(e){catalogPromise=null;throw e}
-}
-
-async function loadProduct(id){
-  if(/^[1-9][0-9]*$/.test(String(id))){
-    const j=await catalogRequest('api/catalog.php?id='+encodeURIComponent(id),{cache:'no-store'},parseCatalogResponse);
-    return j.items.length?normalizeProduct(j.items[0],0):null;
-  }
-  return (await loadRealCatalog()).find(p=>String(p.id)===String(id))||null;
+  return catalogPromise;
 }
