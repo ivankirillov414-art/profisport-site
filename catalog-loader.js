@@ -104,11 +104,60 @@ function departmentFor(name,path){
   if(p.includes('аксессуар')||p.includes('экипиров')||p.includes('защит')||n.includes('чехол')||n.includes('сумка'))return{key:'accessories',type:'',source:'path'};
   return{key:'other',type:'',source:'fallback'}
 }
+function catalogSpecEntries(specs){
+  if(Array.isArray(specs))return specs.map(item=>{
+    if(!item||typeof item!=='object')return['',''];
+    return[String(item.name??item.key??item.title??''),item.value??''];
+  }).filter(([k,v])=>k&&v!==null&&v!==undefined);
+  return Object.entries(specs||{});
+}
 function findSpec(specs,needles){
-  const entries=Object.entries(specs||{});
-  for(const [k,v] of entries){const nk=textNorm(k);if(needles.some(x=>nk.includes(x))&&v!==null&&v!==undefined&&String(v).trim()!=='')return String(v).trim()}
+  for(const [k,v] of catalogSpecEntries(specs)){
+    const nk=textNorm(k);
+    if(needles.some(x=>nk.includes(x))&&v!==null&&v!==undefined&&String(v).trim()!=='')return String(v).trim();
+  }
   return''
 }
+function specSearchText(specs){return catalogSpecEntries(specs).flat().join(' ')}
+function qualityNorm(s){return textNorm(s).replace(/[^a-zа-я0-9]+/gi,' ').replace(/\s+/g,' ').trim()}
+function sanitizeCatalogSpecs(name,specs){
+  const material=/^(?:пластик|сталь|алюминий|алюминий сплав|карбон|углепластик|композит)$/i;
+  const bicycleLike=/^(?:электровелосипед|велосипед|bmx)(?:\s|$)/i.test(qualityNorm(name));
+  if(Array.isArray(specs))return specs.filter(item=>{
+    if(!item||typeof item!=='object')return true;
+    const key=qualityNorm(item.name??item.key??item.title??''),value=qualityNorm(item.value??'');
+    return !(key==='ростовка рамы'&&!bicycleLike&&material.test(value));
+  });
+  const out={};
+  for(const [key,value] of Object.entries(specs||{})){
+    const nk=qualityNorm(key),nv=qualityNorm(value);
+    if(nk==='ростовка рамы'&&!bicycleLike&&material.test(nv))continue;
+    out[key]=value;
+  }
+  return out
+}
+const CATALOG_BRAND_ALIASES=[
+  ['RUSH HOUR','Rush Hour'],['VINCA SPORT','Vinca Sport'],['CN SPOKE','CN Spoke'],['X-TREME','X-Treme'],
+  ['TECHTEAM','TechTeam'],['MAXISCOO','Maxiscoo'],['PROVOKATOR','Provokator'],['NORDSKI','Nordski'],
+  ['SHIMANO','Shimano'],['STARFIT','Starfit'],['FISCHER','Fischer'],['ATOMIC','Atomic'],['BRADOS','Brados'],
+  ['DEUTER','Deuter'],['SIMPLA','Simpla'],['ASPECT','Aspect'],['BOYBO','BoyBo'],['KENDA','Kenda'],['KENLI','Kenli'],
+  ['MAXXIS','Maxxis'],['ROCKET','Rocket'],['SIGMA','Sigma'],['SPINE','SPINE'],['STELS','STELS'],['TREK','TREK'],
+  ['VARMA','VARMA'],['WANDA','Wanda'],['WELT','Welt']
+];
+function resolveCatalogBrand(name,brand,specs){
+  const existing=String(brand||'').trim();
+  if(existing)return{brand:existing,inferred:false};
+  const fromSpecs=findSpec(specs,['бренд','производитель']);
+  if(fromSpecs)return{brand:fromSpecs,inferred:false};
+  const hay=` ${qualityNorm(name)} `;
+  for(const [alias,canonical] of CATALOG_BRAND_ALIASES){
+    const needle=qualityNorm(alias);
+    if(needle&&hay.includes(` ${needle} `))return{brand:canonical,inferred:true};
+  }
+  return{brand:'',inferred:false}
+}
+function catalogPriceValue(p){return Number(p?.price_rub??String(p?.price||0).replace(/[^0-9]/g,''))||0}
+function isPurchasableCatalogRow(p){return catalogPriceValue(p)>0}
 function numericFrom(s,min,max){
   const nums=String(s||'').replace(/,/g,'.').match(/\d+(?:\.\d+)?/g)||[];
   for(const raw of nums){const n=Number(raw);if(n>=min&&n<=max)return String(Number.isInteger(n)?n:n)}
@@ -143,29 +192,30 @@ function deriveFacets(name,specs,department,type){
   return out
 }
 function normalizeProduct(p,i){
-  const rawPath=pathOf(p),path=cleanPath(rawPath),
-    price=Number(p.price_rub??String(p.price||0).replace(/[^0-9]/g,''))||0,
-    rawOld=Number(p.old_price_rub??String(p.old_price||0).replace(/[^0-9]/g,''))||0,
-    oldPrice=rawOld>price?rawOld:0,
-    qty=p.stock_qty===null||p.stock_qty===undefined||p.stock_qty===''?null:Number(p.stock_qty),
-    stockCode=(p.availability==='in_stock'||p.stock_status==='in_stock')?'in':(p.availability==='out_of_stock'||p.stock_status==='out_of_stock')?'out':'unknown',
-    name=p.title||p.name||'Товар',
-    specs=p.specs||{},
-    brand=String(p.brand||findSpec(specs,['бренд','производитель'])||'').trim(),
-    model=String(p.model||'').trim(),
-    description=p.description||'',
-    pathText=path.join(' '),
-    rawCat=path[path.length-1]||path[0]||'Каталог',
-    tax=departmentFor(name,path),
-    dep=CATALOG_DEPARTMENTS[tax.key]||CATALOG_DEPARTMENTS.other,
-    displayCategory=tax.source==='name'?dep.label:rawCat,
-    images=(Array.isArray(p.images)?p.images:[]).map(imageUrl).filter(Boolean),
-    main=imageUrl(p.image||p.main_image||''),
-    fallback=fallbackImageUrl(name,rawCat),
-    baseImages=images.length?images:(main?[main]:[]),
-    finalImages=[...new Set([...baseImages,fallback])],
-    stockText=stockCode==='in'?(Number.isFinite(qty)&&qty>0?`В наличии: ${qty} шт.`:'В наличии'):stockCode==='out'?'Нет в наличии':'Уточняйте наличие',
-    facets=deriveFacets(name,specs,tax.key,tax.type);
+  const rawPath=pathOf(p),path=cleanPath(rawPath);
+  const price=catalogPriceValue(p);
+  const rawOld=Number(p.old_price_rub??String(p.old_price||0).replace(/[^0-9]/g,''))||0;
+  const oldPrice=rawOld>price?rawOld:0;
+  const qty=p.stock_qty===null||p.stock_qty===undefined||p.stock_qty===''?null:Number(p.stock_qty);
+  const stockCode=(p.availability==='in_stock'||p.stock_status==='in_stock')?'in':(p.availability==='out_of_stock'||p.stock_status==='out_of_stock')?'out':'unknown';
+  const name=p.title||p.name||'Товар';
+  const specs=sanitizeCatalogSpecs(name,p.specs||{});
+  const brandInfo=resolveCatalogBrand(name,p.brand,specs);
+  const brand=brandInfo.brand;
+  const model=String(p.model||'').trim();
+  const description=p.description||'';
+  const pathText=path.join(' ');
+  const rawCat=path[path.length-1]||path[0]||'Каталог';
+  const tax=departmentFor(name,path);
+  const dep=CATALOG_DEPARTMENTS[tax.key]||CATALOG_DEPARTMENTS.other;
+  const displayCategory=tax.source==='name'?dep.label:rawCat;
+  const images=(Array.isArray(p.images)?p.images:[]).map(imageUrl).filter(Boolean);
+  const main=imageUrl(p.image||p.main_image||'');
+  const fallback=fallbackImageUrl(name,rawCat);
+  const baseImages=images.length?images:(main?[main]:[]);
+  const finalImages=[...new Set([...baseImages,fallback])];
+  const stockText=stockCode==='in'?(Number.isFinite(qty)&&qty>0?`В наличии: ${qty} шт.`:'В наличии'):stockCode==='out'?'Нет в наличии':'Уточняйте наличие';
+  const facets=deriveFacets(name,specs,tax.key,tax.type);
   return{
     id:p.id??p.url??p.sku??`real-${i}`,
     sourceId:p.source_id||'',
@@ -183,7 +233,7 @@ function normalizeProduct(p,i){
     taxonomySource:tax.source,
     productType:tax.type,
     facets,
-    searchText:[name,p.sku||'',brand,model,dep.label,rawCat,pathText,description,Object.entries(specs).flat().join(' ')].join(' ').toLowerCase(),
+    searchText:[name,p.sku||'',brand,model,dep.label,rawCat,pathText,description,specSearchText(specs)].join(' ').toLowerCase(),
     icon:'🏷️',
     image:finalImages[0]||'',
     images:finalImages,
@@ -195,6 +245,7 @@ function normalizeProduct(p,i){
     description,
     sku:p.sku||'',
     brand,
+    brandInferred:Boolean(p.brand_inferred)||brandInfo.inferred,
     model
   }
 }
@@ -230,7 +281,7 @@ async function loadInitialCatalog(){
   initialCatalogPromise=(async()=>{
     try{
       const j=await catalogRequest('api/catalog.php?limit=24&v=imgfix1',{},parseCatalogResponse);
-      return j.items.map(normalizeProduct);
+      return j.items.filter(isPurchasableCatalogRow).map(normalizeProduct);
     }catch(e){return[]}
   })();
   return initialCatalogPromise;
@@ -240,13 +291,14 @@ async function loadRealCatalog(){
   catalogPromise=(async()=>{
     try{
       const j=await catalogRequest('api/catalog.php?v=imgfix1',{},parseCatalogResponse);
-      if(j.items.length){const items=j.items.map(normalizeProduct);window.CATALOG_SOURCE='live';return items}
+      const liveItems=j.items.filter(isPurchasableCatalogRow);
+      if(liveItems.length){const items=liveItems.map(normalizeProduct);window.CATALOG_SOURCE='live';return items}
     }catch(e){}
     const manifest=await catalogRequest('data/manifest.json',{},r=>r.json());
     const parts=Array.isArray(manifest.parts)?manifest.parts:[];
     const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
     window.CATALOG_SOURCE='static';
-    return arrays.flat().map(normalizeProduct)
+    return arrays.flat().filter(isPurchasableCatalogRow).map(normalizeProduct)
   })();
   return catalogPromise;
 }
