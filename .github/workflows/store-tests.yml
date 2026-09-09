@@ -49,6 +49,7 @@ jobs:
           node --check service.js
           node --check product-kant.js
           php tests/order-validation.php
+          php tests/catalog-quality.php
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
       - name: Verify order and catalog schema invariants
@@ -57,6 +58,9 @@ jobs:
           grep -Fq 'SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active FROM products' api/order-create.php
           grep -Fq "action==='favorites_merge'" api/customer.php
           grep -Fq "action==='order'" api/customer.php
+          grep -Fq "COALESCE(price_rub,0)>0" api/catalog.php
+          grep -Fq "catalog_sanitize_specs" api/catalog.php
+          grep -Fq "catalog_sanitize_old_price" api/catalog.php
       - name: Test checkout with a disposable database
         run: |
           cat > server/config.php <<'PHP'
