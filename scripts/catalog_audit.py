@@ -25,7 +25,7 @@ TYPE_RULES=[
 
 def norm(s):
  s=str(s or '').strip().lower().replace('ё','е')
- s=re.sub(r'[^a-zа-я0-9]+',' ',s,flags=re.I)
+ s=re.sub(r'[^a-zа-я0-9-]+',' ',s,flags=re.I)
  return re.sub(r'\s+',' ',s).strip()
 
 def title(row):return str(row.get('title') or row.get('name') or '').strip()
@@ -33,9 +33,11 @@ def path_list(row):
  p=row.get('category_path') or row.get('breadcrumbs') or []
  if isinstance(p,list):return [str(x).strip() for x in p if str(x).strip()]
  return [x.strip() for x in str(p).split('/') if x.strip()]
+def is_cycling_pulley(n):
+ return n.startswith('ролики ') and (any(x in n for x in ('переключател','суппорт','подшипник','направляющ','shimano','sram')) or re.search(r'(?:^|\s)rd[- ]?[a-z0-9]',n,re.I))
 def classify(name):
  n=norm(name)
- if n.startswith('ролики ') and any(x in n for x in ('переключател','суппорт','подшипник','направляющ')):return ''
+ if is_cycling_pulley(n):return ''
  for key,rx,_ in TYPE_RULES:
   if rx.search(n):return key
  return ''
