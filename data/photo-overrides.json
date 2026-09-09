@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "generated_at": "2026-09-09T12:00:00+00:00",
+  "items": {
+    "велосипед 18 techteam ugen черный": {
+      "name": "Велосипед 18 TechTeam UGen черный",
+      "image": "https://topradar.ru/upload/iblock/wew/wewfkz4vevyazrxmrzhmfkvndibok1vx.png",
+      "source_url": "https://topradar.ru/product/velosiped-podrostkovyj-tech-team-ugen-18-chernyj-2026/",
+      "source_title": "Велосипед подростковый Tech Team UGen 18 черный 2026",
+      "method": "verified-seed",
+      "confidence": 100
+    },
+    "велосипед 20 bmx rout street 20 4 черный black": {
+      "name": "Велосипед 20 BMX ROUT street, 20,4\"(черный / black)",
+      "image": "https://elektro-mall.ru/image/cache/wp/gp/1.2trykovie/bmx/techteam/routstreet/black/routstreet160425mlbb-4-1000x1000.webp",
+      "source_url": "https://elektro-mall.ru/velosipedy-i-bmx/velosiped-bmx-tech-team-rout-street/specification",
+      "source_title": "Велосипед BMX Tech Team ROUT Street",
+      "method": "verified-seed",
+      "confidence": 100
+    }
+  },
+  "stats": {
+    "seeded": 2,
+    "note": "Exact-name overrides only; no SKU matching."
+  }
+}
