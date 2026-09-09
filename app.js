@@ -1,2 +1,127 @@
-if('scrollRestoration'in history)history.scrollRestoration='manual';function resetStorefrontStart(){if(location.hash){history.replaceState(null,'',location.pathname+location.search)}window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0}resetStorefrontStart();window.addEventListener('pageshow',()=>{requestAnimationFrame(()=>{resetStorefrontStart();requestAnimationFrame(resetStorefrontStart)})});
-let products=[],view=[],page=1;const PAGE=24;let cart=readStoredArray('ps-cart');const rub=n=>new Intl.NumberFormat('ru-RU').format(n||0)+' ₽';const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));const text=p=>p.searchText||(p.name+' '+p.cat+' '+(p.pathText||'')+' '+p.description+' '+Object.entries(p.specs||{}).flat().join(' ')).toLowerCase();const $=s=>document.querySelector(s);function imageCandidates(p){const raw=[p.image,...(Array.isArray(p.images)?p.images:[])].filter(Boolean);return [...new Set(raw.flatMap(src=>{src=String(src);const out=[src];if(src.startsWith('/import/'))out.push('api/product-image.php?p='+encodeURIComponent(src.slice(8)));if(src.startsWith('import/'))out.push('api/product-image.php?p='+encodeURIComponent(src.slice(7)));return out}))]}function bindProductImages(){document.querySelectorAll('img.productImg').forEach(img=>{img.onerror=()=>{let a=[];try{a=JSON.parse(decodeURIComponent(img.dataset.fallbacks||'%5B%5D'))}catch(e){}const next=a.shift();if(next){img.dataset.fallbacks=encodeURIComponent(JSON.stringify(a));img.src=next;return}const ph=document.createElement('div');ph.className='imagePlaceholder';ph.setAttribute('aria-label','Фото товара отсутствует');ph.textContent='Фото уточняется';img.replaceWith(ph)}})}function stateURL(){const u=new URL(location.href),qv=($('#q')?.value||$('#mobileQ')?.value||'').trim();qv?u.searchParams.set('q',qv):u.searchParams.delete('q');category.value?u.searchParams.set('cat',category.value):u.searchParams.delete('cat');minPrice.value?u.searchParams.set('min',minPrice.value):u.searchParams.delete('min');maxPrice.value?u.searchParams.set('max',maxPrice.value):u.searchParams.delete('max');sort.value!=='popular'?u.searchParams.set('sort',sort.value):u.searchParams.delete('sort');page>1?u.searchParams.set('page',page):u.searchParams.delete('page');history.replaceState(null,'',u)}function render(list=view){productsEl.dataset.catalogReady='1';view=list;const pages=Math.max(1,Math.ceil(list.length/PAGE));page=Math.min(Math.max(1,page),pages);const show=list.slice((page-1)*PAGE,page*PAGE);productsEl.innerHTML=show.map(p=>{const imgs=imageCandidates(p),first=imgs.shift();return `<article class="product"><a href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a><span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="price">${rub(p.price)}</div><button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></article>`}).join('')||'<p>Ничего не найдено.</p>';bindProductImages();document.querySelectorAll('.addBtn:not([disabled])').forEach(b=>b.onclick=()=>add(decodeURIComponent(b.dataset.id)));catalogStatus.textContent=`Найдено: ${list.length}`;pageInfo.textContent=`${page} / ${pages}`;prevPage.disabled=page<=1;nextPage.disabled=page>=pages;stateURL()}function add(id){cart.push(id);save();toggleCart(true)}function save(){localStorage.setItem('ps-cart',JSON.stringify(cart));count.textContent=cart.length;renderCart()}function renderCart(){const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0;cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p)return'';sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';total.textContent=rub(sum)}function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x.id)===id);if(i>=0)cart.splice(i,1)}save()}function toggleCart(force){cartEl.classList.toggle('open',force===undefined?undefined:force)}function toggleMenu(force){const menu=$('#mobileMenu'),backdrop=$('#menuBackdrop');if(!menu||!backdrop)return;const open=force===undefined?!menu.classList.contains('open'):force;menu.classList.toggle('open',open);backdrop.classList.toggle('open',open);menu.setAttribute('aria-hidden',String(!open));document.body.style.overflow=open?'hidden':''}const productsEl=$('#products'),catalogStatus=$('#catalogStatus'),cartEl=$('#cart');cartBtn.onclick=()=>toggleCart();const searchBtn=$('#searchBtn'),menuBtn=$('#menuBtn'),menuClose=$('#menuClose'),menuBackdrop=$('#menuBackdrop');if(searchBtn)searchBtn.onclick=()=>{toggleMenu(false);document.querySelector('#catalogProducts')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('#mobileQ')?.focus(),350)};if(menuBtn)menuBtn.onclick=()=>toggleMenu(true);if(menuClose)menuClose.onclick=()=>toggleMenu(false);if(menuBackdrop)menuBackdrop.onclick=()=>toggleMenu(false);document.querySelectorAll('[data-menu-close]').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false)});$('.checkout').onclick=()=>{if(cart.length)location.href='checkout.html'};function apply(resetPage=true){let list=[...products],c=category.value,min=+minPrice.value||0,max=+maxPrice.value||Infinity,qv=($('#q')?.value||$('#mobileQ')?.value||'').trim().toLowerCase();if($('#q')&&$('#mobileQ')){q.value=qv;mobileQ.value=qv}if(c)list=list.filter(p=>p.cat===c);if(qv)list=list.filter(p=>text(p).includes(qv));list=list.filter(p=>p.price>=min&&p.price<=max);if(sort.value==='priceAsc')list.sort((a,b)=>a.price-b.price);if(sort.value==='priceDesc')list.sort((a,b)=>b.price-a.price);if(sort.value==='name')list.sort((a,b)=>a.name.localeCompare(b.name,'ru'));if(resetPage)page=1;render(list)}applyFilters.onclick=()=>apply();resetFilters.onclick=()=>{category.value='';minPrice.value='';maxPrice.value='';sort.value='popular';if($('#q'))q.value='';if($('#mobileQ'))mobileQ.value='';page=1;render(products)};prevPage.onclick=()=>{if(page>1){page--;render(view);productsEl.scrollIntoView()}};nextPage.onclick=()=>{if(page*PAGE<view.length){page++;render(view);productsEl.scrollIntoView()}};document.querySelectorAll('[data-category]').forEach(a=>a.onclick=()=>{const term=a.dataset.category.toLowerCase();toggleMenu(false);category.value='';if($('#q'))q.value=term;if($('#mobileQ'))mobileQ.value=term;page=1;apply();productsEl.scrollIntoView({behavior:'smooth'})});search.onsubmit=e=>{e.preventDefault();if($('#mobileQ'))mobileQ.value=q.value;apply();productsEl.scrollIntoView({behavior:'smooth'})};const ms=$('#mobileSearch');if(ms)ms.onsubmit=e=>{e.preventDefault();if($('#q'))q.value=mobileQ.value;apply();productsEl.scrollIntoView({behavior:'smooth'})};pick.onclick=()=>{let h=+height.value,b=+budget.value;if(!h||!b){pickResult.textContent='Укажите рост и бюджет.';return}let frame=h<165?'S':h<178?'M':h<188?'L':'XL';let matches=products.filter(p=>/велосип/i.test(text(p))&&p.price<=b&&p.stockCode!=='out');pickResult.innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;page=1;render(matches);productsEl.scrollIntoView({behavior:'smooth'})};(()=>{const slider=$('#heroSlider'),track=slider?.querySelector('.heroTrack'),dots=[...(slider?.querySelectorAll('.dots button')||[])];if(!slider||!track)return;let slide=0,startX=0,startY=0,dragX=0,dragY=0,timer;const go=n=>{slide=(n+dots.length)%dots.length;track.style.transform=`translateX(${-slide*100}%)`;dots.forEach((d,i)=>d.classList.toggle('active',i===slide))};const restart=()=>{clearInterval(timer);timer=setInterval(()=>go(slide+1),5000)};dots.forEach((d,i)=>d.onclick=()=>{go(i);restart()});slider.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragX=dragY=0;clearInterval(timer)},{passive:true});slider.addEventListener('touchmove',e=>{dragX=e.touches[0].clientX-startX;dragY=e.touches[0].clientY-startY},{passive:true});slider.addEventListener('touchend',()=>{if(Math.abs(dragX)>45&&Math.abs(dragX)>Math.abs(dragY)*1.2)go(slide+(dragX<0?1:-1));restart()});go(0);restart()})();(async()=>{try{products=await loadRealCatalog();if(!products.length)throw Error('empty');[...new Set(products.map(p=>p.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru')).forEach(c=>category.add(new Option(c,c)));const sp=new URLSearchParams(location.search),initialQ=sp.get('q')||'';if($('#q'))q.value=initialQ;if($('#mobileQ'))mobileQ.value=initialQ;category.value=sp.get('cat')||'';minPrice.value=sp.get('min')||'';maxPrice.value=sp.get('max')||'';sort.value=sp.get('sort')||'popular';page=Math.max(1,+sp.get('page')||1);apply(false);save()}catch(e){catalogStatus.textContent='Каталог временно недоступен';console.error(e)}})();
+let products=[],view=[],page=1;
+const PAGE=24;
+let cart=readStoredArray('ps-cart');
+const rub=n=>new Intl.NumberFormat('ru-RU').format(n||0)+' ₽';
+const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const text=p=>p.searchText||(p.name+' '+p.cat+' '+(p.pathText||'')+' '+p.description+' '+Object.entries(p.specs||{}).flat().join(' ')).toLowerCase();
+const $=s=>document.querySelector(s);
+
+function imageCandidates(p){
+  const raw=[p.image,...(Array.isArray(p.images)?p.images:[])].filter(Boolean);
+  return [...new Set(raw.flatMap(src=>{
+    src=String(src);const out=[src];
+    if(src.startsWith('/import/'))out.push('api/product-image.php?p='+encodeURIComponent(src.slice(8)));
+    if(src.startsWith('import/'))out.push('api/product-image.php?p='+encodeURIComponent(src.slice(7)));
+    return out;
+  }))];
+}
+function bindProductImages(){
+  document.querySelectorAll('img.productImg').forEach(img=>{
+    img.onerror=()=>{
+      let a=[];try{a=JSON.parse(decodeURIComponent(img.dataset.fallbacks||'%5B%5D'))}catch(e){}
+      const next=a.shift();
+      if(next){img.dataset.fallbacks=encodeURIComponent(JSON.stringify(a));img.src=next;return}
+      const ph=document.createElement('div');ph.className='imagePlaceholder';ph.setAttribute('aria-label','Фото товара отсутствует');ph.textContent='Фото уточняется';img.replaceWith(ph);
+    };
+  });
+}
+function stateURL(){
+  const u=new URL(location.href),qv=($('#q')?.value||$('#mobileQ')?.value||'').trim();
+  qv?u.searchParams.set('q',qv):u.searchParams.delete('q');
+  category.value?u.searchParams.set('cat',category.value):u.searchParams.delete('cat');
+  minPrice.value?u.searchParams.set('min',minPrice.value):u.searchParams.delete('min');
+  maxPrice.value?u.searchParams.set('max',maxPrice.value):u.searchParams.delete('max');
+  sort.value!=='popular'?u.searchParams.set('sort',sort.value):u.searchParams.delete('sort');
+  page>1?u.searchParams.set('page',page):u.searchParams.delete('page');
+  history.replaceState(null,'',u);
+}
+function render(list=view){
+  productsEl.dataset.catalogReady='1';view=list;
+  const pages=Math.max(1,Math.ceil(list.length/PAGE));page=Math.min(Math.max(1,page),pages);
+  const show=list.slice((page-1)*PAGE,page*PAGE);
+  productsEl.innerHTML=show.map(p=>{
+    const imgs=imageCandidates(p),first=imgs.shift();
+    return `<article class="product"><a href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a><span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="price">${rub(p.price)}</div><button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></article>`;
+  }).join('')||'<p>Ничего не найдено.</p>';
+  bindProductImages();
+  document.querySelectorAll('.addBtn:not([disabled])').forEach(b=>b.onclick=()=>add(decodeURIComponent(b.dataset.id)));
+  catalogStatus.textContent=`Найдено: ${list.length}`;pageInfo.textContent=`${page} / ${pages}`;prevPage.disabled=page<=1;nextPage.disabled=page>=pages;
+  stateURL();
+}
+function add(id){cart.push(id);save();toggleCart(true)}
+function save(){localStorage.setItem('ps-cart',JSON.stringify(cart));count.textContent=cart.length;renderCart()}
+function renderCart(){
+  const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0;
+  cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p)return'';sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';
+  total.textContent=rub(sum);
+}
+function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x)===id);if(i>=0)cart.splice(i,1)}save()}
+function toggleCart(force){cartEl.classList.toggle('open',force===undefined?undefined:force)}
+function toggleMenu(force){
+  const menu=$('#mobileMenu'),backdrop=$('#menuBackdrop');if(!menu||!backdrop)return;
+  const open=force===undefined?!menu.classList.contains('open'):force;
+  menu.classList.toggle('open',open);backdrop.classList.toggle('open',open);menu.setAttribute('aria-hidden',String(!open));
+  document.body.style.overflow=open?'hidden':'';
+}
+
+const productsEl=$('#products'),catalogStatus=$('#catalogStatus'),cartEl=$('#cart');
+cartBtn.onclick=()=>toggleCart();
+const searchBtn=$('#searchBtn'),menuBtn=$('#menuBtn'),menuClose=$('#menuClose'),menuBackdrop=$('#menuBackdrop');
+if(searchBtn)searchBtn.onclick=()=>{toggleMenu(false);document.querySelector('#catalogProducts')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('#mobileQ')?.focus(),350)};
+if(menuBtn)menuBtn.onclick=()=>toggleMenu(true);if(menuClose)menuClose.onclick=()=>toggleMenu(false);if(menuBackdrop)menuBackdrop.onclick=()=>toggleMenu(false);
+document.querySelectorAll('[data-menu-close]').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false)});
+$('.checkout').onclick=()=>{if(cart.length)location.href='checkout.html'};
+
+function apply(resetPage=true){
+  let list=[...products],c=category.value,min=+minPrice.value||0,max=+maxPrice.value||Infinity;
+  const qv=($('#q')?.value||$('#mobileQ')?.value||'').trim().toLowerCase();
+  if(c)list=list.filter(p=>p.cat===c);if(qv)list=list.filter(p=>text(p).includes(qv));
+  list=list.filter(p=>p.price>=min&&p.price<=max);
+  if(sort.value==='priceAsc')list.sort((a,b)=>a.price-b.price);if(sort.value==='priceDesc')list.sort((a,b)=>b.price-a.price);if(sort.value==='name')list.sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+  if(resetPage)page=1;render(list);
+}
+applyFilters.onclick=()=>apply();
+resetFilters.onclick=()=>{category.value='';minPrice.value='';maxPrice.value='';sort.value='popular';if($('#brandFilter'))brandFilter.value='';if($('#stockOnly'))stockOnly.checked=false;if($('#q'))q.value='';if($('#mobileQ'))mobileQ.value='';page=1;render(products)};
+prevPage.onclick=()=>{if(page>1){page--;render(view);productsEl.scrollIntoView()}};nextPage.onclick=()=>{if(page*PAGE<view.length){page++;render(view);productsEl.scrollIntoView()}};
+document.querySelectorAll('[data-category]').forEach(a=>a.onclick=()=>{const term=a.dataset.category.toLowerCase();toggleMenu(false);category.value='';if($('#q'))q.value=term;if($('#mobileQ'))mobileQ.value=term;page=1;apply();productsEl.scrollIntoView({behavior:'smooth'})});
+search.onsubmit=e=>{e.preventDefault();if($('#mobileQ'))mobileQ.value=q.value;apply();productsEl.scrollIntoView({behavior:'smooth'})};
+const ms=$('#mobileSearch');if(ms)ms.onsubmit=e=>{e.preventDefault();if($('#q'))q.value=mobileQ.value;apply();productsEl.scrollIntoView({behavior:'smooth'})};
+pick.onclick=()=>{let h=+height.value,b=+budget.value;if(!h||!b){pickResult.textContent='Укажите рост и бюджет.';return}let frame=h<165?'S':h<178?'M':h<188?'L':'XL';let matches=products.filter(p=>/велосип/i.test(text(p))&&p.price<=b&&p.stockCode!=='out');pickResult.innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;page=1;render(matches);productsEl.scrollIntoView({behavior:'smooth'})};
+
+/* One slider implementation: desktop translates a fixed 100% track; mobile swaps
+   in-flow slides and never creates an off-screen strip. */
+(()=>{
+  const slider=$('#heroSlider'),track=slider?.querySelector('.heroTrack'),slides=[...(slider?.querySelectorAll('.heroSlide')||[])],dots=[...(slider?.querySelectorAll('.dots button')||[])];
+  if(!slider||!track||!slides.length)return;
+  const mobile=()=>window.matchMedia('(max-width:850px)').matches;
+  let slide=0,startX=0,startY=0,dragX=0,dragY=0,timer;
+  const go=n=>{
+    slide=(n+slides.length)%slides.length;
+    slider.classList.add('slider-ready');
+    if(mobile()){
+      track.style.transform='none';
+      slides.forEach((s,i)=>s.classList.toggle('is-active',i===slide));
+    }else{
+      slides.forEach(s=>s.classList.remove('is-active'));
+      track.style.transform=`translateX(${-slide*100}%)`;
+    }
+    dots.forEach((d,i)=>d.classList.toggle('active',i===slide));
+  };
+  const restart=()=>{clearInterval(timer);timer=setInterval(()=>go(slide+1),5000)};
+  dots.forEach((d,i)=>d.onclick=()=>{go(i);restart()});
+  slider.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragX=dragY=0;clearInterval(timer)},{passive:true});
+  slider.addEventListener('touchmove',e=>{dragX=e.touches[0].clientX-startX;dragY=e.touches[0].clientY-startY},{passive:true});
+  slider.addEventListener('touchend',()=>{if(Math.abs(dragX)>45&&Math.abs(dragX)>Math.abs(dragY)*1.2)go(slide+(dragX<0?1:-1));restart()});
+  window.addEventListener('resize',()=>go(slide),{passive:true});
+  go(0);restart();
+})();
+
+(async()=>{
+  try{
+    products=await loadRealCatalog();if(!products.length)throw Error('empty');
+    [...new Set(products.map(p=>p.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru')).forEach(c=>category.add(new Option(c,c)));
+    const sp=new URLSearchParams(location.search),initialQ=sp.get('q')||'';if($('#q'))q.value=initialQ;if($('#mobileQ'))mobileQ.value=initialQ;category.value=sp.get('cat')||'';minPrice.value=sp.get('min')||'';maxPrice.value=sp.get('max')||'';sort.value=sp.get('sort')||'popular';page=Math.max(1,+sp.get('page')||1);
+    apply(false);save();
+  }catch(e){catalogStatus.textContent='Каталог временно недоступен';console.error(e)}
+})();
