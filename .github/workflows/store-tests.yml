@@ -9,8 +9,10 @@ on:
       - 'server/**'
       - 'admin/**'
       - 'tests/**'
+      - 'index.html'
       - 'app.js'
       - 'catalog-loader.js'
+      - 'catalog-live-paged.js'
       - 'checkout.js'
       - 'service.js'
       - 'service-guide.js'
@@ -44,6 +46,7 @@ jobs:
           find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check app.js
           node --check catalog-loader.js
+          node --check catalog-live-paged.js
           node --check checkout.js
           node --check admin/orders.js
           node --check admin/products.js
@@ -55,6 +58,7 @@ jobs:
           php tests/catalog-quality.php
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
+          node tests/catalog-live-source-regression.js
       - name: Verify order and catalog schema invariants
         run: |
           grep -Fq 'source_hash,name,slug,sku' api/import-apply.php
