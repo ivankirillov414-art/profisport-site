@@ -27,11 +27,17 @@ try{
   $s->execute(array_keys($groups));$calculated=order_lines($s->fetchAll(),$groups);
   // This is a request for manager confirmation; stock remains owned by the 1C import.
   $number='PS-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
-  $o=$pdo->prepare("INSERT INTO orders(customer_id,order_number,customer_name,phone,email,delivery_method,address,comment,status,total_rub,request_key,request_hash) VALUES(?,?,?,?,?,?,?,?,'new',?,?,?)");
-  $o->execute([$customerId,$number,$in['name'],$in['phone'],$in['email']?:null,$in['delivery'],$in['address']?:null,$in['comment']?:null,$calculated['total'],$in['request_key'],$hash]);
+  insert_order_row($pdo,'orders',[
+    'customer_id'=>$customerId,'order_number'=>$number,'customer_name'=>$in['name'],'phone'=>$in['phone'],
+    'email'=>$in['email']?:null,'delivery_method'=>$in['delivery'],'address'=>$in['address']?:null,
+    'comment'=>$in['comment']?:null,'status'=>'new','total_rub'=>$calculated['total'],
+    'request_key'=>$in['request_key'],'request_hash'=>$hash,
+  ]);
   $orderId=(int)$pdo->lastInsertId();
-  $i=$pdo->prepare('INSERT INTO order_items(order_id,product_id,title,price_rub,quantity,line_total_rub) VALUES(?,?,?,?,?,?)');
-  foreach($calculated['items'] as $x)$i->execute([$orderId,$x['id'],$x['title'],$x['price'],$x['qty'],$x['line']]);
+  foreach($calculated['items'] as $x)insert_order_row($pdo,'order_items',[
+    'order_id'=>$orderId,'product_id'=>$x['id'],'title'=>$x['title'],'price_rub'=>$x['price'],
+    'quantity'=>$x['qty'],'line_total_rub'=>$x['line'],
+  ]);
   $pdo->commit();order_result(['order_number'=>$number,'total_rub'=>$calculated['total']]);
 }catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>$e->getMessage()],422);
 }catch(DomainException $e){if($pdo->inTransaction())$pdo->rollBack();json_response(['ok'=>false,'error'=>$e->getMessage()],409);

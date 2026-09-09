@@ -6,6 +6,9 @@ on:
 jobs:
   checkout:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        schema: [fresh, legacy]
     services:
       mysql:
         image: mysql:8.0
@@ -32,6 +35,7 @@ jobs:
           cat > server/config.php <<'PHP'
           <?php return ['db_host'=>'127.0.0.1','db_name'=>'profisport_test','db_user'=>'root','db_pass'=>'test-only-password','import_token'=>'test'];
           PHP
+          if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-orders.php; fi
           php tests/seed.php
           php -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
           SERVER_PID=$!
@@ -41,3 +45,4 @@ jobs:
             sleep 1
           done
           python3 tests/orders-http.py
+          if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-order-writes.php; fi

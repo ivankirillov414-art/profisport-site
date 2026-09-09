@@ -1,5 +1,5 @@
 (()=>{
-const $=id=>document.getElementById(id),labels={new:'Новый',confirmed:'Подтверждён',ready:'Готов к выдаче',completed:'Завершён',cancelled:'Отменён'};
+const $=id=>document.getElementById(id),labels={new:'Новый',confirmed:'Подтверждён',processing:'В работе',ready:'Готов к выдаче',completed:'Завершён',cancelled:'Отменён'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rub=n=>Number(n).toLocaleString('ru-RU')+' ₽';let page=1,csrf='',current=null;
 async function api(query,options={}){const r=await fetch('../api/orders.php?'+query,{cache:'no-store',...options});const j=await r.json();if(r.status===401){location.href='login.php';throw Error('Войдите в систему.')}if(!r.ok)throw Error(j.error==='order_changed'?'Заказ уже изменён другим сотрудником. Откройте его повторно.':'Не удалось выполнить действие.');return j}
