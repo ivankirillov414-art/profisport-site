@@ -46,6 +46,8 @@ assert call('api/product-admin.php',p,cookie,csrf)[0]==200
 assert call('api/product-admin.php',p,cookie,csrf)[0]==409
 status,j,_=call('api/catalog.php?limit=24');assert status==200
 p=next(p for p in j['items'] if p['id']==1);assert p['price_rub']==200 and p['description']=='Updated description'
+assert call('api/product-admin.php?category=Sport%20%2F%20Balls',cookie=cookie)[1]['total']==1
+assert call('api/product-admin.php?category=No%20such%20category',cookie=cookie)[1]['total']==0
 print('PASS: workshop persistence, product editing, stale-write protection, public catalog')
 # An authenticated buyer sees only their own order history.
 status,customer,h=call('api/customer.php?action=register',{'name':'Account buyer','email':'buyer@example.test','phone':'+79991234567','password':'test-only-password'})
@@ -55,7 +57,13 @@ status,j,_=call('api/order-create.php',{**base,'items':[1],'request_key':'c'*64}
 status,j,_=call('api/customer.php?action=me',cookie=customer_cookie);assert len(j['orders'])==1 and j['orders'][0]['total_rub']==200
 assert call('api/customer.php?action=me')[1]['customer'] is None
 print('PASS: authenticated checkout and private order history')
-for page in ['photos.php','customers.php','reviews.php','health.php','orders.php']:
+for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php']:
     with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
         assert r.geturl().endswith('/admin/login.php'),page
 print('PASS: protected admin pages redirect unauthenticated visitors')
+stats=call('server/api.php?action=stats',cookie=cookie)[1]
+assert stats['customers']==1 and stats['new_service']==0
+for page in ['categories.php','stats.php']:
+    req=urllib.request.Request(BASE+'admin/'+page,headers={'Cookie':cookie})
+    with urllib.request.urlopen(req,timeout=15) as r: assert r.status==200 and r.geturl().endswith(page)
+print('PASS: category filters, live dashboard counts and reports')

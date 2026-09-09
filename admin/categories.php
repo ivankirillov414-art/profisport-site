@@ -1,0 +1,5 @@
+<?php
+require __DIR__.'/guard.php';
+$rows=$pdo->query("SELECT COALESCE(NULLIF(category_path,''),'') AS path,COUNT(*) AS count,SUM(is_active=1) AS active_count FROM products GROUP BY path ORDER BY path")->fetchAll();
+?><!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Категории — ПрофиСпорт</title><link rel="stylesheet" href="reports.css"><main><a href="index.php">← Управление магазином</a><h1>Категории товаров</h1><p>Откройте категорию, чтобы просмотреть товары или изменить их привязку в редакторе. Обновление из 1С может заменить ручные изменения.</p><table><thead><tr><th>Категория</th><th>Товаров</th><th>Показываются</th></tr></thead><tbody>
+<?php foreach($rows as $row):?><tr><td><a href="products.php?category=<?=rawurlencode($row['path'])?>"><?=htmlspecialchars($row['path']?:'Без категории',ENT_QUOTES,'UTF-8')?></a></td><td><?=(int)$row['count']?></td><td><?=(int)$row['active_count']?></td></tr><?php endforeach;?></tbody></table></main></html>
