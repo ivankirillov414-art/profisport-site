@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-09-09T12:00:00+00:00",
+  "generated_at": "2026-09-09T12:36:28.463599+00:00",
   "items": {
     "велосипед 18 techteam ugen черный": {
       "name": "Велосипед 18 TechTeam UGen черный",
@@ -20,7 +20,12 @@
     }
   },
   "stats": {
-    "seeded": 2,
-    "note": "Exact-name overrides only; no SKU matching."
+    "catalog_rows": 8552,
+    "pending_without_source_image": 4923,
+    "added_this_run": 0,
+    "source_page_hits": 0,
+    "web_search_hits": 0,
+    "web_searches": 20,
+    "total_overrides": 2
   }
 }
