@@ -1,66 +1,92 @@
-/* ProfiSport mobile width guard — fixes iOS horizontal overflow without relying on pinch zoom */
-html,body{width:100%;max-width:100%;overflow-x:hidden}
-body{min-width:0}
-main,section,header,footer,.top,.topActions,.hero,.heroTrack,.heroCopy,.categorySection,.categories,#catalogProducts,.sectionHead,.mobileSearch,.filters,.products,.picker,.service,.checkoutPage,.productDetail,.detailSection,.profilePage,.profileGrid,.profileCard,.mobileBottomNav{min-width:0;max-width:100%}
-img,svg,video,canvas{max-width:100%}
+/* ProfiSport mobile width guard — hard stop for iOS horizontal drift */
+html{width:100%;max-width:100%;overflow-x:clip;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{width:100%;max-width:100%;min-width:0;margin:0;overflow-x:clip;position:relative}
+main,section,header,footer,nav,.top,.topActions,.hero,.heroTrack,.heroCopy,.categorySection,.categories,#catalogProducts,.sectionHead,.mobileSearch,.filters,.products,.picker,.service,.checkoutPage,.productDetail,.detailSection,.productShell,.profilePage,.profileGrid,.profileCard,.profileFav,.mobileBottomNav,.buyCard,.galleryMain,.galleryThumbs,.detailTabs,.similarGrid,.reviewForm,.helpLinks{min-width:0;max-width:100%}
+img,svg,video,canvas,iframe{max-width:100%}
+input,select,textarea,button{min-width:0;max-width:100%}
+pre,code,table{max-width:100%}
 
 @media(max-width:850px){
-  .top{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;overflow:hidden}
-  .top>b{min-width:0;font-size:clamp(20px,6vw,24px);letter-spacing:-1.3px;line-height:1;overflow:hidden;text-overflow:clip}
-  .topActions{min-width:0;display:grid;grid-template-columns:repeat(4,40px);gap:3px}
-  .topIconBtn{width:40px;height:40px;min-width:0}
-  .topIconBtn svg{width:22px;height:22px}
+  /* Never let page-level blocks establish a wider layout viewport. */
+  body>main,body>footer,body>.top,body>header,body>nav:not(.mobileBottomNav){width:100%;max-width:100%;box-sizing:border-box}
+  main{width:100%;max-width:100%;margin-left:0;margin-right:0}
 
-  /* Slider: each slide must always occupy exactly one viewport of the hero.
-     Do not allow flexbox to shrink all three slides into one row. */
-  .hero{width:100%;max-width:100%;overflow:hidden}
+  /* Header: fixed right-side budget, flexible logo. */
+  .top{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:6px;overflow:clip;box-sizing:border-box}
+  .top>b{min-width:0;max-width:100%;font-size:clamp(19px,5.6vw,23px);letter-spacing:-1.35px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  .topActions{min-width:0;max-width:100%;display:grid;grid-auto-flow:column;grid-auto-columns:36px;gap:2px;align-items:center;justify-content:end}
+  .topActions>.topIconBtn{width:36px;height:36px;min-width:36px;max-width:36px;padding:0}
+  .topIconBtn svg{width:20px;height:20px}
+  .cartCount{right:-2px;top:-4px}
+
+  /* Off-canvas controls were a major Safari overflow source. Keep them out of layout entirely while closed. */
+  .mobileMenu{display:none!important;right:0!important;left:auto!important;transform:none!important;transition:none!important;max-width:min(330px,88vw)!important}
+  .mobileMenu.open{display:flex!important}
+  .drawer{display:none!important;right:0!important;left:auto!important;transform:none!important;transition:none!important;width:min(420px,100%)!important;max-width:100%!important}
+  .drawer.open{display:block!important}
+
+  /* Slider: one exact slide per hero width; parent clips neighboring slides. */
+  .hero{width:100%;max-width:100%;overflow:clip;contain:paint}
   .heroTrack{width:100%;max-width:none;display:flex;flex-wrap:nowrap;overflow:visible}
-  .heroSlide{flex:0 0 100%!important;width:100%!important;min-width:100%!important;max-width:100%!important}
-  .heroCopy{box-sizing:border-box;min-width:0}
-  .hero .primary{max-width:100%;white-space:normal}
+  .heroSlide{box-sizing:border-box;flex:0 0 100%!important;width:100%!important;min-width:100%!important;max-width:100%!important;overflow:hidden}
+  .heroCopy{box-sizing:border-box;min-width:0;max-width:100%;overflow-wrap:anywhere}
+  .heroCopy>*{max-width:100%}
+  .hero .primary{display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+  .heroPhoto{max-width:100%}
 
-  .categorySection{width:100%;max-width:100%;overflow:hidden}
-  .categories{width:100%;max-width:100%;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px;overflow:hidden}
-  .categories a{min-width:0;width:100%;max-width:100%;padding:8px 2px;overflow:hidden}
-  .categories b{display:block;width:100%;min-width:0;text-align:center;line-height:1.1;overflow-wrap:anywhere;word-break:normal}
+  /* Category row: no intrinsic text width is allowed to widen the grid. */
+  .categorySection{width:100%;max-width:100%;overflow:clip;contain:paint}
+  .categories{width:100%;max-width:100%;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-auto-columns:minmax(0,1fr);gap:6px;overflow:clip}
+  .categories a{min-width:0;width:auto;max-width:100%;padding:8px 2px;overflow:hidden}
+  .categories b{display:block;width:100%;min-width:0;max-width:100%;text-align:center;line-height:1.1;overflow-wrap:anywhere;word-break:normal}
 
-  #catalogProducts{width:100%;box-sizing:border-box;overflow:hidden}
-  .sectionHead{width:100%;flex-wrap:wrap}
-  .sectionHead h2{min-width:0}
-  .mobileSearch{width:100%;max-width:100%}
+  /* Catalog and generated controls. */
+  #catalogProducts{width:100%;max-width:100%;box-sizing:border-box;overflow:clip}
+  .sectionHead{width:100%;max-width:100%;flex-wrap:wrap}
+  .sectionHead h2,.sectionHead #catalogStatus{min-width:0;max-width:100%}
+  .mobileSearch{width:100%;max-width:100%;min-width:0}
   .mobileSearch input{min-width:0;width:1%;flex:1 1 auto}
   .mobileSearch button{flex:0 0 auto}
+  .smartSearchWrap,.smartSearchWrap form,.smartSuggest{max-width:100%}
 
-  .filters{width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .filters{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
   .filters>*{min-width:0;max-width:100%;width:100%}
-  .kantFilterRow{width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .kantFilterRow{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
   .kantFilterRow>*{min-width:0;max-width:100%}
-  .products{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .product{min-width:0;max-width:100%}
-  .product h3{overflow-wrap:anywhere}
+  .products{width:100%;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .product{min-width:0;max-width:100%;overflow:hidden}
+  .product h3,.product small,.product .price{max-width:100%;overflow-wrap:anywhere}
 
-  .picker,.service,.checkoutPage,.productDetail,.detailSection,.profileCard{width:100%;box-sizing:border-box}
-  input,select,textarea{min-width:0;max-width:100%}
-  footer>*{min-width:0;overflow-wrap:anywhere}
-  .drawer{max-width:100vw}
-  .mobileBottomNav{width:auto;max-width:calc(100% - 20px)}
+  /* Remaining storefront pages. */
+  .picker,.service,.checkoutPage,.productDetail,.detailSection,.productShell,.profilePage,.profileCard,.buyCard,.galleryMain{width:100%;max-width:100%;box-sizing:border-box}
+  .productDetail,.profileGrid,.detailTabs,.similarGrid,.profileFav{min-width:0}
+  .buyActions{grid-template-columns:minmax(0,1fr) auto}
+  .buyActions>*{min-width:0}
+  .galleryThumbs{max-width:100%;overflow-x:auto;overflow-y:hidden}
+  .checkoutRow,.cartrow,.loyaltyRow,.reviewSummary,.priceRow{min-width:0;max-width:100%}
+  .checkoutRow>*,.cartrow>*,.loyaltyRow>*,.reviewSummary>*,.priceRow>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+  footer>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+
+  .mobileBottomNav{left:10px!important;right:10px!important;width:auto!important;max-width:none!important;box-sizing:border-box}
 }
 
 @media(max-width:430px){
-  .top{padding-left:10px!important;padding-right:8px!important;gap:5px}
-  .top>b{font-size:21px!important;letter-spacing:-1.4px;white-space:nowrap}
-  .topActions{grid-template-columns:repeat(4,36px);gap:2px}
-  .topIconBtn{width:36px;height:36px;border-radius:10px}
-  .topIconBtn svg{width:20px;height:20px}
-  .categories{gap:6px}
+  .top{padding-left:10px!important;padding-right:8px!important;gap:4px}
+  .top>b{font-size:20px!important;letter-spacing:-1.45px}
+  .topActions{grid-auto-columns:34px;gap:2px}
+  .topActions>.topIconBtn{width:34px;height:34px;min-width:34px;max-width:34px;border-radius:9px}
+  .topIconBtn svg{width:19px;height:19px}
+  .categories{gap:5px}
   .categories b{font-size:9px!important}
-  .catIcon{font-size:25px!important}
+  .catIcon{font-size:24px!important}
 }
 
 @media(max-width:380px){
-  .top>b{font-size:19px!important}
-  .topActions{grid-template-columns:repeat(4,34px);gap:1px}
-  .topIconBtn{width:34px;height:34px}
-  .categories{gap:5px}
+  .top{padding-left:8px!important;padding-right:6px!important;gap:3px}
+  .top>b{font-size:18px!important;letter-spacing:-1.35px}
+  .topActions{grid-auto-columns:31px;gap:1px}
+  .topActions>.topIconBtn{width:31px;height:31px;min-width:31px;max-width:31px}
+  .topIconBtn svg{width:18px;height:18px}
+  .categories{gap:4px}
   .categories a{padding-inline:1px}
 }
