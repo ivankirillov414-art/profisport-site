@@ -1,68 +1,231 @@
-/* ProfiSport mobile width guard — hard stop for iOS horizontal drift */
-html{width:100%;max-width:100%;overflow-x:clip;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{width:100%;max-width:100%;min-width:0;margin:0;overflow-x:clip;position:relative}
-main,section,header,footer,nav,.top,.topActions,.hero,.heroTrack,.heroCopy,.categorySection,.categories,#catalogProducts,.sectionHead,.mobileSearch,.filters,.products,.picker,.service,.checkoutPage,.productDetail,.detailSection,.productShell,.profilePage,.profileGrid,.profileCard,.profileFav,.mobileBottomNav,.buyCard,.galleryMain,.galleryThumbs,.detailTabs,.similarGrid,.reviewForm,.helpLinks{min-width:0;max-width:100%}
+/* ProfiSport mobile width guard v5 — hard stop for delayed iOS horizontal drift */
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden!important;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+body{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin:0;
+  overflow-x:hidden!important;
+  position:relative;
+}
+*,*::before,*::after{box-sizing:border-box}
+main,section,header,footer,nav,.top,.topActions,.hero,.heroTrack,.heroCopy,.categorySection,.categories,#catalogProducts,.sectionHead,.mobileSearch,.filters,.products,.picker,.service,.checkoutPage,.productDetail,.detailSection,.productShell,.profilePage,.profileGrid,.profileCard,.profileFav,.mobileBottomNav,.buyCard,.galleryMain,.galleryThumbs,.detailTabs,.similarGrid,.reviewForm,.helpLinks,.smartSearchWrap,.smartSuggest,.kantFilterRow,.stockOnly{
+  min-width:0;
+  max-width:100%;
+}
 img,svg,video,canvas,iframe{max-width:100%}
 input,select,textarea,button{min-width:0;max-width:100%}
 pre,code,table{max-width:100%}
 
 @media(max-width:850px){
-  /* Never let page-level blocks establish a wider layout viewport. */
-  body>main,body>footer,body>.top,body>header,body>nav:not(.mobileBottomNav){width:100%;max-width:100%;box-sizing:border-box}
-  main{width:100%;max-width:100%;margin-left:0;margin-right:0}
+  /* Lock the actual page canvas to the device viewport. This remains true after JS hydrates the catalog. */
+  html,body{
+    width:100vw!important;
+    min-width:0!important;
+    max-width:100vw!important;
+    overflow-x:hidden!important;
+  }
+  body>main,body>footer,body>.top,body>header,body>nav:not(.mobileBottomNav){
+    width:100vw!important;
+    max-width:100vw!important;
+    box-sizing:border-box!important;
+    margin-left:0;
+    margin-right:0;
+  }
+  main{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;overflow-x:hidden}
 
-  /* Header: fixed right-side budget for icon header, flexible logo everywhere. */
-  .top{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:6px;overflow:clip;box-sizing:border-box}
-  .top>b{min-width:0;max-width:100%;font-size:clamp(19px,5.6vw,23px);letter-spacing:-1.35px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
-  .topActions{min-width:0;max-width:100%}
-  .topActions:has(.topIconBtn){display:grid;grid-auto-flow:column;grid-auto-columns:36px;gap:2px;align-items:center;justify-content:end}
-  .topActions:not(:has(.topIconBtn)){display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:7px;font-size:12px}
+  /* Header: a fixed budget for four icons and a flexible logo. */
+  .top{
+    width:100vw!important;
+    max-width:100vw!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) max-content!important;
+    align-items:center;
+    gap:6px;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  .top>b{
+    min-width:0;
+    max-width:100%;
+    font-size:clamp(19px,5.6vw,23px);
+    letter-spacing:-1.35px;
+    line-height:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:clip;
+  }
+  .topActions{min-width:0;max-width:100%;overflow:visible}
+  .topActions:has(.topIconBtn){
+    display:grid!important;
+    grid-auto-flow:column;
+    grid-auto-columns:36px;
+    gap:2px!important;
+    align-items:center;
+    justify-content:end;
+  }
+  .topActions:not(:has(.topIconBtn)){
+    display:flex!important;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    align-items:center;
+    gap:7px!important;
+    font-size:12px;
+  }
   .topActions:not(:has(.topIconBtn)) a{white-space:nowrap}
-  .topActions>.topIconBtn{width:36px;height:36px;min-width:36px;max-width:36px;padding:0}
-  .topIconBtn svg{width:20px;height:20px}
+  .topActions>.topIconBtn{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    max-width:36px!important;
+    padding:0!important;
+  }
+  .topIconBtn svg{width:20px!important;height:20px!important}
   .cartCount{right:-2px;top:-4px}
 
-  /* Off-canvas controls were a major Safari overflow source. Keep them out of layout entirely while closed. */
-  .mobileMenu{display:none!important;right:0!important;left:auto!important;transform:none!important;transition:none!important;max-width:min(330px,88vw)!important}
+  /* Closed off-canvas controls must not participate in Safari scrollWidth at all. */
+  .mobileMenu{
+    display:none!important;
+    right:0!important;
+    left:auto!important;
+    transform:none!important;
+    transition:none!important;
+    max-width:min(330px,88vw)!important;
+  }
   .mobileMenu.open{display:flex!important}
-  .drawer{display:none!important;right:0!important;left:auto!important;transform:none!important;transition:none!important;width:min(420px,100%)!important;max-width:100%!important}
+  .drawer{
+    display:none!important;
+    right:0!important;
+    left:auto!important;
+    transform:none!important;
+    transition:none!important;
+    width:min(420px,100vw)!important;
+    max-width:100vw!important;
+  }
   .drawer.open{display:block!important}
+  .megaCatalog,.megaCatalogBackdrop{display:none!important}
 
-  /* Slider: one exact slide per hero width; parent clips neighboring slides. */
-  .hero{width:100%;max-width:100%;overflow:clip;contain:paint}
-  .heroTrack{width:100%;max-width:none;display:flex;flex-wrap:nowrap;overflow:visible}
-  .heroSlide{box-sizing:border-box;flex:0 0 100%!important;width:100%!important;min-width:100%!important;max-width:100%!important;overflow:hidden}
+  /* Critical Safari fix: on mobile there are NO off-screen slides.
+     Existing JS still switches the active dot; :has() selects the one visible slide. */
+  .hero{
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    contain:paint;
+  }
+  .heroTrack{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    transform:none!important;
+    transition:none!important;
+    overflow:hidden!important;
+  }
+  .heroSlide{
+    display:none!important;
+    position:relative;
+    box-sizing:border-box;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+  }
+  #heroSlider:has(.dots button:nth-child(1).active) .heroSlide:nth-child(1),
+  #heroSlider:has(.dots button:nth-child(2).active) .heroSlide:nth-child(2),
+  #heroSlider:has(.dots button:nth-child(3).active) .heroSlide:nth-child(3){display:block!important}
+  /* Fallback before JS marks a dot. */
+  #heroSlider:not(:has(.dots button.active)) .heroSlide:first-child{display:block!important}
   .heroCopy{box-sizing:border-box;min-width:0;max-width:100%;overflow-wrap:anywhere}
   .heroCopy>*{max-width:100%}
   .hero .primary{display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere}
   .heroPhoto{max-width:100%}
 
-  /* Category row: no intrinsic text width is allowed to widen the grid. */
-  .categorySection{width:100%;max-width:100%;overflow:clip;contain:paint}
-  .categories{width:100%;max-width:100%;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-auto-columns:minmax(0,1fr);gap:6px;overflow:clip}
-  .categories a{min-width:0;width:auto;max-width:100%;padding:8px 2px;overflow:hidden}
+  /* Category row: intrinsic text width can never widen the page. */
+  .categorySection{width:100%!important;max-width:100%!important;overflow:hidden!important;contain:paint}
+  .categories{
+    display:grid!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-auto-columns:minmax(0,1fr)!important;
+    gap:6px!important;
+    overflow:hidden!important;
+  }
+  .categories a{min-width:0!important;width:auto!important;max-width:100%!important;padding:8px 2px!important;overflow:hidden!important}
   .categories b{display:block;width:100%;min-width:0;max-width:100%;text-align:center;line-height:1.1;overflow-wrap:anywhere;word-break:normal}
 
-  /* Catalog and generated controls. */
-  #catalogProducts{width:100%;max-width:100%;box-sizing:border-box;overflow:clip}
-  .sectionHead{width:100%;max-width:100%;flex-wrap:wrap}
-  .sectionHead h2,.sectionHead #catalogStatus{min-width:0;max-width:100%}
-  .mobileSearch{width:100%;max-width:100%;min-width:0}
-  .mobileSearch input{min-width:0;width:1%;flex:1 1 auto}
+  /* Catalog and every control inserted after async catalog loading. */
+  #catalogProducts{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;contain:paint}
+  .sectionHead{width:100%!important;max-width:100%!important;min-width:0!important;flex-wrap:wrap}
+  .sectionHead h2,.sectionHead #catalogStatus{min-width:0;max-width:100%;overflow-wrap:anywhere}
+  .smartSearchWrap,.smartSearchWrap form,.mobileSearch{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .mobileSearch input{min-width:0!important;width:1%!important;flex:1 1 auto}
   .mobileSearch button{flex:0 0 auto}
-  .smartSearchWrap,.smartSearchWrap form,.smartSuggest{max-width:100%}
+  .smartSuggest{
+    left:8px!important;
+    right:8px!important;
+    width:auto!important;
+    max-width:calc(100vw - 16px)!important;
+    box-sizing:border-box!important;
+  }
 
-  .filters{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
-  .filters>*{min-width:0;max-width:100%;width:100%}
-  .kantFilterRow{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
-  .kantFilterRow>*{min-width:0;max-width:100%}
-  .products{width:100%;max-width:100%;grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .product{min-width:0;max-width:100%;overflow:hidden}
-  .product h3,.product small,.product .price{max-width:100%;overflow-wrap:anywhere}
+  .filters,.kantFilterRow{
+    display:grid!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:8px;
+  }
+  .filters>*,.kantFilterRow>*{
+    min-width:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .filters select,.kantFilterRow select{
+    min-width:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis;
+  }
+  .stockOnly{min-width:0!important;width:100%!important;max-width:100%!important;white-space:normal!important;overflow:hidden}
+
+  .products{
+    display:grid!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .product{min-width:0!important;width:auto!important;max-width:100%!important;overflow:hidden!important}
+  .product>a,.product h3,.product small,.product .price,.product del{min-width:0;max-width:100%;overflow-wrap:anywhere}
+  .photo,.photo img,.imagePlaceholder{min-width:0!important;max-width:100%!important}
+  .productFavorite{right:8px!important;max-width:34px!important}
 
   /* Remaining storefront pages. */
-  .picker,.service,.checkoutPage,.productDetail,.detailSection,.productShell,.profilePage,.profileCard,.buyCard,.galleryMain{width:100%;max-width:100%;box-sizing:border-box}
-  .productDetail,.profileGrid,.detailTabs,.similarGrid,.profileFav{min-width:0}
+  .picker,.service,.checkoutPage,.productDetail,.detailSection,.productShell,.profilePage,.profileCard,.buyCard,.galleryMain{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    overflow-wrap:anywhere;
+  }
+  .productDetail,.profileGrid,.detailTabs,.similarGrid,.profileFav{min-width:0;max-width:100%}
   .buyActions{grid-template-columns:minmax(0,1fr) auto}
   .buyActions>*{min-width:0}
   .galleryThumbs{max-width:100%;overflow-x:auto;overflow-y:hidden}
@@ -70,26 +233,33 @@ pre,code,table{max-width:100%}
   .checkoutRow>*,.cartrow>*,.loyaltyRow>*,.reviewSummary>*,.priceRow>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
   footer>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
 
-  .mobileBottomNav{left:10px!important;right:10px!important;width:auto!important;max-width:none!important;box-sizing:border-box}
+  .mobileBottomNav{
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    overflow:hidden;
+  }
 }
 
 @media(max-width:430px){
-  .top{padding-left:10px!important;padding-right:8px!important;gap:4px}
-  .top>b{font-size:20px!important;letter-spacing:-1.45px}
-  .topActions:has(.topIconBtn){grid-auto-columns:34px;gap:2px}
-  .topActions>.topIconBtn{width:34px;height:34px;min-width:34px;max-width:34px;border-radius:9px}
-  .topIconBtn svg{width:19px;height:19px}
-  .categories{gap:5px}
+  .top{padding-left:10px!important;padding-right:8px!important;gap:4px!important}
+  .top>b{font-size:20px!important;letter-spacing:-1.45px!important}
+  .topActions:has(.topIconBtn){grid-auto-columns:34px!important;gap:2px!important}
+  .topActions>.topIconBtn{width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;border-radius:9px}
+  .topIconBtn svg{width:19px!important;height:19px!important}
+  .categories{gap:5px!important}
   .categories b{font-size:9px!important}
   .catIcon{font-size:24px!important}
 }
 
 @media(max-width:380px){
-  .top{padding-left:8px!important;padding-right:6px!important;gap:3px}
-  .top>b{font-size:18px!important;letter-spacing:-1.35px}
-  .topActions:has(.topIconBtn){grid-auto-columns:31px;gap:1px}
-  .topActions>.topIconBtn{width:31px;height:31px;min-width:31px;max-width:31px}
-  .topIconBtn svg{width:18px;height:18px}
-  .categories{gap:4px}
-  .categories a{padding-inline:1px}
+  .top{padding-left:8px!important;padding-right:6px!important;gap:3px!important}
+  .top>b{font-size:18px!important;letter-spacing:-1.35px!important}
+  .topActions:has(.topIconBtn){grid-auto-columns:31px!important;gap:1px!important}
+  .topActions>.topIconBtn{width:31px!important;height:31px!important;min-width:31px!important;max-width:31px!important}
+  .topIconBtn svg{width:18px!important;height:18px!important}
+  .categories{gap:4px!important}
+  .categories a{padding-inline:1px!important}
 }
