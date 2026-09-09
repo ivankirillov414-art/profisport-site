@@ -59,6 +59,7 @@ try{
   $itemsWithRemoteImage=0;
   $removedSuspiciousSpecs=0;
   $suppressedInvalidOldPrices=0;
+  $brandsInferred=0;
 
   while($p=$stmt->fetch()){
     $decoded=json_decode((string)($p['images']??''),true);
@@ -93,8 +94,10 @@ try{
 
     $specs=json_decode((string)($p['specs']??'{}'),true);
     if(!is_array($specs))$specs=[];
-    $beforeRemoved=$removedSuspiciousSpecs;
     $specs=catalog_sanitize_specs((string)$p['name'],$specs,$removedSuspiciousSpecs);
+    $brandWasInferred=false;
+    $brand=catalog_resolve_brand((string)$p['name'],$p['brand']!==null?(string)$p['brand']:null,$specs,$brandWasInferred);
+    if($brandWasInferred)$brandsInferred++;
 
     $price=(float)$p['price'];
     $priceRub=(int)$p['price_rub'];
@@ -111,7 +114,8 @@ try{
       'title'=>$p['name'],
       'slug'=>$p['slug'],
       'sku'=>$p['sku'],
-      'brand'=>$p['brand'],
+      'brand'=>$brand,
+      'brand_inferred'=>$brandWasInferred,
       'model'=>$p['model'],
       'price'=>$price,
       'price_rub'=>$priceRub,
@@ -149,7 +153,8 @@ try{
     'quality_health'=>[
       'excluded_missing_price'=>$excludedMissingPrice,
       'suspicious_specs_removed'=>$removedSuspiciousSpecs,
-      'invalid_old_prices_suppressed'=>$suppressedInvalidOldPrices
+      'invalid_old_prices_suppressed'=>$suppressedInvalidOldPrices,
+      'brands_inferred'=>$brandsInferred
     ],
     'items'=>$items
   ],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE);
