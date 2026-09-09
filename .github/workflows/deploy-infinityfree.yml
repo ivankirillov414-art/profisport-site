@@ -89,6 +89,8 @@ jobs:
           grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Fq "COALESCE(price_rub,0)>0" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_sanitize_specs" /tmp/profisport-remote/api/catalog.php
+          grep -Fq "catalog_resolve_brand" /tmp/profisport-remote/api/catalog.php
+          grep -Fq "brands_inferred" /tmp/profisport-remote/api/catalog.php
           if grep -Eq 'mobile-layout-fix|mobile-viewport-lock|storefront-kant|theme-clean-v1' /tmp/profisport-remote/index.html; then
             echo 'Obsolete layout assets are present in deployed index.html' >&2
             exit 1
