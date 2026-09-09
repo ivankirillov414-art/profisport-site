@@ -4,12 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#454b53">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>ПрофиСпорт — спортивный магазин</title>
-  <link rel="stylesheet" href="storefront.css?v=1">
-  <script>window.__psFirstCatalogPromise=fetch('api/catalog.php?limit=24&count=1&v=fast4',{cache:'force-cache'}).then(function(r){if(!r.ok)throw new Error('catalog '+r.status);return r.json()});</script>
+  <link rel="stylesheet" href="storefront.css?v=2">
 </head>
 <body>
   <div class="top">
@@ -22,10 +18,10 @@
     </div>
   </div>
 
-  <div id="mobileMenu" class="mobileMenu" aria-hidden="true">
+  <aside id="mobileMenu" class="mobileMenu" aria-hidden="true">
     <div class="mobileMenuHead"><b>Меню</b><button id="menuClose" class="menuClose" aria-label="Закрыть">×</button></div>
     <a href="#catalog" data-menu-close>Каталог</a>
-    <a href="#catalog" data-category="велосип" data-menu-close>Велосипеды</a>
+    <a href="#catalog" data-category="велосипед" data-menu-close>Велосипеды</a>
     <a href="#catalog" data-category="запчаст" data-menu-close>Запчасти</a>
     <a href="#catalog" data-category="аксессуар" data-menu-close>Аксессуары</a>
     <a href="#catalog" data-category="лыж" data-menu-close>Зимний спорт</a>
@@ -33,7 +29,7 @@
     <a href="service.html">Сервис</a>
     <a href="profile.html">Личный кабинет</a>
     <a href="#contacts" data-menu-close>Контакты</a>
-  </div>
+  </aside>
   <div id="menuBackdrop" class="menuBackdrop"></div>
 
   <header>
@@ -41,18 +37,20 @@
     <form id="search" class="smartSearchHost">
       <input id="q" placeholder="Найти велосипед, запчасть, лыжи..." autocomplete="off">
       <button>Найти</button>
-      <div class="smartSuggest" data-for="q"></div>
+      <div id="desktopSuggest" class="smartSuggest"></div>
     </form>
   </header>
 
   <nav>
-    <a href="#catalog">Каталог</a><a href="#catalog" data-category="велосип">Велосипеды</a><a href="#catalog" data-category="запчаст">Запчасти</a><a href="#catalog" data-category="аксессуар">Аксессуары</a><a href="#catalog" data-category="лыж">Зимний спорт</a><a href="#catalog" data-category="фитнес">Фитнес</a><a href="service.html">Сервис</a>
+    <a id="desktopCatalogLink" href="#catalog">Каталог</a><a href="#catalog" data-category="велосипед">Велосипеды</a><a href="#catalog" data-category="запчаст">Запчасти</a><a href="#catalog" data-category="аксессуар">Аксессуары</a><a href="#catalog" data-category="лыж">Зимний спорт</a><a href="#catalog" data-category="фитнес">Фитнес</a><a href="service.html">Сервис</a>
   </nav>
+  <div id="megaBackdrop" class="megaCatalogBackdrop"></div>
+  <div id="megaCatalog" class="megaCatalog"></div>
 
   <main>
     <section class="hero" id="heroSlider">
       <div class="heroTrack">
-        <article class="heroSlide bikeSlide"><div class="heroCopy"><small>ВЕЛОСИПЕДЫ</small><h1>Велосипеды<br>для города и трасс</h1><p>Подберём велосипед по росту, стилю катания и бюджету.</p><a class="primary" href="#catalog" data-category="велосип">Смотреть велосипеды →</a></div><div class="heroPhoto"></div></article>
+        <article class="heroSlide bikeSlide"><div class="heroCopy"><small>ВЕЛОСИПЕДЫ</small><h1>Велосипеды<br>для города и трасс</h1><p>Подберём велосипед по росту, стилю катания и бюджету.</p><a class="primary" href="#catalog" data-category="велосипед">Смотреть велосипеды →</a></div><div class="heroPhoto"></div></article>
         <article class="heroSlide winterSlide"><div class="heroCopy"><small>ЗИМНИЙ СПОРТ</small><h1>Готовься<br>к зиме</h1><p>Лыжи, сноуборды и всё необходимое для зимнего сезона.</p><a class="primary" href="#catalog" data-category="лыж">Перейти в каталог →</a></div><div class="heroPhoto"></div></article>
         <article class="heroSlide serviceSlide"><div class="heroCopy"><small>СЕРВИС</small><h1>Велосервис<br>ПрофиСпорт</h1><p>Ремонт, настройка и техническое обслуживание велосипедов.</p><a class="primary" href="service.html">Записаться в велосервис →</a></div><div class="heroPhoto"></div></article>
       </div>
@@ -61,7 +59,7 @@
 
     <section id="catalog" class="categorySection">
       <div class="categories">
-        <a data-category="велосип"><span class="catIcon">🚲</span><b>Велосипеды</b></a>
+        <a data-category="велосипед"><span class="catIcon">🚲</span><b>Велосипеды</b></a>
         <a data-category="запчаст"><span class="catIcon">🔧</span><b>Запчасти</b></a>
         <a data-category="аксессуар"><span class="catIcon">⛑</span><b>Аксессуары</b></a>
         <a data-category="фитнес"><span class="catIcon">🏋</span><b>Спорттовары</b></a>
@@ -73,7 +71,7 @@
       <form id="mobileSearch" class="mobileSearch smartSearchHost">
         <input id="mobileQ" placeholder="Поиск по каталогу" autocomplete="off">
         <button>Найти</button>
-        <div class="smartSuggest" data-for="mobileQ"></div>
+        <div id="mobileSuggest" class="smartSuggest"></div>
       </form>
       <div class="filters">
         <select id="category"><option value="">Все категории</option></select>
@@ -86,7 +84,7 @@
         <select id="brandFilter"><option value="">Все бренды</option></select>
         <label class="stockOnly"><input type="checkbox" id="stockOnly"> Только в наличии</label>
       </div>
-      <div id="products" class="products"></div>
+      <div id="products" class="products"><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article></div>
       <div class="pager"><button id="prevPage">←</button><span id="pageInfo"></span><button id="nextPage">→</button></div>
     </section>
 
@@ -104,11 +102,9 @@
     <a href="profile.html"><span class="navBubble"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.8-4.2 3.3-6.5 7.5-6.5s6.7 2.3 7.5 6.5"></path></svg></span><span>Профиль</span></a>
   </nav>
 
-  <div id="cart" class="drawer"><button class="close" onclick="toggleCart()">×</button><h2>Корзина</h2><div id="cartItems"></div><div class="total">Итого: <b id="total">0 ₽</b></div><button class="checkout">Оформить заказ</button></div>
+  <aside id="cart" class="drawer" aria-hidden="true"><button class="close" onclick="toggleCart(false)">×</button><h2>Корзина</h2><div id="cartItems"></div><div class="total">Итого: <b id="total">0 ₽</b></div><button class="checkout">Оформить заказ</button></aside>
 
   <script src="catalog-loader.js?v=18"></script>
-  <script src="catalog-fast.js?v=3"></script>
-  <script src="app.js?v=19"></script>
-  <script src="storefront-kant.js?v=9"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>
