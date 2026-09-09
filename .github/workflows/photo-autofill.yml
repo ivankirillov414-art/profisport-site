@@ -1,0 +1,60 @@
+name: Autonomous photo autofill
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */4 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/photo_autofill.py'
+      - '.github/workflows/photo-autofill.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profisport-photo-autofill
+  cancel-in-progress: false
+
+jobs:
+  autofill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find high-confidence product photos
+        run: python3 scripts/photo_autofill.py --max-products 60 --max-search 20
+
+      - name: Validate overrides
+        run: |
+          python3 - <<'PY'
+          import json,re
+          p='data/photo-overrides.json'
+          j=json.load(open(p,encoding='utf-8'))
+          assert isinstance(j.get('items'),dict)
+          for key,row in j['items'].items():
+              assert key.strip()
+              assert isinstance(row,dict)
+              u=str(row.get('image',''))
+              assert re.match(r'^https?://',u), (key,u)
+              assert row.get('name'), key
+          print('photo overrides:',len(j['items']))
+          PY
+
+      - name: Commit newly verified photos
+        run: |
+          if git diff --quiet -- data/photo-overrides.json; then
+            echo 'No new high-confidence photos this run.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/photo-overrides.json
+          git commit -m 'Autofill verified catalog photos'
+          git pull --rebase origin main
+          git push origin HEAD:main
