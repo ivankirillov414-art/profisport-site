@@ -13,6 +13,8 @@ on:
       - 'catalog-loader.js'
       - 'checkout.js'
       - 'service.js'
+      - 'service-guide.js'
+      - 'service.html'
       - 'product-kant.js'
       - 'profile.html'
       - 'checkout.html'
@@ -47,6 +49,7 @@ jobs:
           node --check admin/products.js
           node --check admin/service.js
           node --check service.js
+          node --check service-guide.js
           node --check product-kant.js
           php tests/order-validation.php
           php tests/catalog-quality.php
