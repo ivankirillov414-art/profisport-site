@@ -1,0 +1,869 @@
+{
+  "generated_at": "2026-09-09T13:05:58.439006+00:00",
+  "catalog_rows": 8552,
+  "summary": {
+    "normalized_name_duplicates": 39,
+    "duplicate_urls": 0,
+    "category_conflicts": 14,
+    "suspicious_specs": 3,
+    "missing_images": 4925,
+    "missing_brand": 8459,
+    "zero_or_missing_price": 25,
+    "old_price_lower_than_current": 4557
+  },
+  "primary_product_types": {
+    "bicycle": 627,
+    "scooter": 171,
+    "skis": 55,
+    "skates": 53,
+    "rollers": 45,
+    "skateboard": 32,
+    "exercise_bike": 6,
+    "longboard": 3,
+    "treadmill": 2
+  },
+  "largest_leaf_categories": [
+    {
+      "category": "Запчасти для самокатов",
+      "count": 537
+    },
+    {
+      "category": "Камеры",
+      "count": 224
+    },
+    {
+      "category": "На подростковые и взрослые велосипеды",
+      "count": 223
+    },
+    {
+      "category": "Спицы",
+      "count": 191
+    },
+    {
+      "category": "Грипсы",
+      "count": 184
+    },
+    {
+      "category": "Инструменты",
+      "count": 180
+    },
+    {
+      "category": "Детские",
+      "count": 177
+    },
+    {
+      "category": "Колеса",
+      "count": 171
+    },
+    {
+      "category": "Втулки",
+      "count": 161
+    },
+    {
+      "category": "Тормозные колодки",
+      "count": 146
+    },
+    {
+      "category": "Парафины",
+      "count": 143
+    },
+    {
+      "category": "Мази держания",
+      "count": 134
+    },
+    {
+      "category": "Каретки",
+      "count": 132
+    },
+    {
+      "category": "Звезды",
+      "count": 131
+    },
+    {
+      "category": "Шлемы",
+      "count": 110
+    },
+    {
+      "category": "Сигналы",
+      "count": 107
+    },
+    {
+      "category": "Световое оборудование",
+      "count": 106
+    },
+    {
+      "category": "Порошки, ускорители, эмульсии",
+      "count": 105
+    },
+    {
+      "category": "Велоперчатки",
+      "count": 104
+    },
+    {
+      "category": "Переключатели",
+      "count": 98
+    },
+    {
+      "category": "Багажники, корзины",
+      "count": 96
+    },
+    {
+      "category": "Шапочки для плавания",
+      "count": 94
+    },
+    {
+      "category": "Крылья",
+      "count": 94
+    },
+    {
+      "category": "На детские велосипеды и BMX",
+      "count": 91
+    },
+    {
+      "category": "Шатуны",
+      "count": 91
+    },
+    {
+      "category": "Ботинки NNN",
+      "count": 89
+    },
+    {
+      "category": "Вилки и амортизация",
+      "count": 84
+    },
+    {
+      "category": "Ролики",
+      "count": 81
+    },
+    {
+      "category": "Велосумки, Бордачки",
+      "count": 81
+    },
+    {
+      "category": "Горные 27,5`",
+      "count": 79
+    },
+    {
+      "category": "Горные 29`",
+      "count": 77
+    },
+    {
+      "category": "Подшипники",
+      "count": 76
+    },
+    {
+      "category": "Перчатки/Лапы",
+      "count": 75
+    },
+    {
+      "category": "Трюковые самокаты",
+      "count": 75
+    },
+    {
+      "category": "Флипперы, колпачки, нипеля",
+      "count": 71
+    },
+    {
+      "category": "Седла",
+      "count": 69
+    },
+    {
+      "category": "Защита для роликов",
+      "count": 69
+    },
+    {
+      "category": "Манетки",
+      "count": 67
+    },
+    {
+      "category": "Подседельные штыри",
+      "count": 66
+    },
+    {
+      "category": "Запчасти для BMX",
+      "count": 66
+    },
+    {
+      "category": "Эспандеры",
+      "count": 64
+    },
+    {
+      "category": "Аксессуары для тренировок",
+      "count": 63
+    },
+    {
+      "category": "Тросики, рубашки",
+      "count": 63
+    },
+    {
+      "category": "Детские самокаты",
+      "count": 61
+    },
+    {
+      "category": "Очки для плавания",
+      "count": 60
+    },
+    {
+      "category": "Выносы",
+      "count": 59
+    },
+    {
+      "category": "Железо",
+      "count": 58
+    },
+    {
+      "category": "Обода",
+      "count": 58
+    },
+    {
+      "category": "Смазки и очистители",
+      "count": 57
+    },
+    {
+      "category": "Противоугонные системы",
+      "count": 56
+    },
+    {
+      "category": "Педали",
+      "count": 54
+    },
+    {
+      "category": "Подножки",
+      "count": 53
+    },
+    {
+      "category": "Детские спортивные 20\"",
+      "count": 52
+    },
+    {
+      "category": "Цепи",
+      "count": 51
+    },
+    {
+      "category": "Рулевые колонки",
+      "count": 51
+    },
+    {
+      "category": "Рули",
+      "count": 51
+    },
+    {
+      "category": "Лыжные аксессуары",
+      "count": 50
+    },
+    {
+      "category": "Скейтборды",
+      "count": 50
+    },
+    {
+      "category": "Флягодержатели",
+      "count": 50
+    },
+    {
+      "category": "Насосы",
+      "count": 50
+    },
+    {
+      "category": "Мячи для фитнеса",
+      "count": 46
+    },
+    {
+      "category": "Подростковые 24`",
+      "count": 46
+    },
+    {
+      "category": "Отражатели, наклейки, украшения",
+      "count": 44
+    },
+    {
+      "category": "Коньковые",
+      "count": 43
+    },
+    {
+      "category": "Защиты",
+      "count": 43
+    },
+    {
+      "category": "Городские самокаты",
+      "count": 42
+    },
+    {
+      "category": "Горные 26`",
+      "count": 42
+    },
+    {
+      "category": "Футбольные мячи",
+      "count": 41
+    },
+    {
+      "category": "Лыжные шапки",
+      "count": 41
+    },
+    {
+      "category": "Фляги и питьевые системы",
+      "count": 41
+    },
+    {
+      "category": "Сумки и чехлы для беговых лыж",
+      "count": 40
+    },
+    {
+      "category": "Тормозные ротора (диски)",
+      "count": 40
+    },
+    {
+      "category": "Лыжи охотничьи и армейские",
+      "count": 39
+    },
+    {
+      "category": "Хомуты, эксцентрики",
+      "count": 39
+    },
+    {
+      "category": "На детские коляски",
+      "count": 37
+    },
+    {
+      "category": "Тормоза гидравлические",
+      "count": 37
+    },
+    {
+      "category": "Скакалки",
+      "count": 36
+    },
+    {
+      "category": "Носки, гетры",
+      "count": 35
+    },
+    {
+      "category": "Зеркала",
+      "count": 35
+    },
+    {
+      "category": "Баскетбол",
+      "count": 34
+    }
+  ],
+  "issues": [
+    {
+      "kind": "suspicious_spec",
+      "type": "unknown",
+      "name": "Палки лыжные алюминиевые TREK Snowline 6008",
+      "spec": "Ростовка рамы",
+      "value": "Пластик",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Беговые лыжи",
+        "Беговые палки"
+      ],
+      "url": "https://velo56.ru/catalog/begovye-lyzhi/begovye-palki/palki-lyzhnye-alyuminievye-trek-snowline-6008"
+    },
+    {
+      "kind": "suspicious_spec",
+      "type": "unknown",
+      "name": "Палки лыжные стеклопластиковые TREK Сlassic 11871",
+      "spec": "Ростовка рамы",
+      "value": "Пластик",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Беговые лыжи",
+        "Беговые палки"
+      ],
+      "url": "https://velo56.ru/catalog/begovye-lyzhi/begovye-palki/palki-lyzhnye-stekloplastikovye-trek-slassic-11871"
+    },
+    {
+      "kind": "suspicious_spec",
+      "type": "unknown",
+      "name": "Палки лыжные стеклопластиковые TREK Universal 11488",
+      "spec": "Ростовка рамы",
+      "value": "Пластик",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Беговые лыжи",
+        "Беговые палки"
+      ],
+      "url": "https://velo56.ru/catalog/begovye-lyzhi/begovye-palki/palki-lyzhnye-stekloplastikovye-trek-universal-11488"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "bicycle",
+      "name": "Велосипед 3-х кол WERTER BERGER TRIKE XG 11214-3 черный",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Хоккей, коньки",
+        "Коньки фигурные"
+      ],
+      "url": "https://velo56.ru/catalog/kon-ki-klyushki-aksessuary/kon-ki-figurnye/velosiped-3-h-kol-werter-berger-trike-xg-11214-3-chernyy-54247/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "skates",
+      "name": "Коньки для танцев КВАДЫ Latina District белый/розовый",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Ролики"
+      ],
+      "url": "https://velo56.ru/catalog/rolikovye-kon-ki/kon-ki-dlya-tancev-kvady-latina-district-belyy-rozovyy-53296/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "skates",
+      "name": "Коньки роликовые Axor желтый",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Ролики"
+      ],
+      "url": "https://velo56.ru/catalog/rolikovye-kon-ki/kon-ki-rolikovye-axor-zheltyy-39189/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "longboard",
+      "name": "Лонгборд City Cruiser Green",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Скейтборды"
+      ],
+      "url": "https://velo56.ru/catalog/skeytbordy-i-mini-kruizery/longbord-city-cruiser-green-55515/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "longboard",
+      "name": "Лонгборд City Cruiser Pink",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Скейтборды"
+      ],
+      "url": "https://velo56.ru/catalog/skeytbordy-i-mini-kruizery/longbord-city-cruiser-pink-55516/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "longboard",
+      "name": "Лонгборд Grace 10x46\"",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Скейтборды"
+      ],
+      "url": "https://velo56.ru/catalog/skeytbordy-i-mini-kruizery/longbord-grace-10x46-55517/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики (2шт) для суппорта, 13Т, пром. подшипники, алюминиевые, чёрные. PUL-130",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-2sht-dlya-supporta-13t-prom-podshipniki-alyuminievye-chernye-pul-130-48431/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики переключателя Shimano, 10ск, верхн+нижн, к RD-M593/M610/M615 (10013160/310522/3274282, ЯПОНИЯ",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-10sk-verhn-nizhn-k-rd-m593-m610-m615-10013160-310522-3274282-yaponiya-55919/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики переключателя Shimano, 10ск, верхн+нижн, к RD-M663/M640/M670/M675",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-10sk-verhn-nizhn-k-rd-m663-m640-m670-m675-52340/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики переключателя Shimano, 10ск, верхн+нижн, к RD-M773/M780/M786",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-10sk-verhn-nizhn-k-rd-m773-m780-m786-52343/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики переключателя Shimano, 11ск, верхн+нижн, к RD-6800/6870",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-11sk-verhn-nizhn-k-rd-6800-6870-55920/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики переключателя Shimano, 8/7ск, верхн+нижн, к RD-M310",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-pereklyuchatelya-shimano-8-7sk-verhn-nizhn-k-rd-m310-40771/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики Shimano, 11ск, верхн+нижн, к RD-R7000",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-shimano-11sk-verhn-nizhn-k-rd-r7000-48515/"
+    },
+    {
+      "kind": "category_conflict",
+      "type": "rollers",
+      "name": "Ролики Shimano, 12ск, верхн+нижн, к RD-M7100",
+      "category_path": [
+        "Главная",
+        "Каталог товаров",
+        "Велозапчасти",
+        "Переключатели"
+      ],
+      "url": "https://velo56.ru/catalog/velokomplektuyuschie/pereklyuchateli/roliki-shimano-12sk-verhn-nizhn-k-rd-m7100-48516/"
+    }
+  ],
+  "duplicates": [
+    {
+      "name": "\"Колеса приставные (пара), усил. стойки - сталь на 12\"\"-20\"\", промподш. ABEC7, колеса с подсветкой\"",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/opornye-kolesiki/kolesa-pristavnye-para-usil-stoyki---stal-na-12--20-prompodsh-abec7-kolesa-s-podsvetkoy-40426/",
+        "https://velo56.ru/catalog/veloaksessuary/opornye-kolesiki/kolesa-pristavnye-para-usil-stoyki---stal-na-12--20-prompodsh-abec7-kolesa-s-podsvetkoy-45482/"
+      ]
+    },
+    {
+      "name": "Балаклава AC-BK-01 графит",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/odezhda/platki-povyazki-bandany/balaklava-ac-bk-01-grafit-27844/",
+        "https://velo56.ru/catalog/odezhda/platki-povyazki-bandany/balaklava-ac-bk-01-grafit-56755/"
+      ]
+    },
+    {
+      "name": "Беговые лыжи AEROLITE 60 SKATE IFP",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-aerolite-60-skate-ifp-49663/",
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-aerolite-60-skate-ifp-53147/"
+      ]
+    },
+    {
+      "name": "Беговые лыжи AEROLITE SKATE 80",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-aerolite-skate-80-49662/",
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-aerolite-skate-80-53146/"
+      ]
+    },
+    {
+      "name": "Беговые лыжи CARBONLITE CL JR IFP",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/detskie-yuniorskie/begovye-lyzhi-carbonlite-cl-jr-ifp-49641/",
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-carbonlite-cl-jr-ifp-53153/"
+      ]
+    },
+    {
+      "name": "Беговые лыжи RCS SKATE PLUS STIFF IFP",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-rcs-skate-plus-stiff-ifp-46240/",
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-rcs-skate-plus-stiff-ifp-53145/"
+      ]
+    },
+    {
+      "name": "Беговые лыжи TISA ELEGANCE STEP WOMEN",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/klassicheskie/begovye-lyzhi-tisa-elegance-step-women-32002/",
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/kon-kovye/begovye-lyzhi-tisa-elegance-step-women-42427/"
+      ]
+    },
+    {
+      "name": "Беговые лыжи TISA SPORT STEP JR",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/detskie-yuniorskie/begovye-lyzhi-tisa-sport-step-jr-27577/",
+        "https://velo56.ru/catalog/begovye-lyzhi/lyzhi/klassicheskie/begovye-lyzhi-tisa-sport-step-jr-42426/"
+      ]
+    },
+    {
+      "name": "Боксерские перчатки RBG-310 Dx Black",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/fitnes/edinoborstva/perchatki-lapy/bokserskie-perchatki-rbg-310-dx-black-32033/",
+        "https://velo56.ru/catalog/fitnes/edinoborstva/perchatki-lapy/bokserskie-perchatki-rbg-310-dx-black-32236/"
+      ]
+    },
+    {
+      "name": "Ботинки лыжные SPINE NNN Comfort (83/4) (белый/бирюзовый)",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/botinki-lyzhnye/botinki-nnn/botinki-lyzhnye-spine-nnn-comfort-83-4-belyy-biryuzovyy-42329/",
+        "https://velo56.ru/catalog/begovye-lyzhi/botinki-nnn/botinki-lyzhnye-spine-nnn-comfort-83-4-belyy-biryuzovyy-31845/"
+      ]
+    },
+    {
+      "name": "Велосумка под раму, модель STG FB-002, размер 30х17х6 см, василёк/оранжевый",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/ryukzaki-cumki/velosumki-bordachki/velosumka-pod-ramu-model-stg-fb-002-razmer-30h17h6-sm-vasilek-oranzhevyy-54670/",
+        "https://velo56.ru/catalog/ryukzaki-cumki/velosumki-bordachki/velosumka-pod-ramu-model-stg-fb-002-razmer-30h17h6-sm-vasilek-oranzhevyy-54678/"
+      ]
+    },
+    {
+      "name": "Втулка динамо Shimano, C6000, 36 отв, 6V-3W, под роллер, HIGH, 100x140мм, без гаек и шайб, цв. сереб",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/velokomplektuyuschie/vtulki/vtulka-dinamo-shimano-c6000-36-otv-6v-3w-pod-roller-high-100x140mm-bez-gaek-i-shayb-cv-sereb-55925/",
+        "https://velo56.ru/catalog/velokomplektuyuschie/vtulki/vtulka-dinamo-shimano-c6000-36-otv-6v-3w-pod-roller-high-100x140mm-bez-gaek-i-shayb-cv-sereb-55929/"
+      ]
+    },
+    {
+      "name": "Втулка планетарн. Shimano, 3R40, 36 отв, 3ск, с антикоррозийным покрыт., д. рол.тор, под гайки, 126.",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/velokomplektuyuschie/vtulki/vtulka-planetarn-shimano-3r40-36-otv-3sk-s-antikorroziynym-pokryt-d-rol-tor-pod-gayki-126-55924/",
+        "https://velo56.ru/catalog/velokomplektuyuschie/vtulki/vtulka-planetarn-shimano-3r40-36-otv-3sk-s-antikorroziynym-pokryt-d-rol-tor-pod-gayki-126-55928/"
+      ]
+    },
+    {
+      "name": "Зажим 33мм для рулей самокатов, с болтами, черный",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/samokaty/zapasnye-chasti/zapchasti-dlya-samokatov/zazhim-33mm-dlya-ruley-samokatov-s-boltami-chernyy-44659/",
+        "https://velo56.ru/catalog/samokaty/zapasnye-chasti/zapchasti-dlya-samokatov/zazhim-33mm-dlya-ruley-samokatov-s-boltami-chernyy-48120/"
+      ]
+    },
+    {
+      "name": "Замок велосипедный детский c брелоком 12*1200мм, зеленый тросик инд. уп. Vinca Sport",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/protivougonnye-sistemy/zamok-velosipednyy-detskiy-c-brelokom-12-1200mm-zelenyy-trosik-ind-up-vinca-sport-41633/",
+        "https://velo56.ru/catalog/veloaksessuary/protivougonnye-sistemy/zamok-velosipednyy-detskiy-c-brelokom-12-1200mm-zelenyy-trosik-ind-up-vinca-sport-58656/"
+      ]
+    },
+    {
+      "name": "Защита шатуна пластиковая 24/34/42 крепление 5 отв.",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/zaschity/zaschita-shatuna-plastikovaya-24-34-42-kreplenie-5-otv-40171/",
+        "https://velo56.ru/catalog/veloaksessuary/zaschity/zaschita-shatuna-plastikovaya-24-34-42-kreplenie-5-otv-40172/"
+      ]
+    },
+    {
+      "name": "Защита шатуна пластиковая 28/38/48 крепление 4 отв.",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/zaschity/zaschita-shatuna-plastikovaya-28-38-48-kreplenie-4-otv-40166/",
+        "https://velo56.ru/catalog/veloaksessuary/zaschity/zaschita-shatuna-plastikovaya-28-38-48-kreplenie-4-otv-40168/"
+      ]
+    },
+    {
+      "name": "Защита шатуна пластиковая 28/38/48 крепление 5 отв.",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/zaschity/zaschita-shatuna-plastikovaya-28-38-48-kreplenie-5-otv-40169/",
+        "https://velo56.ru/catalog/veloaksessuary/zaschity/zaschita-shatuna-plastikovaya-28-38-48-kreplenie-5-otv-40170/"
+      ]
+    },
+    {
+      "name": "Колодки для дискового тормоза",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/velokomplektuyuschie/tormoza/tormoznye-kolodki/kolodki-dlya-diskovogo-tormoza-14160/",
+        "https://velo56.ru/catalog/velokomplektuyuschie/tormoza/tormoznye-kolodki/kolodki-dlya-diskovogo-tormoza-14447/"
+      ]
+    },
+    {
+      "name": "Колодки для дискового тормоза, материал органика, инд упак - блистер вид№28 (подходят для самокатов)",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/velokomplektuyuschie/tormoza/tormoznye-kolodki/kolodki-dlya-diskovogo-tormoza-material-organika-ind-upak---blister-vid-28-podhodyat-dlya-samokatov-44793/",
+        "https://velo56.ru/catalog/velokomplektuyuschie/tormoza/tormoznye-kolodki/kolodki-dlya-diskovogo-tormoza-material-organika-ind-upak---blister-vid-28-podhodyat-dlya-samokatov-51733/"
+      ]
+    },
+    {
+      "name": "Колпачок на велониппель золотистый",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/flippery-kolpachki-nipelya/kolpachok-na-velonippel-zolotistyy-41267/",
+        "https://velo56.ru/catalog/veloaksessuary/raznoe/kolpachok-na-velonippel-zolotistyy-44976/"
+      ]
+    },
+    {
+      "name": "Корзина CK-833 крепление на руль, быстросъемная, черная, пластиковое крепление",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/bagazhniki-korziny/korzina-ck-833-kreplenie-na-rul-bystros-emnaya-chernaya-plastikovoe-kreplenie-54118/",
+        "https://velo56.ru/catalog/veloaksessuary/bagazhniki-korziny/korzina-ck-833-kreplenie-na-rul-bystros-emnaya-chernaya-plastikovoe-kreplenie-54316/"
+      ]
+    },
+    {
+      "name": "Крылья велосипедные Simpla GP SDE - для 24”-28”",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/kryl-ya/kryl-ya-velosipednye-simpla-gp-sde---dlya-24--28-36616/",
+        "https://velo56.ru/catalog/veloaksessuary/kryl-ya/kryl-ya-velosipednye-simpla-gp-sde---dlya-24--28-54293/"
+      ]
+    },
+    {
+      "name": "Крылья пластиковые 26 черные с катафотом 008",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/kryl-ya/kryl-ya-plastikovye-26-chernye-s-katafotom-008-35919/",
+        "https://velo56.ru/catalog/veloaksessuary/kryl-ya/kryl-ya-plastikovye-26-chernye-s-katafotom-008-39689/"
+      ]
+    },
+    {
+      "name": "Куртка для самбо Green Hill JS-302, пл-ть 380гр/м2, красный",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/fitnes/edinoborstva/sambo/kurtka-dlya-sambo-green-hill-js-302-pl-t-380gr-m2-krasnyy-26725/",
+        "https://velo56.ru/catalog/fitnes/edinoborstva/sambo/kurtka-dlya-sambo-green-hill-js-302-pl-t-380gr-m2-krasnyy-53111/"
+      ]
+    },
+    {
+      "name": "Лыжероллерные ботинки SPINE NNN Skiroll Classic (11) (синий/черный/салатовый)",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/lyzherollery/botinki-lyzherollernye/lyzherollernye-botinki-spine-nnn-skiroll-classic-11-siniy-chernyy-salatovyy-36062/",
+        "https://velo56.ru/catalog/lyzherollery/botinki-lyzherollernye/lyzherollernye-botinki-spine-nnn-skiroll-classic-11-siniy-chernyy-salatovyy-40811/"
+      ]
+    },
+    {
+      "name": "Лыжные ботинки SPINE NNN Classic (294) (черный/синий)",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/begovye-lyzhi/botinki-lyzhnye/botinki-nnn/lyzhnye-botinki-spine-nnn-classic-294-chernyy-siniy-37538/",
+        "https://velo56.ru/catalog/begovye-lyzhi/botinki-nnn/lyzhnye-botinki-spine-nnn-classic-294-chernyy-siniy-32465/"
+      ]
+    },
+    {
+      "name": "Н-р интегрированной рулевой LMT 36 LMT 36",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/samokaty/zapasnye-chasti/zapchasti-dlya-samokatov/n-r-integrirovannoy-rulevoy-lmt-36-lmt-36-51505/",
+        "https://velo56.ru/catalog/velokomplektuyuschie/rulevye-kolonki/n-r-integrirovannoy-rulevoy-lmt-36-lmt-36-40226/"
+      ]
+    },
+    {
+      "name": "Набор термоаппликаций световозвращающих \"Цветочки\", 70х70 мм, COVA™",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/otrazhateli-nakleyki-ukrasheniya/nabor-termoapplikaciy-svetovozvraschayuschih-cvetochki-70h70-mm-cova-45050/",
+        "https://velo56.ru/catalog/veloaksessuary/otrazhateli-nakleyki-ukrasheniya/nabor-termoapplikaciy-svetovozvraschayuschih-cvetochki-70h70-mm-cova-45053/"
+      ]
+    },
+    {
+      "name": "Насос GIYO, с аналоговым манометром, снабжен складной Т-образной ручкой, “авто/вело” ниппель, вес 14",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/nasosy/nasos-giyo-s-analogovym-manometrom-snabzhen-skladnoy-t-obraznoy-ruchkoy-avto-velo-nippel-ves-14-40905/",
+        "https://velo56.ru/catalog/veloaksessuary/nasosy/nasos-giyo-s-analogovym-manometrom-snabzhen-skladnoy-t-obraznoy-ruchkoy-avto-velo-nippel-ves-14-40906/"
+      ]
+    },
+    {
+      "name": "Перчатки велосипедные детские, Mila, фиолетовые",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/veloperchatki/perchatki-velosipednye-detskie-mila-fioletovye-40198/",
+        "https://velo56.ru/catalog/veloaksessuary/veloperchatki/perchatki-velosipednye-detskie-mila-fioletovye-43946/"
+      ]
+    },
+    {
+      "name": "Перчатки снарядные BoyBo First Edition,кожа",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/fitnes/edinoborstva/perchatki-lapy/perchatki-snaryadnye-boybo-first-edition-kozha-49252/",
+        "https://velo56.ru/catalog/fitnes/edinoborstva/perchatki-lapy/perchatki-snaryadnye-boybo-first-edition-kozha-56393/"
+      ]
+    },
+    {
+      "name": "Самокат для детей Novatrack RainBow с прозрачной платформой, подростковый, складной механизм на руле",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/samokaty/detskie-samokaty/samokat-dlya-detey-novatrack-rainbow-s-prozrachnoy-platformoy-podrostkovyy-skladnoy-mehanizm-na-rule-43771/",
+        "https://velo56.ru/catalog/samokaty/detskie-samokaty/samokat-dlya-detey-novatrack-rainbow-s-prozrachnoy-platformoy-podrostkovyy-skladnoy-mehanizm-na-rule-43772/"
+      ]
+    },
+    {
+      "name": "Тормозные колодки для дискового тормоза, semi-metallic, (SHIMANO: DEORE BR-C601,BR-M416, TECTR-AUGR.",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/velokomplektuyuschie/tormoza/tormoznye-kolodki/tormoznye-kolodki-dlya-diskovogo-tormoza-semi-metallic-shimano-deore-br-c601-br-m416-tectr-augr-33797/",
+        "https://velo56.ru/catalog/velokomplektuyuschie/tormoza/tormoznye-kolodki/tormoznye-kolodki-dlya-diskovogo-tormoza-semi-metallic-shimano-deore-br-c601-br-m416-tectr-augr-45495/"
+      ]
+    },
+    {
+      "name": "Фиг. коньки Laurel pink",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/kon-ki-klyushki-aksessuary/kon-ki-figurnye/fig-kon-ki-laurel-pink-53301/",
+        "https://velo56.ru/catalog/kon-ki-klyushki-aksessuary/kon-ki-figurnye/fig-kon-ki-laurel-pink-53338/"
+      ]
+    },
+    {
+      "name": "Флягодержатель пластиковый, голубой",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/veloaksessuary/flyagi-i-pit-evye-sistemy/flyagoderzhatel-plastikovyy-goluboy-52127/",
+        "https://velo56.ru/catalog/veloaksessuary/flyagoderzhateli/flyagoderzhatel-plastikovyy-goluboy-54349/"
+      ]
+    },
+    {
+      "name": "Шапочка для плавания 25DEGREES 25D15-CO11-23-32-0 Comfo Black, полиэстер, детский",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/plavanie/shapochki-dlya-plavaniya/shapochka-dlya-plavaniya-25degrees-25d15-co11-23-32-0-comfo-black-poliester-detskiy-42630/",
+        "https://velo56.ru/catalog/plavanie/shapochki-dlya-plavaniya/shapochka-dlya-plavaniya-25degrees-25d15-co11-23-32-0-comfo-black-poliester-detskiy-47800/"
+      ]
+    },
+    {
+      "name": "Шкурка для самоката Moona 153х610мм",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/samokaty/zapasnye-chasti/zapchasti-dlya-samokatov/shkurka-dlya-samokata-moona-153h610mm-52036/",
+        "https://velo56.ru/catalog/samokaty/zapasnye-chasti/zapchasti-dlya-samokatov/shkurka-dlya-samokata-moona-153h610mm-56217/"
+      ]
+    },
+    {
+      "name": "Шлем BoyBo Stain BH400, Flex, зеленый",
+      "count": 2,
+      "urls": [
+        "https://velo56.ru/catalog/fitnes/edinoborstva/shlemy-dlya-edinoborstv/shlem-boybo-stain-bh400-flex-zelenyy-37327/",
+        "https://velo56.ru/catalog/fitnes/edinoborstva/shlemy-dlya-edinoborstv/shlem-boybo-stain-bh400-flex-zelenyy-47990/"
+      ]
+    }
+  ],
+  "duplicate_urls": []
+}
