@@ -52,7 +52,7 @@ jobs:
       - name: Commit changed audit report
         shell: bash
         run: |
-          if git diff --quiet -- data/catalog-audit.json; then
+          if [ -z "$(git status --porcelain -- data/catalog-audit.json)" ]; then
             echo 'Catalog audit unchanged.'
             exit 0
           fi
