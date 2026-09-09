@@ -40,7 +40,7 @@ equal(
 equal(resolveCatalogBrand('Велосипед 24 STELS Turbo 470 MD','',{}).brand,'STELS','static fallback infers STELS');
 equal(resolveCatalogBrand('Самокат трюковой Provokator 47 версия 2','',{}).brand,'Provokator','static fallback infers Provokator');
 equal(resolveCatalogBrand('Ботинки лыжные NNN Comfort one size','',{}).brand,'','noise token is not a brand');
-equal(resolveCatalogBrand('Любой товар','',['Производитель':'Fischer']).brand,'Fischer','static fallback uses manufacturer spec');
+equal(resolveCatalogBrand('Любой товар','',{'Производитель':'Fischer'}).brand,'Fischer','static fallback uses manufacturer spec');
 
 equal(isPurchasableCatalogRow({price_rub:0}),false,'zero-price static rows are hidden');
 equal(isPurchasableCatalogRow({price_rub:1200}),true,'priced static rows remain visible');
