@@ -161,7 +161,7 @@ def load_overrides():
  if not isinstance(j.get('items'),dict):j['items']={}
  j['version']=1;return j
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--max-products',type=int,default=120);ap.add_argument('--max-search',type=int,default=40);args=ap.parse_args();state=load_overrides();items=state['items'];rows=load_rows();existing_keys={norm(k) for k in items};image_counts=Counter()
+ ap=argparse.ArgumentParser();ap.add_argument('--max-products',type=int,default=120);ap.add_argument('--max-search',type=int,default=40);ap.add_argument('--offset',type=int,default=0);args=ap.parse_args();state=load_overrides();items=state['items'];rows=load_rows();existing_keys={norm(k) for k in items};image_counts=Counter()
  for v in items.values():
   if isinstance(v,dict) and v.get('image'):image_counts[str(v['image'])]+=1
   elif isinstance(v,str):image_counts[v]+=1
@@ -170,8 +170,11 @@ def main():
   name=row_name(r);key=norm(name)
   if not name or not key or key in existing_keys or row_has_image(r):continue
   stock=str(r.get('availability') or r.get('stock_status') or '');qty=r.get('stock_qty');priority=2 if stock=='in_stock' else (1 if isinstance(qty,(int,float)) and qty>0 else 0);pending.append((priority,name,r))
- pending.sort(key=lambda x:(-x[0],x[1]));added=searched=source_hits=web_hits=source_attempts=bing_items=0
- for _,name,r in pending[:max(args.max_products,1)]:
+ pending.sort(key=lambda x:(-x[0],x[1]));batch=[];start=0
+ if pending:
+  start=args.offset%len(pending);count=min(max(args.max_products,1),len(pending));batch=(pending+pending)[start:start+count]
+ added=searched=source_hits=web_hits=source_attempts=bing_items=0
+ for _,name,r in batch:
   key=norm(name);brand=str(r.get('brand') or '');model=str(r.get('model') or '');cat=row_category(r);got=None;src=source_url(r)
   if src:
    source_attempts+=1;got=page_image(src,name,brand,model,cat,True);source_hits+=1 if got else 0
@@ -181,7 +184,7 @@ def main():
   img=got['image']
   if image_counts[img]>=3:continue
   image_counts[img]+=1;items[key]={'name':name,'image':img,'source_url':got.get('source_url',''),'source_title':got.get('source_title',''),'method':got.get('method',''),'confidence':int(got.get('confidence',0))};existing_keys.add(key);added+=1;print(f'ADD {name} -> {img}');time.sleep(.2)
- state['generated_at']=datetime.now(timezone.utc).isoformat();state['items']=dict(sorted(items.items()));state['stats']={'catalog_rows':len(rows),'pending_without_source_image':len(pending),'added_this_run':added,'source_attempts':source_attempts,'source_page_hits':source_hits,'web_search_hits':web_hits,'web_searches':searched,'bing_image_candidates_considered':bing_items,'total_overrides':len(items)}
+ state['generated_at']=datetime.now(timezone.utc).isoformat();state['items']=dict(sorted(items.items()));state['stats']={'catalog_rows':len(rows),'pending_without_source_image':len(pending),'batch_offset':start,'batch_size':len(batch),'added_this_run':added,'source_attempts':source_attempts,'source_page_hits':source_hits,'web_search_hits':web_hits,'web_searches':searched,'bing_image_candidates_considered':bing_items,'total_overrides':len(items)}
  os.makedirs(DATA,exist_ok=True)
  with open(OUT,'w',encoding='utf-8') as f:json.dump(state,f,ensure_ascii=False,indent=2);f.write('\n')
  print(json.dumps(state['stats'],ensure_ascii=False))
