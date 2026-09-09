@@ -17,7 +17,7 @@ on:
       - 'profile.html'
       - 'checkout.html'
       - 'product.html'
-      - '.github/workflows/store-tests.yml'
+      - '.github/workflows/**'
   pull_request:
 
 jobs:
