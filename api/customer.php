@@ -40,7 +40,7 @@ try{
   if($action==='register'&&$_SERVER['REQUEST_METHOD']==='POST'){
     customer_session(); $in=input_json();
     $name=trim((string)($in['name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=trim((string)($in['phone']??''));$password=(string)($in['password']??'');
-    if(mb_strlen($name)<2||!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($password)<8)json_response(['ok'=>false,'error'=>'invalid_input'],422);
+    if(mb_strlen($name)<2||mb_strlen($name)>200||mb_strlen($email)>200||mb_strlen($phone)>40||!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($password)<8||strlen($password)>72)json_response(['ok'=>false,'error'=>'invalid_input'],422);
     $s=$pdo->prepare('SELECT id FROM customers WHERE email=? LIMIT 1');$s->execute([$email]);if($s->fetch())json_response(['ok'=>false,'error'=>'email_exists'],409);
     $s=$pdo->prepare('INSERT INTO customers(name,email,phone,password_hash) VALUES(?,?,?,?)');$s->execute([$name,$email,$phone?:null,password_hash($password,PASSWORD_DEFAULT)]);
     $_SESSION['customer_id']=(int)$pdo->lastInsertId();$_SESSION['customer_csrf']=bin2hex(random_bytes(24));session_regenerate_id(true);
@@ -58,6 +58,7 @@ try{
   }
   if($action==='favorite'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$pid=(int)($in['product_id']??0);if($pid<1)json_response(['ok'=>false,'error'=>'bad_product'],422);
+    $product=$pdo->prepare('SELECT id FROM products WHERE id=? AND is_active=1');$product->execute([$pid]);if(!$product->fetchColumn())json_response(['ok'=>false,'error'=>'bad_product'],404);
     $s=$pdo->prepare('SELECT 1 FROM customer_favorites WHERE customer_id=? AND product_id=?');$s->execute([(int)$u['id'],$pid]);$exists=(bool)$s->fetchColumn();
     if($exists){$d=$pdo->prepare('DELETE FROM customer_favorites WHERE customer_id=? AND product_id=?');$d->execute([(int)$u['id'],$pid]);$active=false;}else{$i=$pdo->prepare('INSERT IGNORE INTO customer_favorites(customer_id,product_id) VALUES(?,?)');$i->execute([(int)$u['id'],$pid]);$active=true;}
     json_response(['ok'=>true,'active'=>$active]);
@@ -84,7 +85,8 @@ try{
   }
   if($action==='review_submit'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$pid=(int)($in['product_id']??0);$rating=(int)($in['rating']??0);$text=trim((string)($in['text']??''));
-    if($pid<1||$rating<1||$rating>5||mb_strlen($text)<10)json_response(['ok'=>false,'error'=>'invalid_review'],422);
+    if($pid<1||$rating<1||$rating>5||mb_strlen($text)<10||mb_strlen($text)>5000)json_response(['ok'=>false,'error'=>'invalid_review'],422);
+    $product=$pdo->prepare('SELECT id FROM products WHERE id=? AND is_active=1');$product->execute([$pid]);if(!$product->fetchColumn())json_response(['ok'=>false,'error'=>'bad_product'],404);
     $s=$pdo->prepare('INSERT INTO product_reviews(customer_id,product_id,rating,review_text,status) VALUES(?,?,?,?,\'pending\')');$s->execute([(int)$u['id'],$pid,$rating,$text]);
     json_response(['ok'=>true,'status'=>'pending']);
   }

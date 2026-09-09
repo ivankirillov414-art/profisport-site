@@ -10,8 +10,8 @@ try{
   if($_SERVER['REQUEST_METHOD']==='POST'){
     csrf_check();$in=input_json();$id=(int)($in['review_id']??0);$action=(string)($in['action']??'');$bonus=max(0,min(100000,(int)($in['bonus']??0)));
     if($id<1||!in_array($action,['approve','reject'],true))out(['ok'=>false,'error'=>'bad_input'],422);
-    $s=$pdo->prepare('SELECT id,customer_id,product_id,status,bonus_awarded FROM product_reviews WHERE id=? LIMIT 1');$s->execute([$id]);$r=$s->fetch();if(!$r)out(['ok'=>false,'error'=>'not_found'],404);
     $pdo->beginTransaction();
+    $s=$pdo->prepare('SELECT id,customer_id,product_id,status,bonus_awarded FROM product_reviews WHERE id=? LIMIT 1 FOR UPDATE');$s->execute([$id]);$r=$s->fetch();if(!$r){$pdo->rollBack();out(['ok'=>false,'error'=>'not_found'],404);}
     if($action==='approve'){
       $pdo->prepare("UPDATE product_reviews SET status='approved' WHERE id=?")->execute([$id]);
       if($bonus>0&&(int)$r['customer_id']>0&&!(int)$r['bonus_awarded']){
