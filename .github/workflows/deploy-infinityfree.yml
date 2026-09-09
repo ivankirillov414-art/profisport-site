@@ -16,8 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify clean mobile layout
-        run: node tests/mobile-layout-regression.js
+      - name: Verify storefront regressions
+        run: |
+          node tests/mobile-layout-regression.js
+          node tests/catalog-taxonomy-regression.js
+          php tests/catalog-quality.php
 
       - name: Build private server config
         shell: bash
@@ -69,9 +72,9 @@ jobs:
           set -euo pipefail
           FTP_ROOT='ftp://ftpupload.net/htdocs'
           AUTH="if0_42771076:${FTP_PASSWORD}"
-          mkdir -p /tmp/profisport-remote/api
+          mkdir -p /tmp/profisport-remote/api /tmp/profisport-remote/server
 
-          for file in index.html storefront-v2.css app.js catalog-loader.js api/health.php; do
+          for file in index.html storefront-v2.css app.js catalog-loader.js api/health.php api/catalog.php server/catalog-quality.php; do
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
               --user "$AUTH" "$FTP_ROOT/$file" -o "/tmp/profisport-remote/$file"
@@ -84,6 +87,8 @@ jobs:
           grep -Eq 'storefront-v2\.css\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'app\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
+          grep -Fq "COALESCE(price_rub,0)>0" /tmp/profisport-remote/api/catalog.php
+          grep -Fq "catalog_sanitize_specs" /tmp/profisport-remote/api/catalog.php
           if grep -Eq 'mobile-layout-fix|mobile-viewport-lock|storefront-kant|theme-clean-v1' /tmp/profisport-remote/index.html; then
             echo 'Obsolete layout assets are present in deployed index.html' >&2
             exit 1
