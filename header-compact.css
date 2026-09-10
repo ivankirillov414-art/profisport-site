@@ -1,0 +1,62 @@
+/* Compact desktop header inspired by the cleaner Sportmaster hierarchy. */
+@media (min-width:851px){
+  .top{
+    height:52px;
+    padding:0 clamp(18px,4vw,56px);
+    gap:12px;
+    box-shadow:none;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .top>b{
+    font-size:24px;
+    letter-spacing:-1px;
+  }
+  .topActions{gap:4px}
+  .topIconBtn{
+    width:34px;
+    height:34px;
+    min-width:34px;
+    min-height:34px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+  }
+  .topIconBtn:hover{background:rgba(255,255,255,.10)}
+  .topIconBtn svg{width:20px;height:20px}
+  .topActions #searchBtn{display:none}
+  .cartCount{right:-4px;top:-5px;min-width:18px;height:18px;font-size:10px;border-width:1px}
+
+  header{
+    padding:8px clamp(18px,4vw,56px);
+    justify-content:center;
+    gap:0;
+    border-bottom:1px solid #ececec;
+  }
+  header .logo{display:none}
+  header form{
+    width:min(760px,100%);
+    max-width:760px;
+    flex:0 1 760px;
+  }
+  header form input{
+    min-height:38px;
+    padding:9px 13px;
+    font-size:14px;
+    border-radius:8px 0 0 8px;
+  }
+  header form button{
+    min-height:38px;
+    padding:9px 17px;
+    border-radius:0 8px 8px 0;
+    font-size:14px;
+  }
+  body>nav:not(.mobileBottomNav){
+    padding:9px clamp(18px,4vw,56px);
+    gap:22px;
+    border-top:0;
+    border-bottom:1px solid #ececec;
+    font-size:13px;
+    justify-content:center;
+  }
+  .megaCatalog{top:128px}
+}
