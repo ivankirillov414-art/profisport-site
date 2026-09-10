@@ -186,7 +186,7 @@ window.apply=apply;
 function add(id){cart.push(id);saveCart();toggleCart(true)}
 function saveCart(){localStorage.setItem('ps-cart',JSON.stringify(cart));count.textContent=cart.length;renderCart()}
 function renderCart(){const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0;cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p)return'';sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';total.textContent=rub(sum)}
-function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x.id)===id);if(i>=0)cart.splice(i,1)}saveCart()}
+function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x)===id);if(i>=0)cart.splice(i,1)}saveCart()}
 function toggleCart(force){const open=force===undefined?!cartEl.open:force;cartEl.classList.toggle('open',open);if(open&&!cartEl.open)cartEl.showModal();if(!open&&cartEl.open)cartEl.close();syncBodyLock()}
 window.changeQty=changeQty;window.toggleCart=toggleCart;
 
