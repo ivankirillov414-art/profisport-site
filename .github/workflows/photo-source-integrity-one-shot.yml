@@ -1,0 +1,93 @@
+name: One-shot photo source integrity repair
+on:
+  push:
+    branches: [fix/photo-source-integrity-20260910]
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Repair photo source integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          p=Path('api/import-apply.php')
+          s=p.read_text(encoding='utf-8')
+          old="$oldImgs=[];if($ex&&!empty($ex['images']))$oldImgs=json_decode((string)$ex['images'],true)?:[];$final=$urls?:$oldImgs;$main=$final[0]??($ex['main_image']??null);"
+          new="$oldImgs=[];if($ex&&!empty($ex['images']))$oldImgs=json_decode((string)$ex['images'],true)?:[];$oldMain=$ex?trim((string)($ex['main_image']??'')):'';$final=array_values(array_unique(array_filter(array_merge($urls,$oldImgs,$oldMain!==''?[$oldMain]:[]),fn($v)=>trim((string)$v)!=='')));$main=$oldMain!==''?$oldMain:($final[0]??null);"
+          if s.count(old)!=1:
+              raise SystemExit(f'import photo replacement pattern count={s.count(old)}')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('catalog-live-paged.js')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace("window.CATALOG_STATIC_WITH_IMAGES=Number(manifest.with_images)||0;","window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;\n    window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency';",1)
+          marker="window.CATALOG_LIVE_ROWS=liveItems.length;"
+          if marker not in s: raise SystemExit('live catalog marker missing')
+          s=s.replace(marker,marker+"\n        window.CATALOG_PHOTO_SOURCE='mysql';",1)
+          s=s.replace('&v=imgfix3','&v=imgtruth4')
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('2026-09-09-photo-source-fix-v2','2026-09-10-photo-source-integrity-v3',1)
+          s=s.replace('catalog-live-paged.js?v=2','catalog-live-paged.js?v=3',1)
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('data/manifest.json')
+          j=json.loads(p.read_text(encoding='utf-8'))
+          count=j.pop('with_images',j.get('parser_rows_with_images',0))
+          j['parser_rows_with_images']=count
+          j['image_coverage_scope']='parser_static_mirror'
+          j['authoritative_photo_source']='mysql.products.main_image/images'
+          p.write_text(json.dumps(j,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          p=Path('tests/catalog-live-source-regression.js')
+          s=p.read_text(encoding='utf-8')
+          if "const importer=read('api/import-apply.php');" not in s:
+              s=s.replace("const api=read('api/catalog.php');", "const api=read('api/catalog.php');\nconst importer=read('api/import-apply.php');",1)
+          old_line="if((manifest.with_images??manifest.products)>=manifest.products)console.log('Static fallback currently has full image coverage; live paging remains valid.');\nelse console.log(`Static fallback is sparse (${manifest.with_images}/${manifest.products} rows with images); authoritative live paging is required.`);"
+          new_line="if(manifest.image_coverage_scope!=='parser_static_mirror')fail('static manifest must identify parser-only image coverage');\nif(manifest.authoritative_photo_source!=='mysql.products.main_image/images')fail('static manifest must name live MySQL as photo source of truth');\nif('with_images' in manifest)fail('ambiguous with_images metric must not be used for parser coverage');\nconsole.log(`Parser mirror image coverage is ${manifest.parser_rows_with_images}/${manifest.products}; this is not live DB photo health.`);"
+          if old_line not in s: raise SystemExit('old manifest diagnostic missing')
+          s=s.replace(old_line,new_line,1)
+          tail="""
+if(importer.includes('$final=$urls?:$oldImgs'))fail('1C import must never replace historical DB image arrays with a smaller current export');
+if(!importer.includes('array_merge($urls,$oldImgs,$oldMain!=='))fail('1C import must union new image references with historical DB image references');
+if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql'"))fail('live catalog must expose MySQL as authoritative photo source');
+if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency'"))fail('static metadata fallback must resolve photos against MySQL before parser images');
+"""
+          insert="if(!process.exitCode)console.log('Catalog live source regression checks passed.');"
+          if tail.strip() not in s:
+              if insert not in s: raise SystemExit('regression test footer missing')
+              s=s.replace(insert,tail+insert,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+
+          php -l api/import-apply.php
+          node --check catalog-live-paged.js
+          node tests/catalog-live-source-regression.js
+          php tests/catalog-quality.php
+          node tests/catalog-taxonomy-regression.js
+          node tests/mobile-layout-regression.js
+      - name: Commit repair to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add api/import-apply.php catalog-live-paged.js index.html data/manifest.json tests/catalog-live-source-regression.js
+          git diff --cached --quiet && { echo 'No source changes to commit.'; exit 1; }
+          git commit -m 'Preserve historical product photos and separate parser coverage'
+          git pull --rebase origin main
+          git push origin HEAD:main
