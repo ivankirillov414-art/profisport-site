@@ -26,7 +26,9 @@ if(manifest.image_coverage_scope!=='parser_static_mirror')fail('static manifest 
 if(manifest.authoritative_photo_source!=='mysql.products.main_image/images')fail('static manifest must name live MySQL as photo source of truth');
 if('with_images' in manifest)fail('ambiguous with_images metric must not be used for parser coverage');
 console.log(`Parser mirror image coverage is ${manifest.parser_rows_with_images}/${manifest.products}; this is not live DB photo health.`);
-if(!loader.includes("window.CATALOG_SOURCE='static'"))fail('base loader static fallback diagnostic is missing');
+if(loader.includes("window.CATALOG_SOURCE='static';"))fail('base loader must not expose raw parser static photos');
+if(!loader.includes("window.CATALOG_SOURCE='static-db-photo-resolver'"))fail('base loader emergency fallback must resolve photos against MySQL');
+if(!loader.includes('map(staticRowWithDbPhotoFallback).map(normalizeProduct)'))fail('base loader must prepend the DB photo resolver before parser images');
 if(api.includes("$images[]='api/product-fallback-image.php"))fail('catalog API must not mix fallback images into DB source images');
 if(!api.includes("'fallback_image'=>$sourceImageMissing?$fallbackImage:null"))fail('catalog API must expose fallback separately and only for missing DB images');
 if(!api.includes("'image_source'=>$imageSource"))fail('catalog API image source diagnostic is missing');

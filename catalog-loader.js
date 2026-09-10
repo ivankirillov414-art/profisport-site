@@ -287,6 +287,21 @@ async function loadInitialCatalog(){
   })();
   return initialCatalogPromise;
 }
+function staticRowWithDbPhotoFallback(row){
+  const name=String(row?.title??row?.name??'').trim();
+  if(!name)return row;
+  const path=Array.isArray(row?.category_path)?row.category_path:[];
+  const cat=String(path[path.length-1]??'').trim();
+  const params=new URLSearchParams({name});
+  if(cat)params.set('cat',cat);
+  const brand=String(row?.brand??'').trim();
+  const model=String(row?.model??'').trim();
+  if(brand)params.set('brand',brand);
+  if(model)params.set('model',model);
+  const resolver=`api/product-db-image.php?${params.toString()}`;
+  const parserImages=Array.isArray(row?.images)?row.images.filter(Boolean):[];
+  return{...row,image:resolver,main_image:resolver,images:[resolver,...parserImages]};
+}
 async function loadRealCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
@@ -298,8 +313,10 @@ async function loadRealCatalog(){
     const manifest=await catalogRequest('data/manifest.json',{},r=>r.json());
     const parts=Array.isArray(manifest.parts)?manifest.parts:[];
     const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
-    window.CATALOG_SOURCE='static';
-    return arrays.flat().filter(isPurchasableCatalogRow).map(normalizeProduct)
+    window.CATALOG_SOURCE='static-db-photo-resolver';
+    window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency';
+    window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;
+    return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhotoFallback).map(normalizeProduct)
   })();
   return catalogPromise;
 }
