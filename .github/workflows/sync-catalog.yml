@@ -7,9 +7,10 @@ on:
       - .github/workflows/sync-catalog.yml
       - scripts/catalog_audit.py
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '17 * * * *'
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: sync-full-catalog
   cancel-in-progress: true
@@ -59,11 +60,79 @@ jobs:
               raise SystemExit(f"audit row mismatch: {report['catalog_rows']}")
           PY
       - name: Commit complete catalog and audit
+        id: commit_catalog
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+          if git diff --quiet -- data/manifest.json data/catalog-*.json; then
+            if python3 - <<'PY'
+          import json,subprocess
+          old=json.loads(subprocess.check_output(['git','show','HEAD:data/catalog-audit.json'],text=True))
+          new=json.load(open('data/catalog-audit.json',encoding='utf-8'))
+          old.pop('generated_at',None);new.pop('generated_at',None)
+          raise SystemExit(0 if old==new else 1)
+          PY
+            then
+              git checkout -- data/catalog-audit.json
+              echo 'No catalog or audit changes; skipping timestamp-only commit and deploy.'
+              echo 'changed=false' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
           git add data/manifest.json data/catalog-*.json data/catalog-audit.json
-          git diff --cached --quiet || git commit -m 'Sync complete catalog with quality audit'
-          git push
+          if git diff --cached --quiet; then
+            echo 'No catalog changes to commit.'
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m 'Sync complete catalog with quality audit'
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Run Store checks and deploy updated catalog
+        if: steps.commit_catalog.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.commit_catalog.outputs.sha }}
+        run: |
+          set -euo pipefail
+          wait_for_run() {
+            workflow="$1"
+            label="$2"
+            run_id=''
+            for attempt in $(seq 1 30); do
+              run_id="$(gh run list --workflow "$workflow" --branch main --event workflow_dispatch --limit 20 --json databaseId,headSha --jq ".[] | select(.headSha==\"$TARGET_SHA\") | .databaseId" | head -n1)"
+              [ -n "$run_id" ] && break
+              sleep 3
+            done
+            if [ -z "$run_id" ]; then
+              echo "Could not find $label run for $TARGET_SHA" >&2
+              exit 1
+            fi
+            echo "$label run: $run_id"
+            gh run watch "$run_id" --exit-status
+          }
+
+          current="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$current" != "$TARGET_SHA" ]; then
+            echo "main moved from $TARGET_SHA to $current; refusing to deploy stale catalog commit" >&2
+            exit 1
+          fi
+
+          gh workflow run store-tests.yml --ref main
+          wait_for_run store-tests.yml 'Store checks'
+
+          current="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$current" != "$TARGET_SHA" ]; then
+            echo "main changed after Store checks; refusing stale deploy" >&2
+            exit 1
+          fi
+
+          gh workflow run deploy-infinityfree.yml --ref main
+          wait_for_run deploy-infinityfree.yml 'InfinityFree deploy'
 # refresh enriched images now

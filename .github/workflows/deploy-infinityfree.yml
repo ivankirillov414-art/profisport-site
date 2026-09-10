@@ -23,6 +23,8 @@ jobs:
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
+          node tests/cart-quantity-regression.js
+          node tests/product-gallery-regression.js
           php tests/catalog-quality.php
 
       - name: Build private server config
@@ -91,6 +93,12 @@ jobs:
           grep -Eq 'app\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'catalog-live-paged\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
+          grep -Fq 'product-kant.js?v=3' /tmp/profisport-remote/product.html
+          grep -Fq 'cart.findIndex(x=>String(x)===id)' /tmp/profisport-remote/app.js
+          if grep -Fq 'cart.findIndex(x=>String(x.id)===id)' /tmp/profisport-remote/app.js; then
+            echo 'Old cart decrement bug is present in deployed app.js' >&2
+            exit 1
+          fi
           grep -Fq "COALESCE(price_rub,0)>0" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_sanitize_specs" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_resolve_brand" /tmp/profisport-remote/api/catalog.php

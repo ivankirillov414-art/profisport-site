@@ -57,6 +57,8 @@ jobs:
           php tests/order-validation.php
           php tests/catalog-quality.php
           node tests/product-loader-regression.js
+          node tests/cart-quantity-regression.js
+          node tests/product-gallery-regression.js
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
