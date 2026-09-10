@@ -77,7 +77,7 @@ jobs:
           AUTH="if0_42771076:${FTP_PASSWORD}"
           mkdir -p /tmp/profisport-remote/api /tmp/profisport-remote/server
 
-          for file in index.html product.html checkout.html profile.html service.html service.js service-guide.js storefront-v2.css app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php server/catalog-quality.php; do
+          for file in index.html product.html checkout.html profile.html service.html checkout.js product-kant.js service.js service-guide.js storefront-v2.css app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php server/catalog-quality.php; do
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
               --user "$AUTH" "$FTP_ROOT/$file" -o "/tmp/profisport-remote/$file"

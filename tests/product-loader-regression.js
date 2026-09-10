@@ -1,0 +1,21 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const calls=[];
+let response={ok:true,items:[{id:1,name:'Велосипед FORMAT',price_rub:45000,stock_qty:1,stock_status:'in',availability:'in'}]};
+let networkError=false;
+const context=vm.createContext({console,AbortController,setTimeout,clearTimeout,URLSearchParams,window:{},fetch:async(url,options)=>{calls.push({url,options});if(networkError)throw Error('offline');return{ok:true,json:async()=>response}}});
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../catalog-loader.js'),'utf8'),context);
+(async()=>{
+ assert.equal(typeof context.loadProduct,'function');
+ const p=await context.loadProduct(1);
+ assert.equal(p.id,1);assert.equal(p.price,45000);assert.equal(p.stockQty,1);
+ assert.equal(calls[0].url,'api/catalog.php?id=1');assert.equal(calls[0].options.cache,'no-store');
+ response={ok:true,items:[]};assert.equal(await context.loadProduct(2),null);
+ response={ok:true,items:[{id:3,name:'Other',price_rub:100}]};assert.equal(await context.loadProduct(2),null);
+ const before=calls.length;assert.equal(await context.loadProduct('unknown'),null);assert.equal(calls.length,before);
+ response={ok:false};await assert.rejects(context.loadProduct(1),/invalid/);
+ networkError=true;await assert.rejects(context.loadProduct(1),/offline/);
+ console.log('Product loader: live ID, price, stock, missing item and failure isolation passed.');
+})().catch(e=>{console.error(e);process.exitCode=1});
