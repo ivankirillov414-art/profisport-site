@@ -23,6 +23,7 @@ jobs:
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
+          node tests/catalog-startup-regression.js
           node tests/cart-quantity-regression.js
           node tests/product-gallery-regression.js
           php tests/catalog-quality.php
