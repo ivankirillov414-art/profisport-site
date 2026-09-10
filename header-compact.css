@@ -107,6 +107,66 @@ header .logo{display:none!important}
   .brandShowcase{margin-bottom:26px}
   .brandShowcase .sectionHead{margin-bottom:10px}
 
+  /* Sportmaster-like visual category previews using the real catalog photos already injected by app.js. */
+  .categorySection{margin-top:10px}
+  .categorySection .sectionHead{margin-bottom:12px}
+  .categoryTiles{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  .categoryTile,
+  .categoryTile:first-child,
+  .categoryTile:nth-child(n){
+    display:block!important;
+    position:relative!important;
+    min-height:172px!important;
+    padding:16px!important;
+    border:0!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+    background:#e9f0f6!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  .categoryTile:nth-child(2n){background:#edf2f5!important}
+  .categoryTile:nth-child(3n){background:#e7eef3!important}
+  .categoryTile>div{
+    position:relative!important;
+    z-index:2!important;
+    max-width:58%!important;
+  }
+  .categoryTile small{
+    display:block!important;
+    margin-bottom:7px!important;
+    color:#6c747c!important;
+    font-size:11px!important;
+    font-weight:500!important;
+  }
+  .categoryTile h3{
+    margin:0!important;
+    font-size:17px!important;
+    line-height:1.18!important;
+    letter-spacing:-.2px!important;
+  }
+  .categoryTile span{display:none!important}
+  .categoryTile img{
+    position:absolute!important;
+    right:6px!important;
+    bottom:0!important;
+    width:60%!important;
+    height:80%!important;
+    object-fit:contain!important;
+    object-position:right bottom!important;
+    mix-blend-mode:normal!important;
+    opacity:1!important;
+    transition:transform .2s ease!important;
+  }
+  .categoryTile:hover{
+    background:#dde8f0!important;
+  }
+  .categoryTile:hover img{transform:scale(1.045)!important}
+  .categoryTile .tileArrow{display:none!important}
+
   .megaCatalog{top:100px}
 }
 
@@ -119,4 +179,6 @@ header .logo{display:none!important}
   .heroLayout .heroSlide{min-height:380px}
   .heroShortcuts>a{padding:20px}
   .heroShortcuts h2{font-size:22px}
+  .categoryTiles{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .categoryTile,.categoryTile:first-child,.categoryTile:nth-child(n){min-height:160px!important}
 }
