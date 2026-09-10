@@ -1,14 +1,7 @@
-name: Autonomous photo autofill
+name: Manual fallback photo research
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '17 */4 * * *'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/photo_autofill.py'
-      - '.github/workflows/photo-autofill.yml'
 
 permissions:
   contents: write
@@ -27,7 +20,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Find high-confidence product photos
+      - name: Explain source policy
+        run: |
+          echo 'Live MySQL product images are authoritative.'
+          echo 'This workflow is manual only because the static parser cannot prove that a live DB product is missing a photo.'
+          echo 'Internet results are fallback candidates only and never replace a working live DB photo.'
+
+      - name: Find high-confidence fallback candidates
         shell: bash
         run: |
           OFFSET=$(( GITHUB_RUN_NUMBER * 120 ))
@@ -50,7 +49,7 @@ jobs:
           print('photo overrides:',len(j['items']))
           PY
 
-      - name: Commit newly verified photos
+      - name: Commit newly verified fallback candidates
         shell: bash
         run: |
           if python3 - <<'PY'
@@ -61,12 +60,12 @@ jobs:
           PY
           then
             git checkout -- data/photo-overrides.json
-            echo 'No new high-confidence photos this run.'
+            echo 'No new high-confidence fallback candidates this run.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/photo-overrides.json
-          git commit -m 'Autofill verified catalog photos'
+          git commit -m 'Add verified fallback photo candidates'
           git pull --rebase origin main
           git push origin HEAD:main
