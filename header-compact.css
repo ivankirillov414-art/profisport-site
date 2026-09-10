@@ -87,6 +87,42 @@ header .logo{display:none!important}
     justify-content:center;
     align-items:center;
   }
+  body>nav:not(.mobileBottomNav)>a{
+    position:relative;
+    padding:3px 0 6px;
+  }
+  body>nav:not(.mobileBottomNav)>a::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    right:50%;
+    bottom:0;
+    height:2px;
+    background:#f5c928;
+    transition:left .16s ease,right .16s ease;
+  }
+  body>nav:not(.mobileBottomNav)>a:hover::after{
+    left:0;
+    right:0;
+  }
+
+  /* Sportmaster-like desktop preview: hovering any main category opens the existing mega catalog panel. */
+  body>nav:not(.mobileBottomNav):hover ~ #megaCatalog,
+  #megaCatalog:hover{
+    display:grid!important;
+  }
+  #megaCatalog{
+    top:94px!important;
+    left:clamp(18px,4vw,56px)!important;
+    right:clamp(18px,4vw,56px)!important;
+    border-radius:0 0 16px 16px;
+    border-top:0;
+    box-shadow:0 24px 48px rgba(25,29,34,.20);
+  }
+  #megaCatalog .megaGroup a:hover{
+    color:#17191c;
+    font-weight:700;
+  }
 
   /* Wider hero area, but a little lower so the brand row is visible without scrolling. */
   .storefrontHome{
@@ -106,8 +142,6 @@ header .logo{display:none!important}
   .heroShortcuts p{font-size:13px;margin-bottom:10px}
   .brandShowcase{margin-bottom:26px}
   .brandShowcase .sectionHead{margin-bottom:10px}
-
-  .megaCatalog{top:100px}
 }
 
 @media (min-width:851px) and (max-width:1050px){
