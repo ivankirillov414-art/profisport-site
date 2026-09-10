@@ -302,3 +302,11 @@ async function loadRealCatalog(){
   })();
   return catalogPromise;
 }
+// Product IDs must be resolved against the live store, never a static fallback.
+async function loadProduct(id){
+  const key=String(id);
+  if(!/^[1-9][0-9]*$/.test(key))return null;
+  const j=await catalogRequest('api/catalog.php?id='+encodeURIComponent(key),{cache:'no-store'},parseCatalogResponse);
+  const row=j.items.find(p=>String(p.id)===key);
+  return row?normalizeProduct(row):null;
+}
