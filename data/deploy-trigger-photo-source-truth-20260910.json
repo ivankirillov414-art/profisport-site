@@ -1,0 +1,1 @@
+{"package":"photo-source-truth","source_commit":"97d6049bf12677a4445f369bd94d03d879125b55","policy":"mysql-first-fallback-only-when-missing"}
