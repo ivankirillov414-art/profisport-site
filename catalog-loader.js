@@ -211,9 +211,10 @@ function normalizeProduct(p,i){
   const displayCategory=tax.source==='name'?dep.label:rawCat;
   const images=(Array.isArray(p.images)?p.images:[]).map(imageUrl).filter(Boolean);
   const main=imageUrl(p.image||p.main_image||'');
-  const fallback=fallbackImageUrl(name,rawCat);
+  const fallback=imageUrl(p.fallback_image||'')||fallbackImageUrl(name,rawCat);
   const baseImages=images.length?images:(main?[main]:[]);
-  const finalImages=[...new Set([...baseImages,fallback])];
+  const sourceMissing=p.image_source_missing===true||(!('image_source_missing' in p)&&baseImages.length===0);
+  const finalImages=sourceMissing?[...new Set([...baseImages,fallback].filter(Boolean))]:[...new Set(baseImages)];
   const stockText=stockCode==='in'?(Number.isFinite(qty)&&qty>0?`В наличии: ${qty} шт.`:'В наличии'):stockCode==='out'?'Нет в наличии':'Уточняйте наличие';
   const facets=deriveFacets(name,specs,tax.key,tax.type);
   return{
@@ -280,7 +281,7 @@ async function loadInitialCatalog(){
   if(initialCatalogPromise)return initialCatalogPromise;
   initialCatalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?limit=24&v=imgfix1',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth2',{},parseCatalogResponse);
       return j.items.filter(isPurchasableCatalogRow).map(normalizeProduct);
     }catch(e){return[]}
   })();
@@ -290,7 +291,7 @@ async function loadRealCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?v=imgfix1',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?v=imgtruth2',{},parseCatalogResponse);
       const liveItems=j.items.filter(isPurchasableCatalogRow);
       if(liveItems.length){const items=liveItems.map(normalizeProduct);window.CATALOG_SOURCE='live';return items}
     }catch(e){}

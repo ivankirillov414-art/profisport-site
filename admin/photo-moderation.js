@@ -27,7 +27,7 @@
       const r=await fetch(u,{cache:'no-store'}),j=await r.json();
       if(!r.ok||!j.ok)throw new Error(j.error||`HTTP ${r.status}`);
       pages=j.pages||1;
-      summary.textContent=`Нужно проверить вручную: ${j.total}. Страница ${j.page} из ${pages}. Артикул в подборе фото не используется.`;
+      summary.textContent=`Очередь из живой MySQL-базы: ${j.total}. В наличии в приоритете: ${j.priority_in_stock||0}. Страница ${j.page} из ${pages}. Интернет используется только когда рабочего фото в БД нет. Артикул в подборе не используется.`;
       pageInfo.textContent=`${j.page} / ${pages}`;
       $('prev').disabled=page<=1;$('next').disabled=page>=pages;
       if(!j.items.length){grid.innerHTML='<div class="empty">Товаров для модерации на этой странице нет.</div>';return}
@@ -38,7 +38,8 @@
 
   function card(p){
     const c=(p.candidates||[]).map(x=>cand(x,p.id)).join('');
-    return `<article class="product" data-product="${p.id}" data-selected=""><h2>${esc(p.name)}</h2><div class="meta">${p.brand?`Бренд: ${esc(p.brand)} · `:''}${p.model?`Модель: ${esc(p.model)} · `:''}${p.sku?`Артикул: ${esc(p.sku)} · `:''}${p.stock_qty!=null?`Остаток: ${p.stock_qty} · `:''}${esc(p.category_path||'')}</div><div class="cands">${c||'<div class="muted noLocal">В собранном каталоге точных вариантов пока нет.</div>'}</div><div class="actions"><button class="btn secondary internet" type="button">Найти ещё в интернете</button></div><div class="manual"><input class="manualUrl" placeholder="Или вставить прямую ссылку на фото"><button class="btn chooseManual" type="button">Поставить</button></div><div class="actions"><button class="btn save" type="button" disabled>Выбрать фото</button><button class="btn secondary skip" type="button">Пропустить</button></div><div class="status"></div></article>`;
+    const reason=p.image_reason==='broken_local'?'битая локальная ссылка':'в БД нет рабочего фото';
+    return `<article class="product" data-product="${p.id}" data-selected=""><h2>${esc(p.name)}</h2><div class="meta">Причина: ${reason} · ${p.brand?`Бренд: ${esc(p.brand)} · `:''}${p.model?`Модель: ${esc(p.model)} · `:''}${p.sku?`Артикул: ${esc(p.sku)} · `:''}${p.stock_qty!=null?`Остаток: ${p.stock_qty} · `:''}${esc(p.category_path||'')}</div><div class="cands">${c||'<div class="muted noLocal">В собранном каталоге точных вариантов пока нет.</div>'}</div><div class="actions"><button class="btn secondary internet" type="button">Найти ещё в интернете</button></div><div class="manual"><input class="manualUrl" placeholder="Или вставить прямую ссылку на фото"><button class="btn chooseManual" type="button">Поставить</button></div><div class="actions"><button class="btn save" type="button" disabled>Выбрать фото</button><button class="btn secondary skip" type="button">Пропустить</button></div><div class="status"></div></article>`;
   }
 
   function bindCands(card){

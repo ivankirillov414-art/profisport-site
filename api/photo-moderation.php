@@ -41,7 +41,20 @@ function pm_title_relevant(string $candidate,string $name,string $brand,string $
   return true;
 }
 function pm_local_image_ok(?string $url): bool { if(!$url)return false; $url=trim($url); if($url==='')return false; if(preg_match('~^https?://~i',$url))return true; $path=parse_url($url,PHP_URL_PATH)?:$url; $path=rawurldecode($path); if(str_starts_with($path,'/import/')){ $root=realpath(__DIR__.'/../import'); if(!$root)return false; $rel=ltrim(substr($path,8),'/'); if($rel===''||str_contains($rel,'..'))return false; $full=realpath($root.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$rel)); return $full!==false&&str_starts_with($full,$root.DIRECTORY_SEPARATOR)&&is_file($full); } if(str_starts_with($path,'import/')){ $root=realpath(__DIR__.'/../import'); if(!$root)return false; $rel=substr($path,7); $full=realpath($root.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$rel)); return $full!==false&&is_file($full); } $doc=realpath(__DIR__.'/..'); if(!$doc)return false; $full=realpath($doc.DIRECTORY_SEPARATOR.ltrim($path,'/')); return $full!==false&&is_file($full); }
-function pm_product_broken(array $p): bool { $imgs=json_decode((string)($p['images']??''),true); if(!is_array($imgs))$imgs=[]; $urls=array_values(array_unique(array_filter(array_merge([(string)($p['main_image']??'')],array_map('strval',$imgs))))); if(!$urls)return true; foreach($urls as $u)if(pm_local_image_ok($u))return false; return true; }
+function pm_product_image_state(array $p): array {
+  $imgs=json_decode((string)($p['images']??''),true); if(!is_array($imgs))$imgs=[];
+  $urls=array_values(array_unique(array_filter(array_merge([(string)($p['main_image']??'')],array_map('strval',$imgs)),fn($u)=>trim((string)$u)!=='')));
+  if(!$urls)return ['broken'=>true,'reason'=>'missing_db_image'];
+  $brokenLocal=false;
+  foreach($urls as $u){
+    $ok=pm_local_image_ok((string)$u);
+    if($ok===true)return ['broken'=>false,'reason'=>'working_db_image'];
+    if(preg_match('~^https?://~i',trim((string)$u)))return ['broken'=>false,'reason'=>'remote_db_image'];
+    $brokenLocal=true;
+  }
+  return ['broken'=>true,'reason'=>$brokenLocal?'broken_local':'missing_db_image'];
+}
+function pm_product_broken(array $p): bool { return pm_product_image_state($p)['broken']; }
 
 function pm_build_index(): array {
   $cache=__DIR__.'/../uploads/photo-candidate-index-v3.json';
@@ -199,9 +212,12 @@ try{
 
   $page=max(1,(int)($_GET['page']??1));$limit=min(30,max(5,(int)($_GET['limit']??12)));$q=trim((string)($_GET['q']??''));
   $where='is_active=1';$args=[];if($q!==''){$where.=' AND (name LIKE ? OR brand LIKE ? OR model LIKE ?)';$like='%'.$q.'%';$args=[$like,$like,$like];}
-  $sql='SELECT id,name,sku,brand,model,main_image,images,category_path,stock_qty FROM products WHERE '.$where.' ORDER BY id DESC';$st=$pdo->prepare($sql);$st->execute($args);$rows=$st->fetchAll(PDO::FETCH_ASSOC);
-  $broken=[];foreach($rows as $p){if(pm_product_broken($p))$broken[]=$p;}
+  $sql='SELECT id,name,sku,brand,model,main_image,images,category_path,stock_qty,stock_status,availability FROM products WHERE '.$where.' ORDER BY id DESC';$st=$pdo->prepare($sql);$st->execute($args);$rows=$st->fetchAll(PDO::FETCH_ASSOC);
+  $broken=[];foreach($rows as $p){$state=pm_product_image_state($p);if($state['broken']){$p['_image_reason']=$state['reason'];$broken[]=$p;}}
+  $inStock=fn($p)=>(($p['stock_status']??'')==='in_stock'||($p['availability']??'')==='in_stock'||(int)($p['stock_qty']??0)>0);
+  usort($broken,function($a,$b)use($inStock){$ai=$inStock($a)?1:0;$bi=$inStock($b)?1:0;if($ai!==$bi)return $bi<=>$ai;$aq=(int)($a['stock_qty']??0);$bq=(int)($b['stock_qty']??0);if($aq!==$bq)return $bq<=>$aq;return (int)$b['id']<=>(int)$a['id'];});
+  $priorityInStock=count(array_filter($broken,$inStock));
   $total=count($broken);$slice=array_slice($broken,($page-1)*$limit,$limit);$idx=pm_build_index();$items=[];
-  foreach($slice as $p){$items[]=['id'=>(int)$p['id'],'name'=>$p['name'],'sku'=>$p['sku'],'brand'=>$p['brand'],'model'=>$p['model'],'category_path'=>$p['category_path'],'stock_qty'=>$p['stock_qty']!==null?(int)$p['stock_qty']:null,'current_image'=>$p['main_image'],'candidates'=>pm_candidates((string)$p['name'],(string)$p['brand'],(string)$p['model'],(string)$p['category_path'],$idx,8)];}
-  pm_out(['ok'=>true,'page'=>$page,'limit'=>$limit,'total'=>$total,'pages'=>max(1,(int)ceil($total/$limit)),'items'=>$items]);
+  foreach($slice as $p){$items[]=['id'=>(int)$p['id'],'name'=>$p['name'],'sku'=>$p['sku'],'brand'=>$p['brand'],'model'=>$p['model'],'category_path'=>$p['category_path'],'stock_qty'=>$p['stock_qty']!==null?(int)$p['stock_qty']:null,'stock_status'=>$p['stock_status'],'availability'=>$p['availability'],'image_reason'=>$p['_image_reason']??'missing_db_image','current_image'=>$p['main_image'],'candidates'=>pm_candidates((string)$p['name'],(string)$p['brand'],(string)$p['model'],(string)$p['category_path'],$idx,8)];}
+  pm_out(['ok'=>true,'page'=>$page,'limit'=>$limit,'total'=>$total,'priority_in_stock'=>$priorityInStock,'pages'=>max(1,(int)ceil($total/$limit)),'source_policy'=>'mysql_first_fallback_only_when_missing','items'=>$items]);
 }catch(Throwable $e){error_log($e->__toString());pm_out(['ok'=>false,'error'=>'server_error'],500);}

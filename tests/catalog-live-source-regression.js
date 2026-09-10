@@ -23,4 +23,9 @@ if(!/max\(0,min\(500/.test(api))fail('catalog API must enforce a bounded page li
 if((manifest.with_images??manifest.products)>=manifest.products)console.log('Static fallback currently has full image coverage; live paging remains valid.');
 else console.log(`Static fallback is sparse (${manifest.with_images}/${manifest.products} rows with images); authoritative live paging is required.`);
 if(!loader.includes("window.CATALOG_SOURCE='static'"))fail('base loader static fallback diagnostic is missing');
+if(api.includes("$images[]='api/product-fallback-image.php"))fail('catalog API must not mix fallback images into DB source images');
+if(!api.includes("'fallback_image'=>$sourceImageMissing?$fallbackImage:null"))fail('catalog API must expose fallback separately and only for missing DB images');
+if(!api.includes("'image_source'=>$imageSource"))fail('catalog API image source diagnostic is missing');
+if(!loader.includes("const sourceMissing=p.image_source_missing===true"))fail('loader must make fallback eligibility explicit');
+if(!loader.includes("const finalImages=sourceMissing?"))fail('loader must only append fallback when the source is missing');
 if(!process.exitCode)console.log('Catalog live source regression checks passed.');

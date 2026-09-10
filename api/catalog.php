@@ -83,13 +83,19 @@ try{
     $cat=$categoryPath?(string)end($categoryPath):'';
 
     $sourceImageMissing=!$images;
+    $fallbackImage='api/product-fallback-image.php?name='.rawurlencode((string)$p['name']).'&cat='.rawurlencode($cat);
+    $imageSource='missing';
     if($sourceImageMissing){
       $itemsWithoutSourceImage++;
-      $images[]='api/product-fallback-image.php?name='.rawurlencode((string)$p['name']).'&cat='.rawurlencode($cat);
     }else{
       $firstPath=(string)(parse_url($images[0],PHP_URL_PATH)??$images[0]);
-      if(str_starts_with($firstPath,'/import/')||str_starts_with($firstPath,'import/'))$itemsWithLocalImage++;
-      else $itemsWithRemoteImage++;
+      if(str_starts_with($firstPath,'/import/')||str_starts_with($firstPath,'import/')){
+        $itemsWithLocalImage++;
+        $imageSource='local';
+      }else{
+        $itemsWithRemoteImage++;
+        $imageSource='remote';
+      }
     }
 
     $specs=json_decode((string)($p['specs']??'{}'),true);
@@ -129,6 +135,8 @@ try{
       'specs'=>$specs,
       'images'=>$images,
       'image'=>$images[0]??null,
+      'fallback_image'=>$sourceImageMissing?$fallbackImage:null,
+      'image_source'=>$imageSource,
       'image_source_missing'=>$sourceImageMissing,
       'url'=>'product.html?id='.(int)$p['id'],
       'updated_at'=>$p['updated_at']

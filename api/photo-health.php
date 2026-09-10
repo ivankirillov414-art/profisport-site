@@ -45,5 +45,5 @@ try{
         if($hasLocal)$stats['products_with_local_image']++;if($hasRemote)$stats['products_with_remote_image']++;if($hadBrokenLocal&&!$hasLocal&&!$hasRemote)$stats['products_with_broken_local_only']++;
         $needsFallback=!$hasLocal&&!$hasRemote;$fallback=$needsFallback&&ph_has_fallback($idx,$overrides,(string)$p['name'],(string)($p['category_path']??''));if($fallback)$stats['fallback_available']++;
         if($needsFallback&&!$fallback){$stats['unresolved_products']++;if(count($examples)<20)$examples[]=['id'=>(int)$p['id'],'name'=>(string)$p['name'],'category'=>(string)($p['category_path']??'')];}}
-    ph_out(['ok'=>true,'generated_at'=>date('c'),'stats'=>$stats,'unresolved_examples'=>$examples]);
+    ph_out(['ok'=>true,'generated_at'=>date('c'),'source_policy'=>['primary'=>'mysql.products.main_image/images','fallback'=>'only_when_no_working_db_reference','internet'=>'manual_moderation_only'],'stats'=>$stats,'unresolved_examples'=>$examples]);
 }catch(Throwable $e){error_log($e->__toString());ph_out(['ok'=>false,'error'=>'photo_health_failed'],500);}

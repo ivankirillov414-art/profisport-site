@@ -20,7 +20,7 @@
       <section class="profileCard"><h3>История бонусов</h3><div id="loyalty"></div></section>
     </div>
   </main>
-  <script src="catalog-loader.js?v=19"></script>
+  <script src="catalog-loader.js?v=20"></script>
   <script>
     let csrf='';const $=s=>document.querySelector(s);const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     async function api(action,opts={}){opts.headers={...(opts.headers||{}),'Content-Type':'application/json'};if(csrf)opts.headers['X-CSRF-Token']=csrf;const r=await fetch('api/customer.php?action='+action,opts);const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);if(j.csrf)csrf=j.csrf;return j}
