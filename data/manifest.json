@@ -38,5 +38,7 @@
     "catalog-034.json",
     "catalog-035.json"
   ],
-  "with_images": 3627
+  "parser_rows_with_images": 3627,
+  "image_coverage_scope": "parser_static_mirror",
+  "authoritative_photo_source": "mysql.products.main_image/images"
 }
