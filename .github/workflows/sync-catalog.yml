@@ -44,9 +44,18 @@ jobs:
               name=f'catalog-{i//chunk+1:03}.json'
               (out/name).write_text(json.dumps(rows[i:i+chunk],ensure_ascii=False,separators=(',',':')),encoding='utf-8')
               parts.append(name)
-          public_manifest={'products':len(rows),'chunk_size':chunk,'parts':parts,'with_images':sum(bool(r.get('images')) for r in rows)}
+          parser_rows_with_images=sum(bool(r.get('images')) for r in rows)
+          public_manifest={
+              'products':len(rows),
+              'chunk_size':chunk,
+              'parts':parts,
+              'parser_rows_with_images':parser_rows_with_images,
+              'image_coverage_scope':'parser_static_mirror',
+              'authoritative_photo_source':'mysql.products.main_image/images'
+          }
           (out/'manifest.json').write_text(json.dumps(public_manifest,ensure_ascii=False,indent=2),encoding='utf-8')
-          print('verified',len(rows),'products; images',public_manifest['with_images'],'browser chunks',len(parts))
+          print('verified',len(rows),'products; parser mirror rows with images',parser_rows_with_images,'browser chunks',len(parts))
+          print('photo source of truth: live MySQL products.main_image/images')
           PY
       - name: Generate catalog quality audit
         run: |
@@ -135,4 +144,3 @@ jobs:
 
           gh workflow run deploy-infinityfree.yml --ref main
           wait_for_run deploy-infinityfree.yml 'InfinityFree deploy'
-# refresh enriched images now
