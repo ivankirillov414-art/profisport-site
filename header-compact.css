@@ -88,18 +88,24 @@ header .logo{display:none!important}
     align-items:center;
   }
 
-  /* Give the hero and the two right-hand shortcut cards more room. */
+  /* Wider hero area, but a little lower so the brand row is visible without scrolling. */
   .storefrontHome{
-    width:min(1280px,calc(100% - 36px));
+    width:min(1360px,calc(100% - 28px));
+    padding-top:12px;
   }
   .heroLayout{
-    grid-template-columns:minmax(0,3.35fr) minmax(270px,1.15fr);
+    grid-template-columns:minmax(0,3.55fr) minmax(292px,1.18fr);
     gap:18px;
+    margin-bottom:18px;
   }
-  .heroLayout .heroSlide{min-height:450px}
-  .heroShortcuts{gap:16px}
-  .heroShortcuts>a{padding:28px}
-  .heroShortcuts h2{font-size:27px}
+  .heroLayout .heroSlide{min-height:395px}
+  .heroLayout .heroCopy{padding:30px 34px}
+  .heroShortcuts{gap:14px}
+  .heroShortcuts>a{padding:22px 24px}
+  .heroShortcuts h2{font-size:24px;margin:10px 0}
+  .heroShortcuts p{font-size:13px;margin-bottom:10px}
+  .brandShowcase{margin-bottom:26px}
+  .brandShowcase .sectionHead{margin-bottom:10px}
 
   .megaCatalog{top:100px}
 }
@@ -108,6 +114,9 @@ header .logo{display:none!important}
   body>header{left:185px!important;right:160px!important}
   .top>b{font-size:21px;min-width:140px}
   body>nav:not(.mobileBottomNav){gap:18px;font-size:12px}
-  .storefrontHome{width:min(1180px,calc(100% - 28px))}
-  .heroLayout{grid-template-columns:minmax(0,3fr) minmax(245px,1fr)}
+  .storefrontHome{width:min(1220px,calc(100% - 22px))}
+  .heroLayout{grid-template-columns:minmax(0,3.15fr) minmax(255px,1fr);gap:14px}
+  .heroLayout .heroSlide{min-height:380px}
+  .heroShortcuts>a{padding:20px}
+  .heroShortcuts h2{font-size:22px}
 }
