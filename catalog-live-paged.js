@@ -11,7 +11,7 @@
     for(let attempt=1;attempt<=LIVE_RETRIES;attempt++){
       try{
         const suffix=includeCount?'&count=1':'';
-        return await catalogRequest(`api/catalog.php?limit=${limit}&offset=${offset}${suffix}&v=imgfix3`,{},parseCatalogResponse);
+        return await catalogRequest(`api/catalog.php?limit=${limit}&offset=${offset}${suffix}&v=imgtruth4`,{},parseCatalogResponse);
       }catch(error){
         lastError=error;
         if(attempt<LIVE_RETRIES)await wait(250*attempt);
@@ -81,7 +81,8 @@
     const parts=Array.isArray(manifest.parts)?manifest.parts:[];
     const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
     window.CATALOG_SOURCE='static-db-photo-resolver';
-    window.CATALOG_STATIC_WITH_IMAGES=Number(manifest.with_images)||0;
+    window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;
+    window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency';
     return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhoto).map(normalizeProduct);
   }
 
@@ -94,6 +95,7 @@
         if(!liveItems.length)throw new Error('live catalog empty after validation');
         window.CATALOG_SOURCE='live-paged';
         window.CATALOG_LIVE_ROWS=liveItems.length;
+        window.CATALOG_PHOTO_SOURCE='mysql';
         return liveItems.map(normalizeProduct);
       }catch(error){
         window.CATALOG_LOAD_ERROR=String(error?.message||error||'unknown');
