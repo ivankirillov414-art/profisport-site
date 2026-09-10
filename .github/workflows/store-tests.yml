@@ -62,6 +62,7 @@ jobs:
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
+          node tests/catalog-startup-regression.js
       - name: Verify order and catalog schema invariants
         run: |
           grep -Fq 'source_hash,name,slug,sku' api/import-apply.php

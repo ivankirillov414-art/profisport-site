@@ -1,7 +1,8 @@
 (()=>{
   const LIVE_PAGE_SIZE=500;
   const LIVE_CONCURRENCY=2;
-  const LIVE_RETRIES=4;
+  const LIVE_RETRIES=2;
+  const INITIAL_PAGE_SIZE=24;
   let pagedCatalogPromise=null;
 
   const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -30,17 +31,18 @@
     throw lastError||new Error('live catalog range unavailable');
   }
 
-  async function loadPagedLiveCatalog(){
-    const first=await fetchLiveRange(0,LIVE_PAGE_SIZE,true);
+  async function loadPagedLiveCatalog(onInitial){
+    const first=await fetchLiveRange(0,INITIAL_PAGE_SIZE,true);
     const firstItems=Array.isArray(first.items)?first.items:[];
     const total=Number(first.total);
     if(!firstItems.length)throw new Error('live catalog first page empty');
     if(!Number.isFinite(total)||total<firstItems.length)throw new Error('live catalog total unavailable');
 
+    if(typeof onInitial==='function')onInitial(firstItems.filter(isPurchasableCatalogRow).map(normalizeProduct));
     const pages=[firstItems];
     if(total>firstItems.length){
       const offsets=[];
-      for(let offset=LIVE_PAGE_SIZE;offset<total;offset+=LIVE_PAGE_SIZE)offsets.push(offset);
+      for(let offset=firstItems.length;offset<total;offset+=LIVE_PAGE_SIZE)offsets.push(offset);
       for(let i=0;i<offsets.length;i+=LIVE_CONCURRENCY){
         const batch=offsets.slice(i,i+LIVE_CONCURRENCY);
         const results=await Promise.all(batch.map(offset=>fetchLiveRange(offset,Math.min(LIVE_PAGE_SIZE,total-offset),false)));
@@ -86,17 +88,50 @@
     return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhoto).map(normalizeProduct);
   }
 
-  window.loadRealCatalog=function loadRealCatalogPaged(){
+  const CACHE_KEY='live-catalog-imgtruth4-v1',CACHE_MAX_AGE=120000;
+  function catalogCache(mode,items){
+    return new Promise(resolve=>{
+      let database,settled=false;
+      const finish=value=>{if(settled)return;settled=true;clearTimeout(timer);if(database)database.close();resolve(value)};
+      const timer=setTimeout(()=>finish(null),400);
+      try{
+        const open=indexedDB.open('profisport-catalog',1);
+        open.onupgradeneeded=()=>{if(!open.result.objectStoreNames.contains('catalog'))open.result.createObjectStore('catalog')};
+        open.onerror=()=>finish(null);open.onblocked=()=>finish(null);
+        open.onsuccess=()=>{
+          database=open.result;if(settled){database.close();return;}
+          const transaction=database.transaction('catalog',mode);
+          transaction.onabort=()=>finish(null);transaction.onerror=()=>finish(null);
+          const bucket=transaction.objectStore('catalog');
+          if(mode==='readwrite'){
+            bucket.put({savedAt:Date.now(),items},CACHE_KEY);transaction.oncomplete=()=>finish(true);
+          }else{
+            const get=bucket.get(CACHE_KEY);
+            get.onerror=()=>finish(null);
+            get.onsuccess=()=>{const record=get.result,age=Date.now()-Number(record?.savedAt);finish(record&&age>=0&&age<CACHE_MAX_AGE&&Array.isArray(record.items)&&record.items.length?record.items:null)};
+          }
+        };
+      }catch(error){finish(null)}
+    });
+  }
+  const readCatalogCache=()=>catalogCache('readonly');
+  const writeCatalogCache=items=>catalogCache('readwrite',items);
+
+  window.loadRealCatalog=function loadRealCatalogPaged(onInitial){
     if(pagedCatalogPromise)return pagedCatalogPromise;
     pagedCatalogPromise=(async()=>{
       try{
-        const rows=await loadPagedLiveCatalog();
+        const cached=await readCatalogCache();
+        if(cached){window.CATALOG_SOURCE='live-cache';window.CATALOG_PHOTO_SOURCE='mysql';window.CATALOG_LIVE_ROWS=cached.length;return cached;}
+        const rows=await loadPagedLiveCatalog(onInitial);
         const liveItems=rows.filter(isPurchasableCatalogRow);
         if(!liveItems.length)throw new Error('live catalog empty after validation');
         window.CATALOG_SOURCE='live-paged';
         window.CATALOG_LIVE_ROWS=liveItems.length;
         window.CATALOG_PHOTO_SOURCE='mysql';
-        return liveItems.map(normalizeProduct);
+        const normalized=liveItems.map(normalizeProduct);
+        void writeCatalogCache(normalized);
+        return normalized;
       }catch(error){
         window.CATALOG_LOAD_ERROR=String(error?.message||error||'unknown');
         console.error('Paged live catalog failed; static metadata will resolve photos against DB.',error);

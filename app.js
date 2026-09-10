@@ -1,4 +1,5 @@
 let products=[];
+let catalogComplete=false;
 let view=[];
 let page=1;
 const PAGE=24;
@@ -144,12 +145,13 @@ function render(list=view){
   const pages=Math.max(1,Math.ceil(view.length/PAGE));page=Math.min(Math.max(1,page),pages);
   const show=view.slice((page-1)*PAGE,page*PAGE);
   productsEl.dataset.catalogReady='1';
-  productsEl.innerHTML=show.map(p=>{const imgs=imageCandidates(p),first=imgs.shift(),discount=p.oldPrice&&p.oldPrice>p.price?Math.round((1-p.price/p.oldPrice)*100):0;return `<article class="product">${favoriteMarkup(p.id)}<a href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" width="320" height="240" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a>${highlightMarkup(p)}<button type="button" class="quickViewButton" data-quick-id="${esc(encodeURIComponent(p.id))}" aria-label="Быстрый просмотр: ${esc(p.name)}">Быстрый просмотр</button><span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="price">${rub(p.price)}</div>${discount?`<span class="productDiscount">−${discount}%</span>`:''}<button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></article>`}).join('')||'<p>Ничего не найдено.</p>';
+  productsEl.innerHTML=show.map(p=>{const imgs=imageCandidates(p),first=imgs.shift(),discount=p.oldPrice&&p.oldPrice>p.price?Math.round((1-p.price/p.oldPrice)*100):0;return `<article class="product">${favoriteMarkup(p.id)}<a href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" width="320" height="240" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a>${highlightMarkup(p)}<button type="button" class="quickViewButton" data-quick-id="${esc(encodeURIComponent(p.id))}" aria-label="Быстрый просмотр: ${esc(p.name)}">Быстрый просмотр</button><span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="price">${rub(p.price)}</div>${discount?`<span class="productDiscount">−${discount}%</span>`:''}<button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></article>`}).join('')||(catalogComplete?'<p>Ничего не найдено.</p>':'<p>Загружаем товары для выбранных фильтров…</p>');
   bindProductImages();
   $$('.quickViewButton').forEach(b=>b.onclick=()=>openQuickView(decodeURIComponent(b.dataset.quickId)));
   $$('.addBtn:not([disabled])').forEach(b=>b.onclick=()=>add(decodeURIComponent(b.dataset.id)));
   $$('.productFavorite').forEach(b=>b.onclick=()=>toggleFavorite(decodeURIComponent(b.dataset.favoriteId),b));
-  catalogStatus.textContent=`${view.length} товаров`;if($('#mobileSort'))$('#mobileSort').value=sort.value;if($('#filterDialog').open)$('#applyFilters').textContent=`Показать товары (${view.length})`;pageInfo.textContent=`${page} / ${pages}`;prevPage.disabled=page<=1;nextPage.disabled=page>=pages;
+  catalogStatus.textContent=`${view.length} товаров`;if($('#mobileSort'))$('#mobileSort').value=sort.value;if($('#filterDialog').open)$('#applyFilters').textContent=`Показать товары (${view.length})`;pageInfo.textContent=`${page} / ${pages}`;prevPage.disabled=!catalogComplete||page<=1;nextPage.disabled=!catalogComplete||page>=pages;
+  if(!catalogComplete){catalogStatus.textContent=show.length?'Первые товары · загружаем остальные…':'Загружаем каталог…';pageInfo.textContent='…';if($('#filterDialog').open)$('#applyFilters').textContent='Показать';}
 }
 
 function syncState(){
@@ -165,7 +167,10 @@ function syncState(){
   selectedSubcategory?u.searchParams.set("sub",selectedSubcategory):u.searchParams.delete("sub");
   history.replaceState(null,'',u);
 }
+function hasPendingFilters(){return Boolean(category.value||brandFilter.value||stockOnly.checked||saleOnly.checked||minPrice.value||maxPrice.value||q.value||mobileQ.value||facet1.value||facet2.value||sort.value!=='popular'||page>1)}
 function apply(resetPage=true,sync=true){
+  if(!catalogComplete){if(resetPage)page=1;if(sync)syncState();render(hasPendingFilters()?[]:products);return;}
+
   let list=[...products],c=category.value,min=+minPrice.value||0,max=+maxPrice.value||Infinity,raw=(q?.value||mobileQ?.value||'').trim();
   const qv=bestQuery(raw),intent=intentFor(qv||raw);
   if(q&&mobileQ){q.value=raw;mobileQ.value=raw}
@@ -185,7 +190,7 @@ window.apply=apply;
 
 function add(id){cart.push(id);saveCart();toggleCart(true)}
 function saveCart(){localStorage.setItem('ps-cart',JSON.stringify(cart));count.textContent=cart.length;renderCart()}
-function renderCart(){const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0;cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p)return'';sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';total.textContent=rub(sum)}
+function renderCart(){const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0,unresolved=false;cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p){unresolved=true;return `<div class="cartrow"><span>Загружаем товар… × ${qty}</span></div>`}sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';total.textContent=unresolved?'Уточняется при оформлении':rub(sum)}
 function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x)===id);if(i>=0)cart.splice(i,1)}saveCart()}
 function toggleCart(force){const open=force===undefined?!cartEl.open:force;cartEl.classList.toggle('open',open);if(open&&!cartEl.open)cartEl.showModal();if(!open&&cartEl.open)cartEl.close();syncBodyLock()}
 window.changeQty=changeQty;window.toggleCart=toggleCart;
@@ -237,7 +242,7 @@ function buildMega(){
   panel.innerHTML=ranked.map(([top,subs])=>`<section class="megaGroup"><h3>${esc(top)}</h3>${[...subs.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6).map(([s,c])=>`<a href="#catalogProducts" data-mega-term="${esc(s)}">${esc(s)} <small>(${c})</small></a>`).join('')}</section>`).join('')+'<a class="megaService" href="service.html"><b>Мастерская ПрофиСпорт</b><span>Диагностика, настройка и ремонт →</span></a><a class="megaService" href="service.html#bikeGuide"><b>Как устроен велосипед</b><span>Узлы и помощь с выбором работ →</span></a><a class="megaAll" href="#catalogProducts" data-mega-all>Весь каталог →</a>';
   panel.querySelectorAll('[data-mega-term]').forEach(a=>a.onclick=e=>{e.preventDefault();selectedSubcategory=a.dataset.megaTerm||'';q.value='';mobileQ.value='';category.value='';apply(true,true);closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});panel.querySelector('[data-mega-all]')?.addEventListener('click',()=>{$('#resetFilters').click();closeMega()});
 }
-function openMega(){if(matchMedia('(max-width:850px)').matches)return;$('#megaCatalog')?.classList.add('open');$('#megaBackdrop')?.classList.add('open')}
+function openMega(){if(!catalogComplete){$('#catalog').scrollIntoView({behavior:'smooth'});return;}if(matchMedia('(max-width:850px)').matches)return;$('#megaCatalog')?.classList.add('open');$('#megaBackdrop')?.classList.add('open')}
 function closeMega(){$('#megaCatalog')?.classList.remove('open');$('#megaBackdrop')?.classList.remove('open')}
 
 function selectDepartment(key){
@@ -297,6 +302,7 @@ function setupHero(){
 
 function populateFilters(){
   const deps=new Map();for(const p of products){if(!deps.has(p.department))deps.set(p.department,{label:p.departmentLabel||p.department,order:p.departmentOrder||999})}
+  category.innerHTML='<option value="">Все категории</option>';
   [...deps.entries()].sort((a,b)=>a[1].order-b[1].order||a[1].label.localeCompare(b[1].label,'ru')).forEach(([key,v])=>category.add(new Option(v.label,key)));
   refreshBrandOptions(products);
 }
@@ -309,7 +315,7 @@ prevPage?.addEventListener('click',()=>{if(page>1){page--;render(view);syncState
 $$('[data-category]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const term=a.dataset.category||'';selectedSubcategory='';toggleMenu(false);category.value='';q.value=term;mobileQ.value=term;apply(true,true);productsEl.scrollIntoView({behavior:'smooth'})}));
 $('#search')?.addEventListener('submit',e=>{e.preventDefault();mobileQ.value=q.value;selectedSubcategory='';apply(true,true);$('#desktopSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});$('#mobileSearch')?.addEventListener('submit',e=>{e.preventDefault();q.value=mobileQ.value;selectedSubcategory='';apply(true,true);$('#mobileSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});
 $('#desktopCatalogLink')?.addEventListener('click',e=>{e.preventDefault();$('#megaCatalog')?.classList.contains('open')?closeMega():openMega()});$('#megaBackdrop')?.addEventListener('click',closeMega);
-$('#pick')?.addEventListener('click',()=>{const h=+$('#height').value,b=+$('#budget').value;if(!h||!b){$('#pickResult').textContent='Укажите рост и бюджет.';return}const frame=h<165?'S':h<178?'M':h<188?'L':'XL',matches=products.filter(p=>p.productType==='bicycle'&&p.price<=b&&p.stockCode!=='out');$('#pickResult').innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;$('#resetFilters').click();category.value='bicycle';maxPrice.value=String(b);stockOnly.checked=true;apply();$('#pickerDialog').close();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
+$('#pick')?.addEventListener('click',()=>{if(!catalogComplete){$('#pickResult').textContent='Каталог ещё загружается. Подбор станет доступен после загрузки.';return;}const h=+$('#height').value,b=+$('#budget').value;if(!h||!b){$('#pickResult').textContent='Укажите рост и бюджет.';return}const frame=h<165?'S':h<178?'M':h<188?'L':'XL',matches=products.filter(p=>p.productType==='bicycle'&&p.price<=b&&p.stockCode!=='out');$('#pickResult').innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;$('#resetFilters').click();category.value='bicycle';maxPrice.value=String(b);stockOnly.checked=true;apply();$('#pickerDialog').close();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 
 // Move the same controls into native mobile dialogs; never clone IDs or filter state.
 const mobileLayout=matchMedia('(max-width:850px)');
@@ -321,7 +327,7 @@ function syncMobileLayout(){
   else{$('#filterDialog').close();$('#pickerDialog').close();$('#filterHome').append(filters);filters.querySelector('.filters').append($('#filterActions'));pickerHome.append(picker);$('#applyFilters').textContent='Показать'}
   syncBodyLock();
 }
-$('#openFilters').onclick=()=>{$('#applyFilters').textContent=`Показать товары (${view.length})`;$('#filterDialog').showModal();syncBodyLock()};
+$('#openFilters').onclick=()=>{$('#applyFilters').textContent=catalogComplete?`Показать товары (${view.length})`:'Показать';$('#filterDialog').showModal();syncBodyLock()};
 $('#closeFilters').onclick=()=>$('#filterDialog').close();
 $('#mobileSort').onchange=()=>{sort.value=$('#mobileSort').value;apply()};
 $('#mobileCartBtn').onclick=e=>{e.preventDefault();toggleCart(true)};
@@ -335,10 +341,20 @@ if(mobileLayout.matches&&location.hash==='#picker'){$('#pickerDialog').showModal
 setupHero();
 bindSuggest(q,$('#desktopSuggest'));bindSuggest(mobileQ,$('#mobileSuggest'));
 
+// Categories are already visible in HTML; early choices remain in the URL until all rows arrive.
+Object.entries(CATALOG_DEPARTMENTS).forEach(([key,dep])=>category.add(new Option(dep.label,key)));
+const initialBrand=new URLSearchParams(location.search).get('brand');
+if(initialBrand)brandFilter.add(new Option(initialBrand,initialBrand));
+restoreState();count.textContent=cart.length;renderCart();
+$$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 (async()=>{
   try{
     catalogStatus.textContent='Загрузка каталога…';
-    products=await loadRealCatalog();if(!products.length)throw Error('empty');
+    const all=await loadRealCatalog(initial=>{
+      if(catalogComplete)return;
+      products=initial;render(hasPendingFilters()?[]:products);
+    });
+    if(!all.length)throw Error('empty');products=all;catalogComplete=true;
     populateFilters();restoreState();configureContextFilters(q.value,intentFor(q.value));apply(false,false);saveCart();buildMega();buildCategoryTiles();buildBrandShortcuts();loadCustomerState();
-  }catch(e){catalogStatus.textContent='Каталог временно недоступен';productsEl.innerHTML='<p>Не удалось загрузить каталог. Попробуйте обновить страницу.</p>';console.error(e)}
+  }catch(e){catalogStatus.textContent='Каталог временно недоступен';if(!products.length||hasPendingFilters())productsEl.innerHTML='<p>Не удалось загрузить каталог. Попробуйте обновить страницу.</p>';console.error(e)}
 })();
