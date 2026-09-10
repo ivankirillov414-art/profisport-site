@@ -13,9 +13,13 @@ for(const old of ['storefront.css','mobile-layout-fix.css','mobile-viewport-lock
   if(index.includes(old))fail(`index.html references obsolete layer: ${old}`);
 }
 if(!/storefront-v2\.css\?v=\d+/.test(index))fail('index.html must load storefront-v2.css with a cache version');
+if(!/header-compact\.css\?v=\d+/.test(index))fail('index.html must load header-compact.css with a cache version');
 if(!/app\.js\?v=\d+/.test(index))fail('index.html must load the unified app.js with a cache version');
 if(!/catalog-loader\.js\?v=\d+/.test(index))fail('index.html must load catalog-loader.js with a cache version');
-if((index.match(/<link rel="stylesheet"/g)||[]).length!==1)fail('home page must have exactly one stylesheet');
+const stylesheetHrefs=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
+if(stylesheetHrefs.length!==2)fail('home page must load exactly the storefront and compact-header stylesheets');
+if(!stylesheetHrefs.some(x=>/^storefront-v2\.css\?v=\d+$/.test(x)))fail('storefront-v2.css is missing from stylesheet list');
+if(!stylesheetHrefs.some(x=>/^header-compact\.css\?v=\d+$/.test(x)))fail('header-compact.css is missing from stylesheet list');
 
 if(/100vw/i.test(cssCode))fail('storefront-v2.css must not use 100vw in CSS rules');
 if(/visualViewport|MutationObserver/.test(cssCode+app))fail('viewport/mutation layout locks are forbidden');
