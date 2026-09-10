@@ -1,3 +1,4 @@
+// Guards the live-DB photo source contract and prevents parser-mirror counts from being treated as missing DB photos.
 const fs=require('fs');
 const path=require('path');
 const root=path.resolve(__dirname,'..');
