@@ -260,6 +260,7 @@ function buildMega(context=''){
     const href=section?`?cat=${encodeURIComponent(items[0].department)}&sub=${encodeURIComponent(title)}#catalogProducts`:`?cat=${encodeURIComponent(key)}#catalogProducts`;
     return `<section class="megaGroup${section?' megaSubgroup':''}"><a class="megaCardHead" href="${href}" ${target}><span class="megaCardTitle"><h3>${esc(title)}</h3><small>${items.length} товаров</small></span>${sources.length?`<span class="megaPhoto"><img data-mega-sources="${esc(encodeURIComponent(JSON.stringify(sources)))}" alt="" loading="lazy" decoding="async" width="120" height="110"></span>`:''}</a>${section?'':`<div class="megaLinks">${[...subs].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([sub,count])=>`<a href="?cat=${encodeURIComponent(key)}&sub=${encodeURIComponent(sub)}#catalogProducts" data-mega-term="${esc(sub)}" data-mega-department-filter="${esc(key)}"><span>${esc(sub)}</span><small>${count}</small></a>`).join('')}</div>`}<a class="megaCardMore" href="${href}" ${target}>Смотреть товары <span aria-hidden="true">→</span></a></section>`;
   }).join('')+'<div class="megaFooter"><a href="#catalogProducts" data-mega-all>Весь каталог →</a><a href="service.html">Мастерская ПрофиСпорт →</a><a href="service.html#bikeGuide">Как устроен велосипед →</a></div>';
+  panel.scrollTop=0;
   panel.querySelectorAll('[data-mega-term]').forEach(a=>a.onclick=e=>{e.preventDefault();$('#resetFilters').click();selectedSubcategory=a.dataset.megaTerm||'';category.value=a.dataset.megaDepartmentFilter||'';apply();closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
   panel.querySelectorAll('[data-mega-department]').forEach(a=>a.onclick=e=>{e.preventDefault();$('#resetFilters').click();selectDepartment(a.dataset.megaDepartment);closeMega()});
   panel.querySelector('[data-mega-all]').onclick=e=>{e.preventDefault();$('#resetFilters').click();closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})};
@@ -280,6 +281,7 @@ function openMega(context='',trigger=$('#desktopCatalogLink')){
   if(matchMedia('(max-width:850px)').matches)return;
   if(!catalogComplete){$('#catalog').scrollIntoView({behavior:'smooth'});return;}
   if(context!==megaContext||!$('#megaCatalog').children.length)buildMega(context);
+  if(!$('#megaCatalog').classList.contains('open'))$('#megaCatalog').scrollTop=0;
   megaTrigger=trigger;positionMega();
   $('#megaCatalog').classList.add('open');$('#megaBackdrop').classList.add('open');
   $$('body>nav [aria-controls="megaCatalog"]').forEach(a=>a.setAttribute('aria-expanded',String(a===trigger)));
