@@ -115,106 +115,79 @@ header .logo{display:none!important}
   body>nav:not(.mobileBottomNav)>a:hover{color:#111315}
   body>nav:not(.mobileBottomNav)>a:hover::after{left:0;right:0}
 
-  /* Large Sportmaster-style catalog preview. The panel stays attached to the sticky category strip. */
-  body>nav:not(.mobileBottomNav):has(>a:not([href="service.html"]):hover) ~ #megaCatalog,
-  #megaCatalog:hover{
-    display:grid!important;
-  }
+  /* The panel follows the measured lower edge of the sticky navigation. */
   #megaCatalog{
-    position:fixed!important;
-    top:42px!important;
-    left:0!important;
-    right:0!important;
-    width:100%!important;
-    max-width:none!important;
-    max-height:min(72vh,650px);
+    position:fixed;
+    top:var(--mega-top,101px);
+    left:0;
+    right:0;
+    width:auto;
+    max-width:none;
+    max-height:calc(100dvh - var(--mega-top,101px) - 12px);
     overflow:auto;
-    z-index:49!important;
-    grid-template-columns:repeat(4,minmax(0,1fr))!important;
-    gap:12px!important;
-    padding:18px clamp(26px,5vw,78px) 24px!important;
-    border:0!important;
-    border-top:1px solid #e3e6e8!important;
-    border-radius:0!important;
-    background:#f4f6f7!important;
-    box-shadow:0 22px 55px rgba(22,27,31,.20)!important;
-  }
-  #megaCatalog .megaGroup{
-    position:relative;
-    min-height:150px;
-    padding:17px 18px 16px;
-    overflow:hidden;
-    border:1px solid #e1e5e8;
-    border-radius:14px;
-    background:linear-gradient(145deg,#fff 0%,#eef3f6 100%);
-    transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
-  }
-  #megaCatalog .megaGroup:nth-child(2n){background:linear-gradient(145deg,#fff 0%,#f3efe6 100%)}
-  #megaCatalog .megaGroup:nth-child(3n){background:linear-gradient(145deg,#fff 0%,#eaf0ea 100%)}
-  #megaCatalog .megaGroup:nth-child(4n){background:linear-gradient(145deg,#fff 0%,#edf0f8 100%)}
-  #megaCatalog .megaGroup::after{
-    content:"";
-    position:absolute;
-    right:-28px;
-    bottom:-38px;
-    width:120px;
-    height:120px;
-    border-radius:50%;
-    background:radial-gradient(circle at 35% 35%,rgba(245,201,40,.55),rgba(245,201,40,.08) 62%,transparent 64%);
-    pointer-events:none;
-  }
-  #megaCatalog .megaGroup:hover{
-    transform:translateY(-2px);
-    border-color:#cfd5d9;
-    box-shadow:0 10px 24px rgba(31,36,40,.10);
-  }
-  #megaCatalog .megaGroup h3{
-    position:relative;
-    z-index:2;
-    margin:0 0 9px;
-    font-size:17px;
-    line-height:1.2;
-    letter-spacing:-.2px;
-    color:#17191c;
-  }
-  #megaCatalog .megaGroup a{
-    position:relative;
-    z-index:2;
-    display:inline-block;
-    margin:0 10px 4px 0;
-    padding:4px 0;
-    color:#5d646a;
-    font-size:12px;
-    line-height:1.25;
-    transition:color .14s ease;
-  }
-  #megaCatalog .megaGroup a small{color:#8a9095;font-size:10px}
-  #megaCatalog .megaGroup a:hover{color:#111315;font-weight:700}
-  #megaCatalog .megaService{
-    min-height:150px;
-    padding:20px;
+    overscroll-behavior:contain;
+    z-index:49;
+    display:none;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    align-items:stretch;
+    align-content:start;
+    gap:16px;
+    padding:20px clamp(24px,4vw,64px) 24px;
     border:0;
-    border-radius:14px;
-    background:#454b53;
-    color:#fff;
+    border-top:1px solid #e3e6e8;
+    border-radius:0 0 20px 20px;
+    background:#f5f6f7;
+    box-shadow:0 22px 55px rgba(22,27,31,.20);
+  }
+  #megaCatalog.open{display:grid}
+  #megaCatalog .megaHeading{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin:0 0 2px;
+  }
+  #megaCatalog .megaHeading>div{display:flex;align-items:baseline;gap:16px}
+  #megaCatalog .megaHeading h2{font-size:22px;margin:0;line-height:1.25}
+  #megaCatalog .megaHeading span{font-size:13px;color:#6a7179}
+  #megaCatalog .megaClose{width:40px;height:40px;padding:0;border:1px solid #dfe3e7;border-radius:50%;background:#fff;color:#252b31;font-size:26px;line-height:1}
+  #megaCatalog .megaGroup{
     display:flex;
     flex-direction:column;
-    justify-content:flex-end;
+    min-width:0;
+    margin:0;
+    padding:16px;
+    border:1px solid #e1e5e8;
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 2px 5px #20242a04;
+  }
+  #megaCatalog .megaGroup::after{content:none}
+  #megaCatalog .megaGroup a{margin:0;color:#424a52;text-decoration:none;font-weight:400}
+  #megaCatalog .megaGroup a:hover{color:#111}
+  #megaCatalog a:focus-visible,#megaCatalog button:focus-visible{outline:3px solid #d5a900;outline-offset:3px}
+  #megaCatalog .megaCardHead{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 104px;
+    align-items:center;
     gap:8px;
-    box-shadow:none;
+    min-height:112px;
+    padding:0 0 12px;
   }
-  #megaCatalog .megaService:nth-last-child(2){background:#f5c928;color:#17191c}
-  #megaCatalog .megaService b{font-size:19px;line-height:1.15}
-  #megaCatalog .megaService span{font-size:12px;line-height:1.35;opacity:.85}
-  #megaCatalog .megaAll{
-    grid-column:1/-1;
-    padding:13px 2px 0;
-    margin-top:2px;
-    border-top:1px solid #dce1e4;
-    font-size:13px;
-    font-weight:900;
-  }
-  #megaBackdrop{z-index:48!important}
+  #megaCatalog .megaCardTitle h3{margin:0 0 8px;font-size:16px;line-height:1.3;overflow-wrap:anywhere;color:#20252b}
+  #megaCatalog .megaCardTitle small{font-size:12px;color:#7a8289}
+  #megaCatalog .megaPhoto{display:flex;align-items:center;justify-content:center;width:104px;height:104px;overflow:hidden}
+  #megaCatalog .megaPhoto img{display:block;width:100%;height:100%;object-fit:contain}
+  #megaCatalog .megaLinks{display:grid;grid-template-rows:repeat(4,40px);gap:2px;padding:12px 0;border-top:1px solid #edf0f2}
+  #megaCatalog .megaLinks a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;font-size:12px;line-height:1.3}
+  #megaCatalog .megaLinks a span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #megaCatalog .megaLinks a small{flex-shrink:0;color:#9299a0;font-size:11px}
+  #megaCatalog .megaGroup .megaCardMore{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:12px 0 0;border-top:1px solid #edf0f2;font-size:12px;font-weight:700}
+  #megaCatalog .megaSubgroup .megaCardHead{min-height:122px}
+  #megaCatalog .megaFooter{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:16px 28px;padding:12px 0 0;border-top:1px solid #dfe4e8}
+  #megaCatalog .megaFooter a{font-size:13px;font-weight:700;padding:6px 0}
+  #megaBackdrop{z-index:48;background:rgba(26,31,37,.24)}
 
   /* Wider hero area, but a little lower so the brand row is visible without scrolling. */
   .storefrontHome{
@@ -240,7 +213,7 @@ header .logo{display:none!important}
   body>header{left:185px!important;right:160px!important}
   .top>b{font-size:21px;min-width:140px}
   body>nav:not(.mobileBottomNav){gap:18px;font-size:12px}
-  #megaCatalog{grid-template-columns:repeat(3,minmax(0,1fr))!important;padding-left:24px!important;padding-right:24px!important}
+  #megaCatalog{grid-template-columns:repeat(3,minmax(0,1fr));padding-left:24px;padding-right:24px}
   .storefrontHome{width:min(1220px,calc(100% - 22px))}
   .heroLayout{grid-template-columns:minmax(0,3.15fr) minmax(255px,1fr);gap:14px}
   .heroLayout .heroSlide{min-height:380px}
