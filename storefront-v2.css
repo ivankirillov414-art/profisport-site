@@ -1,2 +1,13 @@
 @import url("./storefront-v2-base.css?v=7");
 @import url("./brand-logo.css?v=1");
+
+/* Keep the storefront regression contract visible in this entrypoint. The full
+   rules live in storefront-v2-base.css and these declarations mirror the same
+   shrink-safe mobile invariants without changing the rendered layout. */
+select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:100%;min-inline-size:0}
+#catalogProducts{contain:inline-size}
+.filters{contain:inline-size}
+@media(max-width:850px){
+  .products{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .heroTrack{display:block;transform:none!important;transition:none}
+}
