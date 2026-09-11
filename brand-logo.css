@@ -1,0 +1,8 @@
+/* Profi Sport brand mark: replaces the legacy text wordmark while preserving accessible text. */
+:root{--profisport-brand-logo:url("assets/brand/profisport-logo.svg")}
+.top>b>a{display:block;width:150px;height:52px;max-width:100%;background-image:var(--profisport-brand-logo);background-repeat:no-repeat;background-position:left center;background-size:contain;font-size:0;line-height:0;color:transparent}
+.top>b>a>span{display:none}
+footer b{display:block;width:160px;height:68px;max-width:100%;background-image:var(--profisport-brand-logo);background-repeat:no-repeat;background-position:left center;background-size:contain;font-size:0;line-height:0;color:transparent}
+footer b>span{display:none}
+@media(max-width:850px){.top>b>a{width:132px;height:50px}.top>b{overflow:visible}}
+@media(max-width:380px){.top>b>a{width:116px;height:46px}}
