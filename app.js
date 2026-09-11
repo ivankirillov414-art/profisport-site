@@ -234,16 +234,71 @@ function bindSuggest(input,box){
   document.addEventListener('click',e=>{if(e.target!==input&&!box.contains(e.target)){box.classList.remove('open');input.setAttribute('aria-expanded','false')}});
 }
 
-function buildMega(){
-  if(matchMedia('(max-width:850px)').matches)return;
-  const panel=$('#megaCatalog');if(!panel)return;const groups=new Map();
-  for(const p of products){const top=p.departmentLabel||'Каталог',sub=p.rawCat||p.cat||'';if(!groups.has(top))groups.set(top,new Map());if(sub)groups.get(top).set(sub,(groups.get(top).get(sub)||0)+1)}
-  const ranked=[...groups.entries()].sort((a,b)=>[...b[1].values()].reduce((x,y)=>x+y,0)-[...a[1].values()].reduce((x,y)=>x+y,0)).slice(0,9);
-  panel.innerHTML=ranked.map(([top,subs])=>`<section class="megaGroup"><h3>${esc(top)}</h3>${[...subs.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6).map(([s,c])=>`<a href="#catalogProducts" data-mega-term="${esc(s)}">${esc(s)} <small>(${c})</small></a>`).join('')}</section>`).join('')+'<a class="megaService" href="service.html"><b>Мастерская ПрофиСпорт</b><span>Диагностика, настройка и ремонт →</span></a><a class="megaService" href="service.html#bikeGuide"><b>Как устроен велосипед</b><span>Узлы и помощь с выбором работ →</span></a><a class="megaAll" href="#catalogProducts" data-mega-all>Весь каталог →</a>';
-  panel.querySelectorAll('[data-mega-term]').forEach(a=>a.onclick=e=>{e.preventDefault();selectedSubcategory=a.dataset.megaTerm||'';q.value='';mobileQ.value='';category.value='';apply(true,true);closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});panel.querySelector('[data-mega-all]')?.addEventListener('click',()=>{$('#resetFilters').click();closeMega()});
+const megaSections={
+  'велосипед':{label:'Велосипеды',departments:['bicycle']},
+  'запчаст':{label:'Запчасти',departments:['cycling','other']},
+  'аксессуар':{label:'Аксессуары',departments:['accessories']},
+  'лыж':{label:'Зимний спорт',departments:['skiing','snowboard','skates','winter']},
+  'фитнес':{label:'Фитнес',departments:['fitness']}
+};
+let megaContext='',megaCloseTimer,megaTrigger=null;
+function megaPhotoSources(items){
+  const preferred=new Set(['bicycle','scooter','skis','snowboard','skates','rollers','dumbbell','kettlebell','ball','tent','helmet']);
+  const candidates=[...items].sort((a,b)=>Number(preferred.has(b.productType))-Number(preferred.has(a.productType)));
+  return [...new Set(candidates.flatMap(p=>imageCandidates(p).filter(src=>!src.includes('product-fallback-image.php')).slice(0,1)))].slice(0,6);
 }
-function openMega(){if(!catalogComplete){$('#catalog').scrollIntoView({behavior:'smooth'});return;}if(matchMedia('(max-width:850px)').matches)return;$('#megaCatalog')?.classList.add('open');$('#megaBackdrop')?.classList.add('open')}
-function closeMega(){$('#megaCatalog')?.classList.remove('open');$('#megaBackdrop')?.classList.remove('open')}
+function buildMega(context=''){
+  const panel=$('#megaCatalog');if(!panel)return;
+  megaContext=context;
+  const section=megaSections[context],rows=section?products.filter(p=>section.departments.includes(p.department)):products,groups=new Map();
+  for(const p of rows){const key=section?JSON.stringify([p.department,p.rawCat||p.cat]):p.department;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)}
+  const ranked=[...groups].sort((a,b)=>section?b[1].length-a[1].length:(CATALOG_DEPARTMENTS[a[0]]?.order||999)-(CATALOG_DEPARTMENTS[b[0]]?.order||999));
+  panel.innerHTML=`<div class="megaHeading"><div><h2>${esc(section?.label||'Каталог товаров')}</h2><span>${rows.length} товаров</span></div><button type="button" class="megaClose" aria-label="Закрыть каталог">×</button></div>`+ranked.map(([key,items])=>{
+    const title=section?(items[0].rawCat||items[0].cat):(CATALOG_DEPARTMENTS[key]?.label||key),sources=megaPhotoSources(items),subs=new Map();
+    for(const p of items){const sub=p.rawCat||p.cat;if(sub)subs.set(sub,(subs.get(sub)||0)+1)}
+    const target=section?`data-mega-term="${esc(title)}" data-mega-department-filter="${esc(items[0].department)}"`:`data-mega-department="${esc(key)}"`;
+    const href=section?`?cat=${encodeURIComponent(items[0].department)}&sub=${encodeURIComponent(title)}#catalogProducts`:`?cat=${encodeURIComponent(key)}#catalogProducts`;
+    return `<section class="megaGroup${section?' megaSubgroup':''}"><a class="megaCardHead" href="${href}" ${target}><span class="megaCardTitle"><h3>${esc(title)}</h3><small>${items.length} товаров</small></span>${sources.length?`<span class="megaPhoto"><img data-mega-sources="${esc(encodeURIComponent(JSON.stringify(sources)))}" alt="" loading="lazy" decoding="async" width="120" height="110"></span>`:''}</a>${section?'':`<div class="megaLinks">${[...subs].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([sub,count])=>`<a href="?cat=${encodeURIComponent(key)}&sub=${encodeURIComponent(sub)}#catalogProducts" data-mega-term="${esc(sub)}" data-mega-department-filter="${esc(key)}"><span>${esc(sub)}</span><small>${count}</small></a>`).join('')}</div>`}<a class="megaCardMore" href="${href}" ${target}>Смотреть товары <span aria-hidden="true">→</span></a></section>`;
+  }).join('')+'<div class="megaFooter"><a href="#catalogProducts" data-mega-all>Весь каталог →</a><a href="service.html">Мастерская ПрофиСпорт →</a><a href="service.html#bikeGuide">Как устроен велосипед →</a></div>';
+  panel.querySelectorAll('[data-mega-term]').forEach(a=>a.onclick=e=>{e.preventDefault();$('#resetFilters').click();selectedSubcategory=a.dataset.megaTerm||'';category.value=a.dataset.megaDepartmentFilter||'';apply();closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
+  panel.querySelectorAll('[data-mega-department]').forEach(a=>a.onclick=e=>{e.preventDefault();$('#resetFilters').click();selectDepartment(a.dataset.megaDepartment);closeMega()});
+  panel.querySelector('[data-mega-all]').onclick=e=>{e.preventDefault();$('#resetFilters').click();closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})};
+  panel.querySelector('.megaClose').onclick=()=>{closeMega();megaTrigger?.focus()};
+  panel.querySelectorAll('img[data-mega-sources]').forEach(img=>{
+    const sources=JSON.parse(decodeURIComponent(img.dataset.megaSources));
+    const advance=()=>{const src=sources.shift();if(src)img.src=src;else img.parentElement.remove()};
+    img.onerror=advance;advance();
+  });
+}
+function positionMega(){
+  const nav=$('body>nav:not(.mobileBottomNav)'),panel=$('#megaCatalog');if(!nav||!panel)return;
+  const top=Math.max(0,Math.ceil(nav.getBoundingClientRect().bottom));
+  panel.style.setProperty('--mega-top',top+'px');$('#megaBackdrop').style.top=top+'px';
+}
+function openMega(context='',trigger=$('#desktopCatalogLink')){
+  clearTimeout(megaCloseTimer);
+  if(matchMedia('(max-width:850px)').matches)return;
+  if(!catalogComplete){$('#catalog').scrollIntoView({behavior:'smooth'});return;}
+  if(context!==megaContext||!$('#megaCatalog').children.length)buildMega(context);
+  megaTrigger=trigger;positionMega();
+  $('#megaCatalog').classList.add('open');$('#megaBackdrop').classList.add('open');
+  $$('body>nav [aria-controls="megaCatalog"]').forEach(a=>a.setAttribute('aria-expanded',String(a===trigger)));
+}
+function closeMega(){
+  clearTimeout(megaCloseTimer);$('#megaCatalog')?.classList.remove('open');$('#megaBackdrop')?.classList.remove('open');
+  $$('body>nav [aria-controls="megaCatalog"]').forEach(a=>a.setAttribute('aria-expanded','false'));
+}
+function scheduleMegaClose(){clearTimeout(megaCloseTimer);megaCloseTimer=setTimeout(closeMega,180)}
+window.addEventListener('scroll',()=>{if($('#megaCatalog').classList.contains('open'))positionMega()},{passive:true});
+window.addEventListener('resize',()=>{if(matchMedia('(max-width:850px)').matches)closeMega();else if($('#megaCatalog').classList.contains('open'))positionMega()});
+$$('body>nav #desktopCatalogLink,body>nav [data-category]').forEach(a=>{
+  a.setAttribute('aria-controls','megaCatalog');a.setAttribute('aria-expanded','false');
+  a.addEventListener('mouseenter',()=>{if(catalogComplete)openMega(a.dataset.category||'',a)});
+  a.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();openMega(a.dataset.category||'',a);$('#megaCatalog .megaCardHead')?.focus()}});
+});
+$('body>nav:not(.mobileBottomNav)').addEventListener('mouseleave',scheduleMegaClose);
+$('#megaCatalog').addEventListener('mouseenter',()=>clearTimeout(megaCloseTimer));
+$('#megaCatalog').addEventListener('mouseleave',scheduleMegaClose);
 
 function selectDepartment(key){
   category.value=key;selectedSubcategory='';q.value='';mobileQ.value='';brandFilter.value='';facet1.value='';facet2.value='';apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'});
@@ -312,9 +367,9 @@ $('#cartBtn')?.addEventListener('click',()=>toggleCart());$('#searchBtn')?.addEv
 $('#applyFilters')?.addEventListener('click',e=>{e?.preventDefault();apply(true,true);$('#filterDialog').close()});$('#resetFilters')?.addEventListener('click',e=>{e?.preventDefault();selectedSubcategory='';category.value='';brandFilter.value='';stockOnly.checked=false;saleOnly.checked=false;minPrice.value='';maxPrice.value='';sort.value='popular';q.value='';mobileQ.value='';if(facet1)facet1.value='';if(facet2)facet2.value='';page=1;configureContextFilters('', '');render(products);renderFilterChips();renderCategoryShortcuts();syncState()});
 [category,brandFilter,sort,stockOnly,saleOnly,facet1,facet2].forEach(el=>el?.addEventListener('change',()=>{if(el===category)selectedSubcategory='';apply(true,true)}));
 prevPage?.addEventListener('click',()=>{if(page>1){page--;render(view);syncState();productsEl.scrollIntoView()}});nextPage?.addEventListener('click',()=>{if(page*PAGE<view.length){page++;render(view);syncState();productsEl.scrollIntoView()}});
-$$('[data-category]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const term=a.dataset.category||'';selectedSubcategory='';toggleMenu(false);category.value='';q.value=term;mobileQ.value=term;apply(true,true);productsEl.scrollIntoView({behavior:'smooth'})}));
+$$('[data-category]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const term=a.dataset.category||'';selectedSubcategory='';closeMega();toggleMenu(false);category.value='';q.value=term;mobileQ.value=term;apply(true,true);productsEl.scrollIntoView({behavior:'smooth'})}));
 $('#search')?.addEventListener('submit',e=>{e.preventDefault();mobileQ.value=q.value;selectedSubcategory='';apply(true,true);$('#desktopSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});$('#mobileSearch')?.addEventListener('submit',e=>{e.preventDefault();q.value=mobileQ.value;selectedSubcategory='';apply(true,true);$('#mobileSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});
-$('#desktopCatalogLink')?.addEventListener('click',e=>{e.preventDefault();$('#megaCatalog')?.classList.contains('open')?closeMega():openMega()});$('#megaBackdrop')?.addEventListener('click',closeMega);
+$('#desktopCatalogLink')?.addEventListener('click',e=>{e.preventDefault();openMega()});$('#megaBackdrop')?.addEventListener('click',closeMega);
 $('#pick')?.addEventListener('click',()=>{if(!catalogComplete){$('#pickResult').textContent='Каталог ещё загружается. Подбор станет доступен после загрузки.';return;}const h=+$('#height').value,b=+$('#budget').value;if(!h||!b){$('#pickResult').textContent='Укажите рост и бюджет.';return}const frame=h<165?'S':h<178?'M':h<188?'L':'XL',matches=products.filter(p=>p.productType==='bicycle'&&p.price<=b&&p.stockCode!=='out');$('#pickResult').innerHTML=`Рекомендуемый размер рамы: <b>${frame}</b>. Подходящих по бюджету: <b>${matches.length}</b>.`;$('#resetFilters').click();category.value='bicycle';maxPrice.value=String(b);stockOnly.checked=true;apply();$('#pickerDialog').close();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 
 // Move the same controls into native mobile dialogs; never clone IDs or filter state.
