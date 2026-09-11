@@ -2,6 +2,8 @@
 header .logo{display:none!important}
 
 @media (min-width:851px){
+  /* Clip horizontal overflow without creating a scroll ancestor for sticky navigation. */
+  html,body{overflow-x:clip}
   .top{
     height:56px;
     padding:0 clamp(22px,4vw,64px);
