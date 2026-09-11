@@ -9,12 +9,12 @@
   <meta name="theme-color" content="#454b53">
   <meta name="profisport-build" content="2026-09-10-photo-source-integrity-v3">
   <title>ПрофиСпорт — спортивный магазин</title>
-  <link rel="stylesheet" href="storefront-v2.css?v=6">
+  <link rel="stylesheet" href="storefront-v2.css?v=7">
   <link rel="stylesheet" href="header-compact.css?v=3">
 </head>
 <body>
   <div class="top">
-    <b>Профи<span>Спорт</span></b>
+    <b><a href="index.html" aria-label="ПрофиСпорт — на главную">Профи<span>Спорт</span></a></b>
     <div class="topActions">
       <button id="searchBtn" class="topIconBtn" aria-label="Поиск"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path></svg></button>
       <button id="cartBtn" class="topIconBtn" aria-label="Корзина"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l2-8H6"></path><circle cx="9" cy="19" r="1.5"></circle><circle cx="17" cy="19" r="1.5"></circle></svg><span id="count" class="cartCount">0</span></button>
@@ -38,7 +38,7 @@
   <div id="menuBackdrop" class="menuBackdrop"></div>
 
   <header>
-    <a class="logo" href="#">Профи<span>Спорт</span></a>
+    <a class="logo" href="index.html">Профи<span>Спорт</span></a>
     <form id="search" class="smartSearchHost">
       <input id="q" placeholder="Найти велосипед, запчасть, лыжи..." autocomplete="off">
       <button>Найти</button>
@@ -60,12 +60,14 @@
       </form>
 
     <div class="heroLayout">
-    <section class="hero" id="heroSlider">
+    <section class="hero" id="heroSlider" aria-label="Предложения магазина" aria-roledescription="карусель">
       <div class="heroTrack">
         <article class="heroSlide bikeSlide"><div class="heroCopy"><small>ВЕЛОСИПЕДЫ</small><h1>Велосипеды<br>для города и трасс</h1><p>Подберём велосипед по росту, стилю катания и бюджету.</p><a class="primary" href="#catalog" data-category="велосипед">Смотреть велосипеды →</a></div><div class="heroPhoto"></div></article>
         <article class="heroSlide winterSlide"><div class="heroCopy"><small>ЗИМНИЙ СПОРТ</small><h1>Готовься<br>к зиме</h1><p>Лыжи, сноуборды и всё необходимое для зимнего сезона.</p><a class="primary" href="#catalog" data-category="лыж">Перейти в каталог →</a></div><div class="heroPhoto"></div></article>
         <article class="heroSlide serviceSlide"><div class="heroCopy"><small>СЕРВИС</small><h1>Велосервис<br>ПрофиСпорт</h1><p>Ремонт, настройка и техническое обслуживание велосипедов.</p><a class="primary" href="service.html">Записаться в велосервис →</a></div><div class="heroPhoto"></div></article>
       </div>
+      <button type="button" class="heroArrow heroPrev" aria-label="Предыдущий слайд"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+      <button type="button" class="heroArrow heroNext" aria-label="Следующий слайд"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
       <div class="dots"><button class="active" aria-label="Слайд 1"></button><button aria-label="Слайд 2"></button><button aria-label="Слайд 3"></button></div>
     </section>
 
@@ -120,6 +122,6 @@
   <dialog id="quickView" class="quickView" aria-labelledby="quickTitle"><button type="button" class="dialogClose" aria-label="Закрыть быстрый просмотр">×</button><div id="quickContent"></div></dialog>
   <script src="catalog-loader.js?v=21"></script>
   <script src="catalog-live-paged.js?v=4"></script>
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=30"></script>
 </body>
 </html>
