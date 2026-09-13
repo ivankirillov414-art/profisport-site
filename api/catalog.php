@@ -62,20 +62,9 @@ try{
   $brandsInferred=0;
 
   while($p=$stmt->fetch()){
-    $decoded=json_decode((string)($p['images']??''),true);
-    if(!is_array($decoded))$decoded=[];
-    if(!$decoded&&!empty($p['main_image']))$decoded=[(string)$p['main_image']];
-
     $images=[];
-    foreach($decoded as $img){
-      if(!is_string($img)||!image_is_usable($img,$brokenLocal))continue;
-      $img=trim($img);
-      if($img!==''&&!in_array($img,$images,true))$images[]=$img;
-    }
-
-    $main=(string)($p['main_image']??'');
-    if(!$images&&$main!==''&&!in_array($main,$decoded,true)&&image_is_usable($main,$brokenLocal)){
-      $images[]=$main;
+    foreach(catalog_image_candidates($p) as $img){
+      if(image_is_usable($img,$brokenLocal))$images[]=$img;
     }
 
     $path=(string)($p['category_path']??'');

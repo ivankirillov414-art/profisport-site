@@ -58,4 +58,10 @@ foreach([
     q_assert($inferred===false,"noise token marked inferred: $name");
 }
 
+$ordered=catalog_image_candidates(['main_image'=>' /import/images/skis.jpg ', 'images'=>'["/import/images/pads.jpg","/import/images/skis.jpg","/import/images/detail.jpg",null,{}]']);
+q_assert($ordered===['/import/images/skis.jpg','/import/images/pads.jpg','/import/images/detail.jpg'],'main photo must precede stale gallery entry, preserving valid detail photos');
+q_assert(catalog_image_candidates(['main_image'=>'/import/images/skis.jpg','images'=>'not json'])===['/import/images/skis.jpg'],'broken gallery JSON must not hide the main photo');
+q_assert(catalog_image_candidates(['main_image'=>null,'images'=>'["/import/images/detail.jpg"]'])===['/import/images/detail.jpg'],'missing main must preserve the gallery fallback');
+q_assert(catalog_image_candidates(['images'=>'"not a gallery"'])===[],'non-array gallery must stay empty');
+
 echo "Catalog quality checks passed.\n";
