@@ -17,28 +17,66 @@ ROOT = '/htdocs/import'
 IMAGE_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'}
 UUID = re.compile(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}', re.I)
 MAX_DOWNLOAD = 96 * 1024 * 1024
+PARTITION_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.-'
 
 
 def emit(label, value):
     print(label + '=' + json.dumps(value, ensure_ascii=False, separators=(',', ':')), flush=True)
 
 
+def list_pattern(ftp, pattern):
+    lines = []
+    try:
+        ftp.retrlines('LIST ' + pattern, lines.append)
+    except ftplib.error_perm as error:
+        if str(error).startswith('550'):
+            return []
+        raise
+    found = []
+    for line in lines:
+        parts = line.split(maxsplit=8)
+        if len(parts) != 9 or parts[0][0] not in ('d', '-'):
+            continue
+        found.append((posixpath.basename(parts[8]), 'dir' if parts[0][0] == 'd' else 'file', int(parts[4])))
+    return found
+
+
+def complete_listing(ftp, directory, prefix='', depth=0):
+    if depth > 4:
+        raise ValueError('listing_partition_limit')
+    result = {}
+    for char in PARTITION_ALPHABET:
+        pattern = posixpath.join(directory, prefix + char + '*')
+        part = list_pattern(ftp, pattern)
+        if len(part) >= 4900:
+            part = complete_listing(ftp, directory, prefix + char, depth + 1)
+        for entry in part:
+            if entry[0].startswith(prefix + char):
+                result[entry[0]] = entry
+    remainder = list_pattern(ftp, posixpath.join(directory, prefix + '[!' + PARTITION_ALPHABET + ']*'))
+    if len(remainder) >= 4900:
+        raise ValueError('unsupported_large_filename_partition')
+    for entry in remainder:
+        result[entry[0]] = entry
+    emit('SOURCE_LISTING_PARTITION', {'directory': directory, 'prefix': prefix, 'entries': len(result)})
+    return list(result.values())
+
+
 def entries(ftp, directory):
     try:
         listing = list(ftp.mlsd(directory))
-        return [(name, facts.get('type'), int(facts.get('size', '0'))) for name, facts in listing]
+        found = [(name, facts.get('type'), int(facts.get('size', '0'))) for name, facts in listing]
     except ftplib.error_perm as error:
         if not str(error).startswith(('500', '501', '502', '504')):
             raise
-        lines = []
-        ftp.retrlines('LIST ' + directory, lines.append)
-        found = []
-        for line in lines:
-            parts = line.split(maxsplit=8)
-            if len(parts) != 9 or parts[0][0] not in ('d', '-'):
-                continue  # Do not traverse symlinks.
-            found.append((parts[8], 'dir' if parts[0][0] == 'd' else 'file', int(parts[4])))
-        return found
+        found = list_pattern(ftp, directory)
+    if len(found) >= 4900:
+        initial = {entry[0]: entry for entry in found}
+        expanded = {entry[0]: entry for entry in complete_listing(ftp, directory)}
+        if not set(initial).difference({'.', '..'}).issubset(expanded):
+            raise ValueError('incomplete_partitioned_listing')
+        return list(expanded.values())
+    return found
 
 
 def inventory(ftp):
@@ -120,7 +158,7 @@ def resolve(reference, indexes):
 
 def analyze_csv(text, entry, indexes):
     # csv.reader preserves multiline quoted fields; line splitting corrupts them.
-    rows = list(csv.reader(io.StringIO(text.replace('\x00', '')), delimiter=';'))
+    rows = list(csv.reader(io.StringIO(text.replace('\x00', ''), newline=''), delimiter=';'))
     rows = [row for row in rows if any(x.strip() for x in row)]
     aliases = {'name': {'name', 'title', 'наименование', 'название', 'товар'},
                'id': {'id', 'guid', 'uuid', 'код', 'кодтовара', 'ид'},
