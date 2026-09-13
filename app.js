@@ -317,8 +317,8 @@ function buildBrandShortcuts(){
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 function buildCategoryTiles(){
   const defs=[['bicycle','Велосипеды','Город, прогулки и бездорожье'],['scooter','Самокаты','Для дороги и трюков'],['skiing','Лыжный спорт','Лыжи, ботинки и палки'],['cycling','Запчасти и аксессуары','Обслуживание и ремонт'],['fitness','Фитнес','Тренировки в вашем ритме'],['tourism','Туризм','Всё для новых маршрутов']];
-  const available=defs.map(([key,label,note])=>({key,label,note,items:products.filter(p=>p.department===key)})).filter(x=>x.items.length);
-  $('#categoryTiles').innerHTML=available.map(({key,label,note,items},i)=>{const p=items.find(p=>p.image?.startsWith('/import/')||p.image?.startsWith('import/'))||items.find(p=>p.image);return `<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile tile${i}" data-department="${esc(key)}"><div><small>${items.length} товаров</small><h3>${esc(label)}</h3><span>${esc(note)}</span></div>${p?`<img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.hidden=true">`:''}<b class="tileArrow" aria-hidden="true">↗</b></a>`}).join('');
+  const available=defs.filter(([key])=>products.some(p=>p.department===key));
+  $('#categoryTiles').innerHTML=available.map(([key,label,note])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><span class="categoryIcon icon-${key}" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('');
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){

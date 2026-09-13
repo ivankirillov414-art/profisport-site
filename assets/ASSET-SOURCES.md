@@ -12,3 +12,5 @@ VINCA SPORT JPG: https://www.velo-shop.ru/upload/resize_cache/iblock/089/270_175
 NORDSKI PNG: https://images.seeklogo.com/logo-png/55/1/nordski-logo-png_seeklogo-551169.png (https://seeklogo.com/vector-logo/551169/nordski).
 
 Brand tile accents are sampled/selected to accompany these marks, not a claim of compliance with complete brand guidelines. The showcase selects up to 12 brands present in the catalog with prepared local logos. Unsupported marks and failed logo images are omitted. CSS crops only blank margins around the MAXXIS and NORDSKI artwork without altering the source files.
+
+Category pictograms: custom PNG sprite atlas generated for ProfiSport with imagegen, 2026-09-13. Six cells in a 3-by-2 grid: bicycle, scooter, skiing, parts, fitness, tourism. Transparent background, charcoal and warm yellow; no product photography.
