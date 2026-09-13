@@ -5,8 +5,7 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 // This live product showed ski wax through parser fallback on 2026-09-13.
-const parserRow=JSON.parse(read('data/catalog-003.json')).find(p=>p.title==='Лыжи гоночные BRADOS PRO SKATE AIR H-2 (NIS)');
-assert(parserRow?.images?.length>1,'Keep the contaminated parser fixture');
+const parserRow={title:'Лыжи гоночные BRADOS PRO SKATE AIR H-2 (NIS)',price_rub:13850,availability:'in_stock',category_path:['Беговые лыжи','Лыжи','Коньковые'],images:['https://example.test/unrelated-wax.jpg','https://example.test/recommended-product.jpg']};
 
 function runtime(paged=false){
   const ctx=vm.createContext({console:{error(){}},AbortController,setTimeout,clearTimeout,URLSearchParams,window:{},fetch:async url=>{
