@@ -15,4 +15,5 @@ window.refreshProfisportDashboard=async()=>{try{await dashboard()}catch(e){conso
 const refresh=$('refreshImports');if(refresh)refresh.addEventListener('click',loadImportFiles);
 const photosTile=document.querySelector('a[href="#photos"]');if(photosTile)photosTile.href='photos.php';
 addCommerceTiles();
+const reconcileScript=document.createElement('script');reconcileScript.src='reconcile.js?v=1';reconcileScript.defer=true;document.head.appendChild(reconcileScript);
 (async()=>{try{await refreshAuth();await Promise.allSettled([dashboard(),loadProducts(),loadImportFiles()])}catch(e){console.error('admin boot',e);setText('statProducts','—');setText('statOrders','—')}})();

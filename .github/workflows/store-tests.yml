@@ -57,7 +57,9 @@ jobs:
           php tests/order-validation.php
           php tests/catalog-quality.php
           php tests/source-photo-diagnostic.php
+          php tests/source-photo-reconcile.php
           node --check admin/analyze.js
+          node --check admin/reconcile.js
           node tests/product-loader-regression.js
           node tests/cart-quantity-regression.js
           node tests/product-gallery-regression.js
