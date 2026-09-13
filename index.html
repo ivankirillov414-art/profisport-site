@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#454b53">
   <meta name="profisport-build" content="2026-09-10-photo-source-integrity-v3">
   <title>ПрофиСпорт — спортивный магазин</title>
-  <link rel="stylesheet" href="storefront-v2.css?v=12">
+  <link rel="stylesheet" href="storefront-v2.css?v=13">
   <link rel="stylesheet" href="header-compact.css?v=3">
 </head>
 <body>
@@ -81,14 +81,14 @@
 
     <section id="catalogProducts">
       <div class="sectionHead"><h2>Каталог товаров</h2><span id="catalogStatus">Загрузка…</span></div>
-      <div class="mobileCatalogToolbar"><button type="button" id="openFilters">Фильтры <span id="filterCount"></span></button><label><span class="srOnly">Сортировка товаров</span><select id="mobileSort"><option value="popular">По умолчанию</option><option value="priceAsc">Дешевле</option><option value="priceDesc">Дороже</option><option value="name">По названию</option></select></label></div>
+      <div class="mobileCatalogToolbar"><button type="button" id="openFilters">Фильтры <span id="filterCount"></span></button><label><span class="srOnly">Сортировка товаров</span><select id="mobileSort"><option value="popular">По категориям</option><option value="priceAsc">Дешевле</option><option value="priceDesc">Дороже</option><option value="name">По названию</option></select></label></div>
       <div id="filterHome"><div id="filterControls">
       <div id="categoryShortcuts" class="filterChips" aria-label="Разделы категории"></div>
       <div class="filters">
         <select id="category" aria-label="Категория"><option value="">Все категории</option></select>
         <input min="0" inputmode="numeric" id="minPrice" aria-label="Цена от, рублей" type="number" placeholder="Цена от">
         <input min="0" inputmode="numeric" id="maxPrice" aria-label="Цена до, рублей" type="number" placeholder="Цена до">
-        <select id="sort" aria-label="Сортировка товаров"><option value="popular">По умолчанию</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="name">По названию</option></select>
+        <select id="sort" aria-label="Сортировка товаров"><option value="popular">По категориям</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="name">По названию</option></select>
         <div id="filterActions"><button id="resetFilters" class="secondary">Сбросить</button><button id="applyFilters">Показать</button></div>
       </div>
       <div class="kantFilterRow">
@@ -120,9 +120,9 @@
   <dialog id="filterDialog" class="filterDialog" aria-labelledby="filterTitle"><div class="filterDialogHead"><h2 id="filterTitle">Фильтры</h2><button type="button" id="closeFilters" aria-label="Закрыть фильтры">×</button></div><div id="filterDialogBody"></div><div id="filterDialogFooter"></div></dialog>
   <dialog id="pickerDialog" class="partDialog" aria-labelledby="pickerTitle"><button type="button" class="dialogClose" aria-label="Закрыть подбор велосипеда">×</button></dialog>
   <dialog id="quickView" class="quickView" aria-labelledby="quickTitle"><button type="button" class="dialogClose" aria-label="Закрыть быстрый просмотр">×</button><div id="quickContent"></div></dialog>
-  <script src="catalog-loader.js?v=23"></script>
+  <script src="catalog-loader.js?v=24"></script>
   <script src="catalog-live-paged.js?v=5"></script>
   <script src="brand-showcase.js?v=3"></script>
-  <script src="app.js?v=33"></script>
+  <script src="app.js?v=34"></script>
 </body>
 </html>

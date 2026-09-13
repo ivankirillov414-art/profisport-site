@@ -1,9 +1,9 @@
-/* White category cards with a shared transparent PNG icon atlas. */
+/* White category cards with a shared PNG icon atlas on white. */
 .categoryTiles .categoryTile{background:#fff;grid-template-rows:auto 128px;gap:8px;min-height:248px}
 .categoryTiles .categoryTile h3{margin:0 24px 8px 0}
 .categoryTiles .categoryTile:hover,.categoryTiles .categoryTile:focus-visible{background:#fff;border-color:#d9b647;box-shadow:0 6px 18px rgb(32 35 32 / 7%)}
 .categoryTiles .categoryTile:focus-visible{outline:2px solid #d9b647;outline-offset:3px}
-.categoryTiles .categoryTile .categoryIcon{display:block;justify-self:end;width:128px;height:128px;flex:none;background-image:url("./assets/categories/category-icons.png");background-repeat:no-repeat;background-size:300% 200%;pointer-events:none}
+.categoryTiles .categoryTile .categoryIcon{display:block;justify-self:end;width:128px;height:128px;flex:none;background-image:url("./assets/categories/category-icons-v2.png");background-repeat:no-repeat;background-size:300% 200%;pointer-events:none}
 .categoryIcon.icon-bicycle{background-position:0 0}
 .categoryIcon.icon-scooter{background-position:50% 0}
 .categoryIcon.icon-skiing{background-position:100% 0}

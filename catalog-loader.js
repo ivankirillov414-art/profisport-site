@@ -188,6 +188,9 @@ function deriveFacets(name,specs,department,type){
   if(department==='skates'||department==='rollers'){const size=sizeFacet(specs);if(size)out.size=size}
   return out
 }
+function catalogStockLabel(code){
+  return code==='in'?'В наличии':code==='out'?'Нет в наличии':'Уточняйте наличие';
+}
 function normalizeProduct(p,i){
   const rawPath=pathOf(p),path=cleanPath(rawPath);
   const price=catalogPriceValue(p);
@@ -212,7 +215,7 @@ function normalizeProduct(p,i){
   // Parser pages include recommendations and banners among product images.
   // A missing database photo must stay missing until its source link is verified.
   const finalImages=[...new Set(baseImages)];
-  const stockText=stockCode==='in'?(Number.isFinite(qty)&&qty>0?`В наличии: ${qty} шт.`:'В наличии'):stockCode==='out'?'Нет в наличии':'Уточняйте наличие';
+  const stockText=catalogStockLabel(stockCode);
   const facets=deriveFacets(name,specs,tax.key,tax.type);
   return{
     id:p.id??p.url??p.sku??`real-${i}`,

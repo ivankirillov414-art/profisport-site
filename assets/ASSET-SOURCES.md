@@ -14,3 +14,5 @@ NORDSKI PNG: https://images.seeklogo.com/logo-png/55/1/nordski-logo-png_seeklogo
 Brand tile accents are sampled/selected to accompany these marks, not a claim of compliance with complete brand guidelines. The showcase selects up to 12 brands present in the catalog with prepared local logos. Unsupported marks and failed logo images are omitted. CSS crops only blank margins around the MAXXIS and NORDSKI artwork without altering the source files.
 
 Category pictograms: custom PNG sprite atlas generated for ProfiSport with imagegen, 2026-09-13. Six cells in a 3-by-2 grid: bicycle, scooter, skiing, parts, fitness, tourism. Transparent background, charcoal and warm yellow; no product photography.
+
+Category atlas v2 corrects the bicycle cell overflow. All six pictograms stay within their 512-by-512 cells; an opaque white background matches the white cards. Generated with imagegen from the original category atlas, 2026-09-13.

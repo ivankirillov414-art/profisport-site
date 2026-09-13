@@ -137,15 +137,26 @@ function highlightMarkup(p){const values=productHighlights(p);return values.leng
 function openQuickView(id){
   const p=products.find(p=>String(p.id)===String(id));if(!p)return;
   const dialog=$('#quickView'),imgs=imageCandidates(p),first=imgs.shift();
-  $('#quickContent').innerHTML=`<div class="quickLayout"><div class="quickPhoto">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" alt="${esc(p.name)}">`:'<p>Фото уточняется</p>'}</div><div><small>${esc(p.cat)}</small><h2 id="quickTitle">${esc(p.name)}</h2>${highlightMarkup(p)}<span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span><div class="price">${rub(p.price)}</div><button type="button" id="quickAdd" ${p.stockCode==='out'?'disabled':''}>В корзину</button><a class="quickDetail" href="product.html?id=${encodeURIComponent(p.id)}">Все характеристики и отзывы →</a></div></div>`;
+  $('#quickContent').innerHTML=`<div class="quickLayout"><div class="quickPhoto">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" alt="${esc(p.name)}">`:'<p>Фото уточняется</p>'}</div><div><small>${esc(p.cat)}</small><h2 id="quickTitle">${esc(p.name)}</h2>${highlightMarkup(p)}<span class="stock ${p.stockCode==='out'?'out':''}">${esc(catalogStockLabel(p.stockCode))}</span><div class="price">${rub(p.price)}</div><button type="button" id="quickAdd" ${p.stockCode==='out'?'disabled':''}>В корзину</button><a class="quickDetail" href="product.html?id=${encodeURIComponent(p.id)}">Все характеристики и отзывы →</a></div></div>`;
   bindProductImages();$('#quickAdd').onclick=()=>{dialog.close();add(p.id)};dialog.showModal();syncBodyLock();
 }
+const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});
+function compareProductCards(a,b){
+  const departmentOrder=p=>Number(p.departmentOrder)||CATALOG_DEPARTMENTS[p.department]?.order||999;
+  return departmentOrder(a)-departmentOrder(b)
+    ||cardCollator.compare(a.productType||'',b.productType||'')
+    ||cardCollator.compare(a.rawCat||a.cat||'',b.rawCat||b.cat||'')
+    ||Number(Boolean(b.image))-Number(Boolean(a.image))
+    ||cardCollator.compare(a.brand||'',b.brand||'')
+    ||cardCollator.compare(a.name||'',b.name||'')
+    ||cardCollator.compare(String(a.id),String(b.id));
+}
 function render(list=view){
-  view=list;
+  view=sort.value==='popular'&&!q.value.trim()&&!mobileQ.value.trim()?[...list].sort(compareProductCards):list;
   const pages=Math.max(1,Math.ceil(view.length/PAGE));page=Math.min(Math.max(1,page),pages);
   const show=view.slice((page-1)*PAGE,page*PAGE);
   productsEl.dataset.catalogReady='1';
-  productsEl.innerHTML=show.map(p=>{const imgs=imageCandidates(p),first=imgs.shift(),discount=p.oldPrice&&p.oldPrice>p.price?Math.round((1-p.price/p.oldPrice)*100):0;return `<article class="product">${favoriteMarkup(p.id)}<a href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" width="320" height="240" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a>${highlightMarkup(p)}<button type="button" class="quickViewButton" data-quick-id="${esc(encodeURIComponent(p.id))}" aria-label="Быстрый просмотр: ${esc(p.name)}">Быстрый просмотр</button><span class="stock ${p.stockCode==='out'?'out':''}">${esc(p.stock)}</span>${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}<div class="price">${rub(p.price)}</div>${discount?`<span class="productDiscount">−${discount}%</span>`:''}<button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></article>`}).join('')||(catalogComplete?'<p>Ничего не найдено.</p>':'<p>Загружаем товары для выбранных фильтров…</p>');
+  productsEl.innerHTML=show.map(p=>{const imgs=imageCandidates(p),first=imgs.shift(),discount=p.oldPrice&&p.oldPrice>p.price?Math.round((1-p.price/p.oldPrice)*100):0;return `<article class="product">${favoriteMarkup(p.id)}<a class="productCardLink" href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" width="320" height="240" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a><div class="productSummary">${highlightMarkup(p)}</div><button type="button" class="quickViewButton" data-quick-id="${esc(encodeURIComponent(p.id))}" aria-label="Быстрый просмотр: ${esc(p.name)}">Быстрый просмотр</button><div class="productPurchase"><span class="stock ${p.stockCode==='out'?'out':''}">${esc(catalogStockLabel(p.stockCode))}</span><div class="productPriceMeta">${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}${discount?`<span class="productDiscount">−${discount}%</span>`:''}</div><div class="price">${rub(p.price)}</div><button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></div></article>`}).join('')||(catalogComplete?'<p>Ничего не найдено.</p>':'<p>Загружаем товары для выбранных фильтров…</p>');
   bindProductImages();
   $$('.quickViewButton').forEach(b=>b.onclick=()=>openQuickView(decodeURIComponent(b.dataset.quickId)));
   $$('.addBtn:not([disabled])').forEach(b=>b.onclick=()=>add(decodeURIComponent(b.dataset.id)));
