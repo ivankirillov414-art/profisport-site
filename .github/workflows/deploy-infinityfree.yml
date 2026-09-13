@@ -99,7 +99,7 @@ jobs:
           grep -Eq 'app\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'catalog-loader\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
           grep -Eq 'catalog-live-paged\.js\?v=[0-9]+' /tmp/profisport-remote/index.html
-          grep -Fq 'product-kant.js?v=3' /tmp/profisport-remote/product.html
+          grep -Eq 'product-kant\.js\?v=([3-9]|[1-9][0-9]+)("|&)' /tmp/profisport-remote/product.html
           grep -Fq 'cart.findIndex(x=>String(x)===id)' /tmp/profisport-remote/app.js
           if grep -Fq 'cart.findIndex(x=>String(x.id)===id)' /tmp/profisport-remote/app.js; then
             echo 'Old cart decrement bug is present in deployed app.js' >&2
