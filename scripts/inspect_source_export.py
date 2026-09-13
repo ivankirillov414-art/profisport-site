@@ -71,11 +71,7 @@ def entries(ftp, directory):
             raise
         found = list_pattern(ftp, directory)
     if len(found) >= 4900:
-        initial = {entry[0]: entry for entry in found}
-        expanded = {entry[0]: entry for entry in complete_listing(ftp, directory)}
-        if not set(initial).difference({'.', '..'}).issubset(expanded):
-            raise ValueError('incomplete_partitioned_listing')
-        return list(expanded.values())
+        emit('SOURCE_LISTING_LIMIT', {'directory': directory, 'entries': len(found), 'complete': False})
     return found
 
 
@@ -131,6 +127,31 @@ def image_indexes(files):
         if match:
             by_uuid[match.group().casefold()].append(path)
     return by_path, by_base, by_uuid
+
+
+def existing_image_cache(ftp, files):
+    output = io.BytesIO()
+    try:
+        ftp.retrbinary('RETR /htdocs/uploads/1c-image-index.json', output.write)
+    except ftplib.error_perm as error:
+        if str(error).startswith('550'):
+            emit('SOURCE_EXISTING_INDEX', {'available': False})
+            return files
+        raise
+    data = json.loads(output.getvalue().decode('utf-8-sig'))
+    paths = data.get('map', {})
+    if not isinstance(paths, dict):
+        raise ValueError('invalid_image_cache')
+    combined = {entry['path']: entry for entry in files}
+    for path in paths.values():
+        if not isinstance(path, str) or path.startswith('/') or '..' in path.split('/') or '\\' in path:
+            continue
+        if path.rsplit('.', 1)[-1].lower() not in IMAGE_EXT:
+            continue
+        combined.setdefault(path, {'path': path, 'size': None})
+    emit('SOURCE_EXISTING_INDEX', {'available': True, 'historical_file_count': data.get('count'),
+         'cached_paths': len(paths), 'combined_paths': len(combined), 'current_existence_verified': False})
+    return list(combined.values())
 
 
 def references(cell):
@@ -219,10 +240,26 @@ def main():
               'duplicate_basename_groups': sum(len(v) > 1 for v in indexes[1].values()),
               'image_directories': dict(Counter(posixpath.dirname(v) for v in indexes[0].values())),
               'source_files': sorted(sources, key=lambda item: item['path'])[:100]})
+        indexes = image_indexes(existing_image_cache(ftp, files))
         products = [entry for entry in sources if 'tovary' in posixpath.basename(entry['path']).casefold() and entry['path'].lower().endswith('.csv')]
         if products:
             selected = max(products, key=lambda item: item['size'])
-            emit('SOURCE_CSV_LINKS', analyze_csv(read_export(ftp, selected), selected, indexes))
+            analysis = analyze_csv(read_export(ftp, selected), selected, indexes)
+            emit('SOURCE_CSV_LINKS', analysis)
+            verified = {}
+            ftp.voidcmd('TYPE I')
+            for product in analysis['focus_products']:
+                for photo in product['photos']:
+                    for path in photo['candidates']:
+                        if path in verified:
+                            continue
+                        try:
+                            verified[path] = {'exists': True, 'bytes': ftp.size(posixpath.join(ROOT, path))}
+                        except ftplib.error_perm as error:
+                            if not str(error).startswith('550'):
+                                raise
+                            verified[path] = {'exists': False}
+            emit('SOURCE_FOCUS_FILE_CHECKS', verified)
         sql = [entry for entry in sources if entry['path'].lower().endswith('.sql')]
         for entry in sorted(sql, key=lambda item: item['size'])[:3]:
             if entry['size'] > MAX_DOWNLOAD:
