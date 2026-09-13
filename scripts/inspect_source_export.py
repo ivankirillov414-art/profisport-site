@@ -19,6 +19,7 @@ ROOT = '/htdocs/import'
 IMAGE_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'}
 UUID = re.compile(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}', re.I)
 MAX_DOWNLOAD = 96 * 1024 * 1024
+KNOWN_RETR_DENIED = {'images/1d786c2f-65d0-4026-806c-472831f4c2b5.jpg'}
 
 
 def emit(label, value):
@@ -235,8 +236,11 @@ def analyze_csv(text, entry, indexes):
             'reference_results': dict(counts), 'unresolved_references': dict(unresolved_counts),
             'ambiguous_products': ambiguous, 'malformed_rows': malformed,
             'duplicate_source_ids': {k: v for k, v in source_ids.items() if v > 1},
-            'duplicate_source_examples': {k: [row[:10] for row in v] for k, v in id_rows.items() if len(v) > 1},
-            'sample_first_columns': [row[:10] for row in rows[:3]],
+            'duplicate_source_examples': {k: [{'source_id': row[4], 'sku': row[5], 'name': row[7], 'photo': row[9]}
+                                              for row in v if len(row) == 41]
+                                          for k, v in id_rows.items() if len(v) > 1},
+            'duplicate_source_varying_columns': {k: [i for i in range(41) if len({row[i] for row in v if len(row) == 41}) > 1]
+                                                 for k, v in id_rows.items() if len(v) > 1},
             'unresolved_sample': unresolved, 'focus_products': focus,
             '_exact_paths': sorted(all_paths)}
 
@@ -314,12 +318,24 @@ def main():
             for candidates in indexes[1].values():
                 if len(candidates) < 2:
                     continue
-                hashes = {}
+                hashes, unreadable = {}, []
                 for path in candidates:
+                    if path in KNOWN_RETR_DENIED:
+                        unreadable.append(path)
+                        continue
                     digest = hashlib.sha256()
-                    ftp.retrbinary('RETR ' + posixpath.join(ROOT, path), digest.update)
+                    try:
+                        ftp.retrbinary('RETR ' + posixpath.join(ROOT, path), digest.update)
+                    except ftplib.error_perm as error:
+                        if not str(error).startswith('550'):
+                            raise
+                        unreadable.append(path)
+                        continue
                     hashes[path] = digest.hexdigest()
-                duplicate_checks.append({'paths': candidates, 'identical_bytes': len(set(hashes.values())) == 1})
+                check = {'paths': candidates, 'unreadable': unreadable,
+                         'identical_bytes': None if unreadable else len(set(hashes.values())) == 1}
+                duplicate_checks.append(check)
+                emit('SOURCE_DUPLICATE_FILE', check)
             emit('SOURCE_DUPLICATE_FILES', duplicate_checks)
             if os.environ.get('VERIFY_ALL_SOURCE_FILES') == '1':
                 ftp.close()
