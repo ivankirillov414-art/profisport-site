@@ -11,13 +11,13 @@ import os
 import posixpath
 import re
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import unquote, urlsplit
 
 ROOT = '/htdocs/import'
 IMAGE_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'}
 UUID = re.compile(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}', re.I)
 MAX_DOWNLOAD = 96 * 1024 * 1024
-PARTITION_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.-'
 
 
 def emit(label, value):
@@ -39,27 +39,6 @@ def list_pattern(ftp, pattern):
             continue
         found.append((posixpath.basename(parts[8]), 'dir' if parts[0][0] == 'd' else 'file', int(parts[4])))
     return found
-
-
-def complete_listing(ftp, directory, prefix='', depth=0):
-    if depth > 4:
-        raise ValueError('listing_partition_limit')
-    result = {}
-    for char in PARTITION_ALPHABET:
-        pattern = posixpath.join(directory, prefix + char + '*')
-        part = list_pattern(ftp, pattern)
-        if len(part) >= 4900:
-            part = complete_listing(ftp, directory, prefix + char, depth + 1)
-        for entry in part:
-            if entry[0].startswith(prefix + char):
-                result[entry[0]] = entry
-    remainder = list_pattern(ftp, posixpath.join(directory, prefix + '[!' + PARTITION_ALPHABET + ']*'))
-    if len(remainder) >= 4900:
-        raise ValueError('unsupported_large_filename_partition')
-    for entry in remainder:
-        result[entry[0]] = entry
-    emit('SOURCE_LISTING_PARTITION', {'directory': directory, 'prefix': prefix, 'entries': len(result)})
-    return list(result.values())
 
 
 def entries(ftp, directory):
@@ -197,8 +176,15 @@ def analyze_csv(text, entry, indexes):
     else:
         mapping = {'id': 4, 'name': 7, 'image': 9}
     counts, with_refs, focus, unresolved = Counter(), 0, [], []
+    unresolved_counts, source_ids, malformed, all_paths, ambiguous = Counter(), Counter(), [], set(), []
     columns_with_image_suffix = Counter()
     for row in rows:
+        source_id = row[mapping['id']] if len(row) > mapping['id'] else ''
+        source_ids[source_id] += 1
+        if not has_header and len(row) != 41:
+            malformed.append({'width': len(row), 'source_id': source_id,
+                              'name_column': row[7] if len(row) > 7 else None,
+                              'photo_column': row[9] if len(row) > 9 else None})
         for index, value in enumerate(row):
             if re.search(r'\.(?:jpg|jpeg|png|webp|gif|avif)(?:[\s|,]|$)', value, re.I):
                 columns_with_image_suffix[index] += 1
@@ -211,6 +197,12 @@ def analyze_csv(text, entry, indexes):
         for ref in refs:
             status, candidates = resolve(ref, indexes)
             counts[status] += 1
+            if status == 'unresolved':
+                unresolved_counts[ref] += 1
+            if status in ('exact_path', 'exact_basename'):
+                all_paths.update(candidates)
+            if status.startswith('ambiguous'):
+                ambiguous.append({'source_id': source_id, 'name': name, 'reference': ref, 'candidates': candidates})
             details.append({'reference': ref, 'status': status, 'candidates': candidates[:6]})
             if status == 'unresolved' and len(unresolved) < 20:
                 unresolved.append(ref)
@@ -220,7 +212,42 @@ def analyze_csv(text, entry, indexes):
     return {'file': entry['path'], 'rows': len(rows), 'row_widths': dict(Counter(map(len, rows))),
             'header_detected': has_header, 'mapping_zero_based': mapping,
             'image_columns_zero_based': dict(columns_with_image_suffix), 'rows_with_refs': with_refs,
-            'reference_results': dict(counts), 'unresolved_sample': unresolved, 'focus_products': focus}
+            'reference_results': dict(counts), 'unresolved_references': dict(unresolved_counts),
+            'ambiguous_products': ambiguous, 'malformed_rows': malformed,
+            'duplicate_source_ids': {k: v for k, v in source_ids.items() if v > 1},
+            'unresolved_sample': unresolved, 'focus_products': focus,
+            '_exact_paths': sorted(all_paths)}
+
+
+def verify_paths(paths, password):
+    def worker(part):
+        connection = ftplib.FTP(timeout=45)
+        result = {'checked': 0, 'present': 0, 'empty': [], 'missing': []}
+        try:
+            connection.connect('ftpupload.net', 21)
+            connection.login('if0_42771076', password)
+            connection.voidcmd('TYPE I')
+            for path in part:
+                try:
+                    size = connection.size(posixpath.join(ROOT, path))
+                    if size is not None and size > 0:
+                        result['present'] += 1
+                    else:
+                        result['empty'].append(path)
+                except ftplib.error_perm as error:
+                    if not str(error).startswith('550'):
+                        raise
+                    result['missing'].append(path)
+                result['checked'] += 1
+                if result['checked'] % 500 == 0:
+                    emit('SOURCE_FILE_PROGRESS', {k: v for k, v in result.items() if isinstance(v, int)})
+            return result
+        finally:
+            connection.close()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(worker, [paths[::2], paths[1::2]]))
+    return {k: sum(r[k] for r in results) for k in ('checked', 'present')} | {
+        k: [p for r in results for p in r[k]] for k in ('empty', 'missing')}
 
 
 def main():
@@ -245,6 +272,7 @@ def main():
         if products:
             selected = max(products, key=lambda item: item['size'])
             analysis = analyze_csv(read_export(ftp, selected), selected, indexes)
+            paths = analysis.pop('_exact_paths')
             emit('SOURCE_CSV_LINKS', analysis)
             verified = {}
             ftp.voidcmd('TYPE I')
@@ -260,6 +288,10 @@ def main():
                                 raise
                             verified[path] = {'exists': False}
             emit('SOURCE_FOCUS_FILE_CHECKS', verified)
+            ftp.close()
+            emit('SOURCE_EXACT_FILE_CHECKS', verify_paths(paths, password))
+            ftp.connect('ftpupload.net', 21)
+            ftp.login('if0_42771076', password)
         sql = [entry for entry in sources if entry['path'].lower().endswith('.sql')]
         for entry in sorted(sql, key=lambda item: item['size'])[:3]:
             if entry['size'] > MAX_DOWNLOAD:
