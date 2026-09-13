@@ -7,6 +7,9 @@
 select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:100%;min-inline-size:0}
 #catalogProducts{contain:inline-size}
 .filters{contain:inline-size}
+@media(min-width:851px){
+  .heroLayout .heroPhoto:after{right:auto;width:36%}
+}
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,minmax(0,1fr))}
   .heroTrack{display:block;transform:none!important;transition:none}
