@@ -307,9 +307,11 @@ function selectDepartment(key){
 }
 function buildBrandShortcuts(){
   const counts=new Map();for(const p of products){if(p.brand)counts.set(p.brand,(counts.get(p.brand)||0)+1)}
-  const brands=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const brands=typeof window.profisportHasBrandLogo==='function'&&typeof window.profisportBrandCard==='function'
+    ? [...counts].filter(([brand])=>window.profisportHasBrandLogo(brand)).sort((a,b)=>b[1]-a[1]).slice(0,12)
+    : [];
   $('#brandShowcase').hidden=!brands.length;
-  $('#brandShortcuts').innerHTML=brands.map(([brand])=>window.profisportBrandCard?window.profisportBrandCard(brand):`<a href="?brand=${encodeURIComponent(brand)}#catalogProducts" data-brand="${esc(brand)}"><b>${esc(brand)}</b></a>`).join('');
+  $('#brandShortcuts').innerHTML=brands.map(([brand])=>window.profisportBrandCard(brand)).join('');
   $$('#brandShortcuts a').forEach(a=>a.onclick=e=>{e.preventDefault();$('#resetFilters').click();brandFilter.value=a.dataset.brand;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 }
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
