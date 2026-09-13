@@ -1,0 +1,38 @@
+name: Check existing MySQL connection without writes
+on:
+  push:
+    branches: [codex/source-export-inspect]
+    paths: ['.github/workflows/mysql-read-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Connect with existing deployment credentials and read counts
+        env:
+          MYSQL_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          timeout 45s php <<'PHP'
+          <?php
+          try {
+              $pdo = new PDO(
+                  'mysql:host=sql202.infinityfree.com;dbname=if0_42771076_profisport;charset=utf8mb4',
+                  'if0_42771076',
+                  getenv('MYSQL_PASSWORD'),
+                  [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT=>10, PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]
+              );
+              $pdo->exec('START TRANSACTION READ ONLY');
+              $row = $pdo->query("SELECT COUNT(*) AS products, SUM(is_active=1) AS active_products, SUM(COALESCE(main_image,'')='') AS empty_main_image FROM products")->fetch();
+              $pdo->rollBack();
+              echo 'MYSQL_READ_PROBE='.json_encode(['connected'=>true,'server_writes'=>0,'counts'=>$row]).PHP_EOL;
+          } catch (PDOException $e) {
+              $reason = str_contains(strtolower($e->getMessage()), 'connection refused') ? 'connection_refused' :
+                  (str_contains(strtolower($e->getMessage()), 'timed out') ? 'connection_timeout' :
+                  (str_contains(strtolower($e->getMessage()), 'access denied') ? 'access_denied' : 'connection_or_read_failed'));
+              echo 'MYSQL_READ_PROBE='.json_encode(['connected'=>false,'server_writes'=>0,'sqlstate'=>(string)$e->getCode(),'driver_code'=>$e->errorInfo[1]??null,'reason'=>$reason]).PHP_EOL;
+              exit(1);
+          }
+          PHP
