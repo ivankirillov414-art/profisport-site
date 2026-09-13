@@ -80,7 +80,7 @@ jobs:
           AUTH="if0_42771076:${FTP_PASSWORD}"
           mkdir -p /tmp/profisport-remote/api /tmp/profisport-remote/server
 
-          for file in index.html product.html checkout.html profile.html service.html checkout.js product-kant.js service.js service-guide.js storefront-v2.css app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php server/catalog-quality.php; do
+          for file in index.html product.html checkout.html profile.html service.html checkout.js product-kant.js service.js service-guide.js storefront-v2.css app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/photo-audit.php server/catalog-quality.php; do
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
               --user "$AUTH" "$FTP_ROOT/$file" -o "/tmp/profisport-remote/$file"
@@ -138,6 +138,34 @@ jobs:
             exit 1
           fi
           echo 'Public InfinityFree storefront HTML passed the smoke check.'
+
+      - name: Audit live photo linkage
+        shell: bash
+        env:
+          CATALOG_TOKEN: ${{ secrets.CATALOG_TOKEN }}
+        run: |
+          set -euo pipefail
+          BASE='https://ferryffggg.infinityfreeapp.com'
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36'
+          curl -fsSL --retry 6 --retry-delay 5 --max-time 180 -A "$UA" \
+            -H "X-Import-Token: ${CATALOG_TOKEN}" \
+            "$BASE/api/photo-audit.php?deploy=${GITHUB_SHA}-${GITHUB_RUN_NUMBER}" \
+            -o /tmp/photo-audit.json
+          if grep -Eq '/aes\.js|aes\.js' /tmp/photo-audit.json; then
+            echo 'PHOTO_AUDIT_BLOCKED_BY_INFINITYFREE_CHALLENGE'
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          p='/tmp/photo-audit.json'
+          d=json.load(open(p,encoding='utf-8'))
+          assert d.get('ok') is True, d
+          print('PHOTO_AUDIT_JSON='+json.dumps(d,ensure_ascii=False,separators=(',',':')))
+          print('PHOTO_AUDIT_SUMMARY')
+          print(' image_files=',d.get('image_files'))
+          print(' db=',d.get('db'))
+          print(' csv=',d.get('csv'))
+          PY
 
       - name: Stock safety note
         run: |
