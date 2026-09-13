@@ -10,13 +10,33 @@ function spd_read_csv(string $file): array {
     elseif(!mb_check_encoding($raw,'UTF-8'))$raw=mb_convert_encoding($raw,'UTF-8','Windows-1251');
     $raw=preg_replace('/^\xEF\xBB\xBF/','',$raw)??$raw;
     $raw=str_replace(["\r\n","\r"],"\n",$raw);
-    $stream=fopen('php://temp','w+');
-    if(!$stream)throw new RuntimeException('source_stream_failed');
-    fwrite($stream,$raw);rewind($stream);$rows=[];
-    while(($row=fgetcsv($stream,0,';','"',''))!==false){
-        if(array_filter($row,fn($x)=>trim((string)$x)!==''))$rows[]=$row;
+    $candidates=[];
+    foreach(['','\\'] as $escape){
+        $stream=fopen('php://temp','w+');
+        if(!$stream)throw new RuntimeException('source_stream_failed');
+        fwrite($stream,$raw);rewind($stream);$rows=[];
+        while(($row=fgetcsv($stream,0,';','"',$escape))!==false){
+            if(array_filter($row,fn($x)=>trim((string)$x)!==''))$rows[]=$row;
+        }
+        fclose($stream);$candidates[]=$rows;
     }
-    fclose($stream);return $rows;
+
+    // A single damaged quote in old DIAFAN exports can make fgetcsv consume the
+    // rest of the file as one record. Most rows in this fixed-width export are
+    // physical lines, so retain this recovery parser and choose by valid rows.
+    foreach(['','\\'] as $escape){
+        $rows=[];
+        foreach(explode("\n",$raw) as $line){
+            if(trim($line)==='')continue;
+            $rows[]=str_getcsv($line,';','"',$escape);
+        }
+        $candidates[]=$rows;
+    }
+    usort($candidates,function(array $left,array $right):int{
+        $score=fn(array $rows):int=>count(array_filter($rows,'spd_legacy_row'));
+        return $score($right)<=>$score($left);
+    });
+    return $candidates[0]??[];
 }
 
 function spd_legacy_row(array $row): bool {
