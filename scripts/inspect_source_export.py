@@ -6,6 +6,7 @@ printed. Original exports, credentials and arbitrary SQL rows are not published.
 import csv
 import ftplib
 import io
+import hashlib
 import json
 import os
 import posixpath
@@ -128,8 +129,25 @@ def existing_image_cache(ftp, files):
         if path.rsplit('.', 1)[-1].lower() not in IMAGE_EXT:
             continue
         combined.setdefault(path, {'path': path, 'size': None})
+    ftp.voidcmd('TYPE I')
+    originals_found = 0
+    for path in list(combined):
+        if not path.startswith('new_images/'):
+            continue
+        original = 'images/' + posixpath.basename(path)
+        if original in combined:
+            continue
+        try:
+            size = ftp.size(posixpath.join(ROOT, original))
+        except ftplib.error_perm as error:
+            if str(error).startswith('550'):
+                continue
+            raise
+        combined[original] = {'path': original, 'size': size}
+        originals_found += 1
     emit('SOURCE_EXISTING_INDEX', {'available': True, 'historical_file_count': data.get('count'),
-         'cached_paths': len(paths), 'combined_paths': len(combined), 'current_existence_verified': False})
+         'cached_paths': len(paths), 'combined_paths': len(combined),
+         'additional_originals_verified': originals_found, 'current_existence_verified': False})
     return list(combined.values())
 
 
@@ -177,12 +195,14 @@ def analyze_csv(text, entry, indexes):
         mapping = {'id': 4, 'name': 7, 'image': 9}
     counts, with_refs, focus, unresolved = Counter(), 0, [], []
     unresolved_counts, source_ids, malformed, all_paths, ambiguous = Counter(), Counter(), [], set(), []
+    id_rows = defaultdict(list)
     columns_with_image_suffix = Counter()
     for row in rows:
         source_id = row[mapping['id']] if len(row) > mapping['id'] else ''
         source_ids[source_id] += 1
+        id_rows[source_id].append(row)
         if not has_header and len(row) != 41:
-            malformed.append({'width': len(row), 'source_id': source_id,
+            malformed.append({'width': len(row), 'source_id': source_id, 'first_columns': row[:10],
                               'name_column': row[7] if len(row) > 7 else None,
                               'photo_column': row[9] if len(row) > 9 else None})
         for index, value in enumerate(row):
@@ -215,6 +235,8 @@ def analyze_csv(text, entry, indexes):
             'reference_results': dict(counts), 'unresolved_references': dict(unresolved_counts),
             'ambiguous_products': ambiguous, 'malformed_rows': malformed,
             'duplicate_source_ids': {k: v for k, v in source_ids.items() if v > 1},
+            'duplicate_source_examples': {k: [row[:10] for row in v] for k, v in id_rows.items() if len(v) > 1},
+            'sample_first_columns': [row[:10] for row in rows[:3]],
             'unresolved_sample': unresolved, 'focus_products': focus,
             '_exact_paths': sorted(all_paths)}
 
@@ -288,10 +310,22 @@ def main():
                                 raise
                             verified[path] = {'exists': False}
             emit('SOURCE_FOCUS_FILE_CHECKS', verified)
-            ftp.close()
-            emit('SOURCE_EXACT_FILE_CHECKS', verify_paths(paths, password))
-            ftp.connect('ftpupload.net', 21)
-            ftp.login('if0_42771076', password)
+            duplicate_checks = []
+            for candidates in indexes[1].values():
+                if len(candidates) < 2:
+                    continue
+                hashes = {}
+                for path in candidates:
+                    digest = hashlib.sha256()
+                    ftp.retrbinary('RETR ' + posixpath.join(ROOT, path), digest.update)
+                    hashes[path] = digest.hexdigest()
+                duplicate_checks.append({'paths': candidates, 'identical_bytes': len(set(hashes.values())) == 1})
+            emit('SOURCE_DUPLICATE_FILES', duplicate_checks)
+            if os.environ.get('VERIFY_ALL_SOURCE_FILES') == '1':
+                ftp.close()
+                emit('SOURCE_EXACT_FILE_CHECKS', verify_paths(paths, password))
+                ftp.connect('ftpupload.net', 21)
+                ftp.login('if0_42771076', password)
         sql = [entry for entry in sources if entry['path'].lower().endswith('.sql')]
         for entry in sorted(sql, key=lambda item: item['size'])[:3]:
             if entry['size'] > MAX_DOWNLOAD:
