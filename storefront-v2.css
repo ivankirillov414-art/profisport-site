@@ -1,6 +1,6 @@
 @import url("./storefront-v2-base.css?v=7");
 @import url("./brand-logo.css?v=1");
-@import url("./brand-showcase.css?v=1");
+@import url("./brand-showcase.css?v=2");
 
 /* Keep the storefront regression contract visible in this entrypoint. The full
    rules live in storefront-v2-base.css and these declarations mirror the same
