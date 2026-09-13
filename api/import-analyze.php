@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
+define('PROFISPORT_SKIP_SCHEMA',true);
 require __DIR__.'/../server/bootstrap.php';
+require __DIR__.'/../server/source-photo-diagnostic.php';
 start_secure_session();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -22,6 +24,8 @@ function refsFromCell(string $v): array { $parts=preg_split('/[;,|\r\n]+/u',$v)?
 try{
  require_admin();
  $root=realpath(__DIR__.'/../import'); if(!$root)throw new RuntimeException('import_missing');
+ $sourceReport=spd_report($root);
+ if($sourceReport!==null){echo json_encode($sourceReport,JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);exit;}
  $images=[];$tables=[];$it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
  foreach($it as $f){if(!$f->isFile())continue;$ext=strtolower($f->getExtension());$rel=str_replace(DIRECTORY_SEPARATOR,'/',substr($f->getPathname(),strlen($root)+1));if(in_array($ext,['jpg','jpeg','png','webp','gif','avif'],true)){$base=$f->getFilename();$stem=pathinfo($base,PATHINFO_FILENAME);$images[mb_strtolower($base)]=$rel;$images[mb_strtolower($stem)]=$rel;}elseif(in_array($ext,['csv','xlsx'],true))$tables[]=['path'=>$f->getPathname(),'relative'=>$rel,'ext'=>$ext];}
  $report=[];$totalRows=0;$totalDirect=0;$totalIdentifier=0;$samples=[];
