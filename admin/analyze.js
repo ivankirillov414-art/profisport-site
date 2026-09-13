@@ -2,6 +2,7 @@
   const n=v=>Number(v||0).toLocaleString('ru-RU'),st=j.stats||{};
   msgBox.textContent='Проверка исходной выгрузки завершена. Данные не изменены.';msgBox.className='msg ok';
   out.innerHTML='<p><b>'+h(j.file)+'</b></p><p class="muted">Проверены CSV и файлы на сервере. Это не аудит связей в MySQL и не запуск импорта.</p>';
+  const style=document.createElement('style');style.textContent='#analyzeImportResult .analysisGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}#analyzeImportResult .analysisGrid>div{padding:12px;border:1px solid #e3e3df;border-radius:12px;background:#fff;min-width:0}#analyzeImportResult .analysisGrid b{display:block;font-size:23px}#analyzeImportResult .analysisGrid span{display:block;font-size:13px;overflow-wrap:anywhere}#analyzeImportResult .analysisSample{padding:10px 0;border-bottom:1px solid #e3e3df;overflow-wrap:anywhere}';out.appendChild(style);
   const metrics=[
     [j.image_files,'фотографий на сервере'],[st.valid_rows,'корректных записей CSV'],
     [st.rows_with_exact_photo,'записей с точным совпадением файла'],[st.rows_with_placeholder,'записей с заглушкой вместо фото'],
