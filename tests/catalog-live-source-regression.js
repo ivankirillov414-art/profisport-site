@@ -29,14 +29,13 @@ if('with_images' in manifest)fail('ambiguous with_images metric must not be used
 console.log(`Parser mirror image coverage is ${manifest.parser_rows_with_images}/${manifest.products}; this is not live DB photo health.`);
 if(loader.includes("window.CATALOG_SOURCE='static';"))fail('base loader must not expose raw parser static photos');
 if(!loader.includes("window.CATALOG_SOURCE='static-db-photo-resolver'"))fail('base loader emergency fallback must resolve photos against MySQL');
-if(!loader.includes('map(staticRowWithDbPhotoFallback).map(normalizeProduct)'))fail('base loader must prepend the DB photo resolver before parser images');
+if(!loader.includes('map(staticRowWithDbPhotoFallback).map(normalizeProduct)'))fail('base loader must resolve static metadata photos against MySQL');
 if(api.includes("$images[]='api/product-fallback-image.php"))fail('catalog API must not mix fallback images into DB source images');
-if(!api.includes("'fallback_image'=>$sourceImageMissing?$fallbackImage:null"))fail('catalog API must expose fallback separately and only for missing DB images');
+if(!api.includes("'fallback_image'=>null"))fail('catalog API must not offer unverified parser photos');
 if(!api.includes("'image_source'=>$imageSource"))fail('catalog API image source diagnostic is missing');
-if(!loader.includes("const sourceMissing=p.image_source_missing===true"))fail('loader must make fallback eligibility explicit');
-if(!loader.includes("const finalImages=sourceMissing?"))fail('loader must only append fallback when the source is missing');
+if(loader.includes('fallbackImageUrl('))fail('missing source photos must not trigger parser fallback');
 if(importer.includes('$final=$urls?:$oldImgs'))fail('1C import must never replace historical DB image arrays with a smaller current export');
 if(!importer.includes('array_merge($urls,$oldImgs,$oldMain!=='))fail('1C import must union new image references with historical DB image references');
 if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql'"))fail('live catalog must expose MySQL as authoritative photo source');
-if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency'"))fail('static metadata fallback must resolve photos against MySQL before parser images');
+if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql-resolver-only'"))fail('static metadata fallback must resolve photos exclusively against MySQL');
 if(!process.exitCode)console.log('Catalog live source regression checks passed.');

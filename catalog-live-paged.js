@@ -12,7 +12,7 @@
     for(let attempt=1;attempt<=LIVE_RETRIES;attempt++){
       try{
         const suffix=includeCount?'&count=1':'';
-        return await catalogRequest(`api/catalog.php?limit=${limit}&offset=${offset}${suffix}&v=imgtruth4`,{},parseCatalogResponse);
+        return await catalogRequest(`api/catalog.php?limit=${limit}&offset=${offset}${suffix}&v=imgtruth5`,{},parseCatalogResponse);
       }catch(error){
         lastError=error;
         if(attempt<LIVE_RETRIES)await wait(250*attempt);
@@ -74,8 +74,7 @@
     if(brand)params.set('brand',brand);
     if(model)params.set('model',model);
     const resolver=`api/product-db-image.php?${params.toString()}`;
-    const staticImages=Array.isArray(row?.images)?row.images.filter(Boolean):[];
-    return{...row,image:resolver,main_image:resolver,images:[resolver,...staticImages]};
+    return{...row,image:resolver,main_image:resolver,images:[resolver],fallback_image:null};
   }
 
   async function loadStaticCatalogFallback(){
@@ -84,11 +83,11 @@
     const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
     window.CATALOG_SOURCE='static-db-photo-resolver';
     window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;
-    window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency';
+    window.CATALOG_PHOTO_SOURCE='mysql-resolver-only';
     return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhoto).map(normalizeProduct);
   }
 
-  const CACHE_KEY='live-catalog-imgtruth4-v1',CACHE_MAX_AGE=120000;
+  const CACHE_KEY='live-catalog-imgtruth5-v1',CACHE_MAX_AGE=120000;
   function catalogCache(mode,items){
     return new Promise(resolve=>{
       let database,settled=false;
