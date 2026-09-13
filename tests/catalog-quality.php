@@ -64,4 +64,19 @@ q_assert(catalog_image_candidates(['main_image'=>'/import/images/skis.jpg','imag
 q_assert(catalog_image_candidates(['main_image'=>null,'images'=>'["/import/images/detail.jpg"]'])===['/import/images/detail.jpg'],'missing main must preserve the gallery fallback');
 q_assert(catalog_image_candidates(['images'=>'"not a gallery"'])===[],'non-array gallery must stay empty');
 
-echo "Catalog quality checks passed.\n";
+require __DIR__.'/../server/import-safety.php';
+q_assert(import_scalar_price('1 530,00')===1530.0,'ordinary source prices must remain supported');
+q_assert(import_scalar_price('0')===0.0,'explicit zero differs from an unparsed price');
+q_assert(import_scalar_price('3650.00&1&89=233|3650.00&1&89=234')===null,'variant price must never be converted to zero');
+q_assert(import_scalar_price('3650&1&89=233')===null,'integer variant price must not concatenate into a huge price');
+foreach(['','-1','NaN','1.2.3','100000000'] as $price)q_assert(import_scalar_price($price)===null,'invalid price must be skipped');
+$existing=['id'=>80,'source_id'=>'32236'];
+q_assert(import_identity_decision('32033',[],[],[$existing])['status']==='conflict','same-name glove must not overwrite a different source code');
+q_assert(import_identity_decision('32236',[$existing],[],[])['status']==='update','an exact source code must keep its existing card');
+q_assert(import_identity_decision('32033',[],[],[])['status']==='create','an unoccupied new identity may be created');
+q_assert(import_identity_decision('',[],[],[])['status']==='conflict','missing source identity must not create a product');
+q_assert(import_identity_decision('32033',[],[$existing],[])['status']==='conflict','stale hash must not reassign another source code');
+q_assert(import_identity_decision('32236',[$existing,$existing],[],[])['status']==='conflict','duplicate database identities must not pick an arbitrary card');
+q_assert(import_identity_decision('32236',[$existing],[['id'=>81,'source_id'=>'32236']],[])['status']==='conflict','source and hash pointing to different cards must be skipped');
+
+echo "Catalog quality and import identity/price checks passed.\n";
