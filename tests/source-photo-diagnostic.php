@@ -25,6 +25,13 @@ try{
         check(hash_file('sha256',$root.'/1c_to_diafan_tovary.csv')===$before,'Source was modified');
         check($report['mysql_links_checked']===false,'Source report misrepresents MySQL audit');
     }
+    $damaged=$csv."1;;Kod_999;10364;999;sku;;\"Незакрытая кавычка;broken.jpg\n";
+    $valid=array_fill(0,41,'');$valid[0]='1';$valid[2]='Kod_1000';$valid[4]='1000';$valid[7]='После ошибки';$valid[9]='one.jpg';
+    $line=fopen('php://temp','w+');fputcsv($line,$valid,';','"','');rewind($line);$damaged.=stream_get_contents($line);fclose($line);
+    file_put_contents($root.'/1c_to_diafan_tovary.csv',$damaged);
+    $recovered=spd_report($root);
+    check($recovered!==null&&$recovered['stats']['valid_rows']===8,'Damaged quote swallowed later DIAFAN rows');
+    check($recovered['stats']['malformed_rows']>=1,'Damaged record was not reported');
     echo "Source photo diagnostics passed: exact paths, duplicate names, malformed records, encodings, multiline CSV and read-only behavior.\n";
 }finally{
     foreach(glob($root.'/images/*')?:[] as $file)unlink($file);
