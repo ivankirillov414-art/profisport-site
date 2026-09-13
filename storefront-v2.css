@@ -14,3 +14,7 @@ select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:
   .products{grid-template-columns:repeat(2,minmax(0,1fr))}
   .heroTrack{display:block;transform:none!important;transition:none}
 }
+
+/* Keep intrinsic image dimensions from enlarging the photo grid track. */
+.product .photo{position:relative}
+.product .photo>img{position:absolute;inset:0;display:block;width:100%;height:100%;max-height:100%;object-fit:contain;object-position:center}
