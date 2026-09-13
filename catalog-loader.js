@@ -207,8 +207,8 @@ function normalizeProduct(p,i){
   const dep=CATALOG_DEPARTMENTS[tax.key]||CATALOG_DEPARTMENTS.other;
   const displayCategory=tax.source==='name'?dep.label:rawCat;
   const images=(Array.isArray(p.images)?p.images:[]).map(imageUrl).filter(Boolean);
-  const main=imageUrl(p.image||p.main_image||'');
-  const baseImages=images.length?images:(main?[main]:[]);
+  const main=imageUrl(p.main_image||p.image||'');
+  const baseImages=main?[main,...images]:images;
   // Parser pages include recommendations and banners among product images.
   // A missing database photo must stay missing until its source link is verified.
   const finalImages=[...new Set(baseImages)];

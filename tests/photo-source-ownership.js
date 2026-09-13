@@ -26,6 +26,11 @@ function runtime(paged=false){
   const native=ctx.normalizeProduct({id:184,title:'Лыжи гоночные PRO BRADOS SKATE',images:['/import/images/native.jpg','/import/images/native-detail.jpg']},0);
   assert.equal(native.images.length,2);
   assert.equal(native.image,'api/product-image.php?p=images%2Fnative.jpg');
+  const reordered=ctx.normalizeProduct({id:184,title:'Лыжи',main_image:'/import/images/native.jpg',image:'/import/images/old.jpg',images:['/import/images/old.jpg','/import/images/native.jpg','/import/images/native-detail.jpg']},0);
+  assert.equal(reordered.image,'api/product-image.php?p=images%2Fnative.jpg','Explicit main photo must win over stale gallery order');
+  assert.equal(reordered.images.length,3,'Keep gallery entries without duplicating the main photo');
+  const apiMain=ctx.normalizeProduct({id:184,title:'Лыжи',image:'/import/images/native.jpg',images:['/import/images/old.jpg']},0);
+  assert.equal(apiMain.image,'api/product-image.php?p=images%2Fnative.jpg','API-selected image must win over gallery order');
   for(const paged of [false,true]){
     const c=runtime(paged);
     const rows=await(paged?c.window.loadRealCatalog():c.loadRealCatalog());

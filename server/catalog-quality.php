@@ -118,6 +118,20 @@ function catalog_sanitize_specs(string $name,array $specs,int &$removed=0): arra
     return $clean;
 }
 
+/** Main photo first; callers still check that each local file is usable. */
+function catalog_image_candidates(array $product): array {
+    $gallery=$product['images']??[];
+    if(is_string($gallery))$gallery=json_decode($gallery,true);
+    if(!is_array($gallery))$gallery=[];
+    $result=[];
+    foreach(array_merge([$product['main_image']??''],$gallery) as $value){
+        if(!is_string($value))continue;
+        $value=trim($value);
+        if($value!==''&&!in_array($value,$result,true))$result[]=$value;
+    }
+    return $result;
+}
+
 function catalog_sanitize_old_price(int $priceRub,?int $oldPriceRub): ?int {
     if($priceRub<=0||$oldPriceRub===null||$oldPriceRub<=$priceRub)return null;
     return $oldPriceRub;
