@@ -8,9 +8,6 @@ function imageUrl(u){
   if(u.startsWith('import/'))return`api/product-image.php?p=${encodeURIComponent(u.slice(7))}`;
   return u;
 }
-function fallbackImageUrl(name,cat){
-  return`api/product-fallback-image.php?name=${encodeURIComponent(name||'')}&cat=${encodeURIComponent(cat||'')}`;
-}
 
 const CATALOG_DEPARTMENTS={
   bicycle:{label:'Велосипеды',order:10},
@@ -211,10 +208,10 @@ function normalizeProduct(p,i){
   const displayCategory=tax.source==='name'?dep.label:rawCat;
   const images=(Array.isArray(p.images)?p.images:[]).map(imageUrl).filter(Boolean);
   const main=imageUrl(p.image||p.main_image||'');
-  const fallback=imageUrl(p.fallback_image||'')||fallbackImageUrl(name,rawCat);
   const baseImages=images.length?images:(main?[main]:[]);
-  const sourceMissing=p.image_source_missing===true||(!('image_source_missing' in p)&&baseImages.length===0);
-  const finalImages=sourceMissing?[...new Set([...baseImages,fallback].filter(Boolean))]:[...new Set(baseImages)];
+  // Parser pages include recommendations and banners among product images.
+  // A missing database photo must stay missing until its source link is verified.
+  const finalImages=[...new Set(baseImages)];
   const stockText=stockCode==='in'?(Number.isFinite(qty)&&qty>0?`В наличии: ${qty} шт.`:'В наличии'):stockCode==='out'?'Нет в наличии':'Уточняйте наличие';
   const facets=deriveFacets(name,specs,tax.key,tax.type);
   return{
@@ -281,7 +278,7 @@ async function loadInitialCatalog(){
   if(initialCatalogPromise)return initialCatalogPromise;
   initialCatalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth2',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth5',{},parseCatalogResponse);
       return j.items.filter(isPurchasableCatalogRow).map(normalizeProduct);
     }catch(e){return[]}
   })();
@@ -299,14 +296,13 @@ function staticRowWithDbPhotoFallback(row){
   if(brand)params.set('brand',brand);
   if(model)params.set('model',model);
   const resolver=`api/product-db-image.php?${params.toString()}`;
-  const parserImages=Array.isArray(row?.images)?row.images.filter(Boolean):[];
-  return{...row,image:resolver,main_image:resolver,images:[resolver,...parserImages]};
+  return{...row,image:resolver,main_image:resolver,images:[resolver],fallback_image:null};
 }
 async function loadRealCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?v=imgtruth2',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?v=imgtruth5',{},parseCatalogResponse);
       const liveItems=j.items.filter(isPurchasableCatalogRow);
       if(liveItems.length){const items=liveItems.map(normalizeProduct);window.CATALOG_SOURCE='live';return items}
     }catch(e){}
@@ -314,7 +310,7 @@ async function loadRealCatalog(){
     const parts=Array.isArray(manifest.parts)?manifest.parts:[];
     const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
     window.CATALOG_SOURCE='static-db-photo-resolver';
-    window.CATALOG_PHOTO_SOURCE='mysql-resolver+parser-emergency';
+    window.CATALOG_PHOTO_SOURCE='mysql-resolver-only';
     window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;
     return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhotoFallback).map(normalizeProduct)
   })();

@@ -83,7 +83,6 @@ try{
     $cat=$categoryPath?(string)end($categoryPath):'';
 
     $sourceImageMissing=!$images;
-    $fallbackImage='api/product-fallback-image.php?name='.rawurlencode((string)$p['name']).'&cat='.rawurlencode($cat);
     $imageSource='missing';
     if($sourceImageMissing){
       $itemsWithoutSourceImage++;
@@ -135,7 +134,7 @@ try{
       'specs'=>$specs,
       'images'=>$images,
       'image'=>$images[0]??null,
-      'fallback_image'=>$sourceImageMissing?$fallbackImage:null,
+      'fallback_image'=>null,
       'image_source'=>$imageSource,
       'image_source_missing'=>$sourceImageMissing,
       'url'=>'product.html?id='.(int)$p['id'],
