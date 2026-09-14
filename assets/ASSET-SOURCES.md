@@ -31,3 +31,8 @@ The production host returns an optimized WebP derivative of `hero/classic-mounta
 Created with built-in imagegen for this site, 2048×768, then encoded as quality-90 JPEG for delivery without resizing. No text is embedded; the headings and buttons remain HTML.
 - `hero/classic-snowboard-v1.jpg`: alpine snowboard jump, black/yellow outfit, complete subject on the right, open pale blue sky on the left.
 - `hero/classic-workshop-v1.jpg`: illustrative fictional bright workshop with black/yellow bicycle on a stand and mechanic on the right, pale blue-gray wall on the left. It is not a photograph of the actual shop.
+
+
+## Nordic skiing banner correction — 2026-09-14
+
+`hero/classic-nordic-v1.jpg` replaces the snowboard artwork using imagegen: Nordic skier, two narrow skis and poles on a groomed trail, matching the existing blue/black/yellow composition. Generated at 2048×768 and encoded as JPEG. User confirmed the store does not sell snowboards. The live storefront search for “беговые лыжи” returned Fischer, Tisa, Atomic, Brados and ONSKI product cards before this edit. No static parser count or direct MySQL audit is claimed. Future promotional themes and copy must be checked against the live assortment before adding them.
