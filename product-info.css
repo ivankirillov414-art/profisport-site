@@ -1,0 +1,13 @@
+.productInfoBlocks{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:24px 0;align-items:start}
+.productInfoBlocks .detailSection{margin:0;min-width:0;padding:24px;background:#fff;border:1px solid #e4e7eb;border-radius:12px}
+.productInfoBlocks h2{margin:0 0 20px;font-size:24px}
+.productInfoBlocks table{width:100%;border-collapse:collapse;table-layout:fixed}
+.productInfoBlocks td{padding:12px 8px;border-bottom:1px solid #edf0f2;vertical-align:top;overflow-wrap:anywhere;line-height:1.5}
+.productInfoBlocks td:first-child{width:45%;color:#646b72;padding-left:0}
+.productDescription{white-space:pre-line;line-height:1.7;overflow-wrap:anywhere;color:#303841}
+.similarGrid .similarCard{display:flex;flex-direction:column;gap:12px;min-width:0}
+.similarGrid .similarCard>img,.similarPhotoPlaceholder{display:block;width:100%;height:180px;object-fit:contain;background:#fff}
+.similarPhotoPlaceholder{display:grid;place-items:center;color:#747b84;font-size:13px}
+.similarGrid .similarCard>b{font-size:14px;line-height:1.4}
+.similarGrid .similarCard>span:last-child{margin-top:auto;font-weight:700}
+@media(max-width:850px){.productInfoBlocks{grid-template-columns:1fr;gap:14px;margin:20px 0}.productInfoBlocks .detailSection{padding:20px}.productInfoBlocks h2{font-size:22px}.similarGrid .similarCard>img,.similarPhotoPlaceholder{height:130px}}

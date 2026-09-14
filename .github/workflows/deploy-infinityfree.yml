@@ -18,6 +18,9 @@ jobs:
 
       - name: Verify storefront regressions
         run: |
+          php -l api/catalog.php
+          node --check product-related.js
+          node --check product-kant.js
           node --check service-guide.js
           node --check catalog-live-paged.js
           node tests/mobile-layout-regression.js
@@ -85,7 +88,7 @@ jobs:
           AUTH="if0_42771076:${FTP_PASSWORD}"
           mkdir -p /tmp/profisport-remote/api /tmp/profisport-remote/server /tmp/profisport-remote/admin
 
-          for file in buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html service.html checkout.js product-kant.js service.js service-guide.js storefront-v2.css classic-theme.css header-compact.css assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/photo-audit.php api/import-analyze.php api/import-reconcile.php server/catalog-quality.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/reconcile.js admin/app.js admin/index.php; do
+          for file in buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css classic-theme.css header-compact.css assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/photo-audit.php api/import-analyze.php api/import-reconcile.php server/catalog-quality.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/reconcile.js admin/app.js admin/index.php; do
             mkdir -p "$(dirname "/tmp/profisport-remote/$file")"
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
