@@ -1,0 +1,57 @@
+/* Customer information: scoped navigation, footer links and content. */
+.buyerNav{position:relative;flex:0 0 auto}
+.buyerNav>summary{display:flex;align-items:center;gap:6px;min-height:32px;padding:4px 1px 7px;cursor:pointer;list-style:none}
+.buyerNav>summary::-webkit-details-marker{display:none}
+.buyerNav>summary>span{transition:transform .15s}
+.buyerNav[open]>summary>span{transform:rotate(180deg)}
+.buyerDropdown{position:absolute;right:0;top:100%;width:230px;padding:8px;border:1px solid #e1e5e8;border-radius:14px;background:#fff;box-shadow:0 14px 32px #20242a20;z-index:2}
+.buyerDropdown a{display:flex;align-items:center;min-height:44px;padding:10px 14px;border-radius:9px;color:var(--ink)}
+.buyerDropdown a:hover,.buyerDropdown a:focus-visible{background:#fff2b4}
+.buyerNav>summary:focus-visible,.buyerSections a:focus-visible,.buyerTextLink:focus-visible,.buyerFooterLinks a:focus-visible{outline:3px solid #d5a900;outline-offset:3px}
+.buyerFooterLinks{display:flex;align-items:center;flex-wrap:wrap;gap:12px 24px;font-size:14px}
+.buyerFooterLinks a{padding:6px 0}
+.buyerFooterLinks a:hover{color:var(--y)}
+footer:has(>.buyerFooterLinks){flex-wrap:wrap}
+footer>.buyerFooterLinks{flex-basis:100%}
+.buyerCompactFooter{align-items:center}
+.buyerPage{width:min(1120px,calc(100% - 40px));padding:24px 0 56px;margin:0 auto}
+.buyerIntro{margin:24px 0 32px}
+.buyerIntro small{font-weight:700;letter-spacing:.08em;color:#646b72}
+.buyerIntro h1{font-size:clamp(32px,4vw,48px);margin:12px 0}
+.buyerIntro p{color:#646b72;margin:0;font-size:18px}
+.buyerLayout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:28px;align-items:start}
+.buyerSections{display:grid;gap:8px;position:sticky;top:20px}
+.buyerSections a{display:flex;align-items:center;min-height:48px;padding:12px 16px;border:1px solid #e1e5e8;border-radius:12px;background:#fff;font-weight:700}
+.buyerSections a:hover,.buyerSections a:focus-visible{background:#fff2b4;border-color:#e7c553}
+.buyerContent{display:grid;gap:20px}
+.buyerCard{padding:28px 32px;border:1px solid #e1e5e8;border-radius:20px;background:#fff;scroll-margin-top:24px}
+.buyerCard:target{border-color:#d9b537;box-shadow:0 0 0 3px #f5c92820}
+.buyerSymbol{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#fff2b4}
+.buyerSymbol svg{width:26px;height:26px;fill:none;stroke:#292e34;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.buyerCard h2{margin:18px 0 16px;font-size:28px}
+.buyerCard h3{font-size:18px;margin:24px 0 8px}
+.buyerCard p,.buyerCard li{line-height:1.7;color:#4a5159}
+.buyerCard p{margin:12px 0}
+.buyerCard ol{padding-left:22px}
+.buyerCard li+li{margin-top:8px}
+.buyerTextLink{display:inline-flex;align-items:center;min-height:44px;margin-top:8px;font-weight:700;text-decoration:underline;text-underline-offset:4px}
+@media(min-width:851px){
+  .storeFooterWithBuyers{grid-template-columns:1.5fr 1fr 1fr 1fr}
+}
+@media(min-width:851px) and (max-width:1050px){
+  body>nav:has(>.buyerNav){gap:14px;padding-left:18px;padding-right:18px}
+}
+@media(max-width:850px){
+  .buyerPage{width:calc(100% - 32px);padding-top:20px}
+  .buyerIntro{margin:24px 0}
+  .buyerIntro p{font-size:16px}
+  .buyerLayout{grid-template-columns:minmax(0,1fr);gap:20px}
+  .buyerSections{position:static;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .buyerSections a{justify-content:center;padding:10px 6px;font-size:14px}
+  .buyerCard{padding:24px 20px;scroll-margin-top:80px}
+  .buyerCard h2{font-size:26px}
+  .buyerCompactFooter{grid-template-columns:minmax(0,1fr)}
+  footer>.buyerFooterLinks{grid-column:1/-1}
+  .storeFooterWithBuyers>div:last-child{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){.buyerNav>summary>span{transition:none}}
