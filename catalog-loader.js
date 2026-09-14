@@ -24,13 +24,35 @@ const CATALOG_DEPARTMENTS={
   water:{label:'Водный спорт',order:120},
   winter:{label:'Зимний спорт',order:130},
   accessories:{label:'Спортивные аксессуары',order:140},
+  combat:{label:'Единоборства',order:101},
+  hockey:{label:'Хоккей',order:61},
+  clothing:{label:'Спортивная одежда',order:141},
+  walking:{label:'Скандинавская ходьба',order:111},
   other:{label:'Другие товары',order:999}
 };
+// Home sections collect every department; detail departments remain available in filters.
+const CATALOG_SECTIONS={
+  bicycle:{label:'Велосипеды',note:'Город, прогулки и бездорожье',icon:'bicycle',departments:['bicycle']},
+  scooter:{label:'Самокаты, ролики и скейты',note:'Катание, трюки и комплектующие',icon:'scooter',departments:['scooter','rollers','boards']},
+  skiing:{label:'Зимний спорт',note:'Лыжи, сноуборды, коньки и хоккей',icon:'skiing',departments:['skiing','snowboard','skates','winter','hockey']},
+  cycling:{label:'Запчасти и аксессуары',note:'Детали, инструменты и экипировка',icon:'cycling',departments:['cycling','accessories','clothing']},
+  fitness:{label:'Фитнес и спорт',note:'Тренировки, игры и единоборства',icon:'fitness',departments:['fitness','team','combat']},
+  tourism:{label:'Туризм и водный спорт',note:'SUP-борды, плавание и походы',icon:'tourism',departments:['tourism','water','walking']},
+  other:{label:'Другие товары',note:'Остальные товары каталога',icon:'cycling',departments:['other']}
+};
+function catalogMatchesDepartment(product,key){
+  return !key||(CATALOG_SECTIONS[key]?.departments||[key]).includes(product.department);
+}
+function catalogSectionFor(department){
+  return Object.keys(CATALOG_SECTIONS).find(key=>CATALOG_SECTIONS[key].departments.includes(department))||'other';
+}
+function catalogCategoryLabel(key){return CATALOG_SECTIONS[key]?.label||CATALOG_DEPARTMENTS[key]?.label||key}
+function isSupReference(name){return /(?:^|[^a-zа-я])(?:sup(?=$|[^a-z])|са[пб](?:[- ]?борд|(?=$|[^а-я])))/i.test(textNorm(name))}
 function cleanPath(path){
   const list=Array.isArray(path)?path.map(x=>String(x||'').trim()).filter(Boolean):[];
   return list.filter(x=>!['главная','каталог товаров','каталог'].includes(textNorm(x)))
 }
-function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-'))}
+function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-')||n.startsWith(x+','))}
 function isCyclingPulleyName(n){
   return n.startsWith('ролики ')&&(
     n.includes('переключател')||n.includes('суппорт')||n.includes('подшипник')||n.includes('направляющ')||
@@ -38,9 +60,12 @@ function isCyclingPulleyName(n){
   )
 }
 function primaryProductType(name){
-  const n=textNorm(name);
-  if(startsAny(n,['электровелосипед','велосипед']))return'bicycle';
-  if(startsAny(n,['электросамокат','самокат']))return'scooter';
+  const n=textNorm(name).replace(/^[\"' -]+/,'');
+  if(isSupReference(n)&&(/^(?:sup|са[пб](?:[- ]?борд|[- ]))/.test(n)||/^(?:надувная )?доска/.test(n)))return'sup';
+  if(startsAny(n,['беговел']))return'balance_bike';
+  if(startsAny(n,['ролик для пресса','ролики для пресса']))return'ab_wheel';
+  if(/^вело +[0-9]/.test(n)||startsAny(n,['детский велосипед','горный велосипед','электровелосипед','велосипед']))return'bicycle';
+  if(startsAny(n,['детский самокат','городской самокат','трюковой самокат','электросамокат','самокат']))return'scooter';
   if(startsAny(n,['сноуборд']))return'snowboard';
   if(startsAny(n,['роликовые коньки','коньки роликовые','коньки для танцев','квады']))return'rollers';
   if(startsAny(n,['коньки']))return'skates';
@@ -48,24 +73,24 @@ function primaryProductType(name){
     if(isCyclingPulleyName(n))return'';
     return'rollers';
   }
-  if(startsAny(n,['лыжи','лыжи беговые','лыжи горные']))return'skis';
+  if(startsAny(n,['лыжи','беговые лыжи','горные лыжи']))return'skis';
   if(startsAny(n,['скейтборд']))return'skateboard';
   if(startsAny(n,['лонгборд']))return'longboard';
-  if(startsAny(n,['санки']))return'sled';
+  if(startsAny(n,['санки','сани','ледянка']))return'sled';
   if(startsAny(n,['снегокат']))return'snow_scooter';
   if(startsAny(n,['тюбинг']))return'tubing';
   if(startsAny(n,['беговая дорожка']))return'treadmill';
   if(startsAny(n,['велотренажер','велотренажёр']))return'exercise_bike';
   if(startsAny(n,['эллиптический тренажер','эллиптический тренажёр','эллипсоид']))return'elliptical';
   if(startsAny(n,['гантель','гантели']))return'dumbbell';
-  if(startsAny(n,['штанга']))return'barbell';
+  if(startsAny(n,['штанга'])&&!/велокрес|hamax/.test(n))return'barbell';
+  if(startsAny(n,['эспандер']))return'resistance_band';
   if(startsAny(n,['гиря','гири']))return'kettlebell';
   if(startsAny(n,['палатка']))return'tent';
   if(startsAny(n,['спальный мешок','спальник']))return'sleeping_bag';
   if(startsAny(n,['рюкзак']))return'backpack';
   if(startsAny(n,['батут']))return'trampoline';
   if(startsAny(n,['бассейн']))return'pool';
-  if(startsAny(n,['сап','sup']))return'sup';
   if(startsAny(n,['каяк']))return'kayak';
   if(startsAny(n,['лодка']))return'boat';
   if(startsAny(n,['ракетка']))return'racket';
@@ -74,32 +99,59 @@ function primaryProductType(name){
   return''
 }
 function departmentFor(name,path){
-  const type=primaryProductType(name),p=textNorm(cleanPath(path).join(' ')),n=textNorm(name);
-  if(type==='bicycle')return{key:'bicycle',type,source:'name'};
-  if(type==='scooter')return{key:'scooter',type,source:'name'};
-  if(type==='snowboard')return{key:'snowboard',type,source:'name'};
-  if(type==='skates')return{key:'skates',type,source:'name'};
-  if(type==='rollers')return{key:'rollers',type,source:'name'};
-  if(type==='skis')return{key:'skiing',type,source:'name'};
-  if(['skateboard','longboard'].includes(type))return{key:'boards',type,source:'name'};
-  if(['treadmill','exercise_bike','elliptical','dumbbell','barbell','kettlebell','trampoline'].includes(type))return{key:'fitness',type,source:'name'};
-  if(['tent','sleeping_bag','backpack'].includes(type))return{key:'tourism',type,source:'name'};
-  if(['pool','sup','kayak','boat'].includes(type))return{key:'water',type,source:'name'};
-  if(['racket','ball','hockey_stick'].includes(type))return{key:'team',type,source:'name'};
-  if(['sled','snow_scooter','tubing'].includes(type))return{key:'winter',type,source:'name'};
-  if(p.includes('велосип')||p.includes('bmx')||p.includes('велозапчаст'))return{key:'cycling',type:'',source:'path'};
-  if(p.includes('беговые лыжи')||p.includes('горные лыжи')||p.includes('лыж'))return{key:'skiing',type:'',source:'path'};
-  if(p.includes('сноуборд'))return{key:'snowboard',type:'',source:'path'};
-  if(p.includes('ролик'))return{key:'rollers',type:'',source:'path'};
-  if(p.includes('коньк'))return{key:'skates',type:'',source:'path'};
-  if(p.includes('скейт')||p.includes('лонгборд'))return{key:'boards',type:'',source:'path'};
-  if(p.includes('фитнес')||p.includes('тренаж')||p.includes('гантел')||p.includes('штанг'))return{key:'fitness',type:'',source:'path'};
-  if(p.includes('туризм')||p.includes('палат')||p.includes('спальн')||p.includes('рюкзак'))return{key:'tourism',type:'',source:'path'};
-  if(p.includes('водн')||p.includes('бассейн')||p.includes('сап')||p.includes('лодк'))return{key:'water',type:'',source:'path'};
-  if(p.includes('хоккей')||p.includes('футбол')||p.includes('баскет')||p.includes('волейбол')||p.includes('теннис'))return{key:'team',type:'',source:'path'};
-  if(p.includes('зимн')||p.includes('санк')||p.includes('снегокат')||p.includes('тюбинг'))return{key:'winter',type:'',source:'path'};
-  if(p.includes('аксессуар')||p.includes('экипиров')||p.includes('защит')||n.includes('чехол')||n.includes('сумка'))return{key:'accessories',type:'',source:'path'};
-  return{key:'other',type:'',source:'fallback'}
+  const type=primaryProductType(name),parts=cleanPath(path),p=textNorm(parts.join(' ')),n=textNorm(name);
+  const match=(key,source='path',productType='')=>({key,type:productType,source});
+  // Explicit object names win over polluted source paths. Accessories mentioning
+  // a sport are routed before broad generic categories such as pumps or bags.
+  if(['bicycle','balance_bike'].includes(type))return match('bicycle','name',type);
+  if(type==='scooter')return match('scooter','name',type);
+  if(type==='snowboard')return match('snowboard','name',type);
+  if(type==='skates')return match('skates','name',type);
+  if(type==='rollers')return match('rollers','name',type);
+  if(type==='skis')return match('skiing','name',type);
+  if(['skateboard','longboard'].includes(type))return match('boards','name',type);
+  if(['treadmill','exercise_bike','elliptical','dumbbell','barbell','kettlebell','trampoline','ab_wheel','resistance_band'].includes(type))return match('fitness','name',type);
+  if(['tent','sleeping_bag','backpack'].includes(type))return match('tourism','name',type);
+  if(['pool','sup','kayak','boat'].includes(type))return match('water','name',type);
+  if(type==='hockey_stick')return match('hockey','name',type);
+  if(type==='racket')return match('team','name',type);
+  if(type==='ball')return match(/хоккей/.test(p+' '+n)?'hockey':/фитнес|гимнаст|массаж|медбол|фитбол/.test(p+' '+n)?'fitness':'team','name',type);
+  if(['sled','snow_scooter','tubing'].includes(type))return match('winter','name',type);
+  if(isSupReference(n)||isSupReference(p))return match('water','name','sup_accessory');
+  if(isCyclingPulleyName(n))return match('cycling','name');
+  if(/для самокат|для сам\.|самокатн|электроскутер|электросамокат/.test(n))return match('scooter','name');
+  if(/для скейт|для лонгборд/.test(n))return match('boards','name');
+  if(/для ролик/.test(n))return match('rollers','name');
+  if(/скандинав.*ходьб|скандин\.? ходьб/.test(p+' '+n))return match('walking');
+  if(/плавани|для плав|д.плав|снорклинг|дайвинг/.test(p+' '+n))return match('water');
+  if(/бокс|единобор|карат[еэ]|дзюдо|самбо|борцов/.test(p)||/боксерск|для бокса|кикбокс|единобор|карат[еэ]|дзюдо|самбо|борцов/.test(n))return match('combat');
+  if(/сноуборд/.test(p))return match('snowboard');
+  if(/лыж|лыжероллер/.test(p)||/(?:^| )лыжн|для (?:беговых |горных )?лыж/.test(n))return match('skiing');
+  if(/ролик/.test(p))return match('rollers');
+  if(/коньк/.test(p)&&!/клюшк|шайб/.test(p+' '+n))return match('skates');
+  if(/хоккей/.test(p+' '+n)||/^клюшка(?: |$)/.test(n))return match('hockey');
+  if(/скейт|лонгборд/.test(p))return match('boards');
+  if(/самокат|электроскутер/.test(p))return match('scooter');
+  if(/фитнес|тренаж|гантел|штанг|спортивные комплекс|пульсометр/.test(p))return match('fitness');
+  if(/игровые виды спорта|футбол|баскет|волейбол|теннис|бадминтон|бейсбол/.test(p))return match('team');
+  if(/туризм|палат|спальн|рюкзак/.test(p)&&!/велосум|велосип|велобагаж/.test(p+' '+n))return match('tourism');
+  if(/водный спорт|водные виды|бассейн|(?:^| )лодк/.test(p))return match('water');
+  if(/зимн|сани|санк|снегокат|тюбинг/.test(p))return match('winter');
+  if(/одежд|термобель|носки|гетры|лосины|банданы/.test(p))return match('clothing');
+  if(/велосип|bmx|велозапчаст|веломастер|велосум/.test(p))return match('cycling');
+  if(/аксессуар|экипиров|защит/.test(p)||/чехол|сумка/.test(n))return match('accessories');
+  return match('other','fallback');
+}
+function catalogSubcategory(name,path,tax){
+  if(tax.type==='sup')return'SUP-борды';
+  if(tax.type==='sup_accessory')return'SUP-аксессуары';
+  if(tax.type==='balance_bike')return'Беговелы';
+  path=cleanPath(path);
+  const leaf=path[path.length-1]||CATALOG_DEPARTMENTS[tax.key]?.label||'Другие товары';
+  if(tax.key==='bicycle'&&textNorm(path[0])==='велосипеды')return leaf;
+  // Do not expose an unrelated old category (e.g. skates on a bicycle).
+  if(tax.source==='name'&&path.length&&departmentFor('',path).key!==tax.key)return CATALOG_DEPARTMENTS[tax.key]?.label||leaf;
+  return leaf;
 }
 function catalogSpecEntries(specs){
   if(Array.isArray(specs))return specs.map(item=>{
@@ -205,8 +257,8 @@ function normalizeProduct(p,i){
   const model=String(p.model||'').trim();
   const description=p.description||'';
   const pathText=path.join(' ');
-  const rawCat=path[path.length-1]||path[0]||'Каталог';
   const tax=departmentFor(name,path);
+  const rawCat=catalogSubcategory(name,path,tax);
   const dep=CATALOG_DEPARTMENTS[tax.key]||CATALOG_DEPARTMENTS.other;
   const displayCategory=tax.source==='name'?dep.label:rawCat;
   const images=(Array.isArray(p.images)?p.images:[]).map(imageUrl).filter(Boolean);
@@ -327,3 +379,4 @@ async function loadProduct(id){
   const row=j.items.find(p=>String(p.id)===key);
   return row?normalizeProduct(row):null;
 }
+

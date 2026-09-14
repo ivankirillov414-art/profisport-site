@@ -30,6 +30,9 @@
     <a href="#catalog" data-category="запчаст" data-menu-close>Запчасти</a>
     <a href="#catalog" data-category="аксессуар" data-menu-close>Аксессуары</a>
     <a href="#catalog" data-category="лыж" data-menu-close>Зимний спорт</a>
+    <a href="#catalog" data-category="самокат" data-menu-close>Самокаты, ролики и скейты</a>
+    <a href="#catalog" data-category="фитнес" data-menu-close>Фитнес и спорт</a>
+    <a href="#catalog" data-category="туризм" data-menu-close>Туризм и водный спорт</a>
     <a href="#picker" data-menu-close>Подбор велосипеда</a>
     <a href="service.html">Сервис</a>
     <a href="profile.html">Личный кабинет</a>
@@ -78,7 +81,7 @@
     <section id="brandShowcase" class="brandShowcase" hidden><div class="sectionHead"><h2>Выбирайте по бренду</h2><a href="#catalogProducts">Все товары →</a></div><div id="brandShortcuts" class="brandShortcuts"></div></section>
     <section id="catalog" class="categorySection">
       <div class="sectionHead"><h2>Категории</h2><a href="#catalogProducts">Весь каталог →</a></div>
-      <div id="categoryTiles" class="categoryTiles"><a href="?cat=bicycle#catalogProducts" class="categoryTile tile0" data-department="bicycle"><div><h3>Велосипеды</h3><span>Город, прогулки и бездорожье</span></div><span class="categoryIcon icon-bicycle" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=scooter#catalogProducts" class="categoryTile tile1" data-department="scooter"><div><h3>Самокаты</h3><span>Для дороги и трюков</span></div><span class="categoryIcon icon-scooter" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=skiing#catalogProducts" class="categoryTile tile2" data-department="skiing"><div><h3>Лыжный спорт</h3><span>Лыжи, ботинки и палки</span></div><span class="categoryIcon icon-skiing" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=cycling#catalogProducts" class="categoryTile tile3" data-department="cycling"><div><h3>Запчасти и аксессуары</h3><span>Обслуживание и ремонт</span></div><span class="categoryIcon icon-cycling" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=fitness#catalogProducts" class="categoryTile tile4" data-department="fitness"><div><h3>Фитнес</h3><span>Тренировки в вашем ритме</span></div><span class="categoryIcon icon-fitness" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=tourism#catalogProducts" class="categoryTile tile5" data-department="tourism"><div><h3>Туризм</h3><span>Всё для новых маршрутов</span></div><span class="categoryIcon icon-tourism" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a></div>
+      <div id="categoryTiles" class="categoryTiles"><a href="?cat=bicycle#catalogProducts" class="categoryTile tile0" data-department="bicycle"><div><h3>Велосипеды</h3><span>Город, прогулки и бездорожье</span></div><span class="categoryIcon icon-bicycle" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=scooter#catalogProducts" class="categoryTile tile1" data-department="scooter"><div><h3>Самокаты, ролики и скейты</h3><span>Катание, трюки и комплектующие</span></div><span class="categoryIcon icon-scooter" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=skiing#catalogProducts" class="categoryTile tile2" data-department="skiing"><div><h3>Зимний спорт</h3><span>Лыжи, сноуборды, коньки и хоккей</span></div><span class="categoryIcon icon-skiing" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=cycling#catalogProducts" class="categoryTile tile3" data-department="cycling"><div><h3>Запчасти и аксессуары</h3><span>Детали, инструменты и экипировка</span></div><span class="categoryIcon icon-cycling" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=fitness#catalogProducts" class="categoryTile tile4" data-department="fitness"><div><h3>Фитнес и спорт</h3><span>Тренировки, игры и единоборства</span></div><span class="categoryIcon icon-fitness" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a><a href="?cat=tourism#catalogProducts" class="categoryTile tile5" data-department="tourism"><div><h3>Туризм и водный спорт</h3><span>SUP-борды, плавание и походы</span></div><span class="categoryIcon icon-tourism" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a></div>
     </section>
 
     <section id="catalogProducts">
@@ -122,10 +125,11 @@
   <dialog id="filterDialog" class="filterDialog" aria-labelledby="filterTitle"><div class="filterDialogHead"><h2 id="filterTitle">Фильтры</h2><button type="button" id="closeFilters" aria-label="Закрыть фильтры">×</button></div><div id="filterDialogBody"></div><div id="filterDialogFooter"></div></dialog>
   <dialog id="pickerDialog" class="partDialog" aria-labelledby="pickerTitle"><button type="button" class="dialogClose" aria-label="Закрыть подбор велосипеда">×</button></dialog>
   <dialog id="quickView" class="quickView" aria-labelledby="quickTitle"><button type="button" class="dialogClose" aria-label="Закрыть быстрый просмотр">×</button><div id="quickContent"></div></dialog>
-  <script src="catalog-loader.js?v=24"></script>
-  <script src="catalog-live-paged.js?v=5"></script>
+  <script src="catalog-loader.js?v=25"></script>
+  <script src="catalog-live-paged.js?v=6"></script>
   <script src="brand-showcase.js?v=3"></script>
-  <script src="app.js?v=34"></script>
+  <script src="app.js?v=35"></script>
   <script src="buyer-info.js?v=1"></script>
 </body>
 </html>
+

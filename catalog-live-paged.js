@@ -87,7 +87,7 @@
     return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhoto).map(normalizeProduct);
   }
 
-  const CACHE_KEY='live-catalog-imgtruth5-v1',CACHE_MAX_AGE=120000;
+  const CACHE_KEY='live-catalog-imgtruth5-taxonomy2',CACHE_MAX_AGE=120000;
   function catalogCache(mode,items){
     return new Promise(resolve=>{
       let database,settled=false;
@@ -140,3 +140,4 @@
     return pagedCatalogPromise;
   };
 })();
+
