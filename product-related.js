@@ -23,3 +23,13 @@ function descriptionText(value){
   doc.querySelectorAll('script,style,iframe,object').forEach(el=>el.remove());
   return (doc.body.textContent||'').trim();
 }
+
+
+// Tax/accounting suffixes are hidden only in storefront navigation labels.
+function cleanProductCategoryLabel(value){
+  return String(value||'')
+    .replace(/(?<![\p{L}\p{N}])(?:НДС|NDS|VAT)\s+не\s+облагается/giu,'')
+    .replace(/(?<![\p{L}\p{N}])(?:(?:без|с|включая)\s+)?(?:НДС|NDS|VAT)(?![\p{L}])(?:\s*[-–—:=]?\s*\d+(?:[.,]\d+)?\s*%)?/giu,'')
+    .replace(/[([]\s*[)\]]/g,'')
+    .replace(/\s+/g,' ').replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g,'').trim();
+}
