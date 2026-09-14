@@ -39,7 +39,7 @@ footer>.buyerFooterLinks{flex-basis:100%}
   .storeFooterWithBuyers{grid-template-columns:1.5fr 1fr 1fr 1fr}
 }
 @media(min-width:851px) and (max-width:1050px){
-  body>nav:has(>.buyerNav){gap:14px;padding-left:18px;padding-right:18px}
+  body>nav:not(.mobileBottomNav):has(>.buyerNav){gap:14px;padding-left:18px;padding-right:18px}
 }
 @media(max-width:850px){
   .buyerPage{width:calc(100% - 32px);padding-top:20px}
