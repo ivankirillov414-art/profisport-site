@@ -12,7 +12,7 @@ function imageUrl(u){
 const CATALOG_DEPARTMENTS={
   bicycle:{label:'Велосипеды',order:10},
   scooter:{label:'Самокаты',order:20},
-  cycling:{label:'Велозапчасти и аксессуары',order:30},
+  cycling:{label:'Запчасти',order:30},
   skiing:{label:'Лыжи и экипировка',order:40},
   snowboard:{label:'Сноуборды',order:50},
   skates:{label:'Коньки',order:60},
@@ -35,10 +35,10 @@ const CATALOG_SECTIONS={
   bicycle:{label:'Велосипеды',note:'Город, прогулки и бездорожье',icon:'bicycle',departments:['bicycle']},
   scooter:{label:'Самокаты, ролики и скейты',note:'Катание, трюки и комплектующие',icon:'scooter',departments:['scooter','rollers','boards']},
   skiing:{label:'Зимний спорт',note:'Лыжи, сноуборды, коньки и хоккей',icon:'skiing',departments:['skiing','snowboard','skates','winter','hockey']},
-  cycling:{label:'Запчасти и аксессуары',note:'Детали, инструменты и экипировка',icon:'cycling',departments:['cycling','accessories','clothing']},
+  cycling:{label:'Запчасти',note:'Детали для ремонта и обслуживания',icon:'cycling',departments:['cycling']},
+  accessories:{label:'Аксессуары',note:'Оснащение, защита и экипировка',icon:'tourism',departments:['accessories','clothing']},
   fitness:{label:'Фитнес и спорт',note:'Тренировки, игры и единоборства',icon:'fitness',departments:['fitness','team','combat']},
   tourism:{label:'Туризм и водный спорт',note:'SUP-борды, плавание и походы',icon:'tourism',departments:['tourism','water','walking']},
-  other:{label:'Другие товары',note:'Остальные товары каталога',icon:'cycling',departments:['other']}
 };
 function catalogMatchesDepartment(product,key){
   return !key||(CATALOG_SECTIONS[key]?.departments||[key]).includes(product.department);
@@ -138,6 +138,14 @@ function departmentFor(name,path){
   if(/водный спорт|водные виды|бассейн|(?:^| )лодк/.test(p))return match('water');
   if(/зимн|сани|санк|снегокат|тюбинг/.test(p))return match('winter');
   if(/одежд|термобель|носки|гетры|лосины|банданы/.test(p))return match('clothing');
+  // Source categories often contain only component names, without "велосипед".
+  const partCategories=new Set(['адаптеры','вилки и амортизация','втулки','выносы','грипсы','детали для вилки','запчасти для рам','звезды','калиперы','камеры','каретки','колеса','манетки','обода','педали','переключатели','подседельные штыри','подшипники','рамы','рога','рулевые колонки','рули','седла','спицы','тормоза гидравлические','тормоза v-brake','тормозные колодки','тормозные ротора диски','тормозные ручки','тросики рубашки','хомуты эксцентрики','цепи','шатуны','покрышки','кассеты','трещотки']);
+  const pathKeys=parts.map(x=>textNorm(x).replace(/[^a-zа-я0-9 -]/g,'').trim());
+  if(pathKeys.some(x=>partCategories.has(x)))return match('cycling');
+  if(/(?:диск\\.? торм|дисков.*тормоз|адаптер калипера|тормоза postmount)/.test(n))return match('cycling','name');
+  if(/^(?:покрышка|камера|подшипник|каретка|педали|шатуны|цепь|спицы)(?: |$)/.test(n))return match('cycling','name');
+  if(/жилеты.*нарукавники|надувные лодоч|надувная мебель/.test(p))return match('water');
+  if(/велосум|велобагаж|велозам|велокомпьют|фляг|насос|фонар|звонок|зеркал|крылья|багажник|корзин|велокрес|велочех|шлем|инструмент|стенд|смазк/.test(p+' '+n))return match('accessories');
   if(/велосип|bmx|велозапчаст|веломастер|велосум/.test(p))return match('cycling');
   if(/аксессуар|экипиров|защит/.test(p)||/чехол|сумка/.test(n))return match('accessories');
   return match('other','fallback');

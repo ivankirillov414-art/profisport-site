@@ -248,7 +248,7 @@ const megaSections={
   'велосипед':CATALOG_SECTIONS.bicycle,
   'самокат':CATALOG_SECTIONS.scooter,
   'запчаст':CATALOG_SECTIONS.cycling,
-  'аксессуар':{label:'Аксессуары',departments:['accessories']},
+  'аксессуар':CATALOG_SECTIONS.accessories,
   'лыж':CATALOG_SECTIONS.skiing,
   'фитнес':CATALOG_SECTIONS.fitness,
   'туризм':CATALOG_SECTIONS.tourism
@@ -264,7 +264,7 @@ function buildMega(context=''){
   const panel=$('#megaCatalog');if(!panel)return;
   megaContext=context;
   const section=megaSections[context],rows=section?products.filter(p=>section.departments.includes(p.department)):products,groups=new Map();
-  for(const p of rows){const key=section?JSON.stringify([p.department,p.rawCat||p.cat]):catalogSectionFor(p.department);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)}
+  for(const p of rows){if(!section&&!CATALOG_SECTIONS[catalogSectionFor(p.department)])continue;const key=section?JSON.stringify([p.department,p.rawCat||p.cat]):catalogSectionFor(p.department);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)}
   const ranked=[...groups].sort((a,b)=>section?b[1].length-a[1].length:(CATALOG_DEPARTMENTS[a[0]]?.order||999)-(CATALOG_DEPARTMENTS[b[0]]?.order||999));
   panel.innerHTML=`<div class="megaHeading"><div><h2>${esc(section?.label||'Каталог товаров')}</h2><span>${rows.length} товаров</span></div><button type="button" class="megaClose" aria-label="Закрыть каталог">×</button></div>`+ranked.map(([key,items])=>{
     const title=section?(items[0].rawCat||items[0].cat):catalogCategoryLabel(key),sources=megaPhotoSources(items),subs=new Map();
