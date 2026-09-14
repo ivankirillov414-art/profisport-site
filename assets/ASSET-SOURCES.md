@@ -36,3 +36,8 @@ Created with built-in imagegen for this site, 2048×768, then encoded as quality
 ## Nordic skiing banner correction — 2026-09-14
 
 `hero/classic-nordic-v1.jpg` replaces the snowboard artwork using imagegen: Nordic skier, two narrow skis and poles on a groomed trail, matching the existing blue/black/yellow composition. Generated at 2048×768 and encoded as JPEG. User confirmed the store does not sell snowboards. The live storefront search for “беговые лыжи” returned Fischer, Tisa, Atomic, Brados and ONSKI product cards before this edit. No static parser count or direct MySQL audit is claimed. Future promotional themes and copy must be checked against the live assortment before adding them.
+
+
+## Workshop natural light-wall revision
+
+`hero/classic-workshop-light-v2.jpg`: edited with imagegen from the original generated workshop; left window, plants and furniture removed, wall naturally lightened for black text, bicycle and mechanic retained on the right. No text panel or overlay. Original resolution retained, JPEG quality 90.

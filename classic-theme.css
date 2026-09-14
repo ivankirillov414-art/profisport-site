@@ -127,7 +127,7 @@ footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var
 .storefrontHome .heroLayout .heroSlide:not(.bikeSlide) .heroPhoto{inset:0;width:100%;height:100%;background-size:cover}
 .storefrontHome .heroLayout .heroPhoto:after{content:none}
 .storefrontHome .heroLayout .winterSlide .heroPhoto{background-image:url("./assets/hero/classic-nordic-v1.jpg");background-position:center}
-.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:url("./assets/hero/classic-workshop-v1.jpg");background-position:center}
+.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:url("./assets/hero/classic-workshop-light-v2.jpg");background-position:center}
 .storefrontHome .heroArrow{top:auto;bottom:20px;width:44px;height:44px;border:1px solid #ffffffb3;border-radius:50%;background:#fffffff0;box-shadow:0 3px 12px #17212d18;transform:none}
 .storefrontHome .heroPrev{left:auto;right:76px}
 .storefrontHome .heroNext{left:auto;right:22px}
@@ -150,9 +150,10 @@ footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var
 
 
 
-/* Workshop copy stays on a readable surface, clear of the bicycle. */
-.storefrontHome .heroLayout .serviceSlide .heroCopy{width:44%;max-width:560px;margin:30px 0 30px 40px;padding:26px 28px;border:1px solid #ffffffb3;border-radius:14px;background:rgba(244,249,252,.95);box-shadow:0 6px 24px #182c3e0c;align-self:center}
+/* Light wall is part of the photograph; copy remains directly on the image. */
+.storefrontHome .heroLayout .serviceSlide .heroCopy{width:44%;max-width:560px;margin:30px 0 30px 40px;padding:26px 28px;border:0;border-radius:0;background:transparent;box-shadow:none;align-self:center}
 .storefrontHome .heroLayout .serviceSlide .heroCopy h1{font-size:clamp(27px,3.2vw,43px);line-height:1.08;letter-spacing:-1px;margin:16px 0;color:#11171e}
 .storefrontHome .heroLayout .serviceSlide .heroCopy small{color:#263645;letter-spacing:.12em}
 .storefrontHome .heroLayout .serviceSlide .heroCopy p{color:#263645;font-size:16px;line-height:1.5;margin:0 0 22px;max-width:100%}
 .storefrontHome .heroLayout .serviceSlide .heroCopy .primary{font-size:13px;padding:12px 16px}
+
