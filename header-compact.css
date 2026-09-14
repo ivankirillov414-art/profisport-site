@@ -25,16 +25,16 @@ header .logo{display:none!important}
     z-index:48;
   }
   .topIconBtn{
-    width:36px;
-    height:36px;
-    min-width:36px;
-    min-height:36px;
+    width:44px;
+    height:44px;
+    min-width:44px;
+    min-height:44px;
     border:0;
     border-radius:8px;
     background:transparent;
   }
   .topIconBtn:hover{background:#f1f3f5}
-  .topIconBtn svg{width:21px;height:21px}
+  .topIconBtn svg{width:26px;height:26px}
   .topActions #searchBtn{display:none}
   .cartCount{right:-4px;top:-5px;min-width:18px;height:18px;font-size:10px;border-width:1px}
 
@@ -200,4 +200,5 @@ header .logo{display:none!important}
   body>nav:not(.mobileBottomNav){gap:18px;font-size:12px}
   #megaCatalog{grid-template-columns:repeat(3,minmax(0,1fr));padding-left:24px;padding-right:24px}
 }
+
 

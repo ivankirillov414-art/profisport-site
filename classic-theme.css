@@ -118,3 +118,32 @@ footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var
  footer,.storeFooter{background:#f7f8fa;color:var(--ink)}
 }
 @media(prefers-reduced-motion:reduce){.storefrontHome .categoryTiles .categoryTile:hover{transform:none}}
+
+
+/* Header and carousel refinements, including the optional seventh department. */
+.top .cartCount,.top #count{display:none!important}
+.top .topIconBtn{width:44px;height:44px;min-width:44px;min-height:44px}
+.top .topIconBtn svg{width:26px;height:26px;stroke-width:1.8}
+.storefrontHome .heroLayout .heroSlide:not(.bikeSlide) .heroPhoto{inset:0;width:100%;height:100%;background-size:cover}
+.storefrontHome .heroLayout .heroPhoto:after{content:none}
+.storefrontHome .heroLayout .winterSlide .heroPhoto{background-image:linear-gradient(90deg,#deedf5b8 0%,#deedf542 40%,transparent 64%),url("./assets/hero/winter.jpg");background-position:center 24%}
+.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:linear-gradient(90deg,#dfedf7ed 0%,#dfedf7cf 32%,#dfedf744 53%,transparent 72%),url("./assets/hero/service.jpg");background-position:center 40%}
+.storefrontHome .heroArrow{top:auto;bottom:20px;width:44px;height:44px;border:1px solid #ffffffb3;border-radius:50%;background:#fffffff0;box-shadow:0 3px 12px #17212d18;transform:none}
+.storefrontHome .heroPrev{left:auto;right:76px}
+.storefrontHome .heroNext{left:auto;right:22px}
+.storefrontHome .heroArrow svg{width:24px;height:24px;padding:0;background:transparent;border-radius:0;stroke-width:1.8}
+.storefrontHome .heroArrow:hover{background:var(--y);border-color:var(--y)}
+.storefrontHome .heroArrow:hover svg{background:transparent}
+.storefrontHome .heroArrow:focus-visible{outline:2px solid #17191c;outline-offset:3px}
+.storefrontHome .hero .dots{bottom:30px}
+@media(min-width:1051px){
+ .storefrontHome .categoryTiles:has(>.categoryTile:nth-child(7)){grid-template-columns:repeat(7,minmax(0,1fr))}
+}
+@media(min-width:851px) and (max-width:1050px){
+ .storefrontHome .categoryTiles:has(>.categoryTile:nth-child(7)){grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:850px){
+ .top .topActions{gap:3px}
+ .storefrontHome .categoryTiles:has(>.categoryTile:nth-child(7))>.categoryTile:last-child{grid-column:1/-1;flex-direction:row;min-height:64px;justify-content:center;padding:12px;gap:12px}
+ .storefrontHome .categoryTiles:has(>.categoryTile:nth-child(7))>.categoryTile:last-child .categoryIcon{width:40px;height:40px}
+}
