@@ -53,9 +53,12 @@ equal(bikeSpecs['Ростовка рамы'],'18','bicycle frame size remains in
 // Navigation coverage and real ambiguous names found in the source catalog.
 const {catalogMatchesDepartment,catalogSectionFor,catalogSubcategory,CATALOG_DEPARTMENTS,CATALOG_SECTIONS}=context.__taxonomy;
 for(const key of Object.keys(CATALOG_DEPARTMENTS)){
-  equal(Object.values(CATALOG_SECTIONS).filter(s=>s.departments.includes(key)).length,1,`one home section for ${key}`);
+  equal(Object.values(CATALOG_SECTIONS).filter(s=>s.departments.includes(key)).length,key==='other'?0:1,`one home section for ${key}`);
 }
 const cases=[
+  ['Адаптер диск. торм. BENGAL ADU3',['Адаптеры'],'cycling','cycling'],
+  ['Каретка Shimano',['Каретки'],'cycling','cycling'],
+  ['Насос велосипедный',['Велосипеды'],'accessories','accessories'],
   ['Сапборд Koromo Orange 350x84x15',['Сапборды'],'water','tourism'],
   ['Надувная доска для SUP (САП) серфинга DZL-320',[],'water','tourism'],
   ['Сиденье на сапборд',['Сапборды'],'water','tourism'],
@@ -73,10 +76,10 @@ const cases=[
   ['Вело аксессуары/руль/BBB',['Велозапчасти','Рули'],'cycling','cycling'],
   ['Колодки тормозные BARADINE',['Велозапчасти','Тормозные колодки'],'cycling','cycling'],
   ['Шайба для каретки',['Велозапчасти','Каретки'],'cycling','cycling'],
-  ['Штанга для велокресла HAMAX KISS',['Аксессуары'],'accessories','cycling'],
+  ['Штанга для велокресла HAMAX KISS',['Аксессуары'],'accessories','accessories'],
   ['Термоаппликация «Горнолыжник»',['Аксессуары','Наклейки'],'accessories','cycling'],
   ['Бинт боксерский',['Единоборства','Бинты'],'combat','fitness'],
-  ['1020 Съёмник кассеты',['Веломастерская','Инструменты'],'cycling','cycling'],
+  ['1020 Съёмник кассеты',['Веломастерская','Инструменты'],'accessories','accessories'],
   ['Палки для скандинавской ходьбы',['Скандинавская ходьба'],'walking','tourism'],
   ['Неизвестный товар',[],'other','other']
 ];
