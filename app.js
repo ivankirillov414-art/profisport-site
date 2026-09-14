@@ -425,17 +425,20 @@ function setupHero(){
 }
 
 function populateCategoryOptions(availableProducts=null){
-  category.innerHTML='<option value="">Все категории</option>';
+  category.innerHTML='<option value="">Каталог</option>';
   for(const [key,section] of Object.entries(CATALOG_SECTIONS)){
     const departments=section.departments.filter(dep=>!availableProducts||availableProducts.some(p=>p.department===dep));
     if(!departments.length)continue;
-    const children=departments.filter(dep=>dep!==key&&CATALOG_DEPARTMENTS[dep]);
-    if(!children.length){category.add(new Option(section.label,key));continue}
-    const group=document.createElement('optgroup');
-    group.label=section.label;
-    group.append(new Option('Все: '+section.label,key));
-    for(const dep of children)group.append(new Option(CATALOG_DEPARTMENTS[dep].label,dep));
-    category.append(group);
+    const parent=new Option(section.label,key);
+    parent.style.fontWeight='700';
+    parent.style.color='#17191c';
+    category.add(parent);
+    for(const dep of departments.filter(dep=>dep!==key&&CATALOG_DEPARTMENTS[dep])){
+      const label=dep==='winter'?'Зимний инвентарь':CATALOG_DEPARTMENTS[dep].label;
+      const child=new Option('\u00a0\u00a0\u00a0'+label,dep);
+      child.style.fontWeight='400';
+      category.add(child);
+    }
   }
 }
 function populateFilters(){
