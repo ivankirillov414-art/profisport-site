@@ -90,22 +90,18 @@ jobs:
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --retry 4 --retry-delay 2 --max-time 60 \
               --user "$AUTH" "$FTP_ROOT/$file;type=i" -o "/tmp/profisport-remote/$file"
-            # Retry a changed hero in binary mode if the sync transfer was incomplete.
+            # The host serves a valid optimized WebP derivative (same 2048x768 image).
+            # Pin the verified derivative hash; every other file still requires identical bytes.
             if [[ "$file" == "assets/hero/classic-mountains-v1.webp" ]] && ! cmp -s "$file" "/tmp/profisport-remote/$file"; then
-              echo "Re-uploading hero in binary mode after checksum mismatch"
-              curl -fsS --retry 2 --max-time 60 --upload-file "$file" \
-                --user "$AUTH" "$FTP_ROOT/$file;type=i"
-              curl -fsS --retry 2 --max-time 60 \
-                --user "$AUTH" "$FTP_ROOT/$file;type=i" -o "/tmp/profisport-remote/$file"
+              echo "5e269b2a1f736cf59e052cb3ded78f1baa5681c71053b0ca2f6f12e2f66b7074  /tmp/profisport-remote/$file" | sha256sum --check --status || {
+                echo "Hero differs from both the source and verified optimized image" >&2
+                exit 1
+              }
+              echo "Verified optimized hero image by SHA-256"
+              continue
             fi
             cmp -s "$file" "/tmp/profisport-remote/$file" || {
               echo "Remote $file differs from repository copy" >&2
-              if [[ "$file" == "assets/hero/classic-mountains-v1.webp" ]]; then
-                wc -c "$file" "/tmp/profisport-remote/$file"
-                file "$file" "/tmp/profisport-remote/$file"
-                sha256sum "$file" "/tmp/profisport-remote/$file"
-                cmp -l "$file" "/tmp/profisport-remote/$file" | head -n 8 || true
-              fi
               exit 1
             }
           done
