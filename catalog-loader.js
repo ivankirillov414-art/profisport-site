@@ -158,7 +158,7 @@ function catalogSubcategory(name,path,tax){
   const leaf=path[path.length-1]||CATALOG_DEPARTMENTS[tax.key]?.label||'Другие товары';
   // DIAFAN roots can include tax suffixes: "Велосипеды (НДС)".
   // Keep their actual leaf categories instead of collapsing every bike to the root.
-  if(tax.key==='bicycle'&&path.some(part=>/^велосипеды(?: |$)/.test(textNorm(part)))){
+  if(tax.key==='bicycle'&&(path.some(part=>/велосипед/.test(textNorm(part)))||/горн|детск|малыш|подрост|складн|фэтбайк|двухподвес|гибрид|шоссе|дорожн|городск|bmx/i.test(leaf))){
     return leaf.replace(/\s*\(?\s*(?:НДС|NDS|VAT)(?:\s*[-–:]?\s*\d+(?:[.,]\d+)?\s*%)?\s*\)?/gi,'').trim()||'Велосипеды';
   }
   // Do not expose an unrelated old category (e.g. skates on a bicycle).
