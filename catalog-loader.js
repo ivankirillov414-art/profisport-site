@@ -156,7 +156,11 @@ function catalogSubcategory(name,path,tax){
   if(tax.type==='balance_bike')return'Беговелы';
   path=cleanPath(path);
   const leaf=path[path.length-1]||CATALOG_DEPARTMENTS[tax.key]?.label||'Другие товары';
-  if(tax.key==='bicycle'&&textNorm(path[0])==='велосипеды')return leaf;
+  // DIAFAN roots can include tax suffixes: "Велосипеды (НДС)".
+  // Keep their actual leaf categories instead of collapsing every bike to the root.
+  if(tax.key==='bicycle'&&path.some(part=>/^велосипеды(?: |$)/.test(textNorm(part)))){
+    return leaf.replace(/\s*\(?\s*(?:НДС|NDS|VAT)(?:\s*[-–:]?\s*\d+(?:[.,]\d+)?\s*%)?\s*\)?/gi,'').trim()||'Велосипеды';
+  }
   // Do not expose an unrelated old category (e.g. skates on a bicycle).
   if(tax.source==='name'&&path.length&&departmentFor('',path).key!==tax.key)return CATALOG_DEPARTMENTS[tax.key]?.label||leaf;
   return leaf;
