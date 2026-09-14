@@ -1,0 +1,120 @@
+/* Classic / clean storefront. Shared across public pages; catalog logic stays independent. */
+:root{--ink:#17191c;--y:#ffe12b;--g:#454b53;--bg:#fff;--line:#e4e7eb;--profisport-brand-logo:url("./assets/brand/profisport-logo-classic.svg")}
+html,body{background:#fff;color:var(--ink)}
+body{background-image:none}
+.top{background:#fff;color:var(--ink);border-bottom:1px solid var(--line);box-shadow:none}
+.top a,.topIconBtn{color:var(--ink)}
+.topIconBtn{background:transparent;border-color:transparent}
+.topIconBtn:hover,.topIconBtn:active{background:#f1f3f5}
+.top>b>a{width:148px;height:64px;color:transparent}
+.cartCount{background:var(--y);color:var(--ink);border-color:#fff}
+body>header{background:#fff;border-color:var(--line);box-shadow:none}
+body>header input,.mobileSearch input{background:#f3f4f6;border-color:#f3f4f6}
+body>nav:not(.mobileBottomNav){background:#fff;color:var(--ink);box-shadow:none}
+.primary,button:not(.topIconBtn):not(.heroArrow):not(.dialogClose):not(.close){transition:background-color .18s ease,border-color .18s ease}
+.primary{background:var(--y);color:var(--ink);border-radius:8px;box-shadow:none}
+.primary:hover{background:#f5d524}
+.secondary,.budgetShortcuts button,.quickButton{background:#fff;border-color:var(--line)}
+.storefrontHome{width:min(1360px,calc(100% - 48px));margin-inline:auto;padding-top:20px}
+.storefrontHome .heroLayout{display:block;margin:0 0 28px}
+.storefrontHome .hero{border:1px solid var(--line);border-radius:14px;box-shadow:none;background:#eaf3fa}
+.storefrontHome .heroLayout .heroSlide{min-height:456px;grid-template-columns:1fr}
+.storefrontHome .heroLayout .heroCopy{width:55%;max-width:none;padding:48px 56px;align-self:center}
+.storefrontHome .heroCopy small{display:inline-block;background:none;color:var(--ink);font-size:11px;font-weight:800;letter-spacing:.14em;padding:0}
+.storefrontHome .heroCopy h1{color:#11171e;font-family:Arial,Helvetica,sans-serif;font-size:clamp(38px,4.25vw,60px);font-weight:900;font-style:italic;line-height:1.02;letter-spacing:-2px;text-transform:uppercase;margin:18px 0}
+.storefrontHome .heroCopy p{color:#232d38;font-size:17px;line-height:1.5;max-width:340px;margin:0 0 24px}
+.storefrontHome .heroCopy .primary{display:inline-flex;align-items:center;min-height:46px;padding:13px 22px;font-size:14px;font-weight:800}
+.storefrontHome .heroLayout .bikeSlide{background:#eaf3fa}
+.storefrontHome .heroLayout .bikeSlide .heroPhoto{inset:0;width:100%;height:100%;background-image:url("./assets/hero/classic-mountains-v1.webp");background-position:center;background-size:cover}
+.storefrontHome .heroLayout .bikeSlide .heroPhoto:after{content:none}
+.storefrontHome .heroLayout .heroSlide:not(.bikeSlide) .heroPhoto{width:58%}
+.storefrontHome .heroArrow{width:34px;height:34px;background:#ffffffd9;border:1px solid #ffffff90;box-shadow:none}
+.storefrontHome .heroPrev{left:10px}.storefrontHome .heroNext{right:10px}
+.storefrontHome .hero .dots{bottom:14px}
+.storefrontHome .sectionHead{margin:0 0 18px;align-items:baseline;gap:16px}
+.storefrontHome .sectionHead h2{font-size:26px;line-height:1.2;letter-spacing:-.6px}
+.storefrontHome .sectionHead>a{font-size:13px;color:#626870}
+.storefrontHome .categorySection{margin:0 0 40px}
+.storefrontHome .categoryTiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.storefrontHome .categoryTiles .categoryTile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:170px;padding:18px 10px;gap:14px;border-radius:10px;background:#fff;text-align:center;box-shadow:none}
+.storefrontHome .categoryTiles .categoryTile>div{max-width:100%}
+.storefrontHome .categoryTiles .categoryTile h3{margin:0;font-size:15px;line-height:1.3;letter-spacing:0;overflow-wrap:normal}
+.storefrontHome .categoryTiles .categoryTile>div>span,.storefrontHome .categoryTiles .tileArrow{display:none}
+.storefrontHome .categoryTiles .categoryTile .categoryIcon{display:block;order:-1;width:72px;height:72px;align-self:center;justify-self:center}
+.storefrontHome .categoryTiles .categoryTile:hover{background:#fffef5;border-color:#d7bc32;transform:translateY(-2px)}
+.storefrontHome .brandShowcase{margin:0 0 36px}
+.storefrontHome .brandShortcuts{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.storefrontHome .brandShortcuts .brandTile{min-height:96px;border-radius:10px}
+.storefrontHome>.heroShortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto;gap:16px;margin:0 0 40px}
+.storefrontHome>.heroShortcuts>a{padding:24px 28px;border:1px solid var(--line);border-radius:12px;background:#f7f8fa;color:var(--ink)}
+.storefrontHome>.heroShortcuts>a:after{content:none}
+.storefrontHome>.heroShortcuts>.heroSaleCard{background:#fffdf0;border-color:#f0e9bf}
+.storefrontHome>.heroShortcuts h2{font-size:24px;line-height:1.15;letter-spacing:-.5px;margin:10px 0}
+.storefrontHome>.heroShortcuts h2 br{display:none}
+.storefrontHome>.heroShortcuts small{font-size:10px;color:#686c72;letter-spacing:.12em}
+.storefrontHome>.heroShortcuts p{color:#5c626a;font-size:14px;margin:0 0 16px}
+.storefrontHome>.heroShortcuts b{font-size:13px;color:var(--ink)}
+.products .product{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:none}
+.products .product:hover{border-color:#cfd3d8;box-shadow:0 4px 16px #17191c08}
+.products .product .photo{background:#fff;border-radius:8px}
+.products .product .productPurchase>button{border-radius:8px}
+.storefrontHome #catalogProducts{margin-bottom:40px}
+.filters input,.filters select,.kantFilterRow select{background-color:#f7f8fa;border-color:var(--line);border-radius:8px}
+.picker,.service,.storeLocation,.buyerHero,.buyerCard{border-radius:12px;border:1px solid var(--line);box-shadow:none}
+.picker{background:#f7f8fa;color:var(--ink)}
+.service{background:#f7f8fa;color:var(--ink)}
+.service p,.service small{color:#5c626a}
+.workshopHero{background:#fff;border:1px solid var(--line);border-radius:14px}
+.workshopHero .workshopIntro{background:#f7f8fa;color:var(--ink)}
+.workshopIntro p{border-color:var(--line)}
+.workshopHero .primary{background:var(--y);color:var(--ink)}
+footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var(--line);box-shadow:none}
+.storeFooter a,.storeFooter p,.storeFooter strong{color:var(--ink)}
+.storeFooter a:hover{color:#111;opacity:1}
+.buyerNav summary:hover{color:#111}
+.mobileBottomNav{background:#fff;border-top:1px solid var(--line);box-shadow:0 -4px 20px #17191c06}
+@media(min-width:851px) and (max-width:1050px){
+ .storefrontHome .heroLayout .heroCopy{padding:38px 40px;width:58%}
+ .storefrontHome .heroLayout .heroSlide{min-height:410px}
+ .storefrontHome .categoryTiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .storefrontHome .categoryTiles .categoryTile{min-height:156px}
+}
+@media(max-width:850px){
+ .top{background:#fff;color:var(--ink);border-bottom:1px solid var(--line)}
+ .top>b>a{width:126px;height:54px}
+ .topActions>a.topIconBtn{display:grid}
+ .topIconBtn{background:transparent;color:var(--ink)}
+ .storefrontHome{width:100%;padding:14px 14px 0}
+ .storefrontHome .mobileSearch{margin-bottom:16px}
+ .storefrontHome .heroLayout{margin-bottom:26px}
+ .storefrontHome .hero{border-radius:12px}
+ .storefrontHome .heroLayout .heroSlide:first-child{display:flex;flex-direction:column;min-height:0;background:#eaf3fa}
+ .storefrontHome .heroLayout .heroCopy{width:100%;max-width:none;padding:24px 24px 8px}
+ .storefrontHome .heroCopy small{font-size:10px}
+ .storefrontHome .heroCopy h1{font-size:clamp(32px,7.6vw,44px);line-height:1.02;letter-spacing:-1.2px;margin:12px 0}
+ .storefrontHome .heroCopy p{display:block;font-size:14px;line-height:1.4;margin:0 0 16px}
+ .storefrontHome .heroCopy p br{display:none}
+ .storefrontHome .heroCopy .primary{font-size:13px;padding:12px 18px;min-height:42px}
+ .storefrontHome .heroLayout .bikeSlide .heroPhoto{position:relative;inset:auto;width:100%;height:220px;min-height:220px;background-position:80% center;flex:none}
+ .storefrontHome .sectionHead{margin-bottom:14px;gap:12px}
+ .storefrontHome .sectionHead h2{font-size:22px;letter-spacing:-.4px}
+ .storefrontHome .sectionHead>a{font-size:12px;white-space:nowrap}
+ .storefrontHome .categorySection{margin-bottom:28px}
+ .storefrontHome .categoryTiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .storefrontHome .categoryTiles .categoryTile{min-height:152px;padding:14px 6px;gap:10px;border-radius:10px}
+ .storefrontHome .categoryTiles .categoryTile h3{font-size:13px;line-height:1.3}
+ .storefrontHome .categoryTiles .categoryTile .categoryIcon{width:60px;height:60px}
+ .storefrontHome #brandShowcase:not([hidden]){display:block!important;margin-bottom:28px}
+ .storefrontHome .brandShortcuts{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .storefrontHome .brandShortcuts .brandTile{min-height:78px;padding:8px;border-radius:8px}
+ .storefrontHome .brandShortcuts .brandMark{height:58px}
+ .storefrontHome>.heroShortcuts{display:grid!important;gap:10px;margin-bottom:28px}
+ .storefrontHome>.heroShortcuts>a{padding:18px 14px;border-radius:10px}
+ .storefrontHome>.heroShortcuts h2{font-size:19px}
+ .storefrontHome>.heroShortcuts p{font-size:12px}
+ .storefrontHome>.heroShortcuts small{font-size:9px;letter-spacing:.04em}
+ .storefrontHome>.heroShortcuts b{font-size:12px}
+ .service{background:#f7f8fa;color:var(--ink)}
+ footer,.storeFooter{background:#f7f8fa;color:var(--ink)}
+}
+@media(prefers-reduced-motion:reduce){.storefrontHome .categoryTiles .categoryTile:hover{transform:none}}

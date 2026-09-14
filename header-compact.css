@@ -1,15 +1,15 @@
-/* Compact desktop header: one graphite bar with logo, search and actions. */
+/* Classic desktop header: white logo, search and action row. */
 header .logo{display:none!important}
 
 @media (min-width:851px){
   /* Clip horizontal overflow without creating a scroll ancestor for sticky navigation. */
   html,body{overflow-x:clip}
   .top{
-    height:56px;
+    height:80px;
     padding:0 clamp(22px,4vw,64px);
     gap:14px;
     box-shadow:none;
-    border-bottom:1px solid rgba(255,255,255,.08);
+    border-bottom:1px solid #e4e7eb;
     z-index:46;
   }
   .top>b{
@@ -33,20 +33,20 @@ header .logo{display:none!important}
     border-radius:8px;
     background:transparent;
   }
-  .topIconBtn:hover{background:rgba(255,255,255,.10)}
+  .topIconBtn:hover{background:#f1f3f5}
   .topIconBtn svg{width:21px;height:21px}
   .topActions #searchBtn{display:none}
   .cartCount{right:-4px;top:-5px;min-width:18px;height:18px;font-size:10px;border-width:1px}
 
-  /* Search lives visually inside the graphite header, but the header itself scrolls away. */
+  /* Search lives visually inside the white header, but the header itself scrolls away. */
   body>header{
     position:absolute!important;
     top:0!important;
     left:clamp(205px,22vw,335px)!important;
     right:clamp(155px,18vw,250px)!important;
-    height:56px!important;
+    height:80px!important;
     min-height:0!important;
-    padding:8px 0!important;
+    padding:16px 0!important;
     margin:0!important;
     background:transparent!important;
     border:0!important;
@@ -64,19 +64,19 @@ header .logo{display:none!important}
     margin:0!important;
   }
   body>header form input{
-    min-height:38px;
-    height:38px;
+    min-height:46px;
+    height:46px;
     padding:8px 13px;
     font-size:14px;
-    border-radius:8px 0 0 8px;
-    border:1px solid rgba(255,255,255,.22);
-    background:#fff;
+    border-radius:24px 0 0 24px;
+    border:1px solid #f3f4f6;
+    background:#f3f4f6;
   }
   body>header form button{
-    min-height:38px;
-    height:38px;
+    min-height:46px;
+    height:46px;
     padding:8px 18px;
-    border-radius:0 8px 8px 0;
+    border-radius:0 24px 24px 0;
     font-size:14px;
   }
 
@@ -85,13 +85,13 @@ header .logo{display:none!important}
     position:sticky;
     top:0;
     z-index:50;
-    min-height:42px;
+    min-height:46px;
     padding:9px clamp(18px,4vw,56px);
     gap:30px;
     border-top:0;
     border-bottom:1px solid #dfe3e6;
     background:rgba(255,255,255,.97);
-    box-shadow:0 4px 14px rgba(25,29,34,.06);
+    box-shadow:none;
     backdrop-filter:saturate(1.3) blur(10px);
     -webkit-backdrop-filter:saturate(1.3) blur(10px);
     font-size:13px;
@@ -191,24 +191,7 @@ header .logo{display:none!important}
   #megaCatalog .megaFooter a{font-size:13px;font-weight:700;padding:6px 0}
   #megaBackdrop{z-index:48;background:rgba(26,31,37,.24)}
 
-  /* Wider hero area, but a little lower so the brand row is visible without scrolling. */
-  .storefrontHome{
-    width:min(1360px,calc(100% - 28px));
-    padding-top:12px;
-  }
-  .heroLayout{
-    grid-template-columns:minmax(0,3.55fr) minmax(292px,1.18fr);
-    gap:18px;
-    margin-bottom:18px;
-  }
-  .heroLayout .heroSlide{min-height:395px}
-  .heroLayout .heroCopy{padding:30px 34px}
-  .heroShortcuts{gap:14px}
-  .heroShortcuts>a{padding:22px 24px}
-  .heroShortcuts h2{font-size:24px;margin:10px 0}
-  .heroShortcuts p{font-size:13px;margin-bottom:10px}
-  .brandShowcase{margin-bottom:26px}
-  .brandShowcase .sectionHead{margin-bottom:10px}
+
 }
 
 @media (min-width:851px) and (max-width:1050px){
@@ -216,9 +199,5 @@ header .logo{display:none!important}
   .top>b{font-size:21px;min-width:140px}
   body>nav:not(.mobileBottomNav){gap:18px;font-size:12px}
   #megaCatalog{grid-template-columns:repeat(3,minmax(0,1fr));padding-left:24px;padding-right:24px}
-  .storefrontHome{width:min(1220px,calc(100% - 22px))}
-  .heroLayout{grid-template-columns:minmax(0,3.15fr) minmax(255px,1fr);gap:14px}
-  .heroLayout .heroSlide{min-height:380px}
-  .heroShortcuts>a{padding:20px}
-  .heroShortcuts h2{font-size:22px}
 }
+

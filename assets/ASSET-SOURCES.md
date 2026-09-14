@@ -16,3 +16,9 @@ Brand tile accents are sampled/selected to accompany these marks, not a claim of
 Category pictograms: custom PNG sprite atlas generated for ProfiSport with imagegen, 2026-09-13. Six cells in a 3-by-2 grid: bicycle, scooter, skiing, parts, fitness, tourism. Transparent background, charcoal and warm yellow; no product photography.
 
 Category atlas v2 corrects the bicycle cell overflow. All six pictograms stay within their 512-by-512 cells; an opaque white background matches the white cards. Generated with imagegen from the original category atlas, 2026-09-13.
+
+
+## Classic / clean hero — 2026-09-14
+
+- `hero/classic-mountains-v1.webp`: created with the built-in imagegen tool for the user's first, classic/clean reference (`IMG_5361.jpeg`). Photorealistic blue mountain and lake landscape, black/yellow mountain bike on the right, pale space on the left, no text, people, or logos. Heading and CTA are accessible HTML.
+- `brand/profisport-logo-classic.svg`: existing outlined ProfiSport logo recolored from white to charcoal, preserving the yellow accent, with the viewBox tightened for the white header.
