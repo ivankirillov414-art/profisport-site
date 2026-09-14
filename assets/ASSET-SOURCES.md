@@ -24,3 +24,10 @@ Category atlas v2 corrects the bicycle cell overflow. All six pictograms stay wi
 - `brand/profisport-logo-classic.svg`: existing outlined ProfiSport logo recolored from white to charcoal, preserving the yellow accent, with the viewBox tightened for the white header.
 
 The production host returns an optimized WebP derivative of `hero/classic-mountains-v1.webp`: 235396 bytes, still 2048×768. The deployed banner was visually inspected on the live storefront. Its SHA-256 is `5e269b2a1f736cf59e052cb3ded78f1baa5681c71053b0ca2f6f12e2f66b7074`; the source SHA-256 is `685003eebda6dbdcb64ac4e4f7bcb707af4395f2f8a51e7bf892c1dfc689c4c2`. Deployment accepts exactly one of these two files for this hero path; other files retain byte-for-byte verification.
+
+
+## New winter and workshop hero backgrounds — 2026-09-14
+
+Created with built-in imagegen for this site, 2048×768, then encoded as quality-90 JPEG for delivery without resizing. No text is embedded; the headings and buttons remain HTML.
+- `hero/classic-snowboard-v1.jpg`: alpine snowboard jump, black/yellow outfit, complete subject on the right, open pale blue sky on the left.
+- `hero/classic-workshop-v1.jpg`: illustrative fictional bright workshop with black/yellow bicycle on a stand and mechanic on the right, pale blue-gray wall on the left. It is not a photograph of the actual shop.

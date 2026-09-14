@@ -126,8 +126,8 @@ footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var
 .top .topIconBtn svg{width:26px;height:26px;stroke-width:1.8}
 .storefrontHome .heroLayout .heroSlide:not(.bikeSlide) .heroPhoto{inset:0;width:100%;height:100%;background-size:cover}
 .storefrontHome .heroLayout .heroPhoto:after{content:none}
-.storefrontHome .heroLayout .winterSlide .heroPhoto{background-image:linear-gradient(90deg,#deedf5b8 0%,#deedf542 40%,transparent 64%),url("./assets/hero/winter.jpg");background-position:center 24%}
-.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:linear-gradient(90deg,#dfedf7ed 0%,#dfedf7cf 32%,#dfedf744 53%,transparent 72%),url("./assets/hero/service.jpg");background-position:center 40%}
+.storefrontHome .heroLayout .winterSlide .heroPhoto{background-image:url("./assets/hero/classic-snowboard-v1.jpg");background-position:center}
+.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:url("./assets/hero/classic-workshop-v1.jpg");background-position:center}
 .storefrontHome .heroArrow{top:auto;bottom:20px;width:44px;height:44px;border:1px solid #ffffffb3;border-radius:50%;background:#fffffff0;box-shadow:0 3px 12px #17212d18;transform:none}
 .storefrontHome .heroPrev{left:auto;right:76px}
 .storefrontHome .heroNext{left:auto;right:22px}
@@ -147,3 +147,4 @@ footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var
  .storefrontHome .categoryTiles:has(>.categoryTile:nth-child(7))>.categoryTile:last-child{grid-column:1/-1;flex-direction:row;min-height:64px;justify-content:center;padding:12px;gap:12px}
  .storefrontHome .categoryTiles:has(>.categoryTile:nth-child(7))>.categoryTile:last-child .categoryIcon{width:40px;height:40px}
 }
+
