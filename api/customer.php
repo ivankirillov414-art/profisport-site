@@ -14,7 +14,7 @@ function customer_me(PDO $pdo): ?array {
   customer_session();
   $id=(int)($_SESSION['customer_id']??0);
   if($id<1)return null;
-  $s=$pdo->prepare('SELECT id,name,email,phone,bonus_balance FROM customers WHERE id=? AND is_active=1 LIMIT 1');
+  $s=$pdo->prepare('SELECT id,name,last_name,email,phone,birth_date,bonus_balance FROM customers WHERE id=? AND is_active=1 LIMIT 1');
   $s->execute([$id]);
   $u=$s->fetch();
   return $u?:null;
@@ -22,6 +22,19 @@ function customer_me(PDO $pdo): ?array {
 function customer_require(PDO $pdo): array { $u=customer_me($pdo); if(!$u)json_response(['ok'=>false,'error'=>'unauthorized'],401); return $u; }
 function customer_csrf(): string { customer_session(); if(empty($_SESSION['customer_csrf']))$_SESSION['customer_csrf']=bin2hex(random_bytes(24)); return (string)$_SESSION['customer_csrf']; }
 function customer_csrf_check(): void { customer_session(); $t=$_SERVER['HTTP_X_CSRF_TOKEN']??''; if(!$t||empty($_SESSION['customer_csrf'])||!hash_equals((string)$_SESSION['customer_csrf'],$t))json_response(['ok'=>false,'error'=>'csrf'],403); }
+function customer_phone(string $raw): string {
+  $digits=preg_replace('/\D+/','',$raw)??'';
+  if(strlen($digits)===10)$digits='7'.$digits;
+  if(strlen($digits)===11&&$digits[0]==='8')$digits='7'.substr($digits,1);
+  return strlen($digits)===11&&$digits[0]==='7'?'+'.$digits:'';
+}
+function customer_birth_date(string $raw): string {
+  $date=DateTimeImmutable::createFromFormat('!Y-m-d',$raw);$errors=DateTimeImmutable::getLastErrors();
+  if(!$date||($errors&&($errors['warning_count']||$errors['error_count'])))return '';
+  $today=new DateTimeImmutable('today');$oldest=$today->modify('-120 years');
+  return $date<=$today&&$date>=$oldest?$date->format('Y-m-d'):'';
+}
+function customer_valid_name(string $value): bool { $n=mb_strlen($value);return $n>=2&&$n<=120&&!preg_match('/[<>]/u',$value); }
 function customer_payload(PDO $pdo,array $u): array {
   $f=$pdo->prepare('SELECT product_id FROM customer_favorites WHERE customer_id=? ORDER BY created_at DESC');$f->execute([(int)$u['id']]);
   $history=$pdo->prepare('SELECT amount,kind,note,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 20');$history->execute([(int)$u['id']]);
@@ -39,12 +52,36 @@ try{
   }
   if($action==='register'&&$_SERVER['REQUEST_METHOD']==='POST'){
     customer_session(); $in=input_json();
-    $name=trim((string)($in['name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=trim((string)($in['phone']??''));$password=(string)($in['password']??'');
-    if(mb_strlen($name)<2||mb_strlen($name)>200||mb_strlen($email)>200||mb_strlen($phone)>40||!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($password)<8||strlen($password)>72)json_response(['ok'=>false,'error'=>'invalid_input'],422);
-    $s=$pdo->prepare('SELECT id FROM customers WHERE email=? LIMIT 1');$s->execute([$email]);if($s->fetch())json_response(['ok'=>false,'error'=>'email_exists'],409);
-    $s=$pdo->prepare('INSERT INTO customers(name,email,phone,password_hash) VALUES(?,?,?,?)');$s->execute([$name,$email,$phone?:null,password_hash($password,PASSWORD_DEFAULT)]);
-    $_SESSION['customer_id']=(int)$pdo->lastInsertId();$_SESSION['customer_csrf']=bin2hex(random_bytes(24));session_regenerate_id(true);
+    $name=trim((string)($in['name']??''));$lastName=trim((string)($in['last_name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=customer_phone((string)($in['phone']??''));$birthDate=customer_birth_date((string)($in['birth_date']??''));$password=(string)($in['password']??'');$consent=($in['consent']??false)===true||($in['consent']??'')==='on';
+    if(!customer_valid_name($name)||!customer_valid_name($lastName)||mb_strlen($email)>200||!filter_var($email,FILTER_VALIDATE_EMAIL)||$phone===''||$birthDate===''||strlen($password)<8||strlen($password)>72||!$consent)json_response(['ok'=>false,'error'=>'invalid_input'],422);
+    $s=$pdo->prepare('SELECT id,phone,birth_date,password_hash FROM customers WHERE email=? LIMIT 1');$s->execute([$email]);$existing=$s->fetch();
+    if($existing){
+      if(!empty($existing['password_hash']))json_response(['ok'=>false,'error'=>'email_exists'],409);
+      if(customer_phone((string)($existing['phone']??''))!==$phone||(string)($existing['birth_date']??'')!==$birthDate)json_response(['ok'=>false,'error'=>'profile_mismatch'],409);
+      $pdo->prepare("UPDATE customers SET name=?,last_name=?,password_hash=?,registration_source='qr_and_account',is_active=1 WHERE id=?")->execute([$name,$lastName,password_hash($password,PASSWORD_DEFAULT),(int)$existing['id']]);
+      $_SESSION['customer_id']=(int)$existing['id'];
+    }else{
+      $s=$pdo->prepare("INSERT INTO customers(name,last_name,email,phone,birth_date,password_hash,registration_source,consent_at) VALUES(?,?,?,?,?,?,'website',NOW())");$s->execute([$name,$lastName,$email,$phone,$birthDate,password_hash($password,PASSWORD_DEFAULT)]);
+      $_SESSION['customer_id']=(int)$pdo->lastInsertId();
+    }
+    $_SESSION['customer_csrf']=bin2hex(random_bytes(24));session_regenerate_id(true);
     json_response(['ok'=>true,'customer'=>customer_me($pdo),'csrf'=>customer_csrf()]);
+  }
+  if($action==='qr_register'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    customer_csrf_check();$in=input_json();
+    if(!empty($in['company']))json_response(['ok'=>true]);
+    $now=time();$attempts=is_array($_SESSION['qr_attempts']??null)?$_SESSION['qr_attempts']:[];$attempts=array_values(array_filter($attempts,fn($t)=>is_int($t)&&$t>$now-3600));if(count($attempts)>=5)json_response(['ok'=>false,'error'=>'rate_limited'],429);$attempts[]=$now;$_SESSION['qr_attempts']=$attempts;
+    $name=trim((string)($in['name']??''));$lastName=trim((string)($in['last_name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=customer_phone((string)($in['phone']??''));$birthDate=customer_birth_date((string)($in['birth_date']??''));$consent=($in['consent']??false)===true;
+    if(!customer_valid_name($name)||!customer_valid_name($lastName)||!filter_var($email,FILTER_VALIDATE_EMAIL)||$phone===''||$birthDate===''||!$consent)json_response(['ok'=>false,'error'=>'invalid_input'],422);
+    $s=$pdo->prepare('SELECT id,password_hash FROM customers WHERE email=? OR phone=? ORDER BY (email=?) DESC LIMIT 1');$s->execute([$email,$phone,$email]);$existing=$s->fetch();
+    if($existing){
+      if(empty($existing['password_hash']))$pdo->prepare("UPDATE customers SET name=?,last_name=?,email=?,phone=?,birth_date=?,registration_source='store_qr',consent_at=NOW(),qr_registered_at=NOW(),is_active=1 WHERE id=?")->execute([$name,$lastName,$email,$phone,$birthDate,(int)$existing['id']]);
+      else $pdo->prepare("UPDATE customers SET last_name=COALESCE(NULLIF(last_name,''),?),birth_date=COALESCE(birth_date,?),consent_at=NOW(),qr_registered_at=NOW() WHERE id=?")->execute([$lastName,$birthDate,(int)$existing['id']]);
+      $id=(int)$existing['id'];
+    }else{
+      $s=$pdo->prepare("INSERT INTO customers(name,last_name,email,phone,birth_date,password_hash,registration_source,consent_at,qr_registered_at) VALUES(?,?,?,?,?,NULL,'store_qr',NOW(),NOW())");$s->execute([$name,$lastName,$email,$phone,$birthDate]);$id=(int)$pdo->lastInsertId();
+    }
+    json_response(['ok'=>true,'customer_id'=>$id]);
   }
   if($action==='login'&&$_SERVER['REQUEST_METHOD']==='POST'){
     customer_session();$in=input_json();$email=mb_strtolower(trim((string)($in['email']??'')));$password=(string)($in['password']??'');
