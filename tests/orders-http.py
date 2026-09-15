@@ -54,7 +54,7 @@ assert call('api/product-admin.php?category=Sport%20%2F%20Balls',cookie=cookie)[
 assert call('api/product-admin.php?category=No%20such%20category',cookie=cookie)[1]['total']==0
 print('PASS: workshop persistence, product editing, stale-write protection, public catalog')
 # An authenticated buyer sees only their own order history.
-status,customer,h=call('api/customer.php?action=register',{'name':'Account buyer','email':'buyer@example.test','phone':'+79991234567','password':'test-only-password'})
+status,customer,h=call('api/customer.php?action=register',{'name':'Account','last_name':'Buyer','email':'buyer@example.test','phone':'+79991234567','birth_date':'1990-01-01','password':'test-only-password','consent':True})
 assert status==200
 customer_cookie=next(c.split(';')[0] for c in reversed(h.get_all('Set-Cookie')) if c.startswith('PROFISPORT_CUSTOMER='))
 status,j,_=call('api/order-create.php',{**base,'items':[1],'request_key':'c'*64},customer_cookie);assert status==200
@@ -74,7 +74,7 @@ print('PASS: category filters, live dashboard counts and reports')
 
 # Account workflows and moderation, using only this disposable database.
 customer_csrf=customer['csrf']
-assert call('api/customer.php?action=register',{'name':'Duplicate','email':'buyer@example.test','password':'test-only-password'})[0]==409
+assert call('api/customer.php?action=register',{'name':'Duplicate','last_name':'Buyer','email':'buyer@example.test','phone':'+79997654321','birth_date':'1991-02-02','password':'test-only-password','consent':True})[0]==409
 assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'wrong-password'})[0]==401
 assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie)[0]==403
 assert call('api/customer.php?action=favorite',{'product_id':999999},customer_cookie,customer_csrf)[0]==404
