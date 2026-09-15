@@ -1,5 +1,5 @@
-/* Cross-browser category cards and stable local SVG icons. */
-.categoryTiles .categoryTile{background:#fff;grid-template-rows:auto 128px;gap:8px;min-height:248px}
+/* Cross-browser category cards and stable local SVG icon system. */
+.categoryTiles .categoryTile{background:#fff;grid-template-rows:auto 96px;gap:10px;min-height:220px}
 .categoryTiles .categoryTile h3{margin:0 24px 8px 0}
 .categoryTiles .categoryTile:hover,.categoryTiles .categoryTile:focus-visible{background:#fff;border-color:#d9b647;box-shadow:0 6px 18px rgb(32 35 32 / 7%)}
 .categoryTiles .categoryTile:focus-visible{outline:2px solid #d9b647;outline-offset:3px}
@@ -7,29 +7,36 @@
 .categoryTiles .categoryTile .categoryIcon{
   display:block;
   justify-self:end;
-  width:128px;
-  height:128px;
+  width:72px;
+  height:72px;
   min-width:0;
   flex:none;
   aspect-ratio:1/1;
   background-color:transparent;
   background-repeat:no-repeat;
   background-position:center;
-  background-size:contain;
+  background-size:54px 54px;
   pointer-events:none;
   transform:none;
+  opacity:.96;
+  transition:transform .18s ease,opacity .18s ease;
 }
-.categoryTiles .categoryTile .icon-bicycle{background-image:url("./assets/categories/bicycle-v3.svg")}
-.categoryTiles .categoryTile .icon-scooter{background-image:url("./assets/categories/scooter-v3.svg")}
-.categoryTiles .categoryTile .icon-skiing{background-image:url("./assets/categories/skiing-v3.svg")}
-.categoryTiles .categoryTile .icon-cycling{background-image:url("./assets/categories/parts-v3.svg")}
+.categoryTiles .categoryTile:hover .categoryIcon{transform:translateY(-2px);opacity:1}
+.categoryTiles .categoryTile .icon-bicycle{background-image:url("./assets/categories/bicycle-v4.svg")}
+.categoryTiles .categoryTile .icon-scooter{background-image:url("./assets/categories/scooter-v4.svg")}
+.categoryTiles .categoryTile .icon-skiing{background-image:url("./assets/categories/skiing-v4.svg")}
+.categoryTiles .categoryTile .icon-cycling{background-image:url("./assets/categories/parts-v4.svg")}
 .categoryTiles .categoryTile .icon-accessories,
-.categoryTiles .categoryTile[data-department="accessories"] .categoryIcon{background-image:url("./assets/categories/accessories-v3.svg")}
-.categoryTiles .categoryTile .icon-fitness{background-image:url("./assets/categories/fitness-v3.svg")}
-.categoryTiles .categoryTile .icon-tourism{background-image:url("./assets/categories/tourism-v3.svg")}
+.categoryTiles .categoryTile[data-department="accessories"] .categoryIcon{background-image:url("./assets/categories/accessories-v4.svg")}
+.categoryTiles .categoryTile .icon-fitness{background-image:url("./assets/categories/fitness-v4.svg")}
+.categoryTiles .categoryTile .icon-tourism{background-image:url("./assets/categories/tourism-v4.svg")}
 
 @media(max-width:850px){
   .categoryTiles .categoryTile{min-height:134px;gap:8px;padding:12px 6px}
   .categoryTiles .categoryTile h3{margin:0}
-  .categoryTiles .categoryTile .categoryIcon{order:-1;width:64px;height:64px}
+  .categoryTiles .categoryTile .categoryIcon{order:-1;width:60px;height:60px;background-size:44px 44px}
+}
+@media(prefers-reduced-motion:reduce){
+  .categoryTiles .categoryTile .categoryIcon{transition:none}
+  .categoryTiles .categoryTile:hover .categoryIcon{transform:none}
 }
