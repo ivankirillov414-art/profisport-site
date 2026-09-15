@@ -1,33 +1,35 @@
-/* White category cards with a shared PNG icon atlas on white. */
+/* Cross-browser category cards and stable local SVG icons. */
 .categoryTiles .categoryTile{background:#fff;grid-template-rows:auto 128px;gap:8px;min-height:248px}
 .categoryTiles .categoryTile h3{margin:0 24px 8px 0}
 .categoryTiles .categoryTile:hover,.categoryTiles .categoryTile:focus-visible{background:#fff;border-color:#d9b647;box-shadow:0 6px 18px rgb(32 35 32 / 7%)}
 .categoryTiles .categoryTile:focus-visible{outline:2px solid #d9b647;outline-offset:3px}
-.categoryTiles .categoryTile .categoryIcon{display:block;justify-self:end;width:128px;height:128px;flex:none;background-image:url("./assets/categories/category-icons-v2.png");background-repeat:no-repeat;background-size:300% 200%;pointer-events:none}
-.categoryIcon.icon-bicycle{background-position:0 0}
-.categoryIcon.icon-scooter{background-position:50% 0}
-.categoryIcon.icon-skiing{background-position:100% 0}
-.categoryIcon.icon-cycling{background-position:0 100%}
-.categoryIcon.icon-fitness{background-position:50% 100%}
-.categoryIcon.icon-tourism{background-position:100% 100%}
+
+.categoryTiles .categoryTile .categoryIcon{
+  display:block;
+  justify-self:end;
+  width:128px;
+  height:128px;
+  min-width:0;
+  flex:0 0 128px;
+  aspect-ratio:1/1;
+  background-color:transparent;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  pointer-events:none;
+  transform:none;
+}
+.categoryTiles .categoryTile .icon-bicycle{background-image:url("./assets/categories/bicycle-v3.svg")}
+.categoryTiles .categoryTile .icon-scooter{background-image:url("./assets/categories/scooter-v3.svg")}
+.categoryTiles .categoryTile .icon-skiing{background-image:url("./assets/categories/skiing-v3.svg")}
+.categoryTiles .categoryTile .icon-cycling{background-image:url("./assets/categories/parts-v3.svg")}
+.categoryTiles .categoryTile .icon-accessories,
+.categoryTiles .categoryTile[data-department="accessories"] .categoryIcon{background-image:url("./assets/categories/accessories-v3.svg")}
+.categoryTiles .categoryTile .icon-fitness{background-image:url("./assets/categories/fitness-v3.svg")}
+.categoryTiles .categoryTile .icon-tourism{background-image:url("./assets/categories/tourism-v3.svg")}
+
 @media(max-width:850px){
   .categoryTiles .categoryTile{min-height:134px;gap:8px;padding:12px 6px}
   .categoryTiles .categoryTile h3{margin:0}
-  .categoryTiles .categoryTile .categoryIcon{order:-1;width:64px;height:64px}
+  .categoryTiles .categoryTile .categoryIcon{order:-1;width:64px;height:64px;flex-basis:64px}
 }
-
-.categoryTiles .categoryTile .icon-bicycle{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2243%22%20r%3D%2211%22%2F%3E%3Ccircle%20cx%3D%2249%22%20cy%3D%2243%22%20r%3D%2211%22%2F%3E%3Cpath%20d%3D%22M16%2043l12-23%2013%2023H16l-5-17h11m19%2017l-7-29h9M24%2020h11%22%2F%3E%3Cpath%20stroke%3D%22%23d9b627%22%20d%3D%22M28%2020l-12%2023h25z%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile .icon-scooter{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2248%22%20r%3D%227%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2248%22%20r%3D%227%22%2F%3E%3Cpath%20d%3D%22M15%2048h28l7-30H39m6%200V9h10%22%2F%3E%3Cpath%20stroke%3D%22%23d9b627%22%20d%3D%22M19%2043h23%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile .icon-skiing{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%208v42q0%208%205%208t5-8V8M37%208v42q0%208%205%208t5-8V8M9%2013l3%2043M54%2013l-3%2043%22%2F%3E%3Cpath%20stroke%3D%22%23d9b627%22%20d%3D%22M20%2029h10m7%200h10%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile .icon-cycling{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M25%207l3%206%207%201%205-5%206%205-3%206%202%207%207%202v8l-7%202-2%207%203%206-6%205-5-5-7%201-3%206-8-3v-7l-5-5-7%201-3-8%206-4%201-7-5-5%205-6%206%203%207-2%202-7z%22%2F%3E%3Ccircle%20cx%3D%2227%22%20cy%3D%2232%22%20r%3D%2210%22%20stroke%3D%22%23d9b627%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile .icon-fitness{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M9%2022v20m7-26v32m32-32v32m7-26v20M16%2029h32v6H16%22%2F%3E%3Cpath%20stroke%3D%22%23d9b627%22%20d%3D%22M22%2021v22m20-22v22%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile .icon-tourism{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M16%2025q0-11%2016-11t16%2011v29H16zM26%2014V7h12v7M16%2030H9v20h7m32-20h7v20h-7%22%2F%3E%3Crect%20x%3D%2223%22%20y%3D%2233%22%20width%3D%2218%22%20height%3D%2214%22%20rx%3D%223%22%20stroke%3D%22%23d9b627%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile .icon-accessories{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M15%2024h34l5%2031H10zM23%2024v-7a9%209%200%200118%200v7%22%2F%3E%3Cpath%20stroke%3D%22%23d9b627%22%20d%3D%22M24%2036h16m-8-8v16%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
-
-.categoryTiles .categoryTile[data-department="accessories"] .categoryIcon{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%20fill%3D%22none%22%20stroke%3D%22%2320252c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M15%2024h34l5%2031H10zM23%2024v-7a9%209%200%200118%200v7%22%2F%3E%3Cpath%20stroke%3D%22%23d9b627%22%20d%3D%22M24%2036h16m-8-8v16%22%2F%3E%3C%2Fsvg%3E");background-size:contain;background-position:center}
