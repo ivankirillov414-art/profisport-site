@@ -10,7 +10,7 @@
   width:128px;
   height:128px;
   min-width:0;
-  flex:0 0 128px;
+  flex:none;
   aspect-ratio:1/1;
   background-color:transparent;
   background-repeat:no-repeat;
@@ -31,5 +31,5 @@
 @media(max-width:850px){
   .categoryTiles .categoryTile{min-height:134px;gap:8px;padding:12px 6px}
   .categoryTiles .categoryTile h3{margin:0}
-  .categoryTiles .categoryTile .categoryIcon{order:-1;width:64px;height:64px;flex-basis:64px}
+  .categoryTiles .categoryTile .categoryIcon{order:-1;width:64px;height:64px}
 }
