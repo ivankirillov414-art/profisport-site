@@ -1,42 +1,31 @@
-/* Cross-browser category cards and stable local SVG icon system. */
-.categoryTiles .categoryTile{background:#fff;grid-template-rows:auto 96px;gap:10px;min-height:220px}
-.categoryTiles .categoryTile h3{margin:0 24px 8px 0}
-.categoryTiles .categoryTile:hover,.categoryTiles .categoryTile:focus-visible{background:#fff;border-color:#d9b647;box-shadow:0 6px 18px rgb(32 35 32 / 7%)}
-.categoryTiles .categoryTile:focus-visible{outline:2px solid #d9b647;outline-offset:3px}
-
-.categoryTiles .categoryTile .categoryIcon{
-  display:block;
-  justify-self:end;
-  width:72px;
-  height:72px;
-  min-width:0;
-  flex:none;
-  aspect-ratio:1/1;
-  background-color:transparent;
-  background-repeat:no-repeat;
-  background-position:center;
-  background-size:54px 54px;
-  pointer-events:none;
-  transform:none;
-  opacity:.96;
-  transition:transform .18s ease,opacity .18s ease;
+/* Local PNG artwork shared by all browsers. One authoritative category layout. */
+#categoryTiles{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px}
+#categoryTiles .categoryTile{
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ grid-column:auto;min-width:0;min-height:184px;padding:14px 10px 16px;gap:12px;
+ border:1px solid #e4e5e7;border-radius:14px;background:#fff;text-align:center;
+ box-shadow:none;overflow:hidden;transition:border-color .18s ease,box-shadow .18s ease;
 }
-.categoryTiles .categoryTile:hover .categoryIcon{transform:translateY(-2px);opacity:1}
-.categoryTiles .categoryTile .icon-bicycle{background-image:url("./assets/categories/bicycle-v4.svg")}
-.categoryTiles .categoryTile .icon-scooter{background-image:url("./assets/categories/scooter-v4.svg")}
-.categoryTiles .categoryTile .icon-skiing{background-image:url("./assets/categories/skiing-v4.svg")}
-.categoryTiles .categoryTile .icon-cycling{background-image:url("./assets/categories/parts-v4.svg")}
-.categoryTiles .categoryTile .icon-accessories,
-.categoryTiles .categoryTile[data-department="accessories"] .categoryIcon{background-image:url("./assets/categories/accessories-v4.svg")}
-.categoryTiles .categoryTile .icon-fitness{background-image:url("./assets/categories/fitness-v4.svg")}
-.categoryTiles .categoryTile .icon-tourism{background-image:url("./assets/categories/tourism-v4.svg")}
-
-@media(max-width:850px){
-  .categoryTiles .categoryTile{min-height:134px;gap:8px;padding:12px 6px}
-  .categoryTiles .categoryTile h3{margin:0}
-  .categoryTiles .categoryTile .categoryIcon{order:-1;width:60px;height:60px;background-size:44px 44px}
+#categoryTiles .categoryTile>div{width:100%;min-width:0;text-align:center}
+#categoryTiles .categoryTile h3{margin:0;font-size:14px;line-height:1.35;letter-spacing:0;overflow-wrap:normal}
+#categoryTiles .categoryTile>div>span,#categoryTiles .tileArrow{display:none}
+#categoryTiles .categoryTile .categoryArtwork{
+ display:block;position:static;order:-1;flex:0 0 auto;align-self:center;
+ width:100%;max-width:180px;height:auto;aspect-ratio:3/2;object-fit:contain;
+ margin:0;border:0;border-radius:0;opacity:1;transform:none;pointer-events:none;
 }
-@media(prefers-reduced-motion:reduce){
-  .categoryTiles .categoryTile .categoryIcon{transition:none}
-  .categoryTiles .categoryTile:hover .categoryIcon{transform:none}
+#categoryTiles .categoryTile:hover,#categoryTiles .categoryTile:focus-visible{
+ background:#fff;border-color:#d9b627;box-shadow:0 6px 20px rgb(32 35 32 / 7%);transform:none;
 }
+#categoryTiles .categoryTile:focus-visible{outline:2px solid #d9b627;outline-offset:3px}
+@media(max-width:1199px){#categoryTiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:560px){
+ #categoryTiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #categoryTiles .categoryTile{min-height:158px;padding:10px 10px 14px;gap:8px}
+ #categoryTiles .categoryTile h3{font-size:13px}
+ #categoryTiles .categoryTile .categoryArtwork{max-width:156px}
+ #categoryTiles .categoryTile:last-child:nth-child(odd){grid-column:1/-1;flex-direction:row;justify-content:center;min-height:106px;gap:16px}
+ #categoryTiles .categoryTile:last-child:nth-child(odd)>div{width:auto;max-width:150px;text-align:left}
+ #categoryTiles .categoryTile:last-child:nth-child(odd) .categoryArtwork{width:126px;max-width:42%;flex-shrink:1}
+}
+@media(prefers-reduced-motion:reduce){#categoryTiles .categoryTile{transition:none}}

@@ -332,7 +332,7 @@ function buildBrandShortcuts(){
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 function buildCategoryTiles(){
   const available=Object.entries(CATALOG_SECTIONS).filter(([key])=>products.some(p=>catalogMatchesDepartment(p,key)));
-  $('#categoryTiles').innerHTML=available.map(([key,{label,note,icon}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><span class="categoryIcon icon-${icon}" aria-hidden="true"></span><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('');
+  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v1.png" width="480" height="320" alt="" loading="lazy" decoding="async"><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('');
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){
