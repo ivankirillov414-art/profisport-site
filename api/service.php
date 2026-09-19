@@ -12,6 +12,7 @@ try{
     if(!in_array($status,['new','contacted','completed','cancelled'],true)||$id<1)json_response(['ok'=>false,'error'=>'invalid_input'],422);
     $s=$pdo->prepare('UPDATE service_requests SET status=? WHERE id=?');$s->execute([$status,$id]);audit($pdo,'service_status','service_request',(string)$id,['status'=>$status]);json_response(['ok'=>true]);
   }
+  auth_rate_check($pdo,'service_request','',10,3600);auth_rate_failure($pdo,'service_request','',10,3600,3600);
   $out=[];
   foreach(['name'=>200,'phone'=>40,'type'=>100,'bike'=>300,'problem'=>4000] as $key=>$limit){if(!is_string($in[$key]??''))json_response(['ok'=>false,'error'=>'invalid_input'],422);$out[$key]=trim($in[$key]??'');if(mb_strlen($out[$key])>$limit)json_response(['ok'=>false,'error'=>'invalid_input'],422);}
   $phone=preg_replace('/\D/','',$out['phone']);$key=$in['request_key']??'';

@@ -19,6 +19,7 @@ try{
   $find=$pdo->prepare('SELECT order_number,total_rub,request_hash FROM orders WHERE request_key=?');
   $find->execute([$in['request_key']]);$existing=$find->fetch();
   if($existing){if(!hash_equals((string)$existing['request_hash'],$hash))json_response(['ok'=>false,'error'=>'request_conflict'],409);order_result($existing);}
+  auth_rate_check($pdo,'order_create','',10,3600);auth_rate_failure($pdo,'order_create','',10,3600,3600);
   $customerId=customer_id_from_session();
   if($customerId){$c=$pdo->prepare('SELECT id FROM customers WHERE id=? AND is_active=1');$c->execute([$customerId]);if(!$c->fetchColumn())$customerId=null;}
   $pdo->beginTransaction();
