@@ -50,3 +50,17 @@ select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:
  .storefrontHome .heroLayout .storageSlide .heroPhoto::after{content:none}
  .storefrontHome .heroLayout .storageSlide .heroCopy{width:100%;padding:24px;background:#f4f6f8}.storefrontHome .heroLayout .storageSlide .heroPhoto{position:relative;inset:auto;width:100%;height:300px;background-position:68% center;background-size:cover}}
 
+
+/* Native exclusive store selection: keyboard and touch accessible. */
+.storeAddresses.storeSelector{display:grid;gap:10px;border:0;padding:0;min-width:0;margin:20px 0}
+.storeSelector legend{font-size:13px;color:#626b74;margin-bottom:10px}
+.storeSelector .storeOption{position:relative;display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid #dfe4e8;border-radius:12px;background:#fff;cursor:pointer}
+.storeOption input{position:absolute;opacity:0;width:1px;height:1px}
+.storeOption .storeOptionText{display:grid;gap:5px;flex:1;min-width:0}
+.storeOptionText b{font-size:16px;line-height:1.35}
+.storeOptionText>span{font-size:12px;color:#687078}
+.storeOption .storeCheck{display:grid;place-items:center;flex:none;width:26px;height:26px;border:1px solid #d8dfe3;border-radius:50%;color:transparent;background:#fff;font-weight:800}
+.storeOption:has(input:checked){border-color:#258650;background:#f0faf3}
+.storeOption input:checked~.storeCheck{color:white;background:#258650;border-color:#258650}
+.storeOption:has(input:focus-visible){outline:3px solid #258650;outline-offset:3px}
+.storeFooter p>a:hover{text-decoration:underline}
