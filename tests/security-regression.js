@@ -18,7 +18,7 @@ assert(customerApi.includes("auth_rate_check($pdo,'customer_register'"));
 assert(!recovery.includes('const BOOT_HASH='));
 assert(recovery.includes("$config['recovery_bootstrap_hash']"));
 assert(csv.includes("array_map('csv_safe'"));
-assert(deploy.includes('protocol: ftps-legacy'));
+assert(deploy.includes('protocol: ftps'));
 assert(deploy.includes('security: strict'));
 assert(!deploy.includes('protocol: ftp\n'));
 assert(!deploy.includes('secrets.CATALOG_TOKEN'));

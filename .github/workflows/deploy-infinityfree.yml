@@ -68,8 +68,8 @@ jobs:
           server: ftpupload.net
           username: if0_42771076
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps-legacy
-          port: 990
+          protocol: ftps
+          port: 21
           security: strict
           server-dir: /htdocs/
           exclude: |
@@ -89,7 +89,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set -euo pipefail
-          FTP_ROOT='ftps://ftpupload.net:990/htdocs'
+          FTP_ROOT='ftp://ftpupload.net:21/htdocs'
           AUTH="if0_42771076:${FTP_PASSWORD}"
           mkdir -p /tmp/profisport-remote/api /tmp/profisport-remote/server /tmp/profisport-remote/admin
 
