@@ -1,11 +1,14 @@
 /* Customer information: scoped navigation, footer links and content. */
 .buyerNav{position:relative;flex:0 0 auto}
-.buyerNav>summary{display:flex;align-items:center;gap:6px;min-height:32px;padding:4px 1px 7px;cursor:pointer;list-style:none}
+.buyerNav>summary{display:flex;align-items:center;gap:8px;min-height:32px;padding:4px 1px 7px;cursor:pointer;list-style:none;font-weight:700}
 .buyerNav>summary::-webkit-details-marker{display:none}
-.buyerNav>summary>span{transition:transform .15s}
-.buyerNav[open]>summary>span{transform:rotate(180deg)}
-.buyerDropdown{position:absolute;right:0;top:100%;width:230px;padding:8px;border:1px solid #e1e5e8;border-radius:14px;background:#fff;box-shadow:0 14px 32px #20242a20;z-index:2}
-.buyerDropdown a{display:flex;align-items:center;min-height:44px;padding:10px 14px;border-radius:9px;color:var(--ink)}
+.buyerNav>summary::after{content:'';width:7px;height:7px;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .18s ease}
+.buyerNav[open]>summary::after{transform:rotate(225deg) translate(-2px,-1px)}
+.buyerDropdown{position:absolute;right:-12px;top:calc(100% + 8px);width:272px;padding:10px;border:1px solid #e1e5e8;border-radius:16px;background:#fff;box-shadow:0 18px 42px #20242a25;z-index:52}
+.buyerDropdown::before{content:'';position:absolute;right:30px;top:-6px;width:12px;height:12px;background:#fff;border-left:1px solid #e1e5e8;border-top:1px solid #e1e5e8;transform:rotate(45deg)}
+.buyerDropdownTitle{position:relative;display:block;padding:6px 10px 8px;color:#6b7178;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.buyerDropdown a{position:relative;display:grid;gap:3px;min-height:56px;padding:10px 12px;border-radius:11px;color:var(--ink)}
+.buyerDropdown a b{font-size:14px;line-height:1.2}.buyerDropdown a span{font-size:12px;line-height:1.35;color:#747a82}
 .buyerDropdown a:hover,.buyerDropdown a:focus-visible{background:#fff2b4}
 .buyerNav>summary:focus-visible,.buyerSections a:focus-visible,.buyerTextLink:focus-visible,.buyerFooterLinks a:focus-visible{outline:3px solid #d5a900;outline-offset:3px}
 .buyerFooterLinks{display:flex;align-items:center;flex-wrap:wrap;gap:12px 24px;font-size:14px}
@@ -54,4 +57,4 @@ footer>.buyerFooterLinks{flex-basis:100%}
   footer>.buyerFooterLinks{grid-column:1/-1}
   .storeFooterWithBuyers>div:last-child{grid-column:1/-1}
 }
-@media(prefers-reduced-motion:reduce){.buyerNav>summary>span{transition:none}}
+@media(prefers-reduced-motion:reduce){.buyerNav>summary::after{transition:none}}
