@@ -459,7 +459,7 @@ $$('[data-category]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault
 $('#search')?.addEventListener('submit',e=>{e.preventDefault();mobileQ.value=q.value;selectedSubcategory='';apply(true,true);$('#desktopSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});$('#mobileSearch')?.addEventListener('submit',e=>{e.preventDefault();q.value=mobileQ.value;selectedSubcategory='';apply(true,true);$('#mobileSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});
 $('#desktopCatalogLink')?.addEventListener('click',e=>{e.preventDefault();openMega()});$('#megaBackdrop')?.addEventListener('click',closeMega);
 const pickerFrameForHeight=height=>height<165?'S':height<178?'M':height<188?'L':'XL';
-const normalizePickerNumber=(selector,maxLength,max)=>{const input=$(selector);input?.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,maxLength);input.classList.toggle('inputError',!!input.value&&+input.value>max)})};
+const normalizePickerNumber=(selector,maxLength,max)=>{const input=$(selector);input?.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,maxLength);const invalid=!!input.value&&+input.value>max;if(invalid)input.value='';input.classList.toggle('inputError',invalid)})};
 normalizePickerNumber('#height',3,220);normalizePickerNumber('#budget',7,2000000);
 const pickerRideScore=(product,ride)=>{const terms={
   'Город':['город','дорож','шосс','круиз','складн','urban'],
