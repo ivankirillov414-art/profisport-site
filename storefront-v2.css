@@ -34,11 +34,11 @@ select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:
 
 /* Wide winter-storage artwork follows the same split hero layout as the other slides. */
 .storefrontHome .heroLayout .storageSlide{background:#eef1f4}
-.storefrontHome .heroLayout .storageSlide .heroPhoto{inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat;filter:none}.storefrontHome .heroLayout .storageSlide .heroPhoto::after{content:"";position:absolute;display:block;inset:0;width:auto;background:linear-gradient(90deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.78) 38%,rgba(255,255,255,.34) 70%,rgba(255,255,255,.08) 100%)}
-.storefrontHome .heroLayout .storageSlide .heroCopy{position:relative;z-index:1;width:50%;background:transparent;padding:40px 48px;text-shadow:0 1px 2px rgba(255,255,255,.5)}
-.storefrontHome .heroLayout .storageSlide .heroCopy h1{color:#171a1f}
-.storefrontHome .heroLayout .storageSlide .heroCopy p{color:#232930;font-weight:650;text-shadow:0 1px 2px rgba(255,255,255,.9)}
-.storefrontHome .heroLayout .storageSlide .heroCopy small{color:#9a7400}
+.storefrontHome .heroLayout .storageSlide .heroPhoto{inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat;filter:none}.storefrontHome .heroLayout .storageSlide .heroPhoto::after{content:"";position:absolute;display:block;inset:0;width:auto;background:linear-gradient(90deg,rgba(247,250,252,.88) 0%,rgba(247,250,252,.76) 30%,rgba(247,250,252,.28) 47%,rgba(247,250,252,0) 62%)}
+.storefrontHome .heroLayout .storageSlide .heroCopy{position:relative;z-index:1;width:50%;background:transparent;padding:40px 48px;text-shadow:none}
+.storefrontHome .heroLayout .storageSlide .heroCopy h1{color:#11171e;text-shadow:none;-webkit-text-stroke:0}
+.storefrontHome .heroLayout .storageSlide .heroCopy p{color:#232d38;font-weight:400;text-shadow:none}
+.storefrontHome .heroLayout .storageSlide .heroCopy small{color:#263645}
 .storagePromo{width:fit-content;max-width:94vw;overflow:auto}
 .storagePromoCard{display:flex;flex-direction:column}
 .storagePromo img{max-height:calc(90dvh - 84px);max-width:94vw;width:auto;object-fit:contain}
@@ -48,3 +48,6 @@ select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:
   .heroTrack{display:block;transform:none!important;transition:none}
   .sectionHead .sectionAction{min-height:34px;padding:7px 11px;font-size:12px}.storageSlide .heroPhoto{background-position:center 11%}.storageSlide .heroCopy{background:linear-gradient(90deg,#fff 0%,#fff 63%,#ffffff1f 100%)}.pager{gap:10px;margin:22px 0}.pager button{width:44px;min-width:44px;height:44px}.storeAddresses{margin:18px 0 4px}.storeAddresses b{font-size:15px}.locationCard .routeButton{width:100%;margin-top:18px}.mapFallback,.secondaryRoute{font-size:14px}.buyerDropdown{display:none}
  .storefrontHome .heroLayout .storageSlide .heroCopy{width:100%;padding:24px;background:#f4f6f8}.storefrontHome .heroLayout .storageSlide .heroPhoto{position:relative;inset:auto;width:100%;height:300px;background-position:68% center;background-size:cover}}
+
+/* Keep the storage photograph clear on mobile, where copy has its own row. */
+@media(max-width:850px){.storefrontHome .heroLayout .storageSlide .heroPhoto::after{content:none}.storefrontHome .heroLayout .storageSlide .heroCopy{background:#edf5fb}}
