@@ -112,7 +112,7 @@ jobs:
               echo "Remote $file differs; re-uploading over verified TLS"
               curl -fsS --ssl-reqd --max-time 60 --user "$AUTH" -T "$file" "$FTP_ROOT/$file;type=i"
               curl -fsS --ssl-reqd --max-time 60 --user "$AUTH" "$FTP_ROOT/$file;type=i" -o "/tmp/profisport-remote/$file"
-              cmp -s "$file" "/tmp/profisport-remote/$file" || { echo "Verification still failed: $file" >&2; exit 1; }
+              cmp -s "$file" "/tmp/profisport-remote/$file" || { echo "Verification still failed: $file" >&2; file "$file" "/tmp/profisport-remote/$file"; wc -c "$file" "/tmp/profisport-remote/$file"; sha256sum "$file" "/tmp/profisport-remote/$file"; head -c 64 "/tmp/profisport-remote/$file" | od -An -tx1; exit 1; }
             }
           done
 
