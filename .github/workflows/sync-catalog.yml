@@ -18,13 +18,13 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Clone private catalog source
         env:
-          CATALOG_TOKEN: ${{ secrets.CATALOG_TOKEN }}
+          GH_TOKEN: ${{ secrets.CATALOG_TOKEN }}
         run: |
           set -euo pipefail
-          git clone --depth 1 "https://x-access-token:${CATALOG_TOKEN}@github.com/ivankirillov414-art/velo56-parser.git" /tmp/velo56-parser
+          gh repo clone ivankirillov414-art/velo56-parser /tmp/velo56-parser -- --depth 1
       - name: Build browser catalog
         run: |
           set -euo pipefail

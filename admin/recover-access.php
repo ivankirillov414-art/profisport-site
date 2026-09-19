@@ -2,9 +2,9 @@
 declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
 header('Referrer-Policy: no-referrer');header('Cache-Control: no-store');
-const BOOT_HASH='f6d3e916099398fecf160e423e4bb0a76251e06c73c56b57a32d59521ba30979';
+$bootHash=trim((string)($config['recovery_bootstrap_hash']??''));
 $boot=(string)($_GET['key']??'');
-if($boot===''||!hash_equals(BOOT_HASH,hash('sha256',$boot))){http_response_code(403);exit('Недействительная ссылка восстановления.');}
+if($bootHash===''||$boot===''||!hash_equals($bootHash,hash('sha256',$boot))){http_response_code(404);exit('Страница не найдена.');}
 $pdo->exec("CREATE TABLE IF NOT EXISTS admin_recovery_tokens (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,admin_user_id INT UNSIGNED NOT NULL,token_hash CHAR(64) NOT NULL UNIQUE,expires_at DATETIME NOT NULL,used_at DATETIME NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,INDEX idx_exp(expires_at),INDEX idx_admin(admin_user_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->beginTransaction();
 try{

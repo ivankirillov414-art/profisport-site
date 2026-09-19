@@ -40,7 +40,7 @@ function pdi_first_image(array $row): ?array {
         $url=trim((string)$url);
         $rel=pdi_local_rel($url);
         if($rel!==null){if($rel!=='')return ['kind'=>'local','value'=>$rel];continue;}
-        if(preg_match('~^https?://~i',$url))return ['kind'=>'remote','value'=>$url];
+        if(preg_match('~^https://~i',$url))return ['kind'=>'remote','value'=>$url];
     }
     return null;
 }

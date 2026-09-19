@@ -8,4 +8,6 @@ return [
     'db_user' => 'profisport',
     'db_pass' => '',
     'import_token' => '',
+    // Keep empty to disable the one-time bootstrap recovery endpoint.
+    'recovery_bootstrap_hash' => '',
 ];
