@@ -22,7 +22,7 @@
     ['Рама',50.3,42,'Рама соединяет основные узлы велосипеда. Её геометрия и размер определяют посадку.','Трещина, деформация или заметное повреждение соединений.','diagnostics'],
     ['Задний амортизатор',44.9,57.5,'Амортизатор смягчает удары, передаваемые от заднего колеса к раме двухподвесного велосипеда.','Стук, утечка масла или потеря давления.','diagnostics']
   ];
-  const selected=new Set();const form=document.getElementById('serviceForm');
+  const selected=new Set();
   const groups=[['all','Все работы'],['care','Диагностика и ТО'],['brakes','Тормоза'],['transmission','Передачи и цепь'],['wheels','Колёса'],['assembly','Сборка']];
   const groupFor=id=>['diagnostics','maintenance'].includes(id)?'care':id;
   const details={
@@ -34,7 +34,7 @@
     assembly:['Комплектность и состояние велосипеда.','Сборка и настройка основных узлов.','Посадка и проверка креплений перед эксплуатацией.']
   };
   document.getElementById('workCategories').innerHTML=groups.map(([id,title])=>`<button type="button" data-work-group="${id}" aria-pressed="${id==='all'}">${title}<span>${works.filter(w=>id==='all'||groupFor(w[0])===id).length}</span></button>`).join('');
-  document.getElementById('workOptions').innerHTML=works.map(([id,title,lead,body],i)=>`<article class="workOption" data-work-category="${groupFor(id)}"><label class="workSelect"><input type="checkbox" value="${id}"><span class="workNumber">0${i+1}</span><h3>${title}</h3><b>${lead}</b><p>${body}</p><span class="workChoose">Выбрать работу</span></label><button type="button" class="workMore" data-work-details="${id}">Подробнее об услуге →</button></article>`).join('');
+  document.getElementById('workOptions').innerHTML=works.map(([id,title,lead,body],i)=>`<article class="workOption" data-work-category="${groupFor(id)}"><label class="workSelect"><input type="checkbox" value="${id}"><span class="workNumber">0${i+1}</span><h3>${title}</h3><b>${lead}</b><p>${body}</p><span class="workChoose">Выбрать работу</span></label><button type="button" class="workMore" data-work-details="${id}">Подробнее</button></article>`).join('');
   document.querySelectorAll('[data-work-group]').forEach(button=>button.onclick=()=>{
     document.querySelectorAll('[data-work-group]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
     document.querySelectorAll('.workOption').forEach(card=>card.hidden=button.dataset.workGroup!=='all'&&button.dataset.workGroup!==card.dataset.workCategory);
@@ -42,12 +42,9 @@
   const refresh=()=>{
     const titles=works.filter(w=>selected.has(w[0])).map(w=>w[1]);
     document.getElementById('selectedWorkCount').textContent=titles.length?`Выбрано работ: ${titles.length}`:'Работы пока не выбраны';
-    document.getElementById('bookingSelection').textContent=titles.length?'Выбрано: '+titles.join(', ')+'.':'Можно отправить заявку без выбора работ.';
     document.querySelectorAll('.workOption').forEach(label=>{const checked=selected.has(label.querySelector('input').value);label.classList.toggle('selected',checked);label.querySelector('.workChoose').textContent=checked?'Выбрано ✓':'Выбрать работу';label.querySelector('input').checked=checked});
     document.getElementById('selectedWorkChips').innerHTML=works.filter(w=>selected.has(w[0])).map(([id,title])=>`<button type="button" data-remove-work="${id}" aria-label="Убрать работу: ${title}">${title} ×</button>`).join('');
     document.querySelectorAll('[data-remove-work]').forEach(button=>button.onclick=()=>{selected.delete(button.dataset.removeWork);refresh()});
-    form.elements.problem.required=!titles.length;
-    if(titles.length)form.elements.type.value=titles.length===1&&selected.has('assembly')?'Сборка велосипеда':titles.length===1&&selected.has('diagnostics')?'Диагностика':'Ремонт велосипеда';
   };
   document.querySelectorAll('.workOption input').forEach(input=>input.onchange=()=>{input.checked?selected.add(input.value):selected.delete(input.value);refresh()});
   const workDialog=document.getElementById('workDialog');let detailedId='';
@@ -56,9 +53,9 @@
     detailedId=button.dataset.workDetails;const work=works.find(w=>w[0]===detailedId);
     document.getElementById('workTitle').textContent=work[1];document.getElementById('workDescription').textContent=work[3];
     document.getElementById('workDetails').innerHTML=details[detailedId].map(text=>`<li>${text}</li>`).join('');
-    document.getElementById('chooseDetailedWork').textContent=selected.has(detailedId)?'Перейти к заявке':'Добавить в заявку';workDialog.showModal();
+    document.getElementById('chooseDetailedWork').textContent=selected.has(detailedId)?'Работа выбрана ✓':'Выбрать работу';workDialog.showModal();
   });
-  document.getElementById('chooseDetailedWork').onclick=()=>{selected.add(detailedId);refresh();workDialog.close();document.getElementById('booking').scrollIntoView({behavior:'smooth'})};
+  document.getElementById('chooseDetailedWork').onclick=()=>{selected.add(detailedId);refresh();workDialog.close()};
   window.selectedServiceWorks=()=>works.filter(w=>selected.has(w[0])).map(w=>w[1]);
   document.getElementById('bikeHotspots').innerHTML=parts.map(([name,x,y],i)=>`<button type="button" data-part="${i}" class="bikeHotspot" style="left:${x}%;top:${y}%" aria-label="${i+1}. ${name}">${i+1}</button>`).join('');
   const partLabel=i=>`<button type="button" data-part="${i}" aria-controls="partDialog"><span>${String(i+1).padStart(2,'0')}</span>${parts[i][0]}</button>`;
@@ -74,5 +71,5 @@
   const dialog=document.getElementById('partDialog');let current=0;
   document.querySelectorAll('[data-part]').forEach(button=>button.onclick=()=>{current=Number(button.dataset.part);const [name,,,description,symptoms]=parts[current];document.getElementById('partTitle').textContent=name;document.getElementById('partDescription').textContent=description;document.getElementById('partSymptoms').textContent=symptoms;dialog.showModal()});
   dialog.querySelector('.dialogClose').onclick=()=>dialog.close();
-  document.getElementById('partRequest').onclick=()=>{const part=parts[current];selected.add(part[5]);refresh();const line='Проверить узел: '+part[0]+'.';if(!form.elements.problem.value.includes(line))form.elements.problem.value=(form.elements.problem.value+'\n'+line).trim().slice(0,3500);dialog.close();document.getElementById('booking').scrollIntoView({behavior:'smooth'});form.elements.name.focus({preventScroll:true})};
+  document.getElementById('partRequest').onclick=()=>{const part=parts[current];selected.add(part[5]);refresh();dialog.close();document.getElementById('serviceWorks').scrollIntoView({behavior:'smooth',block:'start'})};
 })();
