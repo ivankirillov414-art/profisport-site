@@ -428,6 +428,17 @@ function setupHero(){
   setSlide(0);
 }
 
+function setupStoragePromo(){
+  const dialog=$('#storagePromo');if(!dialog||typeof dialog.showModal!=='function')return;
+  const close=()=>{if(dialog.open)dialog.close();try{sessionStorage.setItem('ps-storage-promo-seen','1')}catch(e){}}
+  dialog.querySelector('.storagePromoClose')?.addEventListener('click',close);
+  dialog.querySelector('.storagePromoAction')?.addEventListener('click',close);
+  dialog.addEventListener('click',e=>{if(e.target===dialog)close()});
+  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
+  let seen=false;try{seen=sessionStorage.getItem('ps-storage-promo-seen')==='1'}catch(e){}
+  if(!seen&&!new URLSearchParams(location.search).has('register'))setTimeout(()=>{if(!document.hidden&&!dialog.open&&!document.querySelector('dialog[open]')){dialog.showModal();syncBodyLock();try{sessionStorage.setItem('ps-storage-promo-seen','1')}catch(e){}}},1200);
+}
+
 function populateCategoryOptions(availableProducts=null){
   category.innerHTML='<option value="">Каталог</option>';
   for(const [key,section] of Object.entries(CATALOG_SECTIONS)){
@@ -491,6 +502,7 @@ mobileLayout.addEventListener?.('change',syncMobileLayout);syncMobileLayout();
 if(mobileLayout.matches&&location.hash==='#picker'){$('#pickerDialog').showModal();syncBodyLock()}
 
 setupHero();
+setupStoragePromo();
 bindSuggest(q,$('#desktopSuggest'));bindSuggest(mobileQ,$('#mobileSuggest'));
 
 // Categories are already visible in HTML; early choices remain in the URL until all rows arrive.
