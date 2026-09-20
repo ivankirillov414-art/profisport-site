@@ -28,3 +28,6 @@
 /* Do not wash out the service photograph or let inherited mobile widths shrink its copy. */
 .storefrontHome .heroLayout .serviceSlide .heroPhoto::after{content:none!important}
 .storefrontHome .heroLayout .serviceSlide .heroCopy{width:auto!important;max-width:none!important;margin:0!important;background:#fff!important}
+.storefrontHome .hero .dots button{display:grid;place-items:center;width:30px;min-width:30px;height:44px;min-height:44px;padding:0;background:transparent!important;border:0;box-shadow:none}
+.storefrontHome .hero .dots button::after{content:"";display:block;width:24px;height:4px;border-radius:4px;background:#d3d4d2}
+.storefrontHome .hero .dots button.active::after{background:#202124}
