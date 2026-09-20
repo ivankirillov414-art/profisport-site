@@ -6,18 +6,11 @@ try {
     $method=$_SERVER['REQUEST_METHOD'];
     if($action==='public') {
         if($method!=='GET')cms_reply(['error'=>'method'],405);
+        if(isset($_GET['site']))cms_select_site((string)$_GET['site']);
+        header('Access-Control-Allow-Origin: *');
         $row=cms_document();if(!$row['published'])cms_reply(['published'=>false]);
-        $data=json_decode($row['published'],true,512,JSON_THROW_ON_ERROR);$manifest=cms_manifest();$pages=[];
-        foreach($manifest['pages'] as $key=>$page){
-            $fields=[];foreach($page['fields'] as $f) {
-                $v=$data['pages'][$key]['fields'][$f['id']]??$f['value'];
-                // Send only changed values, preserving original markup and line breaks.
-                if($v!==$f['value'])$fields[]=['selector'=>$f['selector'],'kind'=>$f['kind'],'value'=>$v];
-            }
-            $blocks=[];foreach($data['pages'][$key]['blocks'] as $b){foreach($page['blocks'] as $original)if($b['id']===$original['id'])$blocks[]=['selector'=>$original['selector'],'visible'=>$b['visible'],'changed'=>$b['visible']!==$original['visible']];}
-            $pages[$key]=['fields'=>$fields,'blocks'=>$blocks];
-        }
-        cms_reply(['published'=>true,'revision'=>(int)$row['published_version'],'pages'=>$pages]);
+        $data=json_decode($row['published'],true,512,JSON_THROW_ON_ERROR);
+        cms_reply(['published'=>true,'revision'=>(int)$row['published_version'],'pages'=>cms_public($data)]);
     }
     cms_session();
     if($action==='session'&&$method==='GET')cms_reply(['csrf'=>$_SESSION['csrf'],'authenticated'=>!empty($_SESSION['user'])]);
@@ -36,9 +29,10 @@ try {
         $db->prepare('DELETE FROM ps_cms_limits WHERE subject=?')->execute([$subject]);session_regenerate_id(true);
         $_SESSION=['user'=>$user['id'],'seen'=>$now,'started'=>$now,'csrf'=>bin2hex(random_bytes(32))];cms_reply(['ok'=>true,'csrf'=>$_SESSION['csrf']]);
     }
-    $actor=cms_auth();
-    if($action==='state'&&$method==='GET'){$row=cms_document();cms_reply(['user'=>$actor,'csrf'=>$_SESSION['csrf'],'manifest'=>cms_manifest(),'site_url'=>cms_config()['site_url'],'draft'=>json_decode($row['draft'],true),'version'=>(int)$row['version'],'published_version'=>(int)$row['published_version']]);}
-    if($action==='history'&&$method==='GET'){$s=cms_db()->prepare('SELECT id,actor,action,created_at FROM ps_cms_history WHERE site_key=? ORDER BY id DESC LIMIT 50');$s->execute([cms_config()['site_key']]);cms_reply(['items'=>$s->fetchAll()]);}
+    $actor=cms_auth();cms_migrate();cms_select_site((string)($_GET['site']??cms_config()['site_key']));
+    if($action==='sites'&&$method==='GET')cms_reply(['items'=>cms_db()->query('SELECT site_key,name,url FROM ps_cms_sites ORDER BY created_at,site_key')->fetchAll()]);
+    if($action==='state'&&$method==='GET'){$row=cms_document();cms_reply(['user'=>$actor,'csrf'=>$_SESSION['csrf'],'manifest'=>cms_manifest(),'site_url'=>cms_site()['url'],'site'=>['key'=>cms_site_key(),'name'=>cms_site()['name']],'templates'=>cms_templates(),'draft'=>json_decode($row['draft'],true),'version'=>(int)$row['version'],'published_version'=>(int)$row['published_version']]);}
+    if($action==='history'&&$method==='GET'){$s=cms_db()->prepare('SELECT id,actor,action,created_at FROM ps_cms_history WHERE site_key=? ORDER BY id DESC LIMIT 50');$s->execute([cms_site_key()]);cms_reply(['items'=>$s->fetchAll()]);}
     if($method!=='POST')cms_reply(['error'=>'method'],405);cms_csrf();
     if($action==='logout'){$_SESSION=[];session_destroy();cms_reply(['ok'=>true]);}
     if($action==='upload') {
@@ -50,6 +44,7 @@ try {
     }
     $raw=file_get_contents('php://input',false,null,0,1048577);if(strlen($raw)>1048576)cms_reply(['error'=>'Слишком большой документ.'],413);
     $input=json_decode($raw,true,512,JSON_THROW_ON_ERROR);if(!is_array($input))throw new InvalidArgumentException('Некорректный документ.');
+    if($action==='create-site')cms_reply(cms_create_site($input,$actor));
     cms_reply(cms_change($action,(int)($input['version']??0),$input['draft']??[],$actor,(int)($input['id']??0)));
 }catch(InvalidArgumentException|JsonException $e){cms_reply(['error'=>$e->getMessage()],422);}
 catch(Throwable $e){error_log('CMS: '.$e->getMessage());cms_reply(['error'=>'CMS недоступна или ещё не настроена. Обратитесь к владельцу.'],503);}

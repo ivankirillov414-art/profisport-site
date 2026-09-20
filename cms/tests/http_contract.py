@@ -34,6 +34,16 @@ code,public=call('public',auth=False);assert 'HTTP draft only' not in json.dumps
 assert call('publish',{'version':saved['version']})[0]==200
 code,public=call('public',auth=False);assert 'HTTP draft only' in json.dumps(public)
 assert 'csrf' not in public and 'draft' not in public
+code,created=call('create-site',{'key':'http-site','name':'HTTP Site','url':'https://http.example/'});assert code==200,created
+code,second=call('state&site=http-site');assert code==200,second
+second['draft']['pages']['about.html']={'title':'About page','fields':{},'blocks':[],'layout':[{'id':'http-block','type':'text','props':{'title':'Isolated published block'}}]}
+code,saved2=call('save&site=http-site',{'version':second['version'],'draft':second['draft']});assert code==200,saved2
+assert call('public&site=http-site',auth=False)[1]['published'] is False
+assert call('publish&site=http-site',{'version':saved2['version']})[0]==200
+assert 'Isolated published block' in json.dumps(call('public&site=http-site',auth=False)[1])
+assert 'Isolated published block' not in json.dumps(call('public',auth=False)[1])
+with urllib.request.urlopen('http://localhost:8123/cms/site.php?site=http-site&page=about.html') as response:
+    html=response.read().decode();assert '<title>About page</title>' in html and 'data-cms-site="http-site"' in html
 assert call('logout',{})[0]==200
 assert call('state')[0]==401
 print('CMS HTTP contracts passed: auth, CSRF, conflict, private draft, publish, logout')

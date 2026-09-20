@@ -3,13 +3,13 @@ const $=s=>document.querySelector(s);
 let state,csrf='',page='index.html',dirty=false,busy=false,previewWindow;
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
 function status(message,error=false){const el=state?$('#status'):$('#loginStatus');el.textContent=message;el.classList.toggle('error',error);}
-async function api(action,body){const options={credentials:'same-origin',headers:{'X-CSRF-Token':csrf},signal:AbortSignal.timeout(15000)};if(body!==undefined){options.method='POST';if(body instanceof FormData)options.body=body;else {options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}}const r=await fetch('api.php?action='+action,options);const data=await r.json();if(!r.ok)throw new Error(data.error||'Не удалось выполнить действие.');return data;}
+async function api(action,body){const options={credentials:'same-origin',headers:{'X-CSRF-Token':csrf},signal:AbortSignal.timeout(15000)};if(body!==undefined){options.method='POST';if(body instanceof FormData)options.body=body;else {options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}}const r=await fetch('api.php?action='+action+(new URLSearchParams(location.search).has('site')?'&site='+encodeURIComponent(new URLSearchParams(location.search).get('site')):''),options);const data=await r.json();if(!r.ok)throw new Error(data.error||'Не удалось выполнить действие.');return data;}
 function revision(){ $('#revision').textContent=`Черновик №${state.version} · Опубликовано: ${state.published_version||'ещё нет'}${dirty?' · Есть несохранённые изменения':''}`;}
 function changed(){dirty=true;revision();}
 function render(){
  $('#pageTitle').textContent=state.manifest.pages[page].title;$('#pages').replaceChildren();
  for(const [key,p] of Object.entries(state.manifest.pages)){const b=element('button',p.title,key===page?'active':'');b.onclick=()=>{page=key;render();};$('#pages').append(b);}
- const blocks=$('#blocks');blocks.replaceChildren();const bdata=state.draft.pages[page].blocks;blocks.hidden=!bdata.length;
+ const blocks=$('#blocks');blocks.replaceChildren();const bdata=state.draft.pages[page].blocks;blocks.hidden=!bdata.length||Array.isArray(state.draft.pages[page].layout);
  blocks.append(element('h2','Блоки страницы'));
  bdata.forEach((block,index)=>{const meta=state.manifest.pages[page].blocks.find(b=>b.id===block.id);const row=element('div',undefined,'block'),label=element('label'),check=element('input');check.type='checkbox';check.checked=block.visible;check.onchange=()=>{block.visible=check.checked;changed();};label.append(check,element('span',meta.label));row.append(label);for(const [text,delta] of [['↑',-1],['↓',1]]){const b=element('button',text,'secondary');b.setAttribute('aria-label',(delta<0?'Поднять: ':'Опустить: ')+meta.label);b.disabled=index+delta<0||index+delta>=bdata.length;b.onclick=()=>{[bdata[index],bdata[index+delta]]=[bdata[index+delta],bdata[index]];changed();render();};row.append(b);}blocks.append(row);});
  const fields=$('#fields');fields.replaceChildren();const groups=new Map();

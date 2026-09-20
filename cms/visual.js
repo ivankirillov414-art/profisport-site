@@ -1,0 +1,116 @@
+'use strict';
+const $=s=>document.querySelector(s);
+let state,csrf='',site=new URLSearchParams(location.search).get('site')||'',page='index.html',dirty=false,busy=false,editor,canvasMain,building=false,previewWindow;
+const demo=document.body.dataset.demo==='true';let demoState;
+const labels={hero:'Главный экран',text:'Текст',image:'Изображение',columns:'Две колонки',cta:'Кнопка и призыв',contacts:'Контакты',spacer:'Отступ'};
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function status(text,error=false){const n=$(state?'#status':'#loginStatus');n.textContent=text;n.classList.toggle('error',error);}
+async function api(action,body){if(demo){
+ if(!demoState)demoState=await (await fetch('demo-state.json')).json();
+ if(action==='session')return {csrf:'demo',authenticated:true};
+ if(action==='state')return structuredClone(demoState);
+ if(action==='sites')return {items:[{site_key:'demo',name:'ProfiSport · демо',url:demoState.site_url}]};
+ if(action==='save'){demoState.draft=structuredClone(body.draft);demoState.version++;return structuredClone(demoState);}
+ if(action==='publish'||action==='create-site'||action==='upload')throw Error('Демонстрация: публикация и загрузка доступны после входа в CMS.');
+ if(action==='history')return {items:[]};
+ if(action==='logout'){location.href='index.html';return {};}
+ throw Error('Демонстрация редактора');
+}const u=new URL('api.php',location.href);u.searchParams.set('action',action);if(site)u.searchParams.set('site',site);const options={credentials:'same-origin',headers:{'X-CSRF-Token':csrf},signal:AbortSignal.timeout(20000)};if(body!==undefined){options.method='POST';if(body instanceof FormData)options.body=body;else{options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}}const r=await fetch(u,options),d=await r.json();if(!r.ok)throw Error(d.error||'Не удалось выполнить действие.');return d;}
+function revision(){$('#revision').textContent=`Черновик ${state.version}${dirty?' • не сохранён':''} · Публикация ${state.published_version||'—'}`;}
+function changed(){if(building||busy)return;dirty=true;revision();}
+function pageMeta(key=page){return state.manifest.pages[key]||{title:state.draft.pages[key].title,fields:[],blocks:[]};}
+function fieldValue(id){const f=pageMeta().fields.find(f=>f.id===id),value=state.draft.pages[page].fields[id];return value===f?.value?(state.templates[page]?.defaults?.[id]??value):value;}
+function ensureLayout(){const d=state.draft.pages[page],t=state.templates[page];if(!d.layout){d.layout=(t?.sections||[]).map(s=>({id:s.id,type:'existing',visible:d.blocks.find(b=>b.id===s.legacy)?.visible??true}));if(t){const rank=new Map(d.blocks.map((b,i)=>[b.id,i]));const positions=d.layout.map((b,i)=>rank.has(t.sections.find(s=>s.id===b.id).legacy)?i:-1).filter(i=>i>=0);const sorted=positions.map(i=>d.layout[i]).sort((a,b)=>rank.get(t.sections.find(s=>s.id===a.id).legacy)-rank.get(t.sections.find(s=>s.id===b.id).legacy));positions.forEach((pos,i)=>d.layout[pos]=sorted[i]);}}return d.layout;}
+function sync(){if(!canvasMain||building)return;state.draft.pages[page].layout=canvasMain.components().models.map(m=>structuredClone(m.get('recipe'))).filter(Boolean);}
+function walk(model,fn){fn(model);model.components().forEach(child=>walk(child,fn));}
+function lock(model){walk(model,m=>m.set({draggable:false,droppable:false,copyable:false,removable:false,editable:false,resizable:false,stylable:false,toolbar:[],selectable:!!m.getAttributes()['data-cms-fields'],hoverable:!!m.getAttributes()['data-cms-fields']}));}
+function abs(value){return CMBlocks.url(value,state.site_url);}
+function prepareHTML(html){const doc=new DOMParser().parseFromString(html,'text/html');for(const n of doc.querySelectorAll('*')){
+ for(const a of ['src','poster'])if(n.hasAttribute(a)){const u=abs(n.getAttribute(a));if(u)n.setAttribute(a,u);else n.removeAttribute(a);}
+ if(n.hasAttribute('srcset'))n.removeAttribute('srcset');
+ if(n.hasAttribute('style'))n.setAttribute('style',n.getAttribute('style').replace(/url\((['"]?)([^)'"\s]+)\1\)/g,(_,q,u)=>`url("${abs(u)}")`));
+ // Canvas never submits forms or follows external navigation.
+ if(n.tagName==='A')n.removeAttribute('href');
+
+ const ids=(n.getAttribute('data-cms-fields')||'').split(',');for(const id of ids){const f=pageMeta().fields.find(f=>f.id===id);if(!f)continue;const value=state.draft.pages[page].fields[id];if(value!==undefined&&value!==f.value)applyDOM(n,f,value);}
+ }doc.querySelector('.heroSlide')?.classList.add('is-active');return doc.body.innerHTML;}
+function applyDOM(n,f,value){if(f.kind==='text'){n.textContent=value;n.style.whiteSpace='pre-line';}else if(f.kind==='image')n.setAttribute('src',abs(value));else if(f.kind==='alt')n.setAttribute('alt',value);else if(f.kind==='background')n.style.backgroundImage=`url("${abs(value)}")`;}
+function modelFor(recipe){let models;if(recipe.type==='existing'){
+ const section=state.templates[page]?.sections.find(s=>s.id===recipe.id);if(!section)return null;
+ models=editor.Components.addComponent(prepareHTML(section.html));
+}else models=editor.Components.addComponent({tagName:'div',components:CMBlocks.html(recipe,state.site_url)});
+const m=Array.isArray(models)?models[0]:models;m.remove({temporary:true});lock(m);
+m.set({recipe:structuredClone(recipe),name:recipe.type==='existing'?state.templates[page].sections.find(s=>s.id===recipe.id).label:labels[recipe.type],draggable:'.cms-canvas-main',selectable:true,hoverable:true,removable:recipe.type!=='existing',copyable:false,toolbar:[]});
+if(recipe.type==='existing'&&!recipe.visible)m.addStyle({display:'none'});
+return m;
+}
+function renderNavigation(){const nav=$('#pages');nav.replaceChildren();for(const key of Object.keys(state.draft.pages)){const b=el('button',pageMeta(key).title,key===page?'active':'');b.onclick=()=>{sync();page=key;renderPage();};nav.append(b);}$('#pageTitle').textContent=pageMeta().title;$('#pagePath').textContent=state.manifest.pages[page]?page:pageURL().href;$('#fieldsLink').href='fields.html?site='+encodeURIComponent(site);$('#fieldsLink').hidden=!Object.keys(state.manifest.pages).length;}
+function renderLayers(){if(!canvasMain)return;const list=$('#layers');list.replaceChildren();canvasMain.components().forEach((m,i)=>{const recipe=m.get('recipe');if(!recipe)return;const row=el('div',undefined,'layer'+(recipe.visible===false?' muted':''));const name=el('button',m.get('name'),'name');name.onclick=()=>{editor.select(m);properties(m);};row.append(name);for(const [label,delta] of [['↑',-1],['↓',1]]){const b=el('button',label);b.title=delta<0?'Поднять блок':'Опустить блок';b.disabled=i+delta<0||i+delta>=canvasMain.components().length;b.onclick=()=>{m.move(canvasMain,{at:i+delta});sync();changed();renderLayers();};row.append(b);}list.append(row);});}
+async function renderPage(){building=true;renderNavigation();if(editor)editor.destroy();$('#canvas').replaceChildren();$('#blockLibrary').replaceChildren();$('#properties').replaceChildren(el('h3','Выберите блок'),el('p','Нажмите на текст или изображение в макете.','hint'));
+const template=state.templates[page];editor=grapesjs.init({container:'#canvas',height:'100%',width:'auto',storageManager:false,noticeOnUnload:false,fromElement:false,panels:{defaults:[]},selectorManager:{componentFirst:true},styleManager:{sectors:[]},blockManager:{appendTo:'#blockLibrary'},assetManager:{upload:false},canvas:{styles:(template?.styles||[]).map(abs)},deviceManager:{devices:[{id:'Desktop',name:'Компьютер',width:''},{id:'Tablet',name:'Планшет',width:'768px',widthMedia:'992px'},{id:'Mobile',name:'Телефон',width:'390px',widthMedia:'480px'}]},i18n:{locale:'ru',messages:{ru:window.CMSLocaleRu||{}}}});
+editor.setStyle((template?.css||'')+'\n'+CMBlocks.css+'\nhtml,body{margin:0;min-height:100%}.cms-canvas-main{min-height:80vh}');
+editor.getWrapper().setClass(template?.bodyClass||'');editor.getWrapper().set({droppable:false,selectable:false,hoverable:false});
+canvasMain=editor.getWrapper().append({tagName:'main',attributes:{class:(template?.mainClass||'')+' cms-canvas-main'},droppable:true,draggable:false,removable:false,copyable:false,selectable:false,hoverable:false})[0];
+for(const recipe of ensureLayout()){const m=modelFor(recipe);if(m)canvasMain.append(m);}
+for(const [type,label] of Object.entries(labels))editor.Blocks.add(type,{label,content:{type:'cms-new',blockType:type},activate:true,onClick:()=>addBlock(type)});
+editor.Components.addType('cms-new',{model:{defaults:{tagName:'section',droppable:false,draggable:'.cms-canvas-main',copyable:false,toolbar:[]},init(){const type=this.get('blockType')||'text',recipe={id:'new-'+crypto.randomUUID(),type,props:CMBlocks.defaults(type)};this.set({recipe,name:labels[type]});this.components(CMBlocks.html(recipe,state.site_url));this.components().forEach(lock);}}});
+
+editor.on('component:selected',properties);
+editor.on('component:drag:end',()=>{sync();changed();renderLayers();});
+editor.on('component:add component:remove',m=>{if(!building&&m.get('recipe')){queueMicrotask(()=>{sync();changed();renderLayers();});}});
+editor.on('load',()=>{const doc=editor.Canvas.getDocument();if(!doc)return;doc.addEventListener('submit',e=>e.preventDefault());doc.addEventListener('click',e=>{if(e.target.closest('a,button'))e.preventDefault();},true);});
+building=false;renderLayers();revision();}
+function addBlock(type){if(busy)return;const recipe={id:'new-'+crypto.randomUUID(),type,props:CMBlocks.defaults(type)},m=modelFor(recipe);canvasMain.append(m);editor.select(m);sync();changed();renderLayers();status('Блок добавлен. Настройте его справа.');}
+function inputField(label,value,fn,kind='text'){const wrap=el('label',label),input=el(kind==='textarea'?'textarea':'input');if(kind!=='textarea')input.type=kind;input.value=value??'';input.oninput=()=>fn(input.value);wrap.append(input);return wrap;}
+async function upload(file,done){if(!file)return;try{status('Загружаю изображение…');const form=new FormData();form.append('file',file);const result=await api('upload',form);done(new URL(result.url,location.href).href);status('Изображение загружено.');}catch(e){status(e.message,true);}}
+function imageUpload(done){const wrap=el('label','Загрузить изображение'),input=el('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.onchange=()=>upload(input.files[0],done);wrap.append(input);return wrap;}
+function updateMapped(id,value){const field=pageMeta().fields.find(f=>f.id===id);state.draft.pages[page].fields[id]=value;
+walk(canvasMain,m=>{if(!(m.getAttributes()['data-cms-fields']||'').split(',').includes(id))return;
+if(field.kind==='text'){m.components(CMBlocks.esc(value));m.addStyle({'white-space':'pre-line'});}else if(field.kind==='image')m.addAttributes({src:abs(value)});else if(field.kind==='alt')m.addAttributes({alt:value});else if(field.kind==='background')m.addStyle({'background-image':`url("${abs(value)}")`});
+});changed();}
+function properties(model){if(!model||building)return;const panel=$('#properties');panel.replaceChildren();const recipe=model.get('recipe');
+if(recipe){panel.append(el('h3',model.get('name')));if(recipe.type==='existing'){
+ const slides=model.find('.heroSlide');if(slides.length){const wrap=el('label','Слайд баннера'),select=el('select');slides.forEach((slide,i)=>{const option=el('option','Слайд '+(i+1));option.value=String(i);select.append(option);if(slide.getClasses().includes('is-active'))select.value=String(i);});select.onchange=()=>slides.forEach((slide,i)=>{if(i===Number(select.value))slide.addClass('is-active');else slide.removeClass('is-active');});wrap.append(select);panel.append(wrap);}
+ panel.append(el('p','Готовый блок сайта. Текст и изображения выбираются нажатием на макет.','hint'));
+ const toggle=el('button',recipe.visible?'Скрыть блок':'Показать блок');toggle.onclick=()=>{recipe.visible=!recipe.visible;model.set('recipe',{...recipe});if(recipe.visible){const restored=modelFor(recipe);const at=canvasMain.components().indexOf(model);model.remove();canvasMain.append(restored,{at});editor.select(restored);}else model.addStyle({display:'none'});sync();changed();renderLayers();properties(editor.getSelected()||model);};panel.append(toggle);
+}else {
+ const update=(key,value)=>{recipe.props[key]=value;model.set('recipe',structuredClone(recipe));model.components(CMBlocks.html(recipe,state.site_url));model.components().forEach(lock);sync();changed();};
+ if(recipe.type!=='spacer'){
+ panel.append(inputField('Заголовок',recipe.props.title,v=>update('title',v)),inputField('Текст',recipe.props.text,v=>update('text',v),'textarea'));
+ if(recipe.type==='columns')panel.append(inputField('Вторая колонка',recipe.props.text2,v=>update('text2',v),'textarea'));
+ panel.append(inputField('Адрес изображения',recipe.props.image,v=>update('image',v)),imageUpload(v=>{update('image',v);properties(model);}),inputField('Описание изображения',recipe.props.alt,v=>update('alt',v)),inputField('Текст кнопки',recipe.props.label,v=>update('label',v)),inputField('Ссылка кнопки',recipe.props.url,v=>update('url',v)));
+ }
+ panel.append(inputField('Фон',recipe.props.background||'#ffffff',v=>update('background',v),'color'),inputField('Цвет текста',recipe.props.color||'#172033',v=>update('color',v),'color'));
+ for(const [key,title,options] of [['align','Выравнивание',{left:'Слева',center:'По центру',right:'Справа'}],['space','Отступы',{'24':'Небольшие','48':'Средние','80':'Большие','120':'Очень большие'}]]){const wrap=el('label',title),select=el('select');for(const [value,label] of Object.entries(options)){const option=el('option',label);option.value=value;select.append(option);}select.value=recipe.props[key];select.onchange=()=>update(key,select.value);wrap.append(select);panel.append(wrap);}
+ const actions=el('div',undefined,'actions'),duplicate=el('button','Копия'),remove=el('button','Удалить');duplicate.onclick=()=>{const copy=structuredClone(recipe);copy.id='new-'+crypto.randomUUID();const m=modelFor(copy);canvasMain.append(m,{at:canvasMain.components().indexOf(model)+1});sync();changed();renderLayers();editor.select(m);};remove.onclick=()=>{model.remove();sync();changed();renderLayers();panel.replaceChildren(el('p','Блок удалён.'));};actions.append(duplicate,remove);panel.append(actions);
+}}
+const ids=(model.getAttributes()['data-cms-fields']||'').split(',');for(const id of ids){const field=pageMeta().fields.find(f=>f.id===id);if(!field)continue;panel.append(inputField(field.label,fieldValue(id),v=>updateMapped(id,v),field.kind==='text'?'textarea':'text'));if(['image','background'].includes(field.kind))panel.append(imageUpload(v=>{updateMapped(id,v);properties(model);}));}
+if(!panel.children.length)panel.append(el('p','Выберите текст, изображение или блок.','hint'));
+}
+async function load(){state=await api('state');csrf=state.csrf;site=state.site.key;dirty=false;page=state.draft.pages[page]?page:Object.keys(state.draft.pages)[0];$('#login').hidden=true;$('#app').hidden=false;await refreshSites();await renderPage();if(demo)status('Демонстрация. Изменения видны только вам и не публикуются на сайте.');}
+async function refreshSites(){const data=await api('sites');$('#siteSelect').replaceChildren();$('#siteList').replaceChildren();for(const item of data.items){const option=el('option',item.name);option.value=item.site_key;$('#siteSelect').append(option);const card=el('div',undefined,'site-card'),label=el('div',item.name);label.append(el('small',item.url));const b=el('button',item.site_key===site?'Открыт':'Открыть');b.onclick=async()=>{if(await switchSite(item.site_key))$('#sitesDialog').close();};card.append(label,b);$('#siteList').append(card);}$('#siteSelect').value=site;
+ const info=el('div');info.append(el('h3','Подключение текущего сайта'));
+ const home=new URL('site.php',location.href);home.searchParams.set('site',site);home.searchParams.set('page','index.html');const link=el('a','Открыть опубликованную главную ↗');link.href=home.href;link.target='_blank';link.rel='noopener';info.append(link);
+ info.append(el('p','Для страницы другого сайта: добавьте область <main data-cms-root></main> и этот код.','hint'));
+ const code=el('code',`<script src="${new URL('connector.js',location.href).href}" data-cms-endpoint="${new URL('api.php',location.href).href}" data-cms-site="${site}" data-cms-page="index.html" defer></script>`);info.append(code);$('#siteList').append(info);
+}
+async function switchSite(key){if(busy)return false;if(dirty&&!confirm('Перейти к другому сайту без сохранения?')){$('#siteSelect').value=site;return false;}try{site=key;await load();const u=new URL(location.href);u.searchParams.set('site',site);history.replaceState(null,'',u);return true;}catch(e){status(e.message,true);return false;}}
+async function mutation(action,extra={}){if(busy)return false;sync();busy=true;$('#app').inert=true;try{const r=await api(action,{version:state.version,...extra});Object.assign(state,r);dirty=false;if(!state.draft.pages[page])page=Object.keys(state.draft.pages)[0];await renderPage();status(action==='publish'?'Изменения опубликованы.':action==='restore'?'Версия восстановлена в черновик.':'Черновик сохранён.');return true;}catch(e){status(e.message,true);return false;}finally{busy=false;$('#app').inert=false;}}
+function pageURL(){if(state.manifest.pages[page])return new URL(page,state.site_url);const url=new URL('site.php',location.href);url.searchParams.set('site',site);url.searchParams.set('page',page);return url;}
+function previewPayload(){sync();const meta=pageMeta(),draft=state.draft.pages[page];return {fields:meta.fields.filter(f=>draft.fields[f.id]!==f.value).map(f=>({selector:f.selector,kind:f.kind,value:draft.fields[f.id]})),blocks:[],layout:draft.layout,sections:(state.templates[page]?.sections||[]).map(s=>({id:s.id,selector:s.selector}))};}
+$('#loginForm').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const r=await api('login',Object.fromEntries(new FormData(e.target)));csrf=r.csrf;e.target.reset();await load();}catch(e){status(e.message,true);}finally{b.disabled=false;}};
+$('#save').onclick=()=>{sync();mutation('save',{draft:state.draft});};
+$('#publish').onclick=async()=>{sync();if(!(await mutation('save',{draft:state.draft})))return;await mutation('publish');};
+$('#preview').onclick=()=>{sync();const url=pageURL();url.searchParams.set('cms-preview','1');previewWindow=window.open(url.href,'cms-preview');if(!previewWindow)status('Разрешите открытие окна предпросмотра.',true);};
+window.addEventListener('message',e=>{if(!state||e.source!==previewWindow||e.origin!==pageURL().origin||e.data?.type!=='cms-ready')return;previewWindow.postMessage({type:'cms-preview',payload:previewPayload()},e.origin);});
+$('#siteSelect').onchange=e=>switchSite(e.target.value);
+$('#sitesBtn').onclick=async()=>{try{await refreshSites();$('#sitesDialog').showModal();}catch(e){status(e.message,true);}};
+$('#siteForm').onsubmit=async e=>{e.preventDefault();if(dirty){$('#siteStatus').textContent='Сначала сохраните текущий черновик.';return;}const b=e.target.querySelector('button');b.disabled=true;try{const r=await api('create-site',Object.fromEntries(new FormData(e.target)));e.target.reset();await switchSite(r.site_key);$('#sitesDialog').close();status('Сайт создан. Добавьте блоки и опубликуйте главную страницу.');}catch(e){$('#siteStatus').textContent=e.message;}finally{b.disabled=false;}};
+$('#addPage').onclick=()=>$('#pageDialog').showModal();
+$('#pageForm').onsubmit=e=>{e.preventDefault();sync();const data=Object.fromEntries(new FormData(e.target)),key=data.slug+'.html';if(state.draft.pages[key]){$('#pageStatus').textContent='Такой адрес уже занят.';return;}state.draft.pages[key]={title:data.title,fields:{},blocks:[],layout:[]};page=key;changed();renderPage();e.target.reset();$('#pageDialog').close();};
+for(const b of document.querySelectorAll('[data-close]'))b.onclick=()=>$('#'+b.dataset.close).close();
+for(const b of document.querySelectorAll('[data-device]'))b.onclick=()=>{editor.setDevice(b.dataset.device);document.querySelectorAll('[data-device]').forEach(n=>n.classList.toggle('active',n===b));};
+$('#logout').onclick=async()=>{if(dirty&&!confirm('Выйти без сохранения?'))return;try{await api('logout',{});dirty=false;location.reload();}catch(e){status(e.message,true);}};
+$('#historyBtn').onclick=async()=>{try{const r=await api('history');$('#historyList').replaceChildren();for(const item of r.items){const row=el('div',undefined,'history-row');row.append(el('span',`№${item.id} · ${item.created_at} · ${item.actor}`));const b=el('button','Восстановить');b.onclick=async()=>{if(confirm('Заменить черновик выбранной версией?')&&await mutation('restore',{id:item.id}))$('#history').close();};row.append(b);$('#historyList').append(row);}$('#history').showModal();}catch(e){status(e.message,true);}};
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+(async()=>{try{const s=await api('session');csrf=s.csrf;if(s.authenticated)await load();}catch(e){status(e.message,true);}})();
