@@ -49,10 +49,12 @@ assert call('media',auth=False)[0]==401
 import base64
 png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aGWsAAAAASUVORK5CYII=')
 boundary='IDTESTBOUNDARY'
-payload=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="id-test.png"\r\nContent-Type: image/png\r\n\r\n'.encode()+png+f'\r\n--{boundary}--\r\n'.encode())
+payload=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="Проверка-ID.png"\r\nContent-Type: image/png\r\n\r\n'.encode()+png+f'\r\n--{boundary}--\r\n'.encode())
 request=urllib.request.Request(base+'upload&site=http-site',data=payload,headers={'Cookie':cookie,'X-CSRF-Token':csrf,'Content-Type':'multipart/form-data; boundary='+boundary})
 with urllib.request.urlopen(request) as response: uploaded=json.load(response)
-assert uploaded['url'] in [x['url'] for x in call('media&site=http-site')[1]['items']]
+media=call('media&site=http-site')[1]['items']
+assert uploaded['url'] in [x['url'] for x in media]
+assert media[0]['name']=='Проверка-ID.png'
 assert uploaded['url'] not in [x['url'] for x in call('media')[1]['items']]
 assert call('logout',{})[0]==200
 assert call('state')[0]==401

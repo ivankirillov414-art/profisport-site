@@ -45,7 +45,8 @@ try {
         $info=getimagesize($f['tmp_name']);$ext=['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp'][$info['mime']??'']??null;
         if(!$ext||$info[0]>8000||$info[1]>8000)cms_reply(['error'=>'Допустимы JPG, PNG, WebP, до 8000 пикселей.'],422);
         $name=bin2hex(random_bytes(16)).'.'.$ext;if(!move_uploaded_file($f['tmp_name'],__DIR__.'/media/'.$name))throw new RuntimeException('Не удалось сохранить изображение.');
-        try {cms_db()->prepare('INSERT INTO ps_cms_media(site_key,filename,name,width,height,bytes) VALUES(?,?,?,?,?,?)')->execute([cms_site_key(),$name,substr(preg_replace('/[^a-zA-Z0-9._-]/','_',basename($f['name'])),0,100),$info[0],$info[1],$f['size']]);}
+        $label=preg_replace('/[^\pL\pN ._-]/u','_',basename($f['name']))??'image';preg_match('/^.{0,100}/us',$label,$labelParts);$label=$labelParts[0]??'image';
+        try {cms_db()->prepare('INSERT INTO ps_cms_media(site_key,filename,name,width,height,bytes) VALUES(?,?,?,?,?,?)')->execute([cms_site_key(),$name,$label,$info[0],$info[1],$f['size']]);}
         catch(Throwable $e){unlink(__DIR__.'/media/'.$name);throw $e;}
         cms_reply(['url'=>rtrim(cms_config()['media_url'],'/').'/'.$name]);
     }
