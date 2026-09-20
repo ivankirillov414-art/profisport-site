@@ -274,7 +274,8 @@
       "storefront-v2.css?v=46",
       "section-pages.css?v=1",
       "editorial-pages.css?v=3",
-      "ui-refinements-v4.css?v=7"
+      "ui-refinements-v4.css?v=7",
+      "workshop-page.css?v=1"
     ],
     "css": "",
     "bodyClass": "",
@@ -282,8 +283,8 @@
       "f1": "ПРОФИСПОРТ · ОРЕНБУРГ",
       "f2": "Мастерская",
       "f3": "Разберитесь в устройстве велосипеда и найдите нужные работы.",
-      "f4": "assets/hero/classic-workshop-reference-v4.webp",
-      "f5": "Trek Marlin 7 на ремонтной стойке — иллюстрация по фотореференсам",
+      "f4": "assets/hero/classic-workshop-wide-v5.webp",
+      "f5": "Велосипед на ремонтной стойке в светлой мастерской",
       "f6": "Выбрать работы",
       "f7": "Ознакомьтесь с направлениями обслуживания и составьте список интересующих работ. Стоимость и возможность выполнения уточните по телефону.",
       "f8": "Посмотреть работы",
@@ -296,9 +297,7 @@
       "f15": "Диагностика, настройка и обслуживание. На странице сервиса можно изучить услуги и позвонить в магазин.",
       "f16": "Открыть сервис",
       "f17": "service.html",
-      "f18": "Адреса двух магазинов и удобный маршрут — на главной странице.",
-      "f19": "Найти магазин",
-      "f20": "index.html#storeLocation",
+      "f18": "Подскажем по ремонту и обслуживанию велосипеда. Позвоните нам или найдите удобный магазин.",
       "f21": "Оренбург, проспект Победы, 79",
       "f22": "https://yandex.ru/maps/?rtext=~51.788904,55.121480&rtt=auto",
       "f23": "Оренбург, проспект Победы, 118, строение 2 · ПрофиСпорт",
@@ -332,7 +331,7 @@
       "f51": "Персональные данные",
       "f52": "buyer-info.html#privacy"
     },
-    "mainClass": "hubPage editorialPage workshopV3",
+    "mainClass": "hubPage editorialPage workshopPage",
     "sections": [
       {
         "id": "section0",
@@ -353,14 +352,14 @@
         "selector": "main > div:nth-child(3)",
         "label": "Выбрать работы",
         "legacy": null,
-        "html": "<div class=\"editorialLayout\"><nav class=\"hubTabs\" aria-label=\"Подразделы\"><a href=\"#works\">Выбрать работы</a></nav><div class=\"hubGrid\"><img data-cms-fields=\"f4,f5\" class=\"workshopScene\" src=\"assets/hero/classic-workshop-reference-v4.webp\" alt=\"Trek Marlin 7 на ремонтной стойке — иллюстрация по фотореференсам\"><section class=\"hubCard\" id=\"works\"><h2 data-cms-fields=\"f6\">Выбрать работы</h2><p data-cms-fields=\"f7\">Ознакомьтесь с направлениями обслуживания и составьте список интересующих работ. Стоимость и возможность выполнения уточните по телефону.</p><a data-cms-fields=\"f8,f9\" class=\"hubAction\" href=\"service.html#serviceWorks\">Посмотреть работы</a></section><section class=\"hubCard\" id=\"guide\"><h2 data-cms-fields=\"f10\">Устройство велосипеда</h2><p data-cms-fields=\"f11\">Наглядный справочник поможет понять, как называются узлы велосипеда и за что они отвечают.</p><a data-cms-fields=\"f12,f13\" class=\"hubAction\" href=\"service.html#bikeGuide\">Открыть справочник</a></section><section class=\"hubCard\" id=\"service\"><h2 data-cms-fields=\"f14\">Перейти в сервис</h2><p data-cms-fields=\"f15\">Диагностика, настройка и обслуживание. На странице сервиса можно изучить услуги и позвонить в магазин.</p><a data-cms-fields=\"f16,f17\" class=\"hubAction\" href=\"service.html\">Открыть сервис</a></section></div></div>"
+        "html": "<div class=\"editorialLayout\"><nav class=\"hubTabs\" aria-label=\"Подразделы\"><a href=\"#works\">Выбрать работы</a></nav><div class=\"hubGrid\"><img data-cms-fields=\"f4,f5\" class=\"workshopScene\" src=\"assets/hero/classic-workshop-wide-v5.webp\" alt=\"Велосипед на ремонтной стойке в светлой мастерской\" width=\"2172\" height=\"724\"><section class=\"hubCard\" id=\"works\"><h2 data-cms-fields=\"f6\">Выбрать работы</h2><p data-cms-fields=\"f7\">Ознакомьтесь с направлениями обслуживания и составьте список интересующих работ. Стоимость и возможность выполнения уточните по телефону.</p><a data-cms-fields=\"f8,f9\" class=\"hubAction\" href=\"service.html#serviceWorks\">Посмотреть работы</a></section><section class=\"hubCard\" id=\"guide\"><h2 data-cms-fields=\"f10\">Устройство велосипеда</h2><p data-cms-fields=\"f11\">Наглядный справочник поможет понять, как называются узлы велосипеда и за что они отвечают.</p><a data-cms-fields=\"f12,f13\" class=\"hubAction\" href=\"service.html#bikeGuide\">Открыть справочник</a></section><section class=\"hubCard\" id=\"service\"><h2 data-cms-fields=\"f14\">Перейти в сервис</h2><p data-cms-fields=\"f15\">Диагностика, настройка и обслуживание. На странице сервиса можно изучить услуги и позвонить в магазин.</p><a data-cms-fields=\"f16,f17\" class=\"hubAction\" href=\"service.html\">Открыть сервис</a></section></div></div>"
       },
       {
         "id": "section3",
         "selector": "main > aside:nth-child(4)",
         "label": "Блок 4",
         "legacy": null,
-        "html": "<aside class=\"hubContact\"><div><strong>Поможем разобраться</strong><p data-cms-fields=\"f18\">Адреса двух магазинов и удобный маршрут — на главной странице.</p></div><a data-cms-fields=\"f19,f20\" href=\"index.html#storeLocation\">Найти магазин</a></aside>"
+        "html": "<aside class=\"hubContact workshopContact\" aria-label=\"Связаться с мастерской\"><div class=\"workshopContactCopy\"><strong>Поможем разобраться</strong><p data-cms-fields=\"f18\">Подскажем по ремонту и обслуживанию велосипеда. Позвоните нам или найдите удобный магазин.</p></div><div class=\"workshopContactActions\"><a class=\"workshopPhone\" href=\"tel:+73532970766\"><span>Телефон мастерской</span><b>+7 (3532) 970-766</b></a><a class=\"workshopMap\" href=\"index.html#storeLocation\">Найти магазин <span aria-hidden=\"true\">↗</span></a></div></aside>"
       }
     ]
   },

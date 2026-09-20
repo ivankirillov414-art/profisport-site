@@ -3,6 +3,7 @@ name: Deploy ProfiSport to InfinityFree
 on:
   push:
     branches: [main]
+    paths-ignore: ['cms/**', '.github/workflows/deploy-cms.yml']
   workflow_dispatch:
 
 concurrency:
