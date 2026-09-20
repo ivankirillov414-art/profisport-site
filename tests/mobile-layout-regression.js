@@ -17,7 +17,8 @@ if(!/header-compact\.css\?v=\d+/.test(index))fail('index.html must load header-c
 if(!/app\.js\?v=\d+/.test(index))fail('index.html must load the unified app.js with a cache version');
 if(!/catalog-loader\.js\?v=\d+/.test(index))fail('index.html must load catalog-loader.js with a cache version');
 const stylesheetHrefs=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
-if(stylesheetHrefs.length!==2)fail('home page must load exactly the storefront and compact-header stylesheets');
+if(stylesheetHrefs.length!==3)fail('home page must load exactly the storefront, compact-header and back-to-top stylesheets');
+if(!stylesheetHrefs.includes('back-to-top.css?v=1'))fail('back-to-top.css is missing from stylesheet list');
 if(!stylesheetHrefs.some(x=>/^storefront-v2\.css\?v=\d+$/.test(x)))fail('storefront-v2.css is missing from stylesheet list');
 if(!stylesheetHrefs.some(x=>/^header-compact\.css\?v=\d+$/.test(x)))fail('header-compact.css is missing from stylesheet list');
 
