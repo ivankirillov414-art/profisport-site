@@ -1,3 +1,4 @@
+(()=>{const exports={};
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -173,3 +174,4 @@ var _default = exports.default = {
     recover: 'Вы хотите восстановить несохраненные изменения?'
   }
 };
+window.CMSLocaleRu=exports.default;})();
