@@ -3,3 +3,6 @@ server/config.php
 .env.*
 !server/config.example.php
 node_modules/
+cms/private/config.php
+cms/media/*
+!cms/media/.htaccess

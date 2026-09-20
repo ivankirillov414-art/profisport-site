@@ -1,0 +1,37 @@
+name: CMS checks
+on:
+  push:
+    branches: [main, codex/standalone-cms]
+    paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
+  pull_request:
+    paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
+jobs:
+  cms:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: cms-test-password
+          MARIADB_DATABASE: cms_test
+        ports: ['3306:3306']
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Syntax and validation
+        run: |
+          find cms -name '*.php' -print0 | xargs -0 -n1 php -l
+          php -l admin/cms-setup.php
+          node --check cms/editor.js
+          node --check cms-client.js
+          php cms/tests/validation.php
+      - name: Disposable database integration
+        env:
+          CMS_TEST: '1'
+        run: |
+          cat > cms/private/config.php <<'PHP'
+          <?php return ['db_host'=>'127.0.0.1','db_name'=>'cms_test','db_user'=>'root','db_pass'=>'cms-test-password','site_key'=>'profisport','site_url'=>'http://localhost:8123/','media_url'=>'/cms/media/'];
+          PHP
+          php cms/tests/integration.php
+          php -S 127.0.0.1:8123 > /tmp/cms-server.log 2>&1 &
+          python3 cms/tests/http_contract.py
