@@ -1,7 +1,7 @@
 name: CMS checks
 on:
   push:
-    branches: [main, codex/standalone-cms]
+    branches: [main, codex/standalone-cms, codex/visual-cms]
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
   pull_request:
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
@@ -23,8 +23,11 @@ jobs:
           find cms -name '*.php' -print0 | xargs -0 -n1 php -l
           php -l admin/cms-setup.php
           node --check cms/editor.js
+          node --check cms/visual.js
+          node cms/tests/blocks.js
           node --check cms-client.js
           php cms/tests/validation.php
+          php cms/tests/visual-validation.php
       - name: Disposable database integration
         env:
           CMS_TEST: '1'

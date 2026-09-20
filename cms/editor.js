@@ -3,7 +3,7 @@ const $=s=>document.querySelector(s);
 let state,csrf='',page='index.html',dirty=false,busy=false,previewWindow;
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
 function status(message,error=false){const el=state?$('#status'):$('#loginStatus');el.textContent=message;el.classList.toggle('error',error);}
-async function api(action,body){const options={credentials:'same-origin',headers:{'X-CSRF-Token':csrf},signal:AbortSignal.timeout(15000)};if(body!==undefined){options.method='POST';if(body instanceof FormData)options.body=body;else {options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}}const r=await fetch('api.php?action='+action,options);const data=await r.json();if(!r.ok)throw new Error(data.error||'Не удалось выполнить действие.');return data;}
+async function api(action,body){const options={credentials:'same-origin',headers:{'X-CSRF-Token':csrf},signal:AbortSignal.timeout(15000)};if(body!==undefined){options.method='POST';if(body instanceof FormData)options.body=body;else {options.headers['Content-Type']='application/json';options.body=JSON.stringify(body);}}const r=await fetch('api.php?action='+action+'&site='+encodeURIComponent(new URLSearchParams(location.search).get('site')||'profisport'),options);const data=await r.json();if(!r.ok)throw new Error(data.error||'Не удалось выполнить действие.');return data;}
 function revision(){ $('#revision').textContent=`Черновик №${state.version} · Опубликовано: ${state.published_version||'ещё нет'}${dirty?' · Есть несохранённые изменения':''}`;}
 function changed(){dirty=true;revision();}
 function render(){
