@@ -381,7 +381,8 @@ function setupHero(){
     current=(n+slides.length)%slides.length;
     slides.forEach((s,i)=>{s.classList.toggle('is-active',i===current);s.inert=i!==current;s.setAttribute('aria-hidden',String(i!==current))});
     dots.forEach((d,i)=>{d.classList.toggle('active',i===current);d.setAttribute('aria-pressed',String(i===current))});
-    track.style.transform=mobile.matches?'none':`translateX(${-current*100}%)`;
+    // All breakpoints use one active slide; translating a collapsed track skips slides.
+    track.style.transform='none';
     resume();
   };
   dots.forEach((d,i)=>d.onclick=()=>setSlide(i));
@@ -407,8 +408,7 @@ function setupHero(){
       gesture.dragging=true;slider.setPointerCapture(e.pointerId);slider.classList.add('is-dragging');
     }
     gesture.dx=dx;
-    const width=slider.getBoundingClientRect().width,offset=Math.max(-(slides.length-1-current)*width,Math.min(current*width,dx));
-    track.style.transform=`translateX(calc(${-current*100}% + ${offset}px))`;
+    // Keep the active scene in place; finishGesture changes it after the swipe threshold.
     e.preventDefault();
   });
   const finishGesture=e=>{

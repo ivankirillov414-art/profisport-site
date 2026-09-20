@@ -1,0 +1,13 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const index=read('index.html'),app=read('app.js'),css=read('hero-slides-v5.css');
+assert.equal((index.match(/<article class="heroSlide /g)||[]).length,4,'Keep all four hero slides');
+for(const name of ['bikeSlide','winterSlide','serviceSlide','storageSlide'])assert(index.includes(name));
+assert(read('storefront-v2.css').includes('hero-slides-v5.css?v='));
+const setup=app.slice(app.indexOf('function setupHero(){'),app.indexOf('function setupStoragePromo(){'));
+assert(setup.includes("track.style.transform='none'"));
+assert(!setup.includes('translateX('),'Do not translate a track with display:none siblings');
+assert(css.includes('.heroTrack>.heroSlide.is-active{display:grid!important}'));
+assert(css.includes('background:transparent!important'));
+for(const asset of ['assets/hero/classic-workshop-wide-v5.webp','assets/hero/classic-workshop-mobile-v5.webp','assets/hero/winter-storage-v10.webp'])assert(fs.statSync(path.join(root,asset)).size>10000,asset+' must exist');
+console.log('Hero slides regression checks passed.');

@@ -1,0 +1,33 @@
+/* One rendering model for all four slides. Never translate a track whose siblings are hidden. */
+.storefrontHome .heroLayout .heroTrack{display:block!important;transform:none!important;transition:none!important}
+.storefrontHome .heroLayout .heroTrack>.heroSlide{display:none!important;width:100%;min-width:0}
+.storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{display:grid!important}
+.storefrontHome .heroLayout .dots{left:50%!important;right:auto!important;bottom:4px!important;transform:translateX(-50%)!important;width:max-content!important}
+
+/* A single continuous photograph. Copy is placed in the natural empty part of the room. */
+.storefrontHome .heroLayout .heroSlide.serviceSlide{position:relative;grid-template-columns:1fr;aspect-ratio:3;min-height:0;align-items:center;background:transparent}
+.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;background-image:url('./assets/hero/classic-workshop-wide-v5.webp');background-size:cover!important;background-position:center!important;filter:none}
+.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto::after{content:none!important;display:none!important}
+.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{position:relative;z-index:1;align-self:center;width:49%!important;max-width:none!important;min-height:0;margin:0!important;padding:24px 40px;background:transparent!important;border:0;border-radius:0;box-shadow:none;text-shadow:none}
+.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-family:Arial,Helvetica,sans-serif;font-weight:900;font-style:italic;text-transform:uppercase;font-size:clamp(28px,3.35vw,46px);line-height:1.02;letter-spacing:-1px;color:#11171e;margin:16px 0;overflow-wrap:normal}
+.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{font-size:17px;line-height:1.45;max-width:340px;margin:0 0 22px;color:#232d38}
+@media(min-width:601px) and (max-width:1024px){
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{padding:14px 24px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-size:clamp(20px,3vw,30px);margin:8px 0}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{font-size:13px;line-height:1.35;margin:0 0 10px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy .primary{padding:9px 12px;min-height:38px;font-size:12px}
+}
+@media(max-width:600px){
+ .storefrontHome .heroLayout .heroSlide.serviceSlide{aspect-ratio:3/4;min-height:0;align-items:start}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{background-image:url('./assets/hero/classic-workshop-mobile-v5.webp')}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{width:100%!important;min-height:0;align-self:start;padding:24px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-size:clamp(23px,7vw,32px);margin:12px 0;letter-spacing:-.8px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{display:block;font-size:14px;line-height:1.4;margin:0 0 14px;max-width:290px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy .primary{padding:11px 14px;font-size:13px}
+}
+@media(max-width:360px){
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{padding:18px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-size:22px;margin:8px 0}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{font-size:12px;margin-bottom:10px;max-width:240px}
+ .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy .primary{font-size:12px;padding:9px 12px;min-height:38px}
+}
