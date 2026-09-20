@@ -15,7 +15,7 @@ def call(action, body=None, token=True, auth=True):
     try:
         response=urllib.request.urlopen(req,timeout=10)
     except urllib.error.HTTPError as e: response=e
-    if response.headers.get('Set-Cookie'):cookie=response.headers['Set-Cookie'].split(';')[0]
+    if auth and response.headers.get('Set-Cookie'):cookie=response.headers['Set-Cookie'].split(';')[0]
     return response.status,json.load(response)
 for i in range(30):
     try: code,session=call('session');break
