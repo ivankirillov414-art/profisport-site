@@ -1,0 +1,26 @@
+
+.shopM2{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;margin:28px 0 48px}
+.shopM2Card{display:flex;flex-direction:column;min-height:330px;overflow:hidden;border-radius:20px;background:#f4f6f8;text-decoration:none;color:#171b20;border:1px solid #e5e8eb;transition:box-shadow .2s}
+.shopM2Card>div{padding:28px 28px 12px}.shopM2Card h2{font-size:28px;line-height:1.1;margin:0 0 12px}.shopM2Card p{margin:0;line-height:1.5}
+.shopM2Card img{width:100%;height:220px;object-fit:contain;margin-top:auto}.shopM2Card:first-child{background:#f4cf45}.shopM2Card:first-child img{object-fit:cover}
+.shopM2Card:nth-child(2){background:#eaf4fa}.shopM2Card:nth-child(3){background:#f0f3f5}.shopM2Card:nth-child(4){background:#fff3ce}
+.shopM2Card:hover,.shopM2Card:focus-visible{box-shadow:0 8px 24px #15202b20;outline:2px solid #d4ad19;outline-offset:3px}
+.buyerP5{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;margin:0 0 40px}.buyerP5Photo{position:relative;border-radius:20px;overflow:hidden;background:#edf4fa;min-height:420px;display:flex;flex-direction:column}.buyerP5Photo img{width:100%;height:300px;object-fit:cover}.buyerP5Photo h2{font-size:32px;line-height:1.1;margin:24px}
+.buyerP5 nav{display:grid;gap:14px}.buyerP5 nav a{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:22px 26px;border:1px solid #e1e5e8;border-radius:16px;color:#171b20;text-decoration:none;background:white}.buyerP5 nav strong{font-size:22px}.buyerP5 nav span{color:#545b65}.buyerP5 nav a:hover,.buyerP5 nav a:focus-visible{border-color:#d4ad19;background:#fff9e4}.buyerDetails{display:block}
+.storefrontHome .heroLayout .serviceSlide{display:grid!important;grid-template-columns:36% 64%;align-items:center;background:#fff}
+.storefrontHome .heroLayout .serviceSlide:not(.is-active){display:none!important}
+.storefrontHome .heroLayout .serviceSlide .heroCopy{width:auto;max-width:none;margin:0;padding:30px;background:#fff;position:relative}
+.storefrontHome .heroLayout .serviceSlide .heroCopy h1{font-size:clamp(25px,2.7vw,39px);overflow-wrap:normal}
+.storefrontHome .heroLayout .serviceSlide .heroPhoto{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:2;background-size:contain!important;background-repeat:no-repeat;background-position:center!important}
+.workshopV3 .hubGrid{display:grid;grid-template-columns:36% 64%;align-items:center;gap:0}
+.workshopV3 .workshopScene{grid-column:2;grid-row:1;height:auto;aspect-ratio:2;object-fit:contain;margin:0;border-radius:16px}
+.workshopV3 #works{grid-column:1;grid-row:1;position:static;transform:none;width:auto;padding:24px;margin:0;box-shadow:none;border:0}
+.workshopV3 #guide,.workshopV3 #service{display:block;width:auto;margin:24px 0 0;padding:24px}
+.storagePromo{position:fixed;inset:0;margin:auto;width:fit-content;max-width:calc(100vw - 32px);height:fit-content;max-height:calc(100dvh - 24px);padding:48px 0 0;overflow:visible;background:transparent;box-shadow:none;border:0;border-radius:0}
+.storagePromo::backdrop{background:rgba(12,14,18,.48);backdrop-filter:blur(2px)}
+.storagePromo .storagePromoCard{border-radius:16px;background:#fff;box-shadow:0 18px 60px #0004;overflow:hidden}
+.storagePromo img{max-height:calc(100dvh - 180px);max-width:calc(100vw - 32px);width:auto;height:auto;object-fit:contain}
+.storagePromo .storagePromoClose{position:absolute;top:0;right:0;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);box-shadow:none}
+.storagePromo .storagePromoClose:hover,.storagePromo .storagePromoClose:focus-visible{background:rgba(255,255,255,.28);color:white;outline:2px solid white}
+.storagePromo .storagePromoAction{position:static;margin:12px}
+@media(max-width:760px){.shopM2,.buyerP5{grid-template-columns:1fr}.shopM2Card{min-height:280px}.buyerP5Photo{min-height:0}.buyerP5Photo img{height:200px}.storefrontHome .heroLayout .serviceSlide{grid-template-columns:1fr}.storefrontHome .heroLayout .serviceSlide .heroCopy{padding:24px}.storefrontHome .heroLayout .serviceSlide .heroPhoto{aspect-ratio:2;min-height:0!important;height:auto!important}.workshopV3 .hubGrid{display:flex;flex-direction:column;align-items:stretch}.workshopV3 .workshopScene{order:0}.workshopV3 #works{order:1;padding:24px 0}.workshopV3 #guide,.workshopV3 #service{order:2}}
