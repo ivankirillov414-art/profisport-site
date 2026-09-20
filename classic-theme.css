@@ -127,7 +127,7 @@ footer,.storeFooter{background:#f7f8fa;color:var(--ink);border-top:1px solid var
 .storefrontHome .heroLayout .heroSlide:not(.bikeSlide) .heroPhoto{inset:0;width:100%;height:100%;background-size:cover}
 .storefrontHome .heroLayout .heroPhoto:after{content:none}
 .storefrontHome .heroLayout .winterSlide .heroPhoto{background-image:url("./assets/hero/classic-nordic-v1.jpg");background-position:center}
-.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:url("./assets/hero/classic-workshop-real-v3.webp");background-position:center}
+.storefrontHome .heroLayout .serviceSlide .heroPhoto{background-image:url("./assets/hero/classic-workshop-reference-v4.webp");background-position:center}
 .storefrontHome .heroArrow{top:auto;bottom:20px;width:44px;height:44px;border:1px solid #ffffffb3;border-radius:50%;background:#fffffff0;box-shadow:0 3px 12px #17212d18;transform:none}
 .storefrontHome .heroPrev{left:auto;right:76px}
 .storefrontHome .heroNext{left:auto;right:22px}

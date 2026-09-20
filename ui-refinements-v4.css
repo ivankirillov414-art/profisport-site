@@ -24,3 +24,7 @@
 .storagePromo .storagePromoClose:hover,.storagePromo .storagePromoClose:focus-visible{background:rgba(255,255,255,.28);color:white;outline:2px solid white}
 .storagePromo .storagePromoAction{position:static;margin:12px}
 @media(max-width:760px){.shopM2,.buyerP5{grid-template-columns:1fr}.shopM2Card{min-height:280px}.buyerP5Photo{min-height:0}.buyerP5Photo img{height:200px}.storefrontHome .heroLayout .serviceSlide{grid-template-columns:1fr}.storefrontHome .heroLayout .serviceSlide .heroCopy{padding:24px}.storefrontHome .heroLayout .serviceSlide .heroPhoto{aspect-ratio:2;min-height:0!important;height:auto!important}.workshopV3 .hubGrid{display:flex;flex-direction:column;align-items:stretch}.workshopV3 .workshopScene{order:0}.workshopV3 #works{order:1;padding:24px 0}.workshopV3 #guide,.workshopV3 #service{order:2}}
+
+/* Do not wash out the service photograph or let inherited mobile widths shrink its copy. */
+.storefrontHome .heroLayout .serviceSlide .heroPhoto::after{content:none!important}
+.storefrontHome .heroLayout .serviceSlide .heroCopy{width:auto!important;max-width:none!important;margin:0!important;background:#fff!important}
