@@ -81,6 +81,17 @@ jobs:
         env:
           PROFISPORT_DB_PASSWORD: ${{ secrets.DB_PASSWORD || secrets.FTP_PASSWORD }}
 
+      - name: Prepare CMS media directory
+        shell: bash
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          curl -fsS --ssl-reqd --ftp-create-dirs --retry 3 --max-time 60 \
+            --user "if0_42771076:${FTP_PASSWORD}" \
+            -T cms/media/.htaccess \
+            "ftp://ftpupload.net:21/htdocs/cms/media/.htaccess;type=i"
+
       - name: Deploy to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
         with:
@@ -99,7 +110,6 @@ jobs:
             import/**
             uploads/**
             cms/media/**
-            !cms/media/.htaccess
             cms/tests/**
             tests/**
             docs/**
