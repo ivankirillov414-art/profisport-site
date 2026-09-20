@@ -32,7 +32,7 @@ function prepareHTML(html){const doc=new DOMParser().parseFromString(html,'text/
  if(n.tagName==='A')n.removeAttribute('href');
 
  const ids=(n.getAttribute('data-cms-fields')||'').split(',');for(const id of ids){const f=pageMeta().fields.find(f=>f.id===id);if(!f)continue;const value=state.draft.pages[page].fields[id];if(value!==undefined&&value!==f.value)applyDOM(n,f,value);}
- }return doc.body.innerHTML;}
+ }doc.querySelector('.heroSlide')?.classList.add('is-active');return doc.body.innerHTML;}
 function applyDOM(n,f,value){if(f.kind==='text'){n.textContent=value;n.style.whiteSpace='pre-line';}else if(f.kind==='image')n.setAttribute('src',abs(value));else if(f.kind==='alt')n.setAttribute('alt',value);else if(f.kind==='background')n.style.backgroundImage=`url("${abs(value)}")`;}
 function modelFor(recipe){let models;if(recipe.type==='existing'){
  const section=state.templates[page]?.sections.find(s=>s.id===recipe.id);if(!section)return null;
@@ -69,6 +69,7 @@ if(field.kind==='text'){m.components(CMBlocks.esc(value));m.addStyle({'white-spa
 });changed();}
 function properties(model){if(!model||building)return;const panel=$('#properties');panel.replaceChildren();const recipe=model.get('recipe');
 if(recipe){panel.append(el('h3',model.get('name')));if(recipe.type==='existing'){
+ const slides=model.find('.heroSlide');if(slides.length){const wrap=el('label','Слайд баннера'),select=el('select');slides.forEach((slide,i)=>{const option=el('option','Слайд '+(i+1));option.value=String(i);select.append(option);if(slide.getClasses().includes('is-active'))select.value=String(i);});select.onchange=()=>slides.forEach((slide,i)=>{if(i===Number(select.value))slide.addClass('is-active');else slide.removeClass('is-active');});wrap.append(select);panel.append(wrap);}
  panel.append(el('p','Готовый блок сайта. Текст и изображения выбираются нажатием на макет.','hint'));
  const toggle=el('button',recipe.visible?'Скрыть блок':'Показать блок');toggle.onclick=()=>{recipe.visible=!recipe.visible;model.set('recipe',{...recipe});if(recipe.visible){const restored=modelFor(recipe);const at=canvasMain.components().indexOf(model);model.remove();canvasMain.append(restored,{at});editor.select(restored);}else model.addStyle({display:'none'});sync();changed();renderLayers();properties(editor.getSelected()||model);};panel.append(toggle);
 }else {
