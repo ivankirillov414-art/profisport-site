@@ -94,7 +94,7 @@ jobs:
           node --check cms/visual.js
           mkdir -p .cms-preview-source
           cp cms/demo.html .cms-preview-source/index.html
-          cp cms/demo-state.json cms/visual.js cms/visual.css cms/blocks.js cms/research.html cms/research.css cms/.htaccess .cms-preview-source/
+          cp cms/demo-state.json cms/visual.js cms/visual.css cms/blocks.js cms/block-styles.css cms/research.html cms/research.css cms/.htaccess .cms-preview-source/
           cp -R cms/vendor .cms-preview-source/vendor
       - name: Upload isolated demo
         uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287

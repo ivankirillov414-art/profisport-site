@@ -11,3 +11,4 @@ assert(!gallery.includes('<svg'));assert(!gallery.includes('<img'));assert(galle
 for(const type of Object.keys(b.catalog)){const result=b.html({id:type,type,props:b.defaults(type)});assert(result.startsWith('<section'));assert(!result.includes('undefined'));}
 assert(b.html({id:'faq',type:'faq',props:{items:[{title:'Question',text:'Answer'}]}}).includes('<details><summary>Question</summary>'));
 console.log('ID compound block rendering and responsive settings passed');
+assert.equal(fs.readFileSync('cms/block-styles.css','utf8').trim(),b.css,'Canvas must load the exact shared CSS without editor parsing');

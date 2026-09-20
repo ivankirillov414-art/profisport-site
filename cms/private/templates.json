@@ -2,7 +2,8 @@
   "index.html": {
     "styles": [
       "storefront-v2.css?v=48",
-      "header-compact.css?v=6"
+      "header-compact.css?v=6",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "",
@@ -187,7 +188,8 @@
       "shop-hub.css?v=2",
       "ui-refinements-v4.css?v=8",
       "hub-reference-v6.css?v=1",
-      "hub-polish.css?v=1"
+      "hub-polish.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "referenceHubs",
@@ -278,7 +280,8 @@
       "ui-refinements-v4.css?v=7",
       "workshop-page.css?v=2",
       "hub-reference-v6.css?v=1",
-      "photo-hubs.css?v=1"
+      "photo-hubs.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "referenceHubs",
@@ -360,7 +363,8 @@
       "ui-refinements-v4.css?v=8",
       "hub-reference-v6.css?v=1",
       "hub-polish.css?v=1",
-      "photo-hubs.css?v=1"
+      "photo-hubs.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "referenceHubs",
@@ -448,7 +452,7 @@
         "selector": "main > nav:nth-child(3)",
         "label": "Гарантия",
         "legacy": null,
-        "html": "<nav class=\"photoHubGrid\" aria-label=\"Информация покупателям\"><a class=\"photoHubCard\" href=\"#warranty\"><img src=\"assets/hero/classic-workshop-mobile-v5.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Гарантия</h2><p>Условия и помощь после покупки</p><span class=\"photoHubAction\">Узнать условия</span></div></a><a class=\"photoHubCard\" href=\"#payment\"><img src=\"assets/hubs/account-reference-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Оплата</h2><p>Всё о порядке оплаты заказа</p><span class=\"photoHubAction\">Способы оплаты</span></div></a><a class=\"photoHubCard\" href=\"#delivery\"><img src=\"assets/hubs/picker-reference-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Доставка</h2><p>Получение заказа и самовывоз</p><span class=\"photoHubAction\">Условия доставки</span></div></a><a class=\"photoHubCard\" href=\"#privacy\"><img src=\"assets/hubs/customer-reference-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Персональные<br>данные</h2><p>Информация о вашей анкете</p><span class=\"photoHubAction\">Подробнее</span></div></a></nav>"
+        "html": "<nav class=\"photoHubGrid\" aria-label=\"Информация покупателям\"><a class=\"photoHubCard\" href=\"#warranty\"><img src=\"assets/hubs/buyer-warranty-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Гарантия</h2><p>Условия и помощь после покупки</p><span class=\"photoHubAction\">Узнать условия</span></div></a><a class=\"photoHubCard\" href=\"#payment\"><img src=\"assets/hubs/buyer-payment-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Оплата</h2><p>Всё о порядке оплаты заказа</p><span class=\"photoHubAction\">Способы оплаты</span></div></a><a class=\"photoHubCard\" href=\"#delivery\"><img src=\"assets/hubs/buyer-delivery-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Доставка</h2><p>Получение заказа и самовывоз</p><span class=\"photoHubAction\">Условия доставки</span></div></a><a class=\"photoHubCard\" href=\"#privacy\"><img src=\"assets/hubs/buyer-privacy-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Персональные<br>данные</h2><p>Информация о вашей анкете</p><span class=\"photoHubAction\">Подробнее</span></div></a></nav>"
       },
       {
         "id": "section3",
@@ -469,7 +473,8 @@
   "service.html": {
     "styles": [
       "storefront-v2.css?v=34",
-      "bike-guide.css?v=1"
+      "bike-guide.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "",
