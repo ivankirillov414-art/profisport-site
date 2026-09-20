@@ -2,7 +2,8 @@
   "index.html": {
     "styles": [
       "storefront-v2.css?v=48",
-      "header-compact.css?v=6"
+      "header-compact.css?v=6",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "",
@@ -186,18 +187,20 @@
       "section-pages.css?v=1",
       "shop-hub.css?v=2",
       "ui-refinements-v4.css?v=8",
-      "hub-reference-v6.css?v=1"
+      "hub-reference-v6.css?v=1",
+      "hub-polish.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "referenceHubs",
     "defaults": {
       "f1": "Магазин",
       "f2": "Всё начинается с желания двигаться.",
-      "f3": "КаталогтоваровВсё для новых маршрутов",
+      "f3": "КаталогтоваровВсё для новых маршрутовОткрыть каталог",
       "f4": "index.html#catalogProducts",
       "f5": "Каталогтоваров",
       "f6": "Всё для новых маршрутов",
-      "f7": "assets/hubs/catalog-reference-v1.webp",
+      "f7": "assets/hubs/catalog-scene-v2.webp",
       "f8": "",
       "f9": "Избранноеи заказыСохранённое и ваши покупки",
       "f10": "profile.html",
@@ -265,7 +268,7 @@
         "selector": "main > div:nth-child(3)",
         "label": "Каталогтоваров",
         "legacy": null,
-        "html": "<div class=\"shopM2\"><a data-cms-fields=\"f3,f4\" class=\"shopM2Card\" id=\"catalog\" href=\"index.html#catalogProducts\"><div><h2 data-cms-fields=\"f5\">Каталог<br>товаров</h2><p data-cms-fields=\"f6\">Всё для новых маршрутов</p></div><img data-cms-fields=\"f7,f8\" src=\"assets/hubs/catalog-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a><a class=\"shopM2Card\" id=\"picker\" href=\"index.html#picker\"><div><h2>Подбор<br>велосипеда</h2><p>Найдите свою модель</p></div><img src=\"assets/hubs/picker-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a><a data-cms-fields=\"f9,f10\" class=\"shopM2Card\" id=\"account\" href=\"profile.html\"><div><h2 data-cms-fields=\"f11\">Избранное<br>и заказы</h2><p data-cms-fields=\"f12\">Сохранённое и ваши покупки</p></div><img data-cms-fields=\"f13,f14\" src=\"assets/hubs/account-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a><a data-cms-fields=\"f15,f16\" class=\"shopM2Card\" id=\"customer\" href=\"index.html?register=qr\"><div><h2 data-cms-fields=\"f17\">Стать<br>клиентом</h2><p data-cms-fields=\"f18\">Познакомимся ближе</p></div><img data-cms-fields=\"f19,f20\" src=\"assets/hubs/customer-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a></div>"
+        "html": "<div class=\"shopM2\"><a data-cms-fields=\"f3,f4\" class=\"shopM2Card\" id=\"catalog\" href=\"index.html#catalogProducts\"><div><h2 data-cms-fields=\"f5\">Каталог<br>товаров</h2><p data-cms-fields=\"f6\">Всё для новых маршрутов</p><span class=\"catalogOpenButton\">Открыть каталог</span></div><img data-cms-fields=\"f7,f8\" src=\"assets/hubs/catalog-scene-v2.webp\" width=\"1000\" height=\"1000\" alt=\"\" loading=\"eager\"></a><a class=\"shopM2Card\" id=\"picker\" href=\"index.html#picker\"><div><h2>Подбор<br>велосипеда</h2><p>Найдите свою модель</p></div><img src=\"assets/hubs/picker-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a><a data-cms-fields=\"f9,f10\" class=\"shopM2Card\" id=\"account\" href=\"profile.html\"><div><h2 data-cms-fields=\"f11\">Избранное<br>и заказы</h2><p data-cms-fields=\"f12\">Сохранённое и ваши покупки</p></div><img data-cms-fields=\"f13,f14\" src=\"assets/hubs/account-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a><a data-cms-fields=\"f15,f16\" class=\"shopM2Card\" id=\"customer\" href=\"index.html?register=qr\"><div><h2 data-cms-fields=\"f17\">Стать<br>клиентом</h2><p data-cms-fields=\"f18\">Познакомимся ближе</p></div><img data-cms-fields=\"f19,f20\" src=\"assets/hubs/customer-reference-v1.webp\" width=\"1000\" height=\"1250\" alt=\"\" loading=\"eager\"></a></div>"
       }
     ]
   },
@@ -275,28 +278,17 @@
       "section-pages.css?v=1",
       "editorial-pages.css?v=3",
       "ui-refinements-v4.css?v=7",
-      "workshop-page.css?v=1"
+      "workshop-page.css?v=2",
+      "hub-reference-v6.css?v=1",
+      "photo-hubs.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
-    "bodyClass": "",
+    "bodyClass": "referenceHubs",
     "defaults": {
       "f1": "ПРОФИСПОРТ · ОРЕНБУРГ",
       "f2": "Мастерская",
       "f3": "Разберитесь в устройстве велосипеда и найдите нужные работы.",
-      "f4": "assets/hero/classic-workshop-wide-v5.webp",
-      "f5": "Велосипед на ремонтной стойке в светлой мастерской",
-      "f6": "Выбрать работы",
-      "f7": "Ознакомьтесь с направлениями обслуживания и составьте список интересующих работ. Стоимость и возможность выполнения уточните по телефону.",
-      "f8": "Посмотреть работы",
-      "f9": "service.html#serviceWorks",
-      "f10": "Устройство велосипеда",
-      "f11": "Наглядный справочник поможет понять, как называются узлы велосипеда и за что они отвечают.",
-      "f12": "Открыть справочник",
-      "f13": "service.html#bikeGuide",
-      "f14": "Перейти в сервис",
-      "f15": "Диагностика, настройка и обслуживание. На странице сервиса можно изучить услуги и позвонить в магазин.",
-      "f16": "Открыть сервис",
-      "f17": "service.html",
       "f18": "Подскажем по ремонту и обслуживанию велосипеда. Позвоните нам или найдите удобный магазин.",
       "f21": "Оренбург, проспект Победы, 79",
       "f22": "https://yandex.ru/maps/?rtext=~51.788904,55.121480&rtt=auto",
@@ -349,17 +341,17 @@
       },
       {
         "id": "section2",
-        "selector": "main > div:nth-child(3)",
-        "label": "Выбрать работы",
+        "selector": "main > nav:nth-child(3)",
+        "label": "Выбратьработы",
         "legacy": null,
-        "html": "<div class=\"editorialLayout\"><nav class=\"hubTabs\" aria-label=\"Подразделы\"><a href=\"#works\">Выбрать работы</a></nav><div class=\"hubGrid\"><img data-cms-fields=\"f4,f5\" class=\"workshopScene\" src=\"assets/hero/classic-workshop-wide-v5.webp\" alt=\"Велосипед на ремонтной стойке в светлой мастерской\" width=\"2172\" height=\"724\"><section class=\"hubCard\" id=\"works\"><h2 data-cms-fields=\"f6\">Выбрать работы</h2><p data-cms-fields=\"f7\">Ознакомьтесь с направлениями обслуживания и составьте список интересующих работ. Стоимость и возможность выполнения уточните по телефону.</p><a data-cms-fields=\"f8,f9\" class=\"hubAction\" href=\"service.html#serviceWorks\">Посмотреть работы</a></section><section class=\"hubCard\" id=\"guide\"><h2 data-cms-fields=\"f10\">Устройство велосипеда</h2><p data-cms-fields=\"f11\">Наглядный справочник поможет понять, как называются узлы велосипеда и за что они отвечают.</p><a data-cms-fields=\"f12,f13\" class=\"hubAction\" href=\"service.html#bikeGuide\">Открыть справочник</a></section><section class=\"hubCard\" id=\"service\"><h2 data-cms-fields=\"f14\">Перейти в сервис</h2><p data-cms-fields=\"f15\">Диагностика, настройка и обслуживание. На странице сервиса можно изучить услуги и позвонить в магазин.</p><a data-cms-fields=\"f16,f17\" class=\"hubAction\" href=\"service.html\">Открыть сервис</a></section></div></div>"
+        "html": "<nav class=\"photoHubGrid\" aria-label=\"Разделы мастерской\"><a class=\"photoHubCard\" id=\"works\" href=\"service.html#serviceWorks\"><img src=\"assets/hero/classic-workshop-mobile-v5.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Выбрать<br>работы</h2><p>Ремонт и обслуживание вашего велосипеда</p><span class=\"photoHubAction\">Посмотреть работы</span></div></a><a class=\"photoHubCard\" id=\"guide\" href=\"service.html#bikeGuide\"><img src=\"assets/hubs/catalog-scene-v2.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Устройство<br>велосипеда</h2><p>Знакомство с узлами и деталями</p><span class=\"photoHubAction\">Открыть справочник</span></div></a><a class=\"photoHubCard\" id=\"service\" href=\"service.html\"><img src=\"assets/hero/classic-workshop-wide-v5.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Перейти<br>в сервис</h2><p>Диагностика, настройка и забота</p><span class=\"photoHubAction\">Открыть сервис</span></div></a><a class=\"photoHubCard\" href=\"index.html#storeLocation\"><img src=\"assets/hubs/customer-reference-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Найти<br>магазин</h2><p>Адреса и удобный маршрут к нам</p><span class=\"photoHubAction\">Найти магазин</span></div></a></nav>"
       },
       {
         "id": "section3",
         "selector": "main > aside:nth-child(4)",
         "label": "Блок 4",
         "legacy": null,
-        "html": "<aside class=\"hubContact workshopContact\" aria-label=\"Связаться с мастерской\"><div class=\"workshopContactCopy\"><strong>Поможем разобраться</strong><p data-cms-fields=\"f18\">Подскажем по ремонту и обслуживанию велосипеда. Позвоните нам или найдите удобный магазин.</p></div><div class=\"workshopContactActions\"><a class=\"workshopPhone\" href=\"tel:+73532970766\"><span>Телефон мастерской</span><b>+7 (3532) 970-766</b></a><a class=\"workshopMap\" href=\"index.html#storeLocation\">Найти магазин <span aria-hidden=\"true\">↗</span></a></div></aside>"
+        "html": "<aside class=\"hubContact workshopContact\" aria-label=\"Связаться с мастерской\"><div class=\"workshopContactCopy\"><strong>Поможем разобраться</strong><p data-cms-fields=\"f18\">Подскажем по ремонту и обслуживанию велосипеда. Позвоните нам или найдите удобный магазин.</p></div><div class=\"workshopContactActions\"><a class=\"workshopPhone\" href=\"tel:+73532970766\"><span>Телефон мастерской</span><b>+7 (3532) 970-766</b></a><a class=\"workshopMap\" href=\"index.html#storeLocation\">Найти магазин <svg class=\"workshopSearchIcon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\" /><path d=\"m16 16 5 5\" /></svg></a></div></aside>"
       }
     ]
   },
@@ -369,7 +361,10 @@
       "section-pages.css?v=1",
       "editorial-pages.css?v=1",
       "ui-refinements-v4.css?v=8",
-      "hub-reference-v6.css?v=1"
+      "hub-reference-v6.css?v=1",
+      "hub-polish.css?v=1",
+      "photo-hubs.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "referenceHubs",
@@ -377,17 +372,6 @@
       "f1": "ПРОФИСПОРТ · ОРЕНБУРГ",
       "f2": "Покупателям",
       "f3": "Покупайте с уверенностью.",
-      "f4": "assets/hubs/buyer-reference-v1.webp",
-      "f5": "Турист в жёлтой куртке на горном склоне",
-      "f6": "Большечем спорт.Это доверие.",
-      "f7": "ГарантияУсловия и помощь после покупки",
-      "f8": "#warranty",
-      "f9": "ОплатаПорядок оплаты заказа",
-      "f10": "#payment",
-      "f11": "ДоставкаПолучение и самовывоз",
-      "f12": "#delivery",
-      "f13": "Персональные данныеИнформация о вашей анкете",
-      "f14": "#privacy",
       "f15": "Гарантия",
       "f16": "Гарантийный срок и условия для выбранной модели уточните у менеджера перед покупкой.",
       "f17": "Если возникла неисправность",
@@ -465,10 +449,10 @@
       },
       {
         "id": "section2",
-        "selector": "main > section:nth-child(3)",
-        "label": "Большечем спорт.Это доверие.",
+        "selector": "main > nav:nth-child(3)",
+        "label": "Гарантия",
         "legacy": null,
-        "html": "<section class=\"buyerP5\"><div class=\"buyerP5Photo\"><img data-cms-fields=\"f4,f5\" src=\"assets/hubs/buyer-reference-v1.webp\" width=\"700\" height=\"1750\" alt=\"Турист в жёлтой куртке на горном склоне\"><h2 data-cms-fields=\"f6\">Больше<br>чем спорт.<br>Это доверие.</h2></div><nav aria-label=\"Информация покупателям\"><a data-cms-fields=\"f7,f8\" href=\"#warranty\"><svg class=\"referenceIcon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3 21 7v5c0 6-9 10-9 10S3 18 3 12V7z\" /><path d=\"m8 12 3 3 5-6\" /></svg><div><strong>Гарантия</strong><span>Условия и помощь после покупки</span></div><svg class=\"referenceChevron\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\" /></svg></a><a data-cms-fields=\"f9,f10\" href=\"#payment\"><svg class=\"referenceIcon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"15\" rx=\"3\" /><path d=\"M2 10h20M6 15h3m3 0h2\" /></svg><div><strong>Оплата</strong><span>Порядок оплаты заказа</span></div><svg class=\"referenceChevron\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\" /></svg></a><a data-cms-fields=\"f11,f12\" href=\"#delivery\"><svg class=\"referenceIcon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2 5h12v13H2zM14 10h5l3 4v4h-8\" /><circle cx=\"6\" cy=\"19\" r=\"2\" /><circle cx=\"18\" cy=\"19\" r=\"2\" /></svg><div><strong>Доставка</strong><span>Получение и самовывоз</span></div><svg class=\"referenceChevron\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\" /></svg></a><a data-cms-fields=\"f13,f14\" href=\"#privacy\"><svg class=\"referenceIcon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"4\" y=\"10\" width=\"16\" height=\"12\" rx=\"2\" /><path d=\"M8 10V6a4 4 0 0 1 8 0v4M12 15v3\" /></svg><div><strong>Персональные данные</strong><span>Информация о вашей анкете</span></div><svg class=\"referenceChevron\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\" /></svg></a></nav></section>"
+        "html": "<nav class=\"photoHubGrid\" aria-label=\"Информация покупателям\"><a class=\"photoHubCard\" href=\"#warranty\"><img src=\"assets/hubs/buyer-warranty-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Гарантия</h2><p>Условия и помощь после покупки</p><span class=\"photoHubAction\">Узнать условия</span></div></a><a class=\"photoHubCard\" href=\"#payment\"><img src=\"assets/hubs/buyer-payment-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Оплата</h2><p>Всё о порядке оплаты заказа</p><span class=\"photoHubAction\">Способы оплаты</span></div></a><a class=\"photoHubCard\" href=\"#delivery\"><img src=\"assets/hubs/buyer-delivery-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Доставка</h2><p>Получение заказа и самовывоз</p><span class=\"photoHubAction\">Условия доставки</span></div></a><a class=\"photoHubCard\" href=\"#privacy\"><img src=\"assets/hubs/buyer-privacy-v1.webp\" alt=\"\" loading=\"lazy\"><div class=\"photoHubCopy\"><h2>Персональные<br>данные</h2><p>Информация о вашей анкете</p><span class=\"photoHubAction\">Подробнее</span></div></a></nav>"
       },
       {
         "id": "section3",
@@ -489,7 +473,8 @@
   "service.html": {
     "styles": [
       "storefront-v2.css?v=34",
-      "bike-guide.css?v=1"
+      "bike-guide.css?v=1",
+      "back-to-top.css?v=1"
     ],
     "css": "",
     "bodyClass": "",

@@ -44,6 +44,18 @@ assert 'Isolated published block' in json.dumps(call('public&site=http-site',aut
 assert 'Isolated published block' not in json.dumps(call('public',auth=False)[1])
 with urllib.request.urlopen('http://localhost:8123/cms/site.php?site=http-site&page=about.html') as response:
     html=response.read().decode();assert '<title>About page</title>' in html and 'data-cms-site="http-site"' in html
+# Upload, list and select media are authenticated and scoped to a site.
+assert call('media',auth=False)[0]==401
+import base64
+png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aGWsAAAAASUVORK5CYII=')
+boundary='IDTESTBOUNDARY'
+payload=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="Проверка-ID.png"\r\nContent-Type: image/png\r\n\r\n'.encode()+png+f'\r\n--{boundary}--\r\n'.encode())
+request=urllib.request.Request(base+'upload&site=http-site',data=payload,headers={'Cookie':cookie,'X-CSRF-Token':csrf,'Content-Type':'multipart/form-data; boundary='+boundary})
+with urllib.request.urlopen(request) as response: uploaded=json.load(response)
+media=call('media&site=http-site')[1]['items']
+assert uploaded['url'] in [x['url'] for x in media]
+assert media[0]['name']=='Проверка-ID.png'
+assert uploaded['url'] not in [x['url'] for x in call('media')[1]['items']]
 assert call('logout',{})[0]==200
 assert call('state')[0]==401
 print('CMS HTTP contracts passed: auth, CSRF, conflict, private draft, publish, logout')

@@ -32,6 +32,7 @@ function cms_site(): array {
 function cms_migrate(): void {
     $db=cms_db();
     $db->exec("CREATE TABLE IF NOT EXISTS ps_cms_sites (site_key VARCHAR(64) PRIMARY KEY, name VARCHAR(160) NOT NULL, url VARCHAR(2048) NOT NULL, manifest LONGTEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $db->exec("CREATE TABLE IF NOT EXISTS ps_cms_media (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, site_key VARCHAR(64) NOT NULL, filename VARCHAR(80) NOT NULL, name VARCHAR(200) NOT NULL, width INT NOT NULL, height INT NOT NULL, bytes INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX(site_key,id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $original=json_decode(file_get_contents(__DIR__.'/bindings.json'),true,512,JSON_THROW_ON_ERROR);
     $db->prepare('INSERT IGNORE INTO ps_cms_sites(site_key,name,url,manifest) VALUES(?,?,?,?)')->execute([cms_config()['site_key'],cms_config()['site_name']??'ProfiSport',cms_config()['site_url'],cms_encode($original)]);
 }
@@ -134,6 +135,14 @@ function cms_validate(array $input): array {
         }
         if(isset($incoming['layout']))$clean['pages'][$key]['layout']=cms_layout($incoming['layout'],$key);
     }
+    if(isset($input['library'])) {
+        if(!is_array($input['library'])||count($input['library'])>50)throw new InvalidArgumentException('Допускается до 50 сохранённых блоков.');
+        $clean['library']=[];
+        foreach($input['library'] as $item) {
+            if(!is_string($item['name']??null)||strlen($item['name'])>200||trim($item['name'])==='')throw new InvalidArgumentException('Укажите название сохранённого блока.');
+            $clean['library'][]=['name'=>$item['name'],'block'=>cms_layout([$item['block']??[]],'__pattern__')[0]];
+        }
+    }
     return $clean;
 }
 function cms_document(bool $lock=false): array {
@@ -168,16 +177,32 @@ function cms_layout(array $layout,string $page): array {
             if(!in_array($id,$known,true)||!is_bool($block['visible']??null))throw new InvalidArgumentException('Неизвестный блок сайта.');
             $out[]=['id'=>$id,'type'=>'existing','visible'=>$block['visible']];continue;
         }
-        if(!in_array($type,['hero','text','image','columns','cta','contacts','spacer'],true))throw new InvalidArgumentException('Неизвестный тип блока.');
+        if(!in_array($type,['hero','text','image','columns','cta','contacts','spacer','gallery','cards','faq','pricing','testimonials','metrics','split'],true))throw new InvalidArgumentException('Неизвестный тип блока.');
         $props=[];
-        foreach(['title','text','text2','image','alt','label','url','background','color','align','space'] as $key) {
+        foreach(['title','text','text2','image','alt','label','url','background','color','align','space','mobileSpace','visibility','columns','radius','accent'] as $key) {
             $v=$block['props'][$key]??'';
             if(!is_string($v)||strlen($v)>12000)throw new InvalidArgumentException('Неверные свойства блока.');
             if(in_array($key,['image','url'],true)&&!cms_url($v,$key==='image'))throw new InvalidArgumentException('Небезопасная ссылка.');
-            if(in_array($key,['background','color'],true)&&$v!==''&&!preg_match('/^#[0-9a-f]{6}$/iD',$v))throw new InvalidArgumentException('Неверный цвет.');
+            if(in_array($key,['background','color','accent'],true)&&$v!==''&&!preg_match('/^#[0-9a-f]{6}$/iD',$v))throw new InvalidArgumentException('Неверный цвет.');
             if($key==='align'&&!in_array($v,['','left','center','right'],true))throw new InvalidArgumentException('Неверное выравнивание.');
-            if($key==='space'&&!in_array($v,['','24','48','80','120'],true))throw new InvalidArgumentException('Неверный отступ.');
+            if(in_array($key,['space','mobileSpace'],true)&&!in_array($v,['','24','48','80','120'],true))throw new InvalidArgumentException('Неверный отступ.');
+            if($key==='visibility'&&!in_array($v,['','all','desktop','mobile'],true))throw new InvalidArgumentException('Неверная видимость.');
+            if($key==='columns'&&!in_array($v,['','2','3','4'],true))throw new InvalidArgumentException('Неверная сетка.');
+            if($key==='radius'&&!in_array($v,['','0','8','16','24'],true))throw new InvalidArgumentException('Неверное скругление.');
             $props[$key]=$v;
+        }
+        if(isset($block['props']['items'])) {
+            if(!is_array($block['props']['items'])||count($block['props']['items'])>24)throw new InvalidArgumentException('До 24 элементов в блоке.');
+            $props['items']=[];
+            foreach($block['props']['items'] as $item) {
+                if(!is_array($item))throw new InvalidArgumentException('Некорректный элемент.');
+                $row=[];foreach(['title','text','image','alt','label','url'] as $key) {
+                    $v=$item[$key]??'';if(!is_string($v)||strlen($v)>12000)throw new InvalidArgumentException('Некорректный элемент.');
+                    if(in_array($key,['image','url'],true)&&!cms_url($v,$key==='image'))throw new InvalidArgumentException('Небезопасная ссылка элемента.');
+                    $row[$key]=$v;
+                }
+                $props['items'][]=$row;
+            }
         }
         $out[]=['id'=>$id,'type'=>$type,'props'=>$props];
     }
