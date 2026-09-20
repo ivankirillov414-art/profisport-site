@@ -1,7 +1,7 @@
 name: CMS checks
 on:
   push:
-    branches: [main, codex/standalone-cms, codex/visual-cms]
+    branches: [main, codex/standalone-cms, codex/visual-cms, codex/id-cms]
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
   pull_request:
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']

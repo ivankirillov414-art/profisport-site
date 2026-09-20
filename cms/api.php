@@ -33,6 +33,11 @@ try {
     if($action==='sites'&&$method==='GET')cms_reply(['items'=>cms_db()->query('SELECT site_key,name,url FROM ps_cms_sites ORDER BY created_at,site_key')->fetchAll()]);
     if($action==='state'&&$method==='GET'){$row=cms_document();cms_reply(['user'=>$actor,'csrf'=>$_SESSION['csrf'],'manifest'=>cms_manifest(),'site_url'=>cms_site()['url'],'site'=>['key'=>cms_site_key(),'name'=>cms_site()['name']],'templates'=>cms_templates(),'draft'=>json_decode($row['draft'],true),'version'=>(int)$row['version'],'published_version'=>(int)$row['published_version']]);}
     if($action==='history'&&$method==='GET'){$s=cms_db()->prepare('SELECT id,actor,action,created_at FROM ps_cms_history WHERE site_key=? ORDER BY id DESC LIMIT 50');$s->execute([cms_site_key()]);cms_reply(['items'=>$s->fetchAll()]);}
+    if($action==='media'&&$method==='GET') {
+        $q=cms_db()->prepare('SELECT id,filename,name,width,height,bytes,created_at FROM ps_cms_media WHERE site_key=? ORDER BY id DESC LIMIT 500');$q->execute([cms_site_key()]);$items=$q->fetchAll();
+        foreach($items as &$item)$item['url']=rtrim(cms_config()['media_url'],'/').'/'.$item['filename'];unset($item);
+        cms_reply(['items'=>$items]);
+    }
     if($method!=='POST')cms_reply(['error'=>'method'],405);cms_csrf();
     if($action==='logout'){$_SESSION=[];session_destroy();cms_reply(['ok'=>true]);}
     if($action==='upload') {
@@ -40,6 +45,8 @@ try {
         $info=getimagesize($f['tmp_name']);$ext=['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp'][$info['mime']??'']??null;
         if(!$ext||$info[0]>8000||$info[1]>8000)cms_reply(['error'=>'Допустимы JPG, PNG, WebP, до 8000 пикселей.'],422);
         $name=bin2hex(random_bytes(16)).'.'.$ext;if(!move_uploaded_file($f['tmp_name'],__DIR__.'/media/'.$name))throw new RuntimeException('Не удалось сохранить изображение.');
+        try {cms_db()->prepare('INSERT INTO ps_cms_media(site_key,filename,name,width,height,bytes) VALUES(?,?,?,?,?,?)')->execute([cms_site_key(),$name,substr(preg_replace('/[^a-zA-Z0-9._-]/','_',basename($f['name'])),0,100),$info[0],$info[1],$f['size']]);}
+        catch(Throwable $e){unlink(__DIR__.'/media/'.$name);throw $e;}
         cms_reply(['url'=>rtrim(cms_config()['media_url'],'/').'/'.$name]);
     }
     $raw=file_get_contents('php://input',false,null,0,1048577);if(strlen($raw)>1048576)cms_reply(['error'=>'Слишком большой документ.'],413);
