@@ -1,7 +1,7 @@
 name: Deploy independent CMS
 on:
   push:
-    branches: [main]
+    branches: [main, codex/visual-cms]
     paths: ['cms/**', '.github/workflows/deploy-cms.yml']
   workflow_dispatch:
 concurrency:
@@ -9,6 +9,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -82,3 +83,28 @@ jobs:
           name: content-cms-standalone
           path: /tmp/content-cms.zip
           retention-days: 30
+
+  preview:
+    if: github.ref == 'refs/heads/codex/visual-cms'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Assemble static editor preview
+        run: |
+          node --check cms/visual.js
+          mkdir -p .cms-preview-source
+          cp cms/demo.html .cms-preview-source/index.html
+          cp cms/demo-state.json cms/visual.js cms/visual.css cms/blocks.js cms/.htaccess .cms-preview-source/
+          cp -R cms/vendor .cms-preview-source/vendor
+      - name: Upload isolated demo
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287
+        with:
+          server: ftpupload.net
+          username: if0_42771076
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          security: strict
+          local-dir: ./.cms-preview-source/
+          server-dir: /htdocs/cms-preview/
+          state-name: .ftp-cms-preview-sync.json
