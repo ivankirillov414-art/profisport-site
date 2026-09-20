@@ -18,6 +18,7 @@
  .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy .primary{padding:9px 12px;min-height:38px;font-size:12px}
 }
 @media(max-width:600px){
+ .storefrontHome .heroLayout .dots{left:18px!important;transform:none!important}
  .storefrontHome .heroLayout .heroSlide.serviceSlide{aspect-ratio:3/4;min-height:0;align-items:start}
  .storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{background-image:url('./assets/hero/classic-workshop-mobile-v5.webp')}
  .storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{width:100%!important;min-height:0;align-self:start;padding:24px}
