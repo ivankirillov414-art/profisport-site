@@ -58,7 +58,7 @@
     if (location.hash !== url.hash) history.pushState(null, '', url.hash);
     showFromHash();
   });
-  for (const link of document.querySelectorAll('.buyerP5 nav a')) {
+  for (const link of document.querySelectorAll('.photoHubGrid a')) {
     const key = new URL(link.href).hash.slice(1);
     if (dialogs.has(key)) { link.setAttribute('aria-haspopup', 'dialog'); link.setAttribute('aria-controls', `dialog-${key}`); }
   }
