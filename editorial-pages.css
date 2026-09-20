@@ -41,9 +41,10 @@
 .workshopV3 #works{
   position:absolute;
   z-index:2;
-  top:180px;
-  left:28px;
-  width:min(400px,calc(100% - 56px));
+  top:50%;
+  left:30px;
+  width:min(390px,calc(100% - 60px));
+  transform:translateY(-50%);
   box-sizing:border-box;
   padding:25px 28px 27px;
   border:1px solid #e6e8eb;
@@ -66,7 +67,12 @@
   .workshopV3 .hubTabs{gap:20px;overflow:auto}
   .workshopV3 .hubTabs a:first-child::after{bottom:-13px}
   .workshopV3 .workshopScene{height:260px;margin-bottom:14px;border-radius:14px}
-  .workshopV3 #works{position:static;width:100%;padding:22px 0 28px;border:0;border-radius:0;box-shadow:none}
+  .workshopV3 #works{position:static;width:100%;padding:22px 0 28px;border:0;border-radius:0;box-shadow:none;transform:none}
   .workshopV3 #works h2{font-size:27px}
   .workshopV3 #guide,.workshopV3 #service{display:block;width:100%;margin:0;padding:24px 0}
 }
+
+/* Workshop W3.1 — one meaningful tab and a stable centered overlay. */
+.workshopV3 .hubTabs{gap:0}
+.workshopV3 .hubTabs a{font-weight:700}
+.workshopV3 .workshopScene{object-position:center center}
