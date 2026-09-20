@@ -870,17 +870,33 @@
         },
         {
           "id": "f109",
-          "selector": "#storagePromo > div:nth-child(1) > img:nth-child(2)",
+          "selector": "#storagePromo > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)",
           "kind": "image",
-          "value": "assets/promo/winter-storage-original.jpeg",
+          "value": "assets/brand/profisport-logo-classic.svg",
           "label": "Изображение",
           "group": "Общее"
         },
         {
           "id": "f110",
-          "selector": "#storagePromo > div:nth-child(1) > img:nth-child(2)",
+          "selector": "#storagePromo > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)",
           "kind": "alt",
-          "value": "Зимнее хранение велосипедов в ПрофиСпорт",
+          "value": "ПрофиСпорт",
+          "label": "Описание изображения",
+          "group": "Общее"
+        },
+        {
+          "id": "f111",
+          "selector": "#storagePromo > div:nth-child(2) > img:nth-child(2)",
+          "kind": "image",
+          "value": "assets/hero/winter-storage-realistic-v4.webp",
+          "label": "Изображение",
+          "group": "Общее"
+        },
+        {
+          "id": "f112",
+          "selector": "#storagePromo > div:nth-child(2) > img:nth-child(2)",
+          "kind": "alt",
+          "value": "Велосипеды на хранении",
           "label": "Описание изображения",
           "group": "Общее"
         }
@@ -951,270 +967,150 @@
         },
         {
           "id": "f3",
-          "selector": "#title-catalog",
+          "selector": "#catalog",
           "kind": "text",
-          "value": "Каталог товаров",
-          "label": "Каталог товаров",
-          "group": "Каталог товаров"
+          "value": "Каталог товаровВсё для новых маршрутов",
+          "label": "Текст ссылки",
+          "group": "Общее"
         },
         {
           "id": "f4",
-          "selector": "#panel-catalog > div:nth-child(1) > p:nth-child(3)",
-          "kind": "text",
-          "value": "Всё для новых маршрутов — велосипеды, экипировка и спортивное снаряжение.",
-          "label": "Всё для новых маршрутов — велосипеды, экипировка и спортивное снаряжен",
-          "group": "Каталог товаров"
+          "selector": "#catalog",
+          "kind": "link",
+          "value": "index.html#catalogProducts",
+          "label": "Адрес ссылки",
+          "group": "Общее"
         },
         {
           "id": "f5",
-          "selector": "#panel-catalog > div:nth-child(1) > a:nth-child(4)",
+          "selector": "#catalog > div:nth-child(1) > h2:nth-child(1)",
           "kind": "text",
-          "value": "Открыть каталог",
-          "label": "Текст ссылки",
-          "group": "Каталог товаров"
+          "value": "Каталог товаров",
+          "label": "Каталог товаров",
+          "group": "Общее"
         },
         {
           "id": "f6",
-          "selector": "#panel-catalog > div:nth-child(1) > a:nth-child(4)",
-          "kind": "link",
-          "value": "index.html#catalogProducts",
-          "label": "Адрес ссылки",
-          "group": "Каталог товаров"
+          "selector": "#catalog > div:nth-child(1) > p:nth-child(2)",
+          "kind": "text",
+          "value": "Всё для новых маршрутов",
+          "label": "Всё для новых маршрутов",
+          "group": "Общее"
         },
         {
           "id": "f7",
-          "selector": "#panel-catalog > img:nth-child(2)",
+          "selector": "#catalog > img:nth-child(2)",
           "kind": "image",
           "value": "assets/hero/classic-mountains-v1.webp",
           "label": "Изображение",
-          "group": "Каталог товаров"
+          "group": "Общее"
         },
         {
           "id": "f8",
-          "selector": "#panel-catalog > img:nth-child(2)",
+          "selector": "#catalog > img:nth-child(2)",
           "kind": "alt",
-          "value": "Каталог товаров",
+          "value": "",
           "label": "Описание изображения",
-          "group": "Каталог товаров"
+          "group": "Общее"
         },
         {
           "id": "f9",
-          "selector": "#title-picker",
+          "selector": "#account",
           "kind": "text",
-          "value": "Подбор велосипеда",
-          "label": "Подбор велосипеда",
-          "group": "Подбор велосипеда"
+          "value": "Избранное и заказыСохранённое и ваши покупки",
+          "label": "Текст ссылки",
+          "group": "Общее"
         },
         {
           "id": "f10",
-          "selector": "#panel-picker > div:nth-child(1) > p:nth-child(3)",
-          "kind": "text",
-          "value": "Ваш рост, ваши маршруты, ваш велосипед. Найдите подходящую модель.",
-          "label": "Ваш рост, ваши маршруты, ваш велосипед. Найдите подходящую модель.",
-          "group": "Подбор велосипеда"
+          "selector": "#account",
+          "kind": "link",
+          "value": "profile.html",
+          "label": "Адрес ссылки",
+          "group": "Общее"
         },
         {
           "id": "f11",
-          "selector": "#panel-picker > div:nth-child(1) > a:nth-child(4)",
-          "kind": "text",
-          "value": "Подобрать велосипед",
-          "label": "Текст ссылки",
-          "group": "Подбор велосипеда"
-        },
-        {
-          "id": "f12",
-          "selector": "#panel-picker > div:nth-child(1) > a:nth-child(4)",
-          "kind": "link",
-          "value": "index.html#picker",
-          "label": "Адрес ссылки",
-          "group": "Подбор велосипеда"
-        },
-        {
-          "id": "f13",
-          "selector": "#panel-picker > img:nth-child(2)",
-          "kind": "image",
-          "value": "assets/categories/bicycle-illustration-v1.png",
-          "label": "Изображение",
-          "group": "Подбор велосипеда"
-        },
-        {
-          "id": "f14",
-          "selector": "#panel-picker > img:nth-child(2)",
-          "kind": "alt",
-          "value": "Подбор велосипеда",
-          "label": "Описание изображения",
-          "group": "Подбор велосипеда"
-        },
-        {
-          "id": "f15",
-          "selector": "#title-account",
+          "selector": "#account > div:nth-child(1) > h2:nth-child(1)",
           "kind": "text",
           "value": "Избранное и заказы",
           "label": "Избранное и заказы",
-          "group": "Избранное и заказы"
+          "group": "Общее"
         },
         {
-          "id": "f16",
-          "selector": "#panel-account > div:nth-child(1) > p:nth-child(3)",
+          "id": "f12",
+          "selector": "#account > div:nth-child(1) > p:nth-child(2)",
           "kind": "text",
-          "value": "Сохранённые находки и ваши покупки — всё в личном кабинете.",
-          "label": "Сохранённые находки и ваши покупки — всё в личном кабинете.",
-          "group": "Избранное и заказы"
+          "value": "Сохранённое и ваши покупки",
+          "label": "Сохранённое и ваши покупки",
+          "group": "Общее"
         },
         {
-          "id": "f17",
-          "selector": "#panel-account > div:nth-child(1) > a:nth-child(4)",
-          "kind": "text",
-          "value": "Личный кабинет",
-          "label": "Текст ссылки",
-          "group": "Избранное и заказы"
-        },
-        {
-          "id": "f18",
-          "selector": "#panel-account > div:nth-child(1) > a:nth-child(4)",
-          "kind": "link",
-          "value": "profile.html",
-          "label": "Адрес ссылки",
-          "group": "Избранное и заказы"
-        },
-        {
-          "id": "f19",
-          "selector": "#panel-account > img:nth-child(2)",
+          "id": "f13",
+          "selector": "#account > img:nth-child(2)",
           "kind": "image",
           "value": "assets/categories/accessories-illustration-v1.png",
           "label": "Изображение",
-          "group": "Избранное и заказы"
+          "group": "Общее"
         },
         {
-          "id": "f20",
-          "selector": "#panel-account > img:nth-child(2)",
+          "id": "f14",
+          "selector": "#account > img:nth-child(2)",
           "kind": "alt",
-          "value": "Избранное и заказы",
+          "value": "",
           "label": "Описание изображения",
-          "group": "Избранное и заказы"
+          "group": "Общее"
         },
         {
-          "id": "f21",
-          "selector": "#title-customer",
+          "id": "f15",
+          "selector": "#customer",
+          "kind": "text",
+          "value": "Стать клиентомПознакомимся ближе",
+          "label": "Текст ссылки",
+          "group": "Общее"
+        },
+        {
+          "id": "f16",
+          "selector": "#customer",
+          "kind": "link",
+          "value": "index.html?register=qr",
+          "label": "Адрес ссылки",
+          "group": "Общее"
+        },
+        {
+          "id": "f17",
+          "selector": "#customer > div:nth-child(1) > h2:nth-child(1)",
           "kind": "text",
           "value": "Стать клиентом",
           "label": "Стать клиентом",
-          "group": "Стать клиентом"
-        },
-        {
-          "id": "f22",
-          "selector": "#panel-customer > div:nth-child(1) > p:nth-child(3)",
-          "kind": "text",
-          "value": "Знакомство начинается здесь. Заполните короткую анкету ПрофиСпорт.",
-          "label": "Знакомство начинается здесь. Заполните короткую анкету ПрофиСпорт.",
-          "group": "Стать клиентом"
-        },
-        {
-          "id": "f23",
-          "selector": "#panel-customer > div:nth-child(1) > a:nth-child(4)",
-          "kind": "text",
-          "value": "Заполнить анкету",
-          "label": "Текст ссылки",
-          "group": "Стать клиентом"
-        },
-        {
-          "id": "f24",
-          "selector": "#panel-customer > div:nth-child(1) > a:nth-child(4)",
-          "kind": "link",
-          "value": "index.html?register=qr",
-          "label": "Адрес ссылки",
-          "group": "Стать клиентом"
-        },
-        {
-          "id": "f25",
-          "selector": "#panel-customer > img:nth-child(2)",
-          "kind": "image",
-          "value": "assets/categories/tourism-illustration-v2.png",
-          "label": "Изображение",
-          "group": "Стать клиентом"
-        },
-        {
-          "id": "f26",
-          "selector": "#panel-customer > img:nth-child(2)",
-          "kind": "alt",
-          "value": "Стать клиентом",
-          "label": "Описание изображения",
-          "group": "Стать клиентом"
-        },
-        {
-          "id": "f27",
-          "selector": "#catalog",
-          "kind": "text",
-          "value": "▦Каталог товаровСнаряжение для ваших планов",
-          "label": "Текст ссылки",
           "group": "Общее"
         },
         {
-          "id": "f28",
-          "selector": "#catalog",
-          "kind": "link",
-          "value": "index.html#catalogProducts",
-          "label": "Адрес ссылки",
-          "group": "Общее"
-        },
-        {
-          "id": "f29",
-          "selector": "#catalog > span:nth-child(2) > small:nth-child(2)",
-          "kind": "text",
-          "value": "Снаряжение для ваших планов",
-          "label": "Снаряжение для ваших планов",
-          "group": "Общее"
-        },
-        {
-          "id": "f30",
-          "selector": "#account",
-          "kind": "text",
-          "value": "♡Избранное и заказыСохранённое и покупки",
-          "label": "Текст ссылки",
-          "group": "Общее"
-        },
-        {
-          "id": "f31",
-          "selector": "#account",
-          "kind": "link",
-          "value": "profile.html",
-          "label": "Адрес ссылки",
-          "group": "Общее"
-        },
-        {
-          "id": "f32",
-          "selector": "#account > span:nth-child(2) > small:nth-child(2)",
-          "kind": "text",
-          "value": "Сохранённое и покупки",
-          "label": "Сохранённое и покупки",
-          "group": "Общее"
-        },
-        {
-          "id": "f33",
-          "selector": "#customer",
-          "kind": "text",
-          "value": "+Стать клиентомПознакомимся ближе",
-          "label": "Текст ссылки",
-          "group": "Общее"
-        },
-        {
-          "id": "f34",
-          "selector": "#customer",
-          "kind": "link",
-          "value": "index.html?register=qr",
-          "label": "Адрес ссылки",
-          "group": "Общее"
-        },
-        {
-          "id": "f35",
-          "selector": "#customer > span:nth-child(2) > small:nth-child(2)",
+          "id": "f18",
+          "selector": "#customer > div:nth-child(1) > p:nth-child(2)",
           "kind": "text",
           "value": "Познакомимся ближе",
           "label": "Познакомимся ближе",
           "group": "Общее"
         },
         {
-          "id": "f36",
+          "id": "f19",
+          "selector": "#customer > img:nth-child(2)",
+          "kind": "image",
+          "value": "assets/categories/tourism-illustration-v2.png",
+          "label": "Изображение",
+          "group": "Общее"
+        },
+        {
+          "id": "f20",
+          "selector": "#customer > img:nth-child(2)",
+          "kind": "alt",
+          "value": "",
+          "label": "Описание изображения",
+          "group": "Общее"
+        },
+        {
+          "id": "f21",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(2) > a:nth-child(1)",
           "kind": "text",
           "value": "Оренбург, проспект Победы, 79",
@@ -1222,7 +1118,7 @@
           "group": "Общее"
         },
         {
-          "id": "f37",
+          "id": "f22",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(2) > a:nth-child(1)",
           "kind": "link",
           "value": "https://yandex.ru/maps/?rtext=~51.788904,55.121480&rtt=auto",
@@ -1230,7 +1126,7 @@
           "group": "Общее"
         },
         {
-          "id": "f38",
+          "id": "f23",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(3) > a:nth-child(1)",
           "kind": "text",
           "value": "Оренбург, проспект Победы, 118, строение 2 · ПрофиСпорт",
@@ -1238,7 +1134,7 @@
           "group": "Общее"
         },
         {
-          "id": "f39",
+          "id": "f24",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(3) > a:nth-child(1)",
           "kind": "link",
           "value": "https://2gis.ru/orenburg/directions/points/%7C55.124228%2C51.788261%3B70000001066281430",
@@ -1246,7 +1142,7 @@
           "group": "Общее"
         },
         {
-          "id": "f40",
+          "id": "f25",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(1)",
           "kind": "text",
           "value": "01Магазин",
@@ -1254,7 +1150,7 @@
           "group": "Общее"
         },
         {
-          "id": "f41",
+          "id": "f26",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(1)",
           "kind": "link",
           "value": "shop.html",
@@ -1262,7 +1158,7 @@
           "group": "Общее"
         },
         {
-          "id": "f42",
+          "id": "f27",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(2)",
           "kind": "text",
           "value": "Каталог товаров",
@@ -1270,7 +1166,7 @@
           "group": "Общее"
         },
         {
-          "id": "f43",
+          "id": "f28",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(2)",
           "kind": "link",
           "value": "shop.html#catalog",
@@ -1278,7 +1174,7 @@
           "group": "Общее"
         },
         {
-          "id": "f44",
+          "id": "f29",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(3)",
           "kind": "text",
           "value": "Подбор велосипеда",
@@ -1286,7 +1182,7 @@
           "group": "Общее"
         },
         {
-          "id": "f45",
+          "id": "f30",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(3)",
           "kind": "link",
           "value": "shop.html#picker",
@@ -1294,7 +1190,7 @@
           "group": "Общее"
         },
         {
-          "id": "f46",
+          "id": "f31",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(4)",
           "kind": "text",
           "value": "Избранное и заказы",
@@ -1302,7 +1198,7 @@
           "group": "Общее"
         },
         {
-          "id": "f47",
+          "id": "f32",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(4)",
           "kind": "link",
           "value": "shop.html#account",
@@ -1310,7 +1206,7 @@
           "group": "Общее"
         },
         {
-          "id": "f48",
+          "id": "f33",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(5)",
           "kind": "text",
           "value": "Стать клиентом",
@@ -1318,7 +1214,7 @@
           "group": "Общее"
         },
         {
-          "id": "f49",
+          "id": "f34",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(5)",
           "kind": "link",
           "value": "shop.html#customer",
@@ -1326,7 +1222,7 @@
           "group": "Общее"
         },
         {
-          "id": "f50",
+          "id": "f35",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(1)",
           "kind": "text",
           "value": "02Мастерская",
@@ -1334,7 +1230,7 @@
           "group": "Общее"
         },
         {
-          "id": "f51",
+          "id": "f36",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(1)",
           "kind": "link",
           "value": "workshop.html",
@@ -1342,7 +1238,7 @@
           "group": "Общее"
         },
         {
-          "id": "f52",
+          "id": "f37",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(2)",
           "kind": "text",
           "value": "Выбрать работы",
@@ -1350,7 +1246,7 @@
           "group": "Общее"
         },
         {
-          "id": "f53",
+          "id": "f38",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(2)",
           "kind": "link",
           "value": "workshop.html#works",
@@ -1358,7 +1254,7 @@
           "group": "Общее"
         },
         {
-          "id": "f54",
+          "id": "f39",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(3)",
           "kind": "text",
           "value": "Устройство велосипеда",
@@ -1366,7 +1262,7 @@
           "group": "Общее"
         },
         {
-          "id": "f55",
+          "id": "f40",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(3)",
           "kind": "link",
           "value": "workshop.html#guide",
@@ -1374,7 +1270,7 @@
           "group": "Общее"
         },
         {
-          "id": "f56",
+          "id": "f41",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(4)",
           "kind": "text",
           "value": "Перейти в сервис",
@@ -1382,7 +1278,7 @@
           "group": "Общее"
         },
         {
-          "id": "f57",
+          "id": "f42",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(4)",
           "kind": "link",
           "value": "workshop.html#service",
@@ -1390,7 +1286,7 @@
           "group": "Общее"
         },
         {
-          "id": "f58",
+          "id": "f43",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(1)",
           "kind": "text",
           "value": "03Покупателям",
@@ -1398,7 +1294,7 @@
           "group": "Общее"
         },
         {
-          "id": "f59",
+          "id": "f44",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(1)",
           "kind": "link",
           "value": "buyer-info.html",
@@ -1406,7 +1302,7 @@
           "group": "Общее"
         },
         {
-          "id": "f60",
+          "id": "f45",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(2)",
           "kind": "text",
           "value": "Гарантия",
@@ -1414,7 +1310,7 @@
           "group": "Общее"
         },
         {
-          "id": "f61",
+          "id": "f46",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(2)",
           "kind": "link",
           "value": "buyer-info.html#warranty",
@@ -1422,7 +1318,7 @@
           "group": "Общее"
         },
         {
-          "id": "f62",
+          "id": "f47",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(3)",
           "kind": "text",
           "value": "Оплата",
@@ -1430,7 +1326,7 @@
           "group": "Общее"
         },
         {
-          "id": "f63",
+          "id": "f48",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(3)",
           "kind": "link",
           "value": "buyer-info.html#payment",
@@ -1438,7 +1334,7 @@
           "group": "Общее"
         },
         {
-          "id": "f64",
+          "id": "f49",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(4)",
           "kind": "text",
           "value": "Доставка",
@@ -1446,7 +1342,7 @@
           "group": "Общее"
         },
         {
-          "id": "f65",
+          "id": "f50",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(4)",
           "kind": "link",
           "value": "buyer-info.html#delivery",
@@ -1454,7 +1350,7 @@
           "group": "Общее"
         },
         {
-          "id": "f66",
+          "id": "f51",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(5)",
           "kind": "text",
           "value": "Персональные данные",
@@ -1462,7 +1358,7 @@
           "group": "Общее"
         },
         {
-          "id": "f67",
+          "id": "f52",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(5)",
           "kind": "link",
           "value": "buyer-info.html#privacy",
@@ -1503,7 +1399,7 @@
           "id": "f4",
           "selector": "main:nth-child(2) > div:nth-child(3) > div:nth-child(2) > img:nth-child(1)",
           "kind": "image",
-          "value": "assets/hero/classic-workshop-real-v3.webp",
+          "value": "assets/hero/classic-workshop-reference-v4.webp",
           "label": "Изображение",
           "group": "Общее"
         },
@@ -1511,7 +1407,7 @@
           "id": "f5",
           "selector": "main:nth-child(2) > div:nth-child(3) > div:nth-child(2) > img:nth-child(1)",
           "kind": "alt",
-          "value": "Велосипед в светлой мастерской",
+          "value": "Trek Marlin 7 на ремонтной стойке — иллюстрация по фотореференсам",
           "label": "Описание изображения",
           "group": "Общее"
         },
@@ -1923,6 +1819,94 @@
         },
         {
           "id": "f4",
+          "selector": "main:nth-child(2) > section:nth-child(3) > div:nth-child(1) > img:nth-child(1)",
+          "kind": "image",
+          "value": "assets/hero/classic-mountains-v1.webp",
+          "label": "Изображение",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f5",
+          "selector": "main:nth-child(2) > section:nth-child(3) > div:nth-child(1) > img:nth-child(1)",
+          "kind": "alt",
+          "value": "Велосипед на фоне гор",
+          "label": "Описание изображения",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f6",
+          "selector": "main:nth-child(2) > section:nth-child(3) > div:nth-child(1) > h2:nth-child(2)",
+          "kind": "text",
+          "value": "Покупайте с уверенностью.",
+          "label": "Покупайте с уверенностью.",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f7",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(1)",
+          "kind": "text",
+          "value": "ГарантияУсловия и помощь после покупки",
+          "label": "Текст ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f8",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(1)",
+          "kind": "link",
+          "value": "#warranty",
+          "label": "Адрес ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f9",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(2)",
+          "kind": "text",
+          "value": "ОплатаПорядок оплаты заказа",
+          "label": "Текст ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f10",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(2)",
+          "kind": "link",
+          "value": "#payment",
+          "label": "Адрес ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f11",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(3)",
+          "kind": "text",
+          "value": "ДоставкаПолучение и самовывоз",
+          "label": "Текст ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f12",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(3)",
+          "kind": "link",
+          "value": "#delivery",
+          "label": "Адрес ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f13",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(4)",
+          "kind": "text",
+          "value": "Персональные данныеИнформация о вашей анкете",
+          "label": "Текст ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f14",
+          "selector": "main:nth-child(2) > section:nth-child(3) > nav:nth-child(2) > a:nth-child(4)",
+          "kind": "link",
+          "value": "#privacy",
+          "label": "Адрес ссылки",
+          "group": "Покупайте с уверенностью."
+        },
+        {
+          "id": "f15",
           "selector": "#warranty > h2:nth-child(1)",
           "kind": "text",
           "value": "Гарантия",
@@ -1930,7 +1914,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f5",
+          "id": "f16",
           "selector": "#warranty > p:nth-child(2)",
           "kind": "text",
           "value": "Гарантийный срок и условия для выбранной модели уточните у менеджера перед покупкой.",
@@ -1938,7 +1922,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f6",
+          "id": "f17",
           "selector": "#warranty > h3:nth-child(3)",
           "kind": "text",
           "value": "Если возникла неисправность",
@@ -1946,7 +1930,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f7",
+          "id": "f18",
           "selector": "#warranty > p:nth-child(4)",
           "kind": "text",
           "value": "Обратитесь в магазин ПрофиСпорт. Подготовьте название товара, дату покупки и описание проблемы. Фотографии или видео помогут объяснить, что произошло.",
@@ -1954,7 +1938,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f8",
+          "id": "f19",
           "selector": "#warranty > p:nth-child(5)",
           "kind": "text",
           "value": "Если сохранились номер заказа, чек или гарантийный талон, возьмите их с собой — это поможет найти покупку.",
@@ -1962,7 +1946,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f9",
+          "id": "f20",
           "selector": "#warranty > a:nth-child(6)",
           "kind": "text",
           "value": "Адрес магазина и маршрут",
@@ -1970,7 +1954,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f10",
+          "id": "f21",
           "selector": "#warranty > a:nth-child(6)",
           "kind": "link",
           "value": "index.html#storeLocation",
@@ -1978,7 +1962,7 @@
           "group": "Гарантия"
         },
         {
-          "id": "f11",
+          "id": "f22",
           "selector": "#payment > h2:nth-child(1)",
           "kind": "text",
           "value": "Оплата",
@@ -1986,7 +1970,7 @@
           "group": "Оплата"
         },
         {
-          "id": "f12",
+          "id": "f23",
           "selector": "#payment > p:nth-child(2)",
           "kind": "text",
           "value": "После оформления заказа менеджер подтверждает наличие товара и согласовывает с вами оплату.",
@@ -1994,7 +1978,7 @@
           "group": "Оплата"
         },
         {
-          "id": "f13",
+          "id": "f24",
           "selector": "#payment > p:nth-child(4)",
           "kind": "text",
           "value": "Стоимость доставки согласовывается отдельно.",
@@ -2002,7 +1986,7 @@
           "group": "Оплата"
         },
         {
-          "id": "f14",
+          "id": "f25",
           "selector": "#payment > a:nth-child(5)",
           "kind": "text",
           "value": "Перейти в корзину",
@@ -2010,7 +1994,7 @@
           "group": "Оплата"
         },
         {
-          "id": "f15",
+          "id": "f26",
           "selector": "#payment > a:nth-child(5)",
           "kind": "link",
           "value": "checkout.html",
@@ -2018,7 +2002,7 @@
           "group": "Оплата"
         },
         {
-          "id": "f16",
+          "id": "f27",
           "selector": "#delivery > h2:nth-child(1)",
           "kind": "text",
           "value": "Доставка",
@@ -2026,7 +2010,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f17",
+          "id": "f28",
           "selector": "#delivery > h3:nth-child(2)",
           "kind": "text",
           "value": "Самовывоз из магазина",
@@ -2034,7 +2018,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f18",
+          "id": "f29",
           "selector": "#delivery > p:nth-child(3)",
           "kind": "text",
           "value": "Оренбург, проспект Победы, 79. При оформлении заказа выберите «Самовывоз» и дождитесь подтверждения от менеджера.",
@@ -2042,7 +2026,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f19",
+          "id": "f30",
           "selector": "#delivery > h3:nth-child(4)",
           "kind": "text",
           "value": "Доставка по Оренбургу",
@@ -2050,7 +2034,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f20",
+          "id": "f31",
           "selector": "#delivery > p:nth-child(5)",
           "kind": "text",
           "value": "В корзине выберите «Доставка по Оренбургу» и укажите адрес. Стоимость и время доставки согласуйте с менеджером при подтверждении заказа.",
@@ -2058,7 +2042,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f21",
+          "id": "f32",
           "selector": "#delivery > a:nth-child(6)",
           "kind": "text",
           "value": "Как добраться до магазина",
@@ -2066,7 +2050,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f22",
+          "id": "f33",
           "selector": "#delivery > a:nth-child(6)",
           "kind": "link",
           "value": "index.html#storeLocation",
@@ -2074,7 +2058,7 @@
           "group": "Доставка"
         },
         {
-          "id": "f23",
+          "id": "f34",
           "selector": "#privacy > h2:nth-child(1)",
           "kind": "text",
           "value": "Персональные данные",
@@ -2082,7 +2066,7 @@
           "group": "Персональные данные"
         },
         {
-          "id": "f24",
+          "id": "f35",
           "selector": "#privacy > p:nth-child(2)",
           "kind": "text",
           "value": "ПрофиСпорт собирает имя, фамилию, номер телефона, электронную почту и дату рождения, чтобы вести клиентскую базу и связываться с покупателем по вопросам обслуживания.",
@@ -2090,7 +2074,7 @@
           "group": "Персональные данные"
         },
         {
-          "id": "f25",
+          "id": "f36",
           "selector": "#privacy > p:nth-child(3)",
           "kind": "text",
           "value": "Данные хранятся в защищённой базе магазина и не публикуются на сайте. Для уточнения, изменения или удаления анкеты обратитесь в магазин по адресу: Оренбург, проспект Победы, 79.",
@@ -2098,7 +2082,7 @@
           "group": "Персональные данные"
         },
         {
-          "id": "f26",
+          "id": "f37",
           "selector": "#privacy > p:nth-child(4)",
           "kind": "text",
           "value": "Отправляя анкету, покупатель подтверждает согласие на обработку указанных данных для этих целей.",
@@ -2106,31 +2090,31 @@
           "group": "Персональные данные"
         },
         {
-          "id": "f27",
-          "selector": "main:nth-child(2) > aside:nth-child(4) > div:nth-child(1) > p:nth-child(2)",
+          "id": "f38",
+          "selector": "main:nth-child(2) > aside:nth-child(5) > div:nth-child(1) > p:nth-child(2)",
           "kind": "text",
           "value": "Адреса двух магазинов и удобный маршрут — на главной странице.",
           "label": "Адреса двух магазинов и удобный маршрут — на главной странице.",
           "group": "Общее"
         },
         {
-          "id": "f28",
-          "selector": "main:nth-child(2) > aside:nth-child(4) > a:nth-child(2)",
+          "id": "f39",
+          "selector": "main:nth-child(2) > aside:nth-child(5) > a:nth-child(2)",
           "kind": "text",
           "value": "Найти магазин",
           "label": "Текст ссылки",
           "group": "Общее"
         },
         {
-          "id": "f29",
-          "selector": "main:nth-child(2) > aside:nth-child(4) > a:nth-child(2)",
+          "id": "f40",
+          "selector": "main:nth-child(2) > aside:nth-child(5) > a:nth-child(2)",
           "kind": "link",
           "value": "index.html#storeLocation",
           "label": "Адрес ссылки",
           "group": "Общее"
         },
         {
-          "id": "f30",
+          "id": "f41",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(2) > a:nth-child(1)",
           "kind": "text",
           "value": "Оренбург, проспект Победы, 79",
@@ -2138,7 +2122,7 @@
           "group": "Общее"
         },
         {
-          "id": "f31",
+          "id": "f42",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(2) > a:nth-child(1)",
           "kind": "link",
           "value": "https://yandex.ru/maps/?rtext=~51.788904,55.121480&rtt=auto",
@@ -2146,7 +2130,7 @@
           "group": "Общее"
         },
         {
-          "id": "f32",
+          "id": "f43",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(3) > a:nth-child(1)",
           "kind": "text",
           "value": "Оренбург, проспект Победы, 118, строение 2 · ПрофиСпорт",
@@ -2154,7 +2138,7 @@
           "group": "Общее"
         },
         {
-          "id": "f33",
+          "id": "f44",
           "selector": "#contacts > div:nth-child(1) > p:nth-child(3) > a:nth-child(1)",
           "kind": "link",
           "value": "https://2gis.ru/orenburg/directions/points/%7C55.124228%2C51.788261%3B70000001066281430",
@@ -2162,7 +2146,7 @@
           "group": "Общее"
         },
         {
-          "id": "f34",
+          "id": "f45",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(1)",
           "kind": "text",
           "value": "01Магазин",
@@ -2170,7 +2154,7 @@
           "group": "Общее"
         },
         {
-          "id": "f35",
+          "id": "f46",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(1)",
           "kind": "link",
           "value": "shop.html",
@@ -2178,7 +2162,7 @@
           "group": "Общее"
         },
         {
-          "id": "f36",
+          "id": "f47",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(2)",
           "kind": "text",
           "value": "Каталог товаров",
@@ -2186,7 +2170,7 @@
           "group": "Общее"
         },
         {
-          "id": "f37",
+          "id": "f48",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(2)",
           "kind": "link",
           "value": "shop.html#catalog",
@@ -2194,7 +2178,7 @@
           "group": "Общее"
         },
         {
-          "id": "f38",
+          "id": "f49",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(3)",
           "kind": "text",
           "value": "Подбор велосипеда",
@@ -2202,7 +2186,7 @@
           "group": "Общее"
         },
         {
-          "id": "f39",
+          "id": "f50",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(3)",
           "kind": "link",
           "value": "shop.html#picker",
@@ -2210,7 +2194,7 @@
           "group": "Общее"
         },
         {
-          "id": "f40",
+          "id": "f51",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(4)",
           "kind": "text",
           "value": "Избранное и заказы",
@@ -2218,7 +2202,7 @@
           "group": "Общее"
         },
         {
-          "id": "f41",
+          "id": "f52",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(4)",
           "kind": "link",
           "value": "shop.html#account",
@@ -2226,7 +2210,7 @@
           "group": "Общее"
         },
         {
-          "id": "f42",
+          "id": "f53",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(5)",
           "kind": "text",
           "value": "Стать клиентом",
@@ -2234,7 +2218,7 @@
           "group": "Общее"
         },
         {
-          "id": "f43",
+          "id": "f54",
           "selector": "#contacts > nav:nth-child(2) > a:nth-child(5)",
           "kind": "link",
           "value": "shop.html#customer",
@@ -2242,7 +2226,7 @@
           "group": "Общее"
         },
         {
-          "id": "f44",
+          "id": "f55",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(1)",
           "kind": "text",
           "value": "02Мастерская",
@@ -2250,7 +2234,7 @@
           "group": "Общее"
         },
         {
-          "id": "f45",
+          "id": "f56",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(1)",
           "kind": "link",
           "value": "workshop.html",
@@ -2258,7 +2242,7 @@
           "group": "Общее"
         },
         {
-          "id": "f46",
+          "id": "f57",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(2)",
           "kind": "text",
           "value": "Выбрать работы",
@@ -2266,7 +2250,7 @@
           "group": "Общее"
         },
         {
-          "id": "f47",
+          "id": "f58",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(2)",
           "kind": "link",
           "value": "workshop.html#works",
@@ -2274,7 +2258,7 @@
           "group": "Общее"
         },
         {
-          "id": "f48",
+          "id": "f59",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(3)",
           "kind": "text",
           "value": "Устройство велосипеда",
@@ -2282,7 +2266,7 @@
           "group": "Общее"
         },
         {
-          "id": "f49",
+          "id": "f60",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(3)",
           "kind": "link",
           "value": "workshop.html#guide",
@@ -2290,7 +2274,7 @@
           "group": "Общее"
         },
         {
-          "id": "f50",
+          "id": "f61",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(4)",
           "kind": "text",
           "value": "Перейти в сервис",
@@ -2298,7 +2282,7 @@
           "group": "Общее"
         },
         {
-          "id": "f51",
+          "id": "f62",
           "selector": "#contacts > nav:nth-child(3) > a:nth-child(4)",
           "kind": "link",
           "value": "workshop.html#service",
@@ -2306,7 +2290,7 @@
           "group": "Общее"
         },
         {
-          "id": "f52",
+          "id": "f63",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(1)",
           "kind": "text",
           "value": "03Покупателям",
@@ -2314,7 +2298,7 @@
           "group": "Общее"
         },
         {
-          "id": "f53",
+          "id": "f64",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(1)",
           "kind": "link",
           "value": "buyer-info.html",
@@ -2322,7 +2306,7 @@
           "group": "Общее"
         },
         {
-          "id": "f54",
+          "id": "f65",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(2)",
           "kind": "text",
           "value": "Гарантия",
@@ -2330,7 +2314,7 @@
           "group": "Общее"
         },
         {
-          "id": "f55",
+          "id": "f66",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(2)",
           "kind": "link",
           "value": "buyer-info.html#warranty",
@@ -2338,7 +2322,7 @@
           "group": "Общее"
         },
         {
-          "id": "f56",
+          "id": "f67",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(3)",
           "kind": "text",
           "value": "Оплата",
@@ -2346,7 +2330,7 @@
           "group": "Общее"
         },
         {
-          "id": "f57",
+          "id": "f68",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(3)",
           "kind": "link",
           "value": "buyer-info.html#payment",
@@ -2354,7 +2338,7 @@
           "group": "Общее"
         },
         {
-          "id": "f58",
+          "id": "f69",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(4)",
           "kind": "text",
           "value": "Доставка",
@@ -2362,7 +2346,7 @@
           "group": "Общее"
         },
         {
-          "id": "f59",
+          "id": "f70",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(4)",
           "kind": "link",
           "value": "buyer-info.html#delivery",
@@ -2370,7 +2354,7 @@
           "group": "Общее"
         },
         {
-          "id": "f60",
+          "id": "f71",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(5)",
           "kind": "text",
           "value": "Персональные данные",
@@ -2378,7 +2362,7 @@
           "group": "Общее"
         },
         {
-          "id": "f61",
+          "id": "f72",
           "selector": "#contacts > nav:nth-child(4) > a:nth-child(5)",
           "kind": "link",
           "value": "buyer-info.html#privacy",

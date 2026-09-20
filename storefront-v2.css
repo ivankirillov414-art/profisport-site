@@ -4,9 +4,10 @@
 @import url("./brand-showcase.css?v=3");
 @import url("./product-cards.css?v=1");
 @import url("./buyer-info.css?v=2");
-@import url("./classic-theme.css?v=7");
+@import url("./classic-theme.css?v=8");
 @import url("./customer-register.css?v=1");
 @import url("./category-tiles.css?v=6");
+@import url("./ui-refinements-v4.css?v=7");
 
 /* Keep the storefront regression contract visible in this entrypoint. The full
    rules live in storefront-v2-base.css and these declarations mirror the same
@@ -65,3 +66,16 @@ select{-webkit-appearance:none;appearance:none;inline-size:100%;max-inline-size:
 .storeOption input:checked~.storeCheck{color:white;background:#258650;border-color:#258650}
 .storeOption:has(input:focus-visible){outline:3px solid #258650;outline-offset:3px}
 .storeFooter p>a:hover{text-decoration:underline}
+
+/* A4 editorial popup: original brand mark, live text and exterior close control. */
+dialog.storagePromoA4{width:min(390px,calc(100% - 32px));max-width:none;max-height:calc(100dvh - 24px);height:fit-content;inset:0;margin:auto;padding:48px 0 0;background:transparent;border:0;overflow:visible;box-shadow:none}
+dialog.storagePromoA4 .storagePromoCard{display:block;border:0;border-radius:16px;background:#fff;overflow:auto;max-height:calc(100dvh - 84px);box-shadow:0 18px 60px #0004}
+dialog.storagePromoA4 .storagePromoCopy{padding:26px 28px 18px}
+dialog.storagePromoA4 img.storagePromoLogo{display:block;width:132px;height:58px;max-height:none;max-width:100%;object-fit:contain;margin:0 0 20px}
+dialog.storagePromoA4 h2{font-size:clamp(27px,4dvh,36px);font-weight:850;line-height:1.04;letter-spacing:-.8px;margin:0 0 16px;color:#17191c}
+dialog.storagePromoA4 p{font-size:16px;line-height:1.45;margin:0;color:#303741}
+dialog.storagePromoA4 img.storagePromoPhoto{width:100%;height:clamp(100px,25dvh,220px);max-height:none;max-width:100%;object-fit:cover;object-position:75% center;display:block}
+dialog.storagePromoA4 .storagePromoFooter{padding:16px 24px 22px;background:#fff}
+dialog.storagePromoA4 .storagePromoAction{display:flex;position:static;margin:0;min-height:46px;background:#f4cf45;color:#17191c;border-radius:10px;box-shadow:none;font-weight:750;text-decoration:none}
+dialog.storagePromoA4 .storagePromoClose{position:absolute;top:0;right:0;width:44px;height:44px;border:0;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);box-shadow:none;font:400 30px/1 Arial;cursor:pointer}
+dialog.storagePromoA4 .storagePromoClose:hover,dialog.storagePromoA4 .storagePromoClose:focus-visible{background:rgba(255,255,255,.25);color:#fff;outline:2px solid #fff;outline-offset:1px}

@@ -34,4 +34,4 @@ jobs:
           PHP
           php cms/tests/integration.php
           php -S 127.0.0.1:8123 > /tmp/cms-server.log 2>&1 &
-          python3 cms/tests/http.py
+          python3 cms/tests/http_contract.py
