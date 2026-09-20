@@ -1,0 +1,19 @@
+.referenceM2 #catalog{background:#edf3f5}
+.referenceM2 #catalog>div{max-width:80%}
+.referenceM2 #catalog .catalogOpenButton{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:20px;padding:12px 18px;border-radius:10px;background:#f4cf45;color:#171b20;font-size:14px;font-weight:700;line-height:1.2}
+.referenceM2 #catalog:hover .catalogOpenButton{background:#e9be2e}
+.buyerDetails[hidden]{display:none!important}
+html.buyerDialogOpen{overflow:hidden;scrollbar-gutter:stable}
+dialog.buyerDialog{box-sizing:border-box;width:min(640px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 40px);margin:auto;padding:36px;border:1px solid #e3e6e9;border-radius:20px;background:#fff;color:#171b20;box-shadow:0 24px 90px #11182740;overflow:auto;overscroll-behavior:contain}
+.buyerDialog::backdrop{background:#11182780;backdrop-filter:blur(3px)}
+.buyerDialog .hubCard{margin:0;padding:0;border:0;background:none;box-shadow:none}
+.buyerDialog .hubCard h2{margin:0 44px 24px 0;font-size:28px;line-height:1.2;letter-spacing:-.4px}
+.buyerDialog .hubCard h3{margin:24px 0 10px;font-size:18px;line-height:1.4}
+.buyerDialog .hubCard p,.buyerDialog .hubCard li{font-size:16px;line-height:1.65;color:#545b65}
+.buyerDialog .hubCard p{margin:0 0 16px}
+.buyerDialog .hubCard ol{padding-left:22px}
+.buyerDialog .hubAction{display:inline-flex;align-items:center;min-height:44px;margin-top:10px;padding:12px 18px;border-radius:10px;background:#f4cf45;color:#171b20;font-weight:700;text-decoration:none}
+.buyerDialogClose{position:absolute;right:18px;top:16px;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:#f1f3f5;color:#333;font:28px/1 Arial;cursor:pointer}
+.buyerDialogClose:hover{background:#e7e9ed}
+.buyerDialog a:focus-visible,.buyerDialog button:focus-visible{outline:3px solid #258650;outline-offset:3px}
+@media(max-width:560px){dialog.buyerDialog{padding:28px 22px;max-height:calc(100dvh - 24px);border-radius:16px}.buyerDialog .hubCard h2{font-size:24px}.referenceM2 #catalog .catalogOpenButton{font-size:13px;margin-top:14px;padding:10px 14px}}
