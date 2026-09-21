@@ -36,6 +36,9 @@ if(!api.includes("'image_source'=>$imageSource"))fail('catalog API image source 
 if(loader.includes('fallbackImageUrl('))fail('missing source photos must not trigger parser fallback');
 if(importer.includes('$final=$urls?:$oldImgs'))fail('1C import must never replace historical DB image arrays with a smaller current export');
 if(!importer.includes('array_merge($urls,$oldImgs,$oldMain!=='))fail('1C import must union new image references with historical DB image references');
+if(!importer.includes("catalog_snapshot"))fail('1C import must tag every accepted product with its catalog snapshot');
+if(!importer.includes("catalog_snapshot<>?"))fail('completed 1C import must hide products absent from the current snapshot');
+if(!importer.includes("Выгрузка изменилась во время обновления"))fail('1C import must stop if the source file changes between batches');
 if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql'"))fail('live catalog must expose MySQL as authoritative photo source');
 if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql-resolver-only'"))fail('static metadata fallback must resolve photos exclusively against MySQL');
 if(!process.exitCode)console.log('Catalog live source regression checks passed.');
