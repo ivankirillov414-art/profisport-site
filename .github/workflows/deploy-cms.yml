@@ -18,6 +18,7 @@ jobs:
           find cms -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check cms/visual.js
           node --check cms/workspace.js
+          node --check cms/visual-editor.js
           node --check cms/editor.js
           php cms/tests/validation.php
           php cms/tests/visual-validation.php
