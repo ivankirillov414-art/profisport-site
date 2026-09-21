@@ -15,6 +15,10 @@
     else if(v&&safeUrl(v)){if(field.kind==='link'){el.setAttribute('href',v);el.removeAttribute('data-category');}else if(field.kind==='image')el.setAttribute('src',v);else if(field.kind==='background')el.style.backgroundImage=`url(${JSON.stringify(new URL(v,location.href).href)})`;}
    }
   }
+  // Element-level visual edits are resolved before the optional order change.
+  const elementNodes=new Map(),resolve=selector=>{if(!elementNodes.has(selector)){try{elementNodes.set(selector,document.querySelector(selector));}catch{elementNodes.set(selector,null);}}return elementNodes.get(selector);};
+  for(const item of data.elements||[]){const node=resolve(item.selector);if(!node)continue;if(item.hidden)node.style.setProperty('display','none','important');const styles={color:'color',backgroundColor:'background-color',fontFamily:'font-family',fontSize:'font-size',fontWeight:'font-weight',textAlign:'text-align',borderRadius:'border-radius'},fonts={Arial:'Arial, sans-serif',Verdana:'Verdana, sans-serif',Georgia:'Georgia, serif',Trebuchet:'Trebuchet MS, sans-serif',Times:'Times New Roman, serif'};for(const [key,value] of Object.entries(item.style||{}))if(styles[key])node.style.setProperty(styles[key],key==='fontFamily'?fonts[value]:value);}
+  for(const order of data.orders||[]){const parent=resolve(order.parent),nodes=(order.selectors||[]).map(resolve);if(parent&&nodes.every(n=>n?.parentElement===parent))nodes.forEach(n=>parent.append(n));}
   if(Array.isArray(data.layout)) {
    const main=document.querySelector('[data-cms-root]')||document.querySelector('main');if(!main)return;
    // Resolve all selectors before moving anything. Retain identities across preview messages.
