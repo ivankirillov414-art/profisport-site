@@ -17,13 +17,16 @@ try {
     if($action==='login') {
         if($method!=='POST')cms_reply(['error'=>'method'],405);cms_csrf();
         $raw=file_get_contents('php://input',false,null,0,4097);if(strlen($raw)>4096)cms_reply(['error'=>'payload'],413);
-        $input=json_decode($raw,true)??[];$db=cms_db();$subject=hash('sha256',$_SERVER['REMOTE_ADDR']??'unknown');$now=time();
+        $input=json_decode($raw,true)??[];$db=cms_db();
+        // A failed sign-in must not lock every CMS user behind the same office/mobile IP.
+        $username=(string)($input['username']??'');
+        $subject=hash('sha256',($_SERVER['REMOTE_ADDR']??'unknown').'\n'.$username);$now=time();
         $db->prepare('INSERT IGNORE INTO ps_cms_limits(subject,window_start) VALUES(?,?)')->execute([$subject,$now]);
         $db->beginTransaction();$s=$db->prepare('SELECT * FROM ps_cms_limits WHERE subject=? FOR UPDATE');$s->execute([$subject]);$limit=$s->fetch();
         $attempts=$now-(int)$limit['window_start']>=900?0:(int)$limit['attempts'];
         if($attempts>=8){$db->rollBack();cms_reply(['error'=>'Слишком много попыток. Повторите через 15 минут.'],429);}
         $db->prepare('UPDATE ps_cms_limits SET attempts=?,window_start=? WHERE subject=?')->execute([$attempts+1,$attempts===0?$now:$limit['window_start'],$subject]);$db->commit();
-        $s=$db->prepare('SELECT * FROM ps_cms_users WHERE username=? AND active=1');$s->execute([(string)($input['username']??'')]);$user=$s->fetch();
+        $s=$db->prepare('SELECT * FROM ps_cms_users WHERE username=? AND active=1');$s->execute([$username]);$user=$s->fetch();
         $hash=$user['password_hash']??'$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi';
         if(!password_verify((string)($input['password']??''),$hash)||!$user)cms_reply(['error'=>'Неверный логин или пароль.'],401);
         $db->prepare('DELETE FROM ps_cms_limits WHERE subject=?')->execute([$subject]);session_regenerate_id(true);
