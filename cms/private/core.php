@@ -126,6 +126,34 @@ function cms_validate(array $input): array {
         foreach($blocks as $b){if(!is_array($b)||!in_array($b['id']??null,$ids,true)||!is_bool($b['visible']??null))throw new InvalidArgumentException('Неверный блок.');$got[]=$b['id'];}
         sort($got);sort($ids);if($got!==$ids)throw new InvalidArgumentException('Состав блоков изменился.');
         $clean['pages'][$key]=['fields'=>$fields,'blocks'=>array_map(fn($b)=>['id'=>$b['id'],'visible'=>$b['visible']],$blocks)];
+        $selectors=array_values(array_unique(array_merge(array_column($page['fields'],'selector'),array_column(cms_templates()[$key]['sections']??[],'selector'))));
+        if(isset($incoming['elements'])) {
+            if(!is_array($incoming['elements'])||count($incoming['elements'])>300)throw new InvalidArgumentException('Слишком много настроек элементов.');
+            $clean['pages'][$key]['elements']=[];$seen=[];
+            foreach($incoming['elements'] as $item){$selector=$item['selector']??'';
+                if(!is_string($selector)||!in_array($selector,$selectors,true)||isset($seen[$selector])||!is_bool($item['hidden']??false))throw new InvalidArgumentException('Неверная настройка элемента.');
+                $seen[$selector]=true;$out=['selector'=>$selector,'hidden'=>$item['hidden']];$style=$item['style']??[];
+                if(!is_array($style))throw new InvalidArgumentException('Неверный стиль элемента.');$valid=[];
+                foreach($style as $name=>$value){if(!is_string($value))throw new InvalidArgumentException('Неверный стиль элемента.');
+                    if(in_array($name,['color','backgroundColor'],true)&&preg_match('/^#[0-9a-f]{6}$/iD',$value))$valid[$name]=$value;
+                    elseif($name==='fontFamily'&&in_array($value,['Arial','Verdana','Georgia','Trebuchet','Times'],true))$valid[$name]=$value;
+                    elseif($name==='fontSize'&&preg_match('/^([1-9][0-9]?)px$/D',$value)&&((int)$value>=10)&&((int)$value<=96))$valid[$name]=$value;
+                    elseif($name==='fontWeight'&&in_array($value,['400','500','600','700','800'],true))$valid[$name]=$value;
+                    elseif($name==='textAlign'&&in_array($value,['left','center','right'],true))$valid[$name]=$value;
+                    elseif($name==='borderRadius'&&preg_match('/^([0-9]|[1-4][0-9])px$/D',$value))$valid[$name]=$value;
+                    else throw new InvalidArgumentException('Неверный стиль элемента.');
+                }if($valid)$out['style']=$valid;$clean['pages'][$key]['elements'][]=$out;
+            }
+        }
+        if(isset($incoming['orders'])) {
+            if(!is_array($incoming['orders'])||count($incoming['orders'])>30)throw new InvalidArgumentException('Слишком много настроек порядка.');$clean['pages'][$key]['orders']=[];$parents=[];
+            foreach($incoming['orders'] as $order){$parent=$order['parent']??'';$items=$order['selectors']??[];
+                if(!is_string($parent)||!preg_match('/^#[A-Za-z][A-Za-z0-9_-]{0,80}$/D',$parent)||isset($parents[$parent])||!is_array($items))throw new InvalidArgumentException('Неверный порядок элементов.');
+                $allowed=array_values(array_unique(array_filter($selectors,fn($s)=>preg_match('~^'.preg_quote($parent,'~').' > [^ >]+:nth-child\\([0-9]+\\)$~',$s))));
+                if(count($allowed)<2||count($items)!==count($allowed)||count(array_unique($items))!==count($items)||array_diff($items,$allowed)||array_diff($allowed,$items))throw new InvalidArgumentException('Неверный порядок элементов.');
+                $parents[$parent]=true;$clean['pages'][$key]['orders'][]=['parent'=>$parent,'selectors'=>array_values($items)];
+            }
+        }
     }
     foreach($input['pages'] as $key=>$incoming) {
         if(!is_string($key)||!preg_match('/^[a-z0-9][a-z0-9-]{0,90}\.html$/D',$key))throw new InvalidArgumentException('Адрес страницы: латинские буквы, цифры и дефисы.');
@@ -179,7 +207,7 @@ function cms_layout(array $layout,string $page): array {
         }
         if(!in_array($type,['hero','text','image','columns','cta','contacts','spacer','gallery','cards','faq','pricing','testimonials','metrics','split'],true))throw new InvalidArgumentException('Неизвестный тип блока.');
         $props=[];
-        foreach(['title','text','text2','image','alt','label','url','background','color','align','space','mobileSpace','visibility','columns','radius','accent'] as $key) {
+        foreach(['title','text','text2','image','alt','label','url','background','color','align','space','mobileSpace','visibility','columns','radius','accent','font','fontSize','fontWeight'] as $key) {
             $v=$block['props'][$key]??'';
             if(!is_string($v)||strlen($v)>12000)throw new InvalidArgumentException('Неверные свойства блока.');
             if(in_array($key,['image','url'],true)&&!cms_url($v,$key==='image'))throw new InvalidArgumentException('Небезопасная ссылка.');
@@ -189,6 +217,9 @@ function cms_layout(array $layout,string $page): array {
             if($key==='visibility'&&!in_array($v,['','all','desktop','mobile'],true))throw new InvalidArgumentException('Неверная видимость.');
             if($key==='columns'&&!in_array($v,['','2','3','4'],true))throw new InvalidArgumentException('Неверная сетка.');
             if($key==='radius'&&!in_array($v,['','0','8','16','24'],true))throw new InvalidArgumentException('Неверное скругление.');
+            if($key==='font'&&!in_array($v,['','Arial','Verdana','Georgia','Trebuchet','Times'],true))throw new InvalidArgumentException('Неверный шрифт.');
+            if($key==='fontSize'&&$v!==''&&(!preg_match('/^[1-9][0-9]?$/D',$v)||(int)$v<10||(int)$v>96))throw new InvalidArgumentException('Неверный размер шрифта.');
+            if($key==='fontWeight'&&!in_array($v,['','400','500','600','700','800'],true))throw new InvalidArgumentException('Неверная насыщенность шрифта.');
             $props[$key]=$v;
         }
         if(isset($block['props']['items'])) {
@@ -224,6 +255,8 @@ function cms_public(array $data): array {
             $pages[$key]['layout']=$draft['layout'];
             $pages[$key]['sections']=array_map(fn($s)=>['id'=>$s['id'],'selector'=>$s['selector']],$templates[$key]['sections']??[]);
         }
+        if(isset($draft['elements']))$pages[$key]['elements']=$draft['elements'];
+        if(isset($draft['orders']))$pages[$key]['orders']=$draft['orders'];
     }
     return $pages;
 }
