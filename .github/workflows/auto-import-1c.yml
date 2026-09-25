@@ -25,35 +25,15 @@ jobs:
           SNAPSHOT=''
           for attempt in $(seq 1 80); do
             SNAPSHOT_PARAM=''
-            if [ -n "$SNAPSHOT" ]; then
-              SNAPSHOT_PARAM="&snapshot=$SNAPSHOT"
-            fi
+            if [ -n "$SNAPSHOT" ]; then SNAPSHOT_PARAM="&snapshot=$SNAPSHOT"; fi
             URL="$BASE/api/import-apply.php?auto=1&offset=$OFFSET&limit=250$SNAPSHOT_PARAM"
-            BODY="$(curl -fsS --retry 3 --retry-delay 3 --max-time 90               -A 'ProfiSport-1C-Auto/1.0'               -H "X-Import-Token: $TOKEN"               -X POST "$URL")"
+            BODY="$(curl -fsS --retry 3 --retry-delay 3 --max-time 90 -A 'ProfiSport-1C-Auto/1.0' -H "X-Import-Token: $TOKEN" -X POST "$URL")"
             export BODY
-            readarray -t V < <(python3 - <<'PY'
-import json,os
-j=json.loads(os.environ['BODY'])
-if not j.get('ok'):
-    raise SystemExit(j.get('error','import_failed'))
-print('1' if j.get('done') else '0')
-print('1' if j.get('unchanged') else '0')
-print(j.get('next_offset',0))
-print(j.get('snapshot',''))
-print(j.get('source',''))
-print(j.get('active_current_snapshot',''))
-PY
-            )
+            readarray -t V < <(python3 -c "import json,os; j=json.loads(os.environ['BODY']); assert j.get('ok'), j.get('error','import_failed'); print('1' if j.get('done') else '0'); print('1' if j.get('unchanged') else '0'); print(j.get('next_offset',0)); print(j.get('snapshot','')); print(j.get('source','')); print(j.get('active_current_snapshot',''))")
             DONE="${V[0]}"; UNCHANGED="${V[1]}"; OFFSET="${V[2]}"; SNAPSHOT="${V[3]}"
             echo "source=${V[4]} snapshot=$SNAPSHOT offset=$OFFSET active=${V[5]}"
-            if [ "$UNCHANGED" = 1 ]; then
-              echo 'No new 1C export detected.'
-              exit 0
-            fi
-            if [ "$DONE" = 1 ]; then
-              echo 'Newest 1C export is now the authoritative catalog.'
-              exit 0
-            fi
+            if [ "$UNCHANGED" = 1 ]; then echo 'No new 1C export detected.'; exit 0; fi
+            if [ "$DONE" = 1 ]; then echo 'Newest 1C export is now the authoritative catalog.'; exit 0; fi
           done
           echo 'Automatic import exceeded the batch limit.' >&2
           exit 1
