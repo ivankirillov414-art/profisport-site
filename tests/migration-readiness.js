@@ -1,0 +1,50 @@
+const fs=require('fs');
+const path=require('path');
+const assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const exists=p=>fs.existsSync(path.join(root,p));
+
+const bootstrap=read('server/bootstrap.php');
+const migration=read('server/migration.php');
+const api=read('api/migration.php');
+const tick=read('api/migration-tick.php');
+const admin=read('admin/migration.php');
+const adminJs=read('admin/migration.js');
+const deploy=read('.github/workflows/deploy-infinityfree.yml');
+const tickWorkflow=read('.github/workflows/migration-tick.yml');
+const photoPage=read('admin/photos.php');
+const photoHealth=read('api/photo-health.php');
+const photoApi=read('api/photo-moderation.php');
+const catalog=read('catalog-live-paged.js');
+const loader=read('catalog-loader.js');
+
+assert.match(bootstrap,/db_port.*3306/,'database port must be configurable');
+assert.match(migration,/aes-256-gcm/,'migration credentials must be encrypted at rest');
+assert.match(migration,/ftp_ssl_connect/,'migration must require FTPS');
+assert.match(migration,/target_database_not_empty/,'migration must refuse a non-empty target database');
+assert.match(migration,/target_database_digest_mismatch/,'migration must verify the copied database');
+assert.match(migration,/config_cipher=NULL/,'migration secrets must be erased after success');
+assert.match(api,/migration_verify_password/,'migration schedule must re-check current admin password');
+assert.match(api,/delay_minutes/,'migration must support delayed execution');
+assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration worker endpoint must require a server-side token');
+assert.match(tickWorkflow,/schedule:/,'migration worker must run on a schedule');
+assert.match(tickWorkflow,/profisport-migration-tick-v1/,'workflow token derivation must match deployment');
+assert.match(deploy,/MIGRATION_KEY/,'deployment must configure a stable migration encryption key');
+assert.match(deploy,/MIGRATION_TICK_TOKEN/,'deployment must configure the migration worker token');
+assert.match(admin,/Текущий пароль админки/,'admin migration UI must request current password');
+assert.match(adminJs,/confirm\(/,'admin migration UI must request final confirmation');
+
+assert.match(photoPage,/Ручная загрузка, подбор из старого каталога и поиск картинок в интернете отключены/,'photo admin must describe the 1C-only policy');
+assert.doesNotMatch(photoPage,/photo-moderation\.js/,'photo admin must not load moderation code');
+assert.match(photoHealth,/current_1c_mysql_only/,'photo diagnostics must be 1C/MySQL only');
+assert.match(photoApi,/photo_moderation_disabled/,'legacy photo mutation API must stay disabled');
+assert.equal(exists('admin/photo-moderation.js'),false,'legacy photo moderation script must remain retired');
+assert.equal(exists('scripts/photo_autofill.py'),false,'legacy internet photo autofill script must remain retired');
+
+assert.doesNotMatch(catalog,/loadStaticCatalogFallback/,'storefront must not use parser/static fallback');
+assert.doesNotMatch(loader,/staticRowWithDbPhotoFallback/,'base loader must not use parser/static fallback');
+assert.equal(exists('.github/workflows/sync-catalog.yml'),false,'parser catalog sync workflow must stay retired');
+assert.equal(exists('.github/workflows/photo-autofill.yml'),false,'fallback photo research workflow must stay retired');
+
+console.log('Hosting migration, 1C-only catalog and 1C-only photo policy checks passed.');

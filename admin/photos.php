@@ -1,2 +1,65 @@
 <?php require __DIR__.'/guard.php'; ?>
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ПрофиСпорт — модерация фотографий</title><style>:root{--y:#f2c94c;--bg:#f5f5f3;--tx:#202124;--muted:#747a80;--line:#e3e3df;--green:#19964a;--red:#b93429;--page:1120px;--gutter:14px}*{box-sizing:border-box}body{margin:0;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx)}.top{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#454b51,#2f3439);color:#fff}.topin{width:min(var(--page),calc(100% - 2*var(--gutter)));min-height:62px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:20px;font-weight:900}.brand i{font-style:normal;color:var(--y)}.back{color:#fff;text-decoration:none;background:#ffffff17;border:1px solid #ffffff26;padding:10px 13px;border-radius:10px}main{width:min(var(--page),calc(100% - 2*var(--gutter)));margin:18px auto 60px}.head{display:flex;gap:12px;align-items:end;justify-content:space-between;flex-wrap:wrap}.head h1{margin:0;font-size:28px}.muted{color:var(--muted)}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tools input{flex:1 1 260px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit}.btn{border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:800;cursor:pointer;background:var(--y);color:#111}.btn.secondary{background:#e9e9e5}.summary{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px 16px;margin-bottom:12px}.health{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.healthCard{background:#f7f7f4;border-radius:12px;padding:10px}.healthCard b{display:block;font-size:22px;line-height:1.1}.healthCard span{font-size:12px;color:var(--muted)}.healthCard.bad b{color:var(--red)}.healthCard.good b{color:var(--green)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.product{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;min-width:0}.product h2{font-size:18px;line-height:1.25;margin:0 0 6px}.meta{font-size:13px;color:var(--muted);margin-bottom:12px;overflow-wrap:anywhere}.cands{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.cand{border:2px solid transparent;border-radius:12px;padding:5px;background:#f7f7f4;cursor:pointer}.cand.selected{border-color:var(--y);background:#fff8d8}.cand img{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;border-radius:8px}.cand small{display:block;font-size:10px;line-height:1.2;margin-top:4px;height:24px;overflow:hidden;color:var(--muted)}.manual{display:flex;gap:8px;margin-top:10px}.manual input{min-width:0;flex:1;padding:10px;border:1px solid var(--line);border-radius:10px}.actions{display:flex;gap:8px;margin-top:10px}.status{min-height:22px;margin-top:8px;font-size:13px}.ok{color:var(--green)}.err{color:var(--red)}.empty{padding:28px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:18px}.pager{display:flex;justify-content:center;align-items:center;gap:10px;margin:18px 0}.pager button{border:0;border-radius:10px;padding:10px 14px;font-weight:800}.loading{opacity:.55;pointer-events:none}@media(max-width:760px){.grid{grid-template-columns:1fr}.cands{grid-template-columns:repeat(3,minmax(0,1fr))}.head h1{font-size:24px}.health{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:430px){.cands{grid-template-columns:repeat(2,minmax(0,1fr))}.manual{flex-direction:column}.manual .btn{width:100%}}</style></head><body><header class="top"><div class="topin"><div class="brand">Профи<i>Спорт</i></div><a class="back" href="index.php">← Админка</a></div></header><main><div class="head"><div><h1>Модерация фотографий</h1><div class="muted">Товары без рабочего фото и варианты из ранее собранного каталога.</div></div></div><div class="tools"><input id="q" placeholder="Поиск по названию, бренду или модели"><button class="btn" id="search">Найти</button><button class="btn secondary" id="reset">Сбросить</button><button class="btn secondary" id="healthBtn">Проверить базу фото</button></div><div id="healthBox" class="summary"><b>Состояние фотографий в живой базе</b><div class="muted" id="healthText">Нажмите «Проверить базу фото» или подождите автоматическую проверку.</div><div id="healthGrid" class="health"></div></div><div id="summary" class="summary">Загрузка…</div><div id="grid" class="grid"></div><div class="pager"><button id="prev">←</button><span id="pageInfo"></span><button id="next">→</button></div></main><script src="app.js?v=12"></script><script src="photo-moderation.js?v=5"></script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>ПрофиСпорт — фото из 1С</title>
+<style>
+:root{--y:#f2c94c;--bg:#f5f5f3;--tx:#202124;--muted:#747a80;--line:#e3e3df;--green:#19763b;--red:#a92b20;--page:980px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.top{background:linear-gradient(135deg,#454b51,#2f3439);color:#fff}.topin{width:min(var(--page),calc(100% - 28px));min-height:62px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:20px;font-weight:900}.brand i{font-style:normal;color:var(--y)}.back{color:#fff;text-decoration:none;background:#ffffff17;border:1px solid #ffffff26;padding:10px 13px;border-radius:10px}
+main{width:min(var(--page),calc(100% - 28px));margin:22px auto 60px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0}.notice{background:#fff8d8;border-color:#efd36a}
+h1{margin:0 0 8px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.metric{background:#f7f7f4;border-radius:13px;padding:13px}.metric b{display:block;font-size:24px}.metric span{font-size:12px;color:var(--muted)}
+button{border:0;border-radius:11px;padding:11px 15px;font:inherit;font-weight:800;background:var(--y);cursor:pointer}.ok{color:var(--green)}.bad{color:var(--red)}.list{display:grid;gap:8px;margin-top:12px}.row{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#fafaf8}
+@media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin"><div class="brand">Профи<i>Спорт</i></div><a class="back" href="index.php">← Админка</a></div></header>
+<main>
+<section class="card notice">
+<h1>Фотографии из актуальной выгрузки 1С</h1>
+<p>Фото товара берётся только из текущей выгрузки 1С / записи MySQL. Ручная загрузка, подбор из старого каталога и поиск картинок в интернете отключены.</p>
+<p class="muted">Если у товара в выгрузке нет физического фото, сайт сохраняет это как отсутствие фото. Ни администратор, ни фоновый процесс не подменяют его сторонним изображением.</p>
+</section>
+<section class="card">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Диагностика</h2><div id="generated" class="muted">Загрузка…</div></div><button id="refresh" type="button">Обновить</button></div>
+<div id="metrics" class="grid"></div>
+<div id="message" class="muted" style="margin-top:12px"></div>
+</section>
+<section class="card">
+<h2 style="margin-top:0">Товары без рабочего фото</h2>
+<div id="examples" class="list"><div class="muted">Загрузка…</div></div>
+</section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+async function load(){
+ $('refresh').disabled=true;$('message').textContent='Проверяю актуальные записи MySQL и локальные файлы из выгрузки…';
+ try{
+   const r=await fetch('../api/photo-health.php?v=2',{cache:'no-store'}),j=await r.json();
+   if(!r.ok||!j.ok)throw new Error(j.error||('HTTP '+r.status));
+   const s=j.stats||{};
+   $('generated').textContent='Проверено: '+(j.generated_at||'сейчас');
+   const cards=[
+     [s.active_products||0,'активных товаров'],
+     [s.products_with_working_image||0,'с рабочим фото'],
+     [s.products_without_db_image||0,'без фото в выгрузке'],
+     [s.products_with_broken_local_only||0,'с битой локальной ссылкой']
+   ];
+   $('metrics').innerHTML=cards.map(x=>'<div class="metric"><b>'+Number(x[0])+'</b><span>'+esc(x[1])+'</span></div>').join('');
+   $('message').innerHTML='<span class="ok">Источник фото: только текущая 1С/MySQL. Автоподбор и ручная подмена отключены.</span>';
+   const list=j.unresolved_examples||[];
+   $('examples').innerHTML=list.length?list.map(x=>'<div class="row"><b>#'+Number(x.id)+' · '+esc(x.name)+'</b><div class="muted">'+esc(x.category||'Без категории')+' · '+esc(x.reason||'нет фото')+'</div></div>').join(''):'<div class="ok">У активных товаров нет проблем с рабочими фотографиями.</div>';
+ }catch(e){$('message').innerHTML='<span class="bad">Не удалось выполнить диагностику: '+esc(e.message)+'</span>';$('examples').innerHTML='';}
+ finally{$('refresh').disabled=false}
+}
+$('refresh').onclick=load;load();
+})();
+</script>
+</body>
+</html>
