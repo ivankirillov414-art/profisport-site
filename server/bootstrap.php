@@ -24,7 +24,8 @@ function ensure_customer_columns(PDO $pdo): void {
     'birth_date'=>'DATE NULL',
     'registration_source'=>"VARCHAR(40) NOT NULL DEFAULT 'website'",
     'consent_at'=>'DATETIME NULL',
-    'qr_registered_at'=>'DATETIME NULL'
+    'qr_registered_at'=>'DATETIME NULL',
+    'preferred_store'=>'VARCHAR(180) NULL'
   ];
   foreach($defs as $name=>$def){if(!isset($cols[$name])){$pdo->exec("ALTER TABLE customers ADD COLUMN `$name` $def");$cols[$name]=true;}}
   $passwordColumn=null;foreach($pdo->query("SHOW COLUMNS FROM customers LIKE 'password_hash'") as $row){$passwordColumn=$row;break;}

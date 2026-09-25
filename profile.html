@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Личный кабинет — ПрофиСпорт</title>
   <link rel="stylesheet" href="storefront-v2.css?v=34">
-  <link rel="stylesheet" href="profile-dashboard.css?v=4">
+  <link rel="stylesheet" href="profile-dashboard.css?v=5">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
@@ -15,7 +15,7 @@
   <div class="top"><b><a href="index.html" aria-label="ПрофиСпорт — на главную">Профи<span>Спорт</span></a></b><div class="topActions"><a href="index.html">← Магазин</a></div></div>
   <main class="profilePage profileDashboardPage">
     <div class="profileDashboardTitle"><div><h1>Личный кабинет</h1><p>Заказы, избранное и всё важное по вашему аккаунту.</p></div></div>
-    <div id="guest"><section class="profileCard"><div class="authTabs"><button id="loginTab">Войти</button><button id="registerTab" class="secondary">Регистрация</button></div><form id="loginForm" class="profileForm"><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button>Войти</button></form><form id="registerForm" class="profileForm hidden"><label>Имя<input name="name" required minlength="2" maxlength="120" autocomplete="given-name"></label><label>Фамилия<input name="last_name" required minlength="2" maxlength="120" autocomplete="family-name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Телефон<input name="phone" type="tel" required autocomplete="tel"></label><label>Дата рождения<input name="birth_date" type="date" required autocomplete="bday"></label><label>Пароль<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><label class="profileConsent"><input name="consent" type="checkbox" required> Согласен на <a href="buyer-info.html#privacy" target="_blank">обработку персональных данных</a></label><button>Создать кабинет</button></form><div id="authMsg" class="profileMsg"></div></section></div>
+    <div id="guest"><section class="profileCard"><div class="authTabs"><button id="loginTab">Войти</button><button id="registerTab" class="secondary">Регистрация</button></div><form id="loginForm" class="profileForm"><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button>Войти</button></form><form id="registerForm" class="profileForm hidden"><label>Имя<input name="name" required minlength="2" maxlength="120" autocomplete="given-name"></label><label>Фамилия<input name="last_name" required minlength="2" maxlength="120" autocomplete="family-name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Телефон<input name="phone" type="tel" required autocomplete="tel"></label><label>Дата рождения<input name="birth_date" type="date" required autocomplete="bday"></label><label>Пароль<input name="password" type="password" minlength="10" required autocomplete="new-password"></label><label class="profileConsent"><input name="consent" type="checkbox" required> Согласен на <a href="buyer-info.html#privacy" target="_blank">обработку персональных данных</a></label><button>Создать кабинет</button></form><div id="authMsg" class="profileMsg"></div></section></div>
     <div id="account" class="hidden">
       <section class="profileDashboardHero">
         <div class="profileIdentity">
@@ -29,7 +29,7 @@
             </div>
           </div>
         </div>
-        <button id="logout" class="secondary profileLogout">Выйти</button>
+        <div class="profileHeroActions"><button id="editProfile" type="button" class="profileEditButton">Изменить данные</button><button id="logout" class="secondary profileLogout">Выйти</button></div>
       </section>
 
       <section class="profileCard profileDashboardActive" aria-labelledby="activeOrderHeading">
@@ -69,6 +69,31 @@
       <section id="reviews" class="profileCard profileSecondaryCard">
         <div class="profileSectionIntro"><h3>Отзывы</h3><span id="reviewsSectionSummary">Покупки и модерация</span></div>
         <div id="reviewsSummary" class="reviewDashboard"></div>
+      </section>
+
+      <section id="profile-settings" class="profileCard profileSecondaryCard profileSettingsCard">
+        <div class="profileSectionIntro"><h3>Профиль</h3><span>Личные данные и основной магазин</span></div>
+        <div class="profileSettingsLayout">
+          <div class="profileSettingsSummary">
+            <div><span>Имя</span><b id="profileSummaryName">—</b></div>
+            <div><span>Телефон</span><b id="profileSummaryPhone">—</b></div>
+            <div><span>Email</span><b id="profileSummaryEmail">—</b></div>
+            <div><span>Дата рождения</span><b id="profileSummaryBirth">—</b></div>
+            <div><span>Предпочитаемый магазин</span><b id="profileSummaryStore">Не выбран</b></div>
+          </div>
+          <form id="profileEditForm" class="profileEditForm">
+            <div class="profileEditGrid">
+              <label>Имя<input name="name" required minlength="2" maxlength="120" autocomplete="given-name"></label>
+              <label>Фамилия<input name="last_name" required minlength="2" maxlength="120" autocomplete="family-name"></label>
+              <label>Телефон<input name="phone" type="tel" required autocomplete="tel" placeholder="+7 999 000-00-00"></label>
+              <label>Дата рождения<input name="birth_date" type="date" required autocomplete="bday"></label>
+              <label class="profileWideField">Email<input name="email" type="email" required autocomplete="email"></label>
+              <label class="profileWideField">Предпочитаемый магазин<select name="preferred_store"><option value="">Не выбран</option><option value="Проспект Победы, 79">Проспект Победы, 79</option><option value="Проспект Победы, 118 строение 2">Проспект Победы, 118 строение 2</option></select></label>
+              <label id="profilePasswordConfirm" class="profileWideField hidden">Текущий пароль для смены email<input name="current_password" type="password" autocomplete="current-password"><small>Пароль требуется только если меняете адрес электронной почты.</small></label>
+            </div>
+            <div class="profileEditActions"><button type="submit">Сохранить изменения</button><span id="profileEditMessage" aria-live="polite"></span></div>
+          </form>
+        </div>
       </section>
     </div>
   </main>
@@ -149,6 +174,20 @@
     function formatDate(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})}
     function formatDateTime(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
     function initials(u){const a=[u?.name,u?.last_name].filter(Boolean).map(x=>String(x).trim()[0]||'').join('').slice(0,2).toUpperCase();return a||'PS'}
+    function fillProfileForm(u){
+      const form=$('#profileEditForm');if(!form)return;
+      form.elements.name.value=u.name||'';form.elements.last_name.value=u.last_name||'';form.elements.phone.value=formatPhone(u.phone)||u.phone||'';form.elements.birth_date.value=u.birth_date||'';form.elements.email.value=u.email||'';form.elements.preferred_store.value=u.preferred_store||'';form.elements.current_password.value='';form.dataset.originalEmail=u.email||'';
+      $('#profilePasswordConfirm').classList.add('hidden');
+      $('#profileSummaryName').textContent=[u.name,u.last_name].filter(Boolean).join(' ')||'—';
+      $('#profileSummaryPhone').textContent=formatPhone(u.phone)||'—';
+      $('#profileSummaryEmail').textContent=u.email||'—';
+      $('#profileSummaryBirth').textContent=formatDate(u.birth_date)||'—';
+      $('#profileSummaryStore').textContent=u.preferred_store||'Не выбран';
+    }
+    function updateProfilePasswordRequirement(){
+      const form=$('#profileEditForm');if(!form)return;const changed=String(form.elements.email.value||'').trim().toLowerCase()!==String(form.dataset.originalEmail||'').trim().toLowerCase();
+      $('#profilePasswordConfirm').classList.toggle('hidden',!changed);form.elements.current_password.required=changed;if(!changed)form.elements.current_password.value='';
+    }
     function reviewText(n){const x=Math.abs(Number(n)||0)%100;if(x>=11&&x<=14)return 'отзывов';const y=x%10;return y===1?'отзыв':(y>=2&&y<=4?'отзыва':'отзывов')}
     const reviewStatusLabels={pending:'На модерации',approved:'Опубликован',rejected:'Отклонён'};
     let reviewState={details:[],eligible:[]};
@@ -283,6 +322,7 @@
       $('#customerAvatar').textContent=initials(u);
       $('#customerPhone').textContent=formatPhone(u.phone)||'Телефон не указан';
       $('#customerEmail').textContent=u.email||'';
+      fillProfileForm(u);
 
       const orders=Array.isArray(j.orders)?j.orders:[];
       const favoriteIds=[...new Set((j.favorites||[]).map(String))];
@@ -330,11 +370,24 @@
     async function refresh(merge=true){let j=await api('me');if(j.customer&&merge&&await mergeGuestFavorites())j=await api('me');await render(j)}
     $('#loginForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api('login',{method:'POST',body:JSON.stringify(Object.fromEntries(f))});await refresh(true);$('#authMsg').textContent=''}catch(err){$('#authMsg').textContent='Не удалось войти. Проверьте email и пароль.'}};
     $('#registerForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api('register',{method:'POST',body:JSON.stringify(Object.fromEntries(f))});await refresh(true);$('#authMsg').textContent=''}catch(err){$('#authMsg').textContent=err.message==='email_exists'?'Такой email уже зарегистрирован.':'Не удалось создать кабинет.'}};
+    $('#editProfile').onclick=()=>document.querySelector('#profile-settings').scrollIntoView({behavior:'smooth',block:'start'});
+    $('#profileEditForm').elements.email.addEventListener('input',updateProfilePasswordRequirement);
+    $('#profileEditForm').onsubmit=async e=>{
+      e.preventDefault();const form=e.currentTarget,button=form.querySelector('button[type="submit"]'),message=$('#profileEditMessage');button.disabled=true;message.textContent='Сохраняем…';
+      const values=Object.fromEntries(new FormData(form));values.email=String(values.email||'').trim();values.name=String(values.name||'').trim();values.last_name=String(values.last_name||'').trim();values.phone=String(values.phone||'').trim();
+      try{
+        const j=await api('profile_update',{method:'POST',body:JSON.stringify(values)});
+        fillProfileForm(j.customer);$('#customerName').textContent=[j.customer.name,j.customer.last_name].filter(Boolean).join(' ');$('#customerAvatar').textContent=initials(j.customer);$('#customerPhone').textContent=formatPhone(j.customer.phone)||'Телефон не указан';$('#customerEmail').textContent=j.customer.email||'';message.textContent='Данные сохранены.';
+      }catch(err){
+        const errors={password_required:'Введите текущий пароль для смены email.',invalid_password:'Текущий пароль указан неверно.',email_exists:'Этот email уже используется другим аккаунтом.',invalid_input:'Проверьте заполнение полей.'};
+        message.textContent=errors[err.message]||'Не удалось сохранить изменения.';
+      }finally{button.disabled=false}
+    };
     $('#logout').onclick=async()=>{await api('logout',{method:'POST',body:'{}'});csrf='';$('#orderDetails').innerHTML='';await refresh(false)};
     refresh(true).catch(()=>{$('#authMsg').textContent='Кабинет временно недоступен.'});
   </script>
 <nav class="mobileBottomNav" aria-label="Основная навигация"><a href="index.html#catalogProducts" data-nav="catalog"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span><span>Каталог</span></a><a href="checkout.html" data-nav="cart"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l2-8H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span>Корзина</span></a><a href="service.html" data-nav="service"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.4 2.4-3-3z"/></svg></span><span>Сервис</span></a><a href="profile.html" data-nav="profile" class="active" aria-current="page"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.2 3.3-6.5 7.5-6.5s6.7 2.3 7.5 6.5"/></svg></span><span>Профиль</span></a></nav>
-<script src="back-to-top.js?v=1" defer></script></body>
+<script src="back-to-top.js?v=1" defer></script><script src="cookie-consent.js?v=1" defer></script></body>
 </html>
 
 
