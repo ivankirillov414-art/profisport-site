@@ -4,10 +4,13 @@ return [
     'timezone' => 'Asia/Yekaterinburg',
     'db_timezone' => '+05:00',
     'db_host' => 'localhost',
+    'db_port' => 3306,
     'db_name' => 'profisport',
     'db_user' => 'profisport',
     'db_pass' => '',
     'import_token' => '',
+    // Server-side encryption key for scheduled hosting migrations.
+    'migration_key' => '',
     // Keep empty to disable the one-time bootstrap recovery endpoint.
     'recovery_bootstrap_hash' => '',
 ];
