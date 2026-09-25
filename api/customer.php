@@ -153,6 +153,12 @@ try{
     $count=$pdo->prepare('SELECT COUNT(*) FROM customer_favorites WHERE customer_id=?');$count->execute([(int)$u['id']]);
     json_response(['ok'=>true,'active'=>$active,'count'=>(int)$count->fetchColumn()]);
   }
+  if($action==='favorite_remove'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$pid=(int)($in['product_id']??0);if($pid<1)json_response(['ok'=>false,'error'=>'bad_product'],422);
+    $d=$pdo->prepare('DELETE FROM customer_favorites WHERE customer_id=? AND product_id=?');$d->execute([(int)$u['id'],$pid]);
+    $count=$pdo->prepare('SELECT COUNT(*) FROM customer_favorites WHERE customer_id=?');$count->execute([(int)$u['id']]);
+    json_response(['ok'=>true,'active'=>false,'removed'=>$d->rowCount()>0,'count'=>(int)$count->fetchColumn()]);
+  }
   if($action==='favorites_merge'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$raw=is_array($in['product_ids']??null)?$in['product_ids']:[];
     $ids=[];foreach(array_slice($raw,0,300) as $v){$id=(int)$v;if($id>0)$ids[$id]=true;}
