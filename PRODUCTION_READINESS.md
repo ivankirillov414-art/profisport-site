@@ -21,6 +21,18 @@ This file is a technical checklist for moving the store from the temporary Infin
 6. Test customer registration/login, favorites, checkout, order creation, admin status updates and customer order history.
 7. Verify product prices and stock are read server-side during checkout; browser values must never be trusted.
 
+## Admin-assisted hosting migration
+
+The owner-only admin page `admin/migration.php` can prepare a move from the current host to a new PHP/MySQL host without changing the storefront logic.
+
+- Enter the destination HTTPS URL (optional for preflight), FTPS credentials/root and MySQL credentials in the admin panel.
+- Preflight requires an encrypted FTPS connection with write access and an empty destination database.
+- Scheduling the move requires the current owner password plus a final confirmation. The destination credentials are encrypted at rest and removed from the migration job after successful verification.
+- A delayed migration is resumed in small server-side phases by the protected migration worker: schema, data, files, destination config and verification.
+- Completion verifies the copied database digest and, when a destination URL is supplied, `api/health.php`.
+- DNS/domain switching is deliberately not automated because the domain provider is not part of this repository. Point DNS only after the destination health check and final smoke test pass.
+- Keep a fresh source database backup before scheduling the move. Do not allow checkout traffic to write to two independent databases during cutover.
+
 ## Data migration
 
 - Export/import the MySQL database with UTF-8 (`utf8mb4`).
