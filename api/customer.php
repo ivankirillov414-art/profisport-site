@@ -40,7 +40,8 @@ function customer_payload(PDO $pdo,array $u): array {
   $history=$pdo->prepare('SELECT amount,kind,note,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 20');$history->execute([(int)$u['id']]);
   $orders=$pdo->prepare('SELECT order_number,status,total_rub,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 50');$orders->execute([(int)$u['id']]);
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
-  return ['ok'=>true,'customer'=>$u,'favorites'=>array_map('strval',array_column($f->fetchAll(),'product_id')),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'csrf'=>customer_csrf()];
+  $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
+  return ['ok'=>true,'customer'=>$u,'favorites'=>array_map('strval',array_column($f->fetchAll(),'product_id')),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
