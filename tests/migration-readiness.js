@@ -18,6 +18,7 @@ const photoHealth=read('api/photo-health.php');
 const photoApi=read('api/photo-moderation.php');
 const catalog=read('catalog-live-paged.js');
 const loader=read('catalog-loader.js');
+const catalogLoader=loader;
 
 assert.match(bootstrap,/db_port.*3306/,'database port must be configurable');
 assert.match(migration,/aes-256-gcm/,'migration credentials must be encrypted at rest');
@@ -27,7 +28,10 @@ assert.match(migration,/target_database_digest_mismatch/,'migration must verify 
 assert.match(migration,/config_cipher=NULL/,'migration secrets must be erased after success');
 assert.match(api,/migration_verify_password/,'migration schedule must re-check current admin password');
 assert.match(api,/delay_minutes/,'migration must support delayed execution');
-assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration worker endpoint must require a server-side token');
+assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration worker endpoint must support a server-side token');
+assert.match(tick,/browserTrigger/,'migration worker must support a browser fallback for the current host');
+assert.match(tick,/cross_site/,'browser fallback must reject obvious cross-site requests');
+assert.match(catalogLoader,/migration-tick\\.php\\?browser=1/,'storefront traffic must provide the migration fallback trigger');
 assert.match(tickWorkflow,/schedule:/,'migration worker must run on a schedule');
 assert.match(tickWorkflow,/profisport-migration-tick-v1/,'workflow token derivation must match deployment');
 assert.match(deploy,/MIGRATION_KEY/,'deployment must configure a stable migration encryption key');
