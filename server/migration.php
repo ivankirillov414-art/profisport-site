@@ -134,7 +134,7 @@ function migration_tick_once(PDO $pdo): array {
       $i=(int)($cursor['table']??0);
       for(;$i<count($sourceTables)&&microtime(true)<$deadline;$i++){
         $table=$sourceTables[$i];$q=$pdo->query('SHOW CREATE TABLE '.migration_quote_ident($table))->fetch(PDO::FETCH_NUM);if(!$q||empty($q[1]))throw new RuntimeException('source_schema_failed:'.$table);
-        $target->exec((string)$q[1]);$progress['schema_tables']=$i+1;
+        $create=preg_replace('/^CREATE TABLE /i','CREATE TABLE IF NOT EXISTS ',(string)$q[1],1);$target->exec((string)$create);$progress['schema_tables']=$i+1;
       }
       if($i>=count($sourceTables)){$phase='db_data';$cursor=['table'=>0,'offset'=>0];}else$cursor=['table'=>$i];
       migration_save($pdo,$id,$phase,$cursor,$progress);return ['ran'=>true,'phase'=>$phase];
@@ -143,7 +143,7 @@ function migration_tick_once(PDO $pdo): array {
       $ti=(int)($cursor['table']??0);$offset=(int)($cursor['offset']??0);$limit=300;
       while($ti<count($sourceTables)&&microtime(true)<$deadline){
         $table=$sourceTables[$ti];$rows=$pdo->query('SELECT * FROM '.migration_quote_ident($table).' LIMIT '.$limit.' OFFSET '.$offset)->fetchAll(PDO::FETCH_ASSOC);
-        if($rows){$cols=array_keys($rows[0]);$sql='INSERT INTO '.migration_quote_ident($table).' ('.implode(',',array_map('migration_quote_ident',$cols)).') VALUES ('.implode(',',array_fill(0,count($cols),'?')).')';$ins=$target->prepare($sql);foreach($rows as $row)$ins->execute(array_values($row));$offset+=count($rows);$progress['rows_copied']=(int)($progress['rows_copied']??0)+count($rows);}
+        if($rows){$cols=array_keys($rows[0]);$sql='REPLACE INTO '.migration_quote_ident($table).' ('.implode(',',array_map('migration_quote_ident',$cols)).') VALUES ('.implode(',',array_fill(0,count($cols),'?')).')';$ins=$target->prepare($sql);foreach($rows as $row)$ins->execute(array_values($row));$offset+=count($rows);$progress['rows_copied']=(int)($progress['rows_copied']??0)+count($rows);}
         if(count($rows)<$limit){$ti++;$offset=0;$progress['data_tables']=$ti;}else break;
       }
       if($ti>=count($sourceTables)){$phase='files';$cursor=['file'=>0];}else$cursor=['table'=>$ti,'offset'=>$offset];
