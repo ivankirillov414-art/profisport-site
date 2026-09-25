@@ -22,5 +22,13 @@ assert.match(catalog,/is_active=1 AND COALESCE\(stock_qty,0\)>0/,'public catalog
 assert.match(run,/snapshotParam=snapshot/,'main admin importer must pin all batches to one snapshot');
 assert.match(apply,/snapshotParam=snapshot/,'secondary admin importer must pin all batches to one snapshot');
 assert.match(run,/Новая выгрузка стала основной базой каталога/,'admin must report successful source-of-truth activation');
+assert.match(importer,/sourceSnapshot\(\$pf,\$cf\)/,'automatic import must fingerprint both product and category files');
+assert.match(importer,/\(\$_GET\['check'\]\?\?''\)==='1'/,'import endpoint must expose a read-only change check');
+assert.match(importer,/source_settling/,'automatic import must wait for freshly written source files to settle');
+assert.match(importer,/unchanged.*done/s,'unchanged exports must be a no-op');
+const autoWorkflow=read('.github/workflows/auto-import-1c.yml');
+assert.match(autoWorkflow,/cron: '\*\/15 \* \* \* \*'/,'automatic import must run every 15 minutes');
+assert.match(autoWorkflow,/X-Import-Token/,'automatic import must authenticate server-side');
+assert.match(autoWorkflow,/current_snapshot == \$snapshot/,'automatic import must verify activation after the last batch');
 
 console.log('Current 1C export source-of-truth regression checks passed.');
