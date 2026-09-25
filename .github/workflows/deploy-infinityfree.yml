@@ -37,6 +37,7 @@ jobs:
           node tests/hero-slides-regression.js
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
+          node tests/current-export-regression.js
           node tests/photo-source-ownership.js
           node tests/catalog-startup-regression.js
           node tests/cart-quantity-regression.js
@@ -47,6 +48,8 @@ jobs:
           php tests/source-photo-reconcile.php
           node --check admin/analyze.js
           node --check admin/reconcile.js
+          node --check admin/import-run.js
+          node --check admin/import-apply.js
 
       - name: Build private server config
         shell: bash
@@ -121,7 +124,7 @@ jobs:
           PY
           }
 
-          for file in hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/photo-audit.php api/import-analyze.php api/import-reconcile.php server/bootstrap.php server/catalog-quality.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/reconcile.js admin/app.js admin/index.php admin/customers.php admin/customer-qr.php; do
+          for file in hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/reconcile.js admin/app.js admin/index.php admin/customers.php admin/customer-qr.php; do
             mkdir -p "$(dirname "/tmp/profisport-remote/$file")"
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 \
@@ -156,6 +159,8 @@ jobs:
             exit 1
           fi
           grep -Fq "COALESCE(price_rub,0)>0" /tmp/profisport-remote/api/catalog.php
+          grep -Fq "COALESCE(stock_qty,0)>0" /tmp/profisport-remote/api/catalog.php
+          grep -Fq "current_1c_snapshot" /tmp/profisport-remote/api/import-apply.php
           grep -Fq "catalog_sanitize_specs" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_resolve_brand" /tmp/profisport-remote/api/catalog.php
           grep -Fq "brands_inferred" /tmp/profisport-remote/api/catalog.php
