@@ -78,6 +78,7 @@ jobs:
           node tests/profile-orders-regression.js
           node tests/profile-favorites-regression.js
           node tests/profile-reviews-regression.js
+          node tests/profile-block5-cookie-regression.js
       - name: Verify order and catalog schema invariants
         run: |
           grep -Fq 'source_hash,catalog_snapshot,name,slug,sku' api/import-apply.php
