@@ -33,12 +33,8 @@ function runtime(paged=false){
   assert.equal(apiMain.image,'api/product-image.php?p=images%2Fnative.jpg','API-selected image must win over gallery order');
   for(const paged of [false,true]){
     const c=runtime(paged);
-    const rows=await(paged?c.window.loadRealCatalog():c.loadRealCatalog());
-    assert.equal(rows.length,1,'Keep the product metadata when live loading fails');
-    assert.equal(rows[0].images.length,1,'Only the DB resolver may supply a photo');
-    assert(rows[0].image.startsWith('api/product-db-image.php?'));
-    assert(!rows[0].images.some(url=>parserRow.images.includes(url)),'Never expose parser recommendations as product photos');
-    assert.equal(c.window.CATALOG_PHOTO_SOURCE,'mysql-resolver-only');
+    await assert.rejects(paged?c.window.loadRealCatalog():c.loadRealCatalog(),/live metadata unavailable|live catalog/);
+    assert.notEqual(c.window.CATALOG_SOURCE,'static-db-photo-resolver','Archived parser data must never become storefront metadata');
   }
-  console.log('Photo ownership: missing native image stays empty; native gallery preserved; both emergency metadata loaders reject parser photos.');
+  console.log('Photo ownership: missing native image stays empty; native gallery preserved; live failure never falls back to parser metadata.');
 })().catch(error=>{console.error(error);process.exitCode=1});
