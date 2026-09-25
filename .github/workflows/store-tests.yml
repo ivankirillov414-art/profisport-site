@@ -62,6 +62,7 @@ jobs:
           node --check admin/reconcile.js
           node --check admin/import-run.js
           node --check admin/import-apply.js
+          node --check admin/migration.js
           node tests/product-loader-regression.js
           node tests/cart-quantity-regression.js
           node tests/product-gallery-regression.js
@@ -69,6 +70,7 @@ jobs:
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
           node tests/current-export-regression.js
+          node tests/migration-readiness.js
           node tests/photo-source-ownership.js
           node tests/catalog-startup-regression.js
           node tests/security-regression.js
