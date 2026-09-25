@@ -42,9 +42,14 @@ function ensure_order_columns(PDO $pdo): void {
     }finally{$pdo->query("SELECT RELEASE_LOCK('profisport_order_columns_v1')");}
 }
 
-function record_order_status(PDO $pdo,int $orderId,string $status,?int $adminUserId=null,string $source='system'): void {
+function record_order_status(PDO $pdo,int $orderId,string $status,?int $adminUserId=null,string $source='system',?string $createdAt=null): void {
     if($orderId<1||!in_array($status,['new','confirmed','processing','ready','completed','cancelled'],true))throw new InvalidArgumentException('Invalid order status history row');
     if(!preg_match('/^[a-z_]{2,30}$/D',$source))$source='system';
+    if($createdAt!==null){
+        $s=$pdo->prepare('INSERT INTO order_status_history(order_id,status,changed_by_admin_user_id,source,created_at) VALUES(?,?,?,?,?)');
+        $s->execute([$orderId,$status,$adminUserId,$source,$createdAt]);
+        return;
+    }
     $s=$pdo->prepare('INSERT INTO order_status_history(order_id,status,changed_by_admin_user_id,source,created_at) VALUES(?,?,?,?,NOW())');
     $s->execute([$orderId,$status,$adminUserId,$source]);
 }
