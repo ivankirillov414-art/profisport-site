@@ -210,11 +210,11 @@ jobs:
           fi
           echo 'Public InfinityFree storefront HTML passed the smoke check.'
 
-      - name: Report live photo audit status
+      - name: Report photo source policy
         run: |
-          echo 'LIVE_MYSQL_PHOTO_AUDIT=NOT_RUN'
-          echo 'CI verifies deployed files over FTP. It does not certify MySQL photo linkage.'
-          echo 'Live MySQL photo audit: not run. InfinityFree requires an authenticated browser workflow; deployment success is not an audit result.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'PHOTO_SOURCE=1C_MYSQL_ONLY'
+          echo 'Product photos are accepted only from the current 1C/MySQL data. Missing photos are not researched or synthesized.'
+          echo 'Photo source policy: current 1C/MySQL only; missing source photos are intentionally left missing.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Stock safety note
         run: |
