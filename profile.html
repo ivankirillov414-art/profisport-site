@@ -23,7 +23,7 @@
     </div>
   </main>
   <footer class="buyerCompactFooter"><a href="index.html">ПрофиСпорт · Оренбург</a><div class="buyerFooterLinks" aria-label="Информация покупателям"><a href="buyer-info.html#warranty">Гарантия</a><a href="buyer-info.html#payment">Оплата</a><a href="buyer-info.html#delivery">Доставка</a></div></footer>
-  <script src="catalog-loader.js?v=25"></script>
+  <script src="catalog-loader.js?v=30"></script>
   <script>
     let csrf='';const $=s=>document.querySelector(s);const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     async function api(action,opts={}){opts.headers={...(opts.headers||{}),'Content-Type':'application/json'};if(csrf)opts.headers['X-CSRF-Token']=csrf;const r=await fetch('api/customer.php?action='+action,opts);const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);if(j.csrf)csrf=j.csrf;return j}
