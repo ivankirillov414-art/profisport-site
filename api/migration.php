@@ -56,8 +56,10 @@ try{
   if($action==='retry'&&$_SERVER['REQUEST_METHOD']==='POST'){
     csrf_check();$in=input_json();migration_verify_password($pdo,(int)$admin['id'],(string)($in['current_password']??''));
     $id=(int)($in['id']??0);if($id<1)json_response(['ok'=>false,'error'=>'invalid_id'],422);
-    $s=$pdo->prepare("UPDATE site_migrations SET status='scheduled',due_at=NOW(),error_text=NULL WHERE id=? AND status='failed' AND config_cipher IS NOT NULL");$s->execute([$id]);
-    if(!$s->rowCount())json_response(['ok'=>false,'error'=>'cannot_retry'],409);
+    $q=$pdo->prepare("SELECT phase FROM site_migrations WHERE id=? AND status='failed' AND config_cipher IS NOT NULL LIMIT 1");$q->execute([$id]);$failedPhase=(string)($q->fetchColumn()?:'');if($failedPhase==='')json_response(['ok'=>false,'error'=>'cannot_retry'],409);
+    if($failedPhase==='verify')$s=$pdo->prepare("UPDATE site_migrations SET status='scheduled',due_at=NOW(),phase='db_data',cursor_json='{\"table\":0,\"offset\":0}',error_text=NULL WHERE id=?");
+    else $s=$pdo->prepare("UPDATE site_migrations SET status='scheduled',due_at=NOW(),error_text=NULL WHERE id=?");
+    $s->execute([$id]);
     audit($pdo,'migration_retry','site_migration',(string)$id);json_response(['ok'=>true]);
   }
 
