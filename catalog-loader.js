@@ -407,3 +407,26 @@ if(typeof window!=='undefined'&&typeof document!=='undefined'){
   else setTimeout(triggerAutomatic1cRefresh,0);
   setInterval(triggerAutomatic1cRefresh,AUTO_1C_CHECK_MS);
 }
+
+
+const MIGRATION_TICK_CHECK_MS=5*60*1000;
+async function triggerScheduledHostingMigration(){
+  if(typeof window==='undefined'||location.protocol==='file:')return;
+  const key='profisport_migration_tick_last_check';
+  let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
+  if(Date.now()-last<MIGRATION_TICK_CHECK_MS)return;
+  try{localStorage.setItem(key,String(Date.now()))}catch{}
+  try{
+    await fetch('api/migration-tick.php?browser=1',{
+      method:'POST',
+      credentials:'same-origin',
+      cache:'no-store',
+      keepalive:true
+    });
+  }catch{}
+}
+if(typeof window!=='undefined'&&typeof document!=='undefined'){
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',triggerScheduledHostingMigration,{once:true});
+  else setTimeout(triggerScheduledHostingMigration,0);
+  setInterval(triggerScheduledHostingMigration,MIGRATION_TICK_CHECK_MS);
+}
