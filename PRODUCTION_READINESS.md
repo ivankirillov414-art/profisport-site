@@ -15,7 +15,7 @@ This file is a technical checklist for moving the store from the temporary Infin
 
 1. `Store checks` GitHub Action must pass for both fresh and legacy schemas.
 2. `Catalog quality audit` must complete successfully.
-3. `Autonomous photo autofill` must remain conservative: no SKU/article matching, no candidate below the configured confidence threshold.
+3. Product photos must come only from the current 1C export / MySQL product record. A missing physical photo remains missing; there is no parser or automatic internet-photo recovery path.
 4. Verify `api/health.php` returns `ok: true` and a plausible active catalog count on the destination host.
 5. Run a full 1C import on a copy of the production database before DNS switch.
 6. Test customer registration/login, favorites, checkout, order creation, admin status updates and customer order history.
