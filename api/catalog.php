@@ -41,7 +41,7 @@ try{
     [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]
   );
 
-  $activeWhere="is_active=1 AND COALESCE(stock_status,'unknown')<>'out_of_stock' AND COALESCE(availability,'unknown')<>'out_of_stock'";
+  $activeWhere="is_active=1 AND COALESCE(stock_qty,0)>0 AND COALESCE(stock_status,'unknown')<>'out_of_stock' AND COALESCE(availability,'unknown')<>'out_of_stock'";
   $relatedTo=max(0,(int)($_GET['related_to']??0));
   $excludedMissingPrice=$relatedTo>0?0:(int)$pdo->query("SELECT COUNT(*) FROM products WHERE $activeWhere AND COALESCE(price_rub,0)<=0")->fetchColumn();
 
