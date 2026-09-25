@@ -16,11 +16,13 @@ const tickWorkflow=read('.github/workflows/migration-tick.yml');
 const photoPage=read('admin/photos.php');
 const photoHealth=read('api/photo-health.php');
 const photoApi=read('api/photo-moderation.php');
+const productDbImage=read('api/product-db-image.php');
 const catalog=read('catalog-live-paged.js');
 const loader=read('catalog-loader.js');
 const catalogLoader=loader;
 
 assert.match(bootstrap,/db_port.*3306/,'database port must be configurable');
+assert.match(productDbImage,/db_port.*3306/,'DB image endpoint must honor configurable port');
 assert.match(migration,/aes-256-gcm/,'migration credentials must be encrypted at rest');
 assert.match(migration,/ftp_ssl_connect/,'migration must require FTPS');
 assert.match(migration,/target_database_not_empty/,'migration must refuse a non-empty target database');
