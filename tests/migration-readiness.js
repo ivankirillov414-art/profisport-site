@@ -45,6 +45,10 @@ assert.match(photoHealth,/current_1c_mysql_only/,'photo diagnostics must be 1C/M
 assert.match(photoApi,/photo_moderation_disabled/,'legacy photo mutation API must stay disabled');
 assert.equal(exists('admin/photo-moderation.js'),false,'legacy photo moderation script must remain retired');
 assert.equal(exists('scripts/photo_autofill.py'),false,'legacy internet photo autofill script must remain retired');
+assert.equal(exists('api/image-fallback.php'),false,'legacy image fallback endpoint must remain retired');
+assert.equal(exists('api/product-fallback-image.php'),false,'legacy product fallback image endpoint must remain retired');
+assert.equal(exists('data/photo-overrides.json'),false,'manual photo override data must remain retired');
+for(const p of ['data/products.part-001.json','data/products.public-0001.json','data/products.public-0002.json','data/products.public-0003.json','data/products.public-0004.json']) assert.equal(exists(p),false,'retired static catalog data must stay out of runtime: '+p);
 
 assert.doesNotMatch(catalog,/loadStaticCatalogFallback/,'storefront must not use parser/static fallback');
 assert.doesNotMatch(loader,/staticRowWithDbPhotoFallback/,'base loader must not use parser/static fallback');
