@@ -50,6 +50,10 @@ jobs:
           node --check admin/reconcile.js
           node --check admin/import-run.js
           node --check admin/import-apply.js
+          node --check admin/migration.js
+          php -l api/migration.php
+          php -l api/migration-tick.php
+          php -l server/migration.php
 
       - name: Build private server config
         shell: bash
@@ -57,15 +61,20 @@ jobs:
           set -euo pipefail
           mkdir -p server
           PASS_B64="$(printf '%s' "$PROFISPORT_DB_PASSWORD" | base64 -w 0)"
-          TOKEN_B64="$(openssl rand -hex 32 | base64 -w 0)"
+          IMPORT_TOKEN="$(printf '%s' "profisport-1c-auto-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
+          MIGRATION_KEY="$(printf '%s' "profisport-migration-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
+          TOKEN_B64="$(printf '%s' "$IMPORT_TOKEN" | base64 -w 0)"
+          MIGRATION_B64="$(printf '%s' "$MIGRATION_KEY" | base64 -w 0)"
           cat > server/config.php <<PHP
           <?php
           return [
               'db_host' => 'sql202.infinityfree.com',
+              'db_port' => 3306,
               'db_name' => 'if0_42771076_profisport',
               'db_user' => 'if0_42771076',
               'db_pass' => base64_decode('${PASS_B64}', true),
               'import_token' => base64_decode('${TOKEN_B64}', true),
+              'migration_key' => base64_decode('${MIGRATION_B64}', true),
           ];
           PHP
           chmod 600 server/config.php
@@ -124,7 +133,7 @@ jobs:
           PY
           }
 
-          for file in hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/reconcile.js admin/app.js admin/index.php admin/customers.php admin/customer-qr.php; do
+          for file in hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php api/migration.php api/migration-tick.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/migration.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/migration.js admin/migration.php admin/reconcile.js admin/app.js admin/index.php admin/customers.php admin/customer-qr.php; do
             mkdir -p "$(dirname "/tmp/profisport-remote/$file")"
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 \
@@ -207,6 +216,6 @@ jobs:
 
       - name: Stock safety note
         run: |
-          echo "Catalog writes are manual only."
+          echo "Catalog writes are automatic when a new 1C snapshot appears."
           echo "The importer validates the verified stock field before changing product availability."
 
