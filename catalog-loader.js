@@ -392,3 +392,27 @@ async function loadProduct(id){
   return row?normalizeProduct(row):null;
 }
 
+
+
+const AUTO_1C_CHECK_MS=10*60*1000;
+function triggerAutomatic1cRefresh(){
+  if(typeof window==='undefined'||location.protocol==='file:')return;
+  const key='profisport_auto_1c_last_check';
+  let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
+  if(Date.now()-last<AUTO_1C_CHECK_MS)return;
+  try{localStorage.setItem(key,String(Date.now()))}catch{}
+  fetch('api/import-apply.php?auto=1',{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:true})
+    .then(r=>r.json())
+    .then(j=>{
+      if(!j?.ok)return;
+      if(j.done&&!j.unchanged&&!j.pending&&!j.busy){
+        window.dispatchEvent(new CustomEvent('profisport-catalog-refreshed',{detail:j}));
+      }
+    })
+    .catch(()=>{});
+}
+if(typeof window!=='undefined'){
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',triggerAutomatic1cRefresh,{once:true});
+  else setTimeout(triggerAutomatic1cRefresh,0);
+  setInterval(triggerAutomatic1cRefresh,AUTO_1C_CHECK_MS);
+}
