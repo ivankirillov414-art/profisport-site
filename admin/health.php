@@ -3,7 +3,11 @@ declare(strict_types=1);
 require __DIR__.'/guard.php';
 $checks=[];
 $checks['PHP 8.1+']=version_compare(PHP_VERSION,'8.1','>=')?'OK':'Требуется PHP 8.1+';
-foreach(['pdo_mysql','mbstring','json','fileinfo'] as $ext)$checks['Расширение '.$ext]=extension_loaded($ext)?'OK':'Отсутствует';
+foreach(['pdo_mysql','mbstring','json','fileinfo','openssl','ftp'] as $ext)$checks['Расширение '.$ext]=extension_loaded($ext)?'OK':'Отсутствует';
+$checks['FTPS для переноса']=function_exists('ftp_ssl_connect')?'OK':'Недоступен';
+$checks['Шифрование AES-256-GCM']=in_array('aes-256-gcm',array_map('strtolower',openssl_get_cipher_methods()),true)?'OK':'Недоступно';
+$checks['Механизм переноса']=is_file(__DIR__.'/../server/migration.php')&&is_file(__DIR__.'/../api/migration-tick.php')?'OK':'Файлы не найдены';
+$checks['Каталог 1С без parser fallback']=strpos((string)@file_get_contents(__DIR__.'/../catalog-live-paged.js'),'loadStaticCatalogFallback')===false?'OK':'Остался старый fallback';
 $required=[
  'orders'=>['id','customer_id','order_number','customer_name','phone','email','delivery_method','address','comment','status','total_rub','request_key','request_hash','created_at'],
  'order_items'=>['id','order_id','product_id','title','price_rub','quantity','line_total_rub'],
