@@ -65,8 +65,10 @@ jobs:
           PASS_B64="$(printf '%s' "$PROFISPORT_DB_PASSWORD" | base64 -w 0)"
           IMPORT_TOKEN="$(printf '%s' "profisport-1c-auto-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
           MIGRATION_KEY="$(printf '%s' "profisport-migration-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
+          MIGRATION_TICK_TOKEN="$(printf '%s' "profisport-migration-tick-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
           TOKEN_B64="$(printf '%s' "$IMPORT_TOKEN" | base64 -w 0)"
           MIGRATION_B64="$(printf '%s' "$MIGRATION_KEY" | base64 -w 0)"
+          MIGRATION_TICK_B64="$(printf '%s' "$MIGRATION_TICK_TOKEN" | base64 -w 0)"
           cat > server/config.php <<PHP
           <?php
           return [
@@ -77,6 +79,7 @@ jobs:
               'db_pass' => base64_decode('${PASS_B64}', true),
               'import_token' => base64_decode('${TOKEN_B64}', true),
               'migration_key' => base64_decode('${MIGRATION_B64}', true),
+              'migration_tick_token' => base64_decode('${MIGRATION_TICK_B64}', true),
           ];
           PHP
           chmod 600 server/config.php
