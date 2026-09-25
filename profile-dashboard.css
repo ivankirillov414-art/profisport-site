@@ -119,3 +119,34 @@
 @media(max-width:430px){
   .favoriteCard{grid-template-columns:78px minmax(0,1fr);padding:12px}.favoriteImage{width:78px;height:78px}.favoriteBody{padding-right:26px}.favoriteActions{display:grid;grid-template-columns:1fr 1fr}.favoriteActions>*{width:100%}
 }
+
+
+/* Customer cabinet — reviews block 4 */
+.reviewDashboard{display:grid;gap:18px}
+.reviewEligibleSection,.myReviewsSection{display:grid;gap:12px}
+.reviewSubhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px solid #ece9e1}
+.reviewSubhead h4{margin:0;font-size:18px}.reviewSubhead p{margin:3px 0 0;color:#747a80;font-size:12px}.reviewSubhead>strong{display:grid;place-items:center;min-width:34px;height:34px;padding:0 9px;border-radius:999px;background:#f1c94c;color:#25292d;font-size:14px}
+.reviewEligibleGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.reviewEligibleCard{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;min-width:0;padding:12px;border:1px solid #e5e2da;border-radius:15px;background:#faf9f5}
+.reviewProductImage{width:88px;height:88px;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#fff;border:1px solid #ece9e1}.reviewProductImage img{display:block;width:100%;height:100%;object-fit:contain}.reviewImagePlaceholder{padding:8px;text-align:center;color:#8b8d8f;font-size:11px}
+.reviewEligibleBody{display:grid;align-content:start;gap:6px;min-width:0}.reviewProductTitle{font-size:14px;font-weight:900;line-height:1.3;color:#262b2f;text-decoration:none;overflow-wrap:anywhere}.reviewProductTitle:hover{text-decoration:underline}.reviewEligibleBody small{color:#747a80;font-size:11px}.reviewEligibleBody button{width:max-content;max-width:100%;min-height:38px;padding:8px 12px;box-shadow:none}
+.verifiedPurchaseBadge{display:inline-flex;width:max-content;max-width:100%;padding:4px 8px;border-radius:999px;background:#e7f7ea;color:#216f37;font-size:10px;font-weight:900}
+.customerReviewsList{display:grid;gap:10px}
+.customerReviewCard{display:grid;grid-template-columns:88px minmax(0,1fr);gap:13px;padding:13px;border:1px solid #e5e2da;border-radius:15px;background:#faf9f5}
+.customerReviewBody{display:grid;gap:7px;min-width:0}.customerReviewTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.customerReviewTop>div{display:grid;gap:5px;min-width:0}
+.reviewStatusChip{flex:0 0 auto;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900}.reviewStatusChip[data-status="pending"]{background:#fff3b8;color:#665000}.reviewStatusChip[data-status="approved"]{background:#e7f7ea;color:#216f37}.reviewStatusChip[data-status="rejected"]{background:#f5e7e4;color:#96392f}
+.reviewStars{color:#d2a600;font-size:18px;letter-spacing:1px}.reviewStars>span{color:#d8d8d2}
+.customerReviewText{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45}.customerReviewBody>small{color:#747a80}.reviewRetry{width:max-content;max-width:100%;min-height:38px;padding:8px 12px;box-shadow:none}
+.reviewComposer{padding:16px;border:1px solid #e2d58d;border-radius:16px;background:#fffdf3;scroll-margin-top:18px}.reviewComposerHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}.reviewComposerHead h4{margin:3px 0 0;font-size:19px}.reviewComposer form{display:grid;gap:13px}.reviewComposer label{display:grid;gap:7px;font-weight:800}.reviewComposer textarea{resize:vertical;min-height:120px}
+.reviewRatingPicker{display:flex;gap:4px}.reviewRatingPicker button{width:42px;height:42px;padding:0;border-radius:10px;background:#ecebe6;color:#bbb7aa;font-size:23px;box-shadow:none}.reviewRatingPicker button.selected{background:#fff2ad;color:#d2a600}
+.reviewComposerFoot{display:flex;align-items:center;justify-content:space-between;gap:12px}.reviewComposerFoot small{color:#747a80}.reviewFormMessage{min-height:20px;color:#8a3e34;font-size:13px}
+.reviewEmpty{padding:18px;border:1px dashed #ddd8ce;border-radius:14px;background:#faf9f5;text-align:center}.reviewEmpty p{margin:6px 0 0;color:#747a80}
+
+@media(max-width:760px){
+  .reviewEligibleGrid{grid-template-columns:1fr}
+  .customerReviewTop{display:grid}.reviewStatusChip{width:max-content}
+}
+@media(max-width:430px){
+  .reviewEligibleCard,.customerReviewCard{grid-template-columns:68px minmax(0,1fr);padding:10px}.reviewProductImage{width:68px;height:68px}
+  .reviewComposer{padding:13px}.reviewComposerHead{display:grid}.reviewComposerHead button{width:100%}.reviewRatingPicker{justify-content:space-between}.reviewRatingPicker button{width:18%;min-width:0}.reviewComposerFoot{display:grid}.reviewComposerFoot button{width:100%}
+}
