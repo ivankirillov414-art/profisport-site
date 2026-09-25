@@ -335,6 +335,43 @@ async function catalogRequest(url,options={},parse=r=>r.json()){
 }
 
 let catalogPromise,initialCatalogPromise;
+const AUTO_1C_CHECK_KEY='profisport_auto_1c_check_at';
+async function autoImport1C(){
+  if(!/^https?:$/.test(location.protocol))return;
+  const now=Date.now(),last=Number(localStorage.getItem(AUTO_1C_CHECK_KEY)||0);
+  if(now-last<10*60*1000)return;
+  localStorage.setItem(AUTO_1C_CHECK_KEY,String(now));
+  window.PROFISPORT_AUTO_IMPORT='checking';
+  try{
+    for(let batch=0;batch<40;batch++){
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),120000);
+      let response;
+      try{
+        response=await fetch('api/import-apply.php?auto=1&limit=500',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{Accept:'application/json','X-Profisport-Auto-Import':'1'},signal:controller.signal});
+      }finally{clearTimeout(timer)}
+      const type=String(response.headers.get('content-type')||'');
+      if(!response.ok||!type.includes('application/json'))throw Error('auto import endpoint unavailable');
+      const data=await response.json();
+      if(!data.ok)throw Error(data.error||'auto import failed');
+      if(data.busy){localStorage.removeItem(AUTO_1C_CHECK_KEY);window.PROFISPORT_AUTO_IMPORT='busy';return}
+      if(data.pending){window.PROFISPORT_AUTO_IMPORT='settling';return}
+      if(data.unchanged){window.PROFISPORT_AUTO_IMPORT='current';return}
+      if(data.done){
+        catalogPromise=null;initialCatalogPromise=null;window.PROFISPORT_AUTO_IMPORT='updated';window.dispatchEvent(new CustomEvent('profisport-catalog-updated',{detail:data}));
+        const page=location.pathname.split('/').pop(),reloadKey='profisport_auto_1c_reload_'+String(data.snapshot||'');
+        if(['','index.html','product.html'].includes(page)&&!sessionStorage.getItem(reloadKey)){sessionStorage.setItem(reloadKey,'1');setTimeout(()=>location.reload(),350)}
+        return;
+      }
+      await new Promise(resolve=>setTimeout(resolve,180));
+    }
+    throw Error('auto import batch limit reached');
+  }catch(error){
+    localStorage.removeItem(AUTO_1C_CHECK_KEY);window.PROFISPORT_AUTO_IMPORT='error';
+    console.warn('ProfiSport automatic 1C update:',error?.message||error);
+  }
+}
+setTimeout(autoImport1C,1800);
+setInterval(autoImport1C,10*60*1000);
 async function parseCatalogResponse(r){
   if(!r.ok)throw Error(`live catalog HTTP ${r.status}`);
   const j=await r.json();
