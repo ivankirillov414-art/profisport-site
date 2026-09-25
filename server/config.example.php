@@ -11,6 +11,7 @@ return [
     'import_token' => '',
     // Server-side encryption key for scheduled hosting migrations.
     'migration_key' => '',
+    'migration_tick_token' => '',
     // Keep empty to disable the one-time bootstrap recovery endpoint.
     'recovery_bootstrap_hash' => '',
 ];
