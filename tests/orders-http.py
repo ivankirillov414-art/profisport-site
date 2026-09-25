@@ -70,6 +70,9 @@ assert call('api/orders.php',{'id':admin_order['id'],'status':'completed','previ
 status,detail,_=call('api/customer.php?action=order&number='+urllib.parse.quote(customer_order_number),cookie=customer_cookie);assert status==200
 assert detail['order']['pickup_store']=='Проспект Победы, 118 строение 2' and detail['items'][0]['image']=='https://example.test/test-ball.jpg'
 assert [h['status'] for h in detail['history']]==['new','completed'] and detail['history_complete'] is True
+review_ready=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert len(review_ready['review_eligible'])==1 and review_ready['review_eligible'][0]['product_id']==1
+assert review_ready['review_details']==[] and review_ready['reviews_count']==0
 status,repeated,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
 assert repeated['cart_items']==['1'] and repeated['added_count']==1 and repeated['skipped']==[]
 live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
@@ -120,20 +123,35 @@ p1['price_rub']=200;p1['old_price_rub']=300;p1['stock_qty']=2;p1['is_active']=1
 assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 review={'product_id':1,'rating':5,'text':'Useful test review for moderation'}
 assert call('api/customer.php?action=review_submit',review,customer_cookie)[0]==403
-assert call('api/customer.php?action=review_submit',{**review,'product_id':999999},customer_cookie,customer_csrf)[0]==404
+status,not_eligible,_=call('api/customer.php?action=review_submit',{**review,'product_id':2},customer_cookie,customer_csrf);assert (status,not_eligible['error'])==(403,'review_not_eligible')
 assert call('api/customer.php?action=review_submit',{**review,'text':'x'*5001},customer_cookie,customer_csrf)[0]==422
-assert call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf)[0]==200
-assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
-pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1
-approval={'review_id':pending[0]['id'],'action':'approve','bonus':50}
-assert call('api/review-moderation.php',approval,cookie)[0]==403
-assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
-assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
-assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==1
+status,submitted,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert status==200 and submitted['resubmitted'] is False
+review_id=submitted['review_id']
+status,duplicate,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert (status,duplicate['error'])==(409,'duplicate_review')
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account['reviews_count']==1 and account['review_eligible']==[]
+assert len(account['review_details'])==1 and account['review_details'][0]['status']=='pending' and account['review_details'][0]['verified_purchase'] is True
+assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
+pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id
+rejection={'review_id':review_id,'action':'reject','bonus':0}
+assert call('api/review-moderation.php',rejection,cookie)[0]==403
+assert call('api/review-moderation.php',rejection,cookie,csrf)[0]==200
+account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account['review_details'][0]['status']=='rejected'
+fixed={**review,'rating':4,'text':'Updated verified purchase review after moderation'}
+status,resubmitted,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert status==200 and resubmitted['resubmitted'] is True and resubmitted['review_id']==review_id
+pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id and pending[0]['rating']==4
+approval={'review_id':review_id,'action':'approve','bonus':50}
+assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
+assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
+status,approved_duplicate,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert (status,approved_duplicate['error'])==(409,'duplicate_review')
+public_review=call('api/customer.php?action=reviews&product_id=1')[1]
+assert public_review['count']==1 and public_review['items'][0]['verified_purchase'] is True
+account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account['review_details'][0]['status']=='approved' and account['review_details'][0]['rating']==4
 assert account['customer']['bonus_balance']==50 and len(account['loyalty'])==1
 assert call('api/customer.php?action=logout',{},customer_cookie,customer_csrf)[0]==200
 assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['customer'] is None
 status,logged,h=call('api/customer.php?action=login',{'email':'buyer@example.test','password':'test-only-password'})
 assert status==200 and logged['customer']['bonus_balance']==50
-print('PASS: account login/logout, favorite availability persistence/merge/removal, review moderation, CSRF and one-time bonus')
+print('PASS: account login/logout, favorites, verified-purchase review eligibility, rejection/resubmit, moderation, CSRF and one-time bonus')

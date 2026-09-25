@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Личный кабинет — ПрофиСпорт</title>
   <link rel="stylesheet" href="storefront-v2.css?v=34">
-  <link rel="stylesheet" href="profile-dashboard.css?v=3">
+  <link rel="stylesheet" href="profile-dashboard.css?v=4">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
@@ -67,8 +67,8 @@
       </section>
 
       <section id="reviews" class="profileCard profileSecondaryCard">
-        <div class="profileSectionIntro"><h3>Отзывы</h3><span>Краткая сводка</span></div>
-        <div id="reviewsSummary" class="profileReviewsSummary"></div>
+        <div class="profileSectionIntro"><h3>Отзывы</h3><span id="reviewsSectionSummary">Покупки и модерация</span></div>
+        <div id="reviewsSummary" class="reviewDashboard"></div>
       </section>
     </div>
   </main>
@@ -150,6 +150,60 @@
     function formatDateTime(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
     function initials(u){const a=[u?.name,u?.last_name].filter(Boolean).map(x=>String(x).trim()[0]||'').join('').slice(0,2).toUpperCase();return a||'PS'}
     function reviewText(n){const x=Math.abs(Number(n)||0)%100;if(x>=11&&x<=14)return 'отзывов';const y=x%10;return y===1?'отзыв':(y>=2&&y<=4?'отзыва':'отзывов')}
+    const reviewStatusLabels={pending:'На модерации',approved:'Опубликован',rejected:'Отклонён'};
+    let reviewState={details:[],eligible:[]};
+    function reviewStars(rating){const n=Math.max(0,Math.min(5,Number(rating)||0));return '<span class="reviewStars" aria-label="Оценка '+n+' из 5">'+('★'.repeat(n))+('<span>'+('★'.repeat(5-n))+'</span>')+'</span>'}
+    function reviewImageMarkup(item){return item.image?'<img src="'+esc(item.image)+'" alt="" loading="lazy" decoding="async">':'<span class="reviewImagePlaceholder">Фото уточняется</span>'}
+    function reviewTitleMarkup(item){const title=esc(item.name||'Товар');return item.url?'<a class="reviewProductTitle" href="'+esc(item.url)+'">'+title+'</a>':'<span class="reviewProductTitle">'+title+'</span>'}
+    function reviewEligibleCard(item){
+      return '<article class="reviewEligibleCard" data-review-product="'+Number(item.product_id)+'"><div class="reviewProductImage">'+reviewImageMarkup(item)+'</div><div class="reviewEligibleBody">'+reviewTitleMarkup(item)+'<span class="verifiedPurchaseBadge">✓ Куплено в ProfiSport</span><small>Заказ '+esc(item.order_number||'')+' · '+esc(formatDate(item.purchased_at))+'</small><button type="button" data-review-write="'+Number(item.product_id)+'">Оставить отзыв</button></div></article>';
+    }
+    function reviewDetailCard(item){
+      const status=reviewStatusLabels[item.status]||item.status;
+      const retry=item.status==='rejected'?'<button type="button" class="secondary reviewRetry" data-review-retry="'+Number(item.product_id)+'">Исправить и отправить снова</button>':'';
+      return '<article class="customerReviewCard" data-review-id="'+Number(item.id)+'"><div class="reviewProductImage">'+reviewImageMarkup(item)+'</div><div class="customerReviewBody"><div class="customerReviewTop"><div>'+reviewTitleMarkup(item)+(item.verified_purchase?'<span class="verifiedPurchaseBadge">✓ Куплено в ProfiSport</span>':'')+'</div><span class="reviewStatusChip" data-status="'+esc(item.status)+'">'+esc(status)+'</span></div>'+reviewStars(item.rating)+'<p class="customerReviewText">'+esc(item.text)+'</p><small>'+esc(formatDate(item.created_at))+'</small>'+retry+'</div></article>';
+    }
+    function renderReviewDashboard(j){
+      reviewState={details:Array.isArray(j.review_details)?j.review_details:[],eligible:Array.isArray(j.review_eligible)?j.review_eligible:[]};
+      const published=reviewState.details.filter(x=>x.status==='approved').length,pending=reviewState.details.filter(x=>x.status==='pending').length,rejected=reviewState.details.filter(x=>x.status==='rejected').length;
+      $('#reviewsSectionSummary').textContent=reviewState.details.length?'Опубликовано: '+published+' · На модерации: '+pending:(reviewState.eligible.length?'Можно оставить: '+reviewState.eligible.length:'Покупки и модерация');
+      const eligible=reviewState.eligible.length?'<section class="reviewEligibleSection"><div class="reviewSubhead"><div><h4>Можно оставить отзыв</h4><p>Только товары из завершённых заказов.</p></div><strong>'+reviewState.eligible.length+'</strong></div><div class="reviewEligibleGrid">'+reviewState.eligible.map(reviewEligibleCard).join('')+'</div></section>':'';
+      const mine=reviewState.details.length?'<section class="myReviewsSection"><div class="reviewSubhead"><div><h4>Мои отзывы</h4><p>Статус обновляется после модерации.</p></div><strong>'+reviewState.details.length+'</strong></div><div class="customerReviewsList">'+reviewState.details.map(reviewDetailCard).join('')+'</div></section>':'<div class="reviewEmpty"><b>Вы ещё не оставляли отзывов.</b><p>После завершения заказа товары появятся в списке выше.</p></div>';
+      $('#reviewsSummary').innerHTML=eligible+'<div id="reviewComposer" class="reviewComposer hidden"></div>'+mine;
+      bindReviewDashboard();
+    }
+    function bindReviewImages(){document.querySelectorAll('.reviewProductImage img').forEach(function(img){img.onerror=function(){const ph=document.createElement('span');ph.className='reviewImagePlaceholder';ph.textContent='Фото уточняется';img.replaceWith(ph)}})}
+    function bindReviewDashboard(){
+      document.querySelectorAll('[data-review-write]').forEach(function(b){b.onclick=function(){const item=reviewState.eligible.find(x=>String(x.product_id)===String(b.dataset.reviewWrite));if(item)openReviewComposer(item,null)}});
+      document.querySelectorAll('[data-review-retry]').forEach(function(b){b.onclick=function(){const item=reviewState.details.find(x=>String(x.product_id)===String(b.dataset.reviewRetry));if(item)openReviewComposer(item,item)}});
+      bindReviewImages();
+    }
+    function openReviewComposer(product,existing){
+      const box=$('#reviewComposer');if(!box)return;
+      const rating=existing?Number(existing.rating)||0:0,text=existing?String(existing.text||''):'';
+      box.classList.remove('hidden');
+      box.innerHTML='<div class="reviewComposerHead"><div><span class="profileSectionKicker">'+(existing?'Повторная отправка':'Новый отзыв')+'</span><h4>'+esc(product.name||'Товар')+'</h4></div><button type="button" class="secondary" id="closeReviewComposer">Закрыть</button></div><form id="reviewForm" data-product-id="'+Number(product.product_id)+'" data-rating="'+rating+'"><label>Ваша оценка<div class="reviewRatingPicker" role="group" aria-label="Оценка от 1 до 5">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="'+(n<=rating?'selected':'')+'" data-review-rating="'+n+'" aria-label="'+n+' из 5">★</button>'}).join('')+'</div></label><label>Отзыв<textarea id="reviewText" rows="5" minlength="10" maxlength="5000" required placeholder="Что понравилось, что можно улучшить?">'+esc(text)+'</textarea></label><div class="reviewComposerFoot"><small id="reviewCharCount">'+text.length+' / 5000</small><button type="submit">Отправить на модерацию</button></div><div id="reviewFormMessage" class="reviewFormMessage" aria-live="polite"></div></form>';
+      $('#closeReviewComposer').onclick=function(){box.classList.add('hidden');box.innerHTML=''};
+      const form=$('#reviewForm'),textarea=$('#reviewText');
+      form.querySelectorAll('[data-review-rating]').forEach(function(button){button.onclick=function(){form.dataset.rating=button.dataset.reviewRating;form.querySelectorAll('[data-review-rating]').forEach(function(x){x.classList.toggle('selected',Number(x.dataset.reviewRating)<=Number(button.dataset.reviewRating))})}});
+      textarea.oninput=function(){$('#reviewCharCount').textContent=textarea.value.length+' / 5000'};
+      form.onsubmit=function(e){e.preventDefault();submitCustomerReview(form)};
+      box.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+    async function submitCustomerReview(form){
+      const button=form.querySelector('button[type="submit"]'),message=$('#reviewFormMessage'),pid=Number(form.dataset.productId),rating=Number(form.dataset.rating),text=$('#reviewText').value.trim();
+      if(rating<1){message.textContent='Выберите оценку от 1 до 5.';return}
+      if(text.length<10){message.textContent='Напишите хотя бы 10 символов.';return}
+      button.disabled=true;button.textContent='Отправляем…';message.textContent='';
+      try{
+        await api('review_submit',{method:'POST',body:JSON.stringify({product_id:pid,rating,text})});
+        await refresh(false);
+        document.querySelector('#reviews').scrollIntoView({behavior:'smooth',block:'start'});
+      }catch(e){
+        message.textContent=e.message==='review_not_eligible'?'Отзыв можно оставить только после завершённой покупки.':e.message==='duplicate_review'?'Отзыв на этот товар уже отправлен.':'Не удалось отправить отзыв.';
+        button.disabled=false;button.textContent='Отправить на модерацию';
+      }
+    }
     function favoritePriceMarkup(p){
       const price=Number(p.price_rub||0),old=Number(p.old_price_rub||0);
       if(price<=0)return '<span class="favoritePriceUnknown">Цена уточняется</span>';
@@ -271,9 +325,7 @@
       $('#favorites').innerHTML=favoriteDetails.length?favoriteDetails.map(favoriteCardMarkup).join(''):favoriteEmptyMarkup();
       bindFavoriteCards();
 
-      $('#reviewsSummary').innerHTML=reviewsCount
-        ?'<div><b>Вы оставили '+reviewsCount+' '+reviewText(reviewsCount)+'.</b><p class="muted">Полное управление отзывами добавим отдельным этапом.</p></div><div class="profileReviewsCount">'+reviewsCount+'</div>'
-        :'<div><b>Отзывов пока нет.</b><p class="muted">После покупки здесь появится история ваших отзывов.</p></div><div class="profileReviewsCount">0</div>';
+      renderReviewDashboard(j);
     }
     async function refresh(merge=true){let j=await api('me');if(j.customer&&merge&&await mergeGuestFavorites())j=await api('me');await render(j)}
     $('#loginForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api('login',{method:'POST',body:JSON.stringify(Object.fromEntries(f))});await refresh(true);$('#authMsg').textContent=''}catch(err){$('#authMsg').textContent='Не удалось войти. Проверьте email и пароль.'}};

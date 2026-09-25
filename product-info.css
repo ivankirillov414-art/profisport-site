@@ -21,3 +21,6 @@
 .top .productHeaderAction:hover{background:#fff4b6}
 .top .productHeaderAction:focus-visible,.productShell .breadcrumbs a:focus-visible{outline:2px solid #b99a16;outline-offset:3px}
 .top .productHeaderAction svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.verifiedReviewBadge{display:inline-flex;align-items:center;margin-left:7px;padding:3px 7px;border-radius:999px;background:#e7f7ea;color:#216f37;font-size:10px;font-weight:900;vertical-align:middle}
+.reviewAccessNote{margin-top:6px;padding:8px 10px;border-radius:10px;background:#f7f6f1;color:#666d73;font-size:12px}

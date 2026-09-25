@@ -78,6 +78,41 @@ function customer_favorite_details(PDO $pdo,int $customerId): array {
   }
   return $items;
 }
+function customer_review_details(PDO $pdo,int $customerId): array {
+  $s=$pdo->prepare("SELECT r.id,r.product_id,r.rating,r.review_text,r.status,r.created_at,r.updated_at,p.name,p.main_image,p.images,EXISTS(SELECT 1 FROM orders o JOIN order_items oi ON oi.order_id=o.id WHERE o.customer_id=r.customer_id AND oi.product_id=r.product_id AND o.status='completed') AS verified_purchase FROM product_reviews r LEFT JOIN products p ON p.id=r.product_id WHERE r.customer_id=? ORDER BY r.id DESC");
+  $s->execute([$customerId]);$items=[];
+  foreach($s->fetchAll() as $row){
+    $items[]=[
+      'id'=>(int)$row['id'],
+      'product_id'=>(int)$row['product_id'],
+      'name'=>$row['name']!==null?(string)$row['name']:'Товар больше недоступен',
+      'rating'=>(int)$row['rating'],
+      'text'=>(string)$row['review_text'],
+      'status'=>(string)$row['status'],
+      'verified_purchase'=>(bool)$row['verified_purchase'],
+      'image'=>$row['name']!==null?customer_order_image($row):null,
+      'created_at'=>(string)$row['created_at'],
+      'updated_at'=>(string)$row['updated_at'],
+      'url'=>$row['name']!==null?'product.html?id='.(int)$row['product_id']:null
+    ];
+  }
+  return $items;
+}
+function customer_review_eligible(PDO $pdo,int $customerId): array {
+  $s=$pdo->prepare("SELECT oi.product_id,MAX(o.id) AS last_order_id,MAX(o.created_at) AS purchased_at,SUBSTRING_INDEX(GROUP_CONCAT(o.order_number ORDER BY o.id DESC SEPARATOR ','),',',1) AS order_number,SUBSTRING_INDEX(GROUP_CONCAT(oi.title ORDER BY o.id DESC SEPARATOR '|||'),'|||',1) AS purchased_title,p.name,p.main_image,p.images FROM orders o JOIN order_items oi ON oi.order_id=o.id LEFT JOIN product_reviews r ON r.customer_id=o.customer_id AND r.product_id=oi.product_id LEFT JOIN products p ON p.id=oi.product_id WHERE o.customer_id=? AND o.status='completed' AND oi.product_id IS NOT NULL AND r.id IS NULL GROUP BY oi.product_id,p.name,p.main_image,p.images ORDER BY last_order_id DESC LIMIT 100");
+  $s->execute([$customerId]);$items=[];
+  foreach($s->fetchAll() as $row){
+    $items[]=[
+      'product_id'=>(int)$row['product_id'],
+      'name'=>$row['name']!==null?(string)$row['name']:(string)$row['purchased_title'],
+      'image'=>$row['name']!==null?customer_order_image($row):null,
+      'order_number'=>(string)$row['order_number'],
+      'purchased_at'=>(string)$row['purchased_at'],
+      'url'=>$row['name']!==null?'product.html?id='.(int)$row['product_id']:null
+    ];
+  }
+  return $items;
+}
 function customer_payload(PDO $pdo,array $u): array {
   $f=$pdo->prepare('SELECT product_id FROM customer_favorites WHERE customer_id=? ORDER BY created_at DESC');$f->execute([(int)$u['id']]);
   $history=$pdo->prepare('SELECT amount,kind,note,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 20');$history->execute([(int)$u['id']]);
@@ -85,7 +120,7 @@ function customer_payload(PDO $pdo,array $u): array {
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
   $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
-  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'csrf'=>customer_csrf()];
+  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,(int)$u['id']),'review_eligible'=>customer_review_eligible($pdo,(int)$u['id']),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
@@ -199,16 +234,30 @@ try{
   }
   if($action==='reviews'&&$_SERVER['REQUEST_METHOD']==='GET'){
     $pid=(int)($_GET['product_id']??0);if($pid<1)json_response(['ok'=>false,'error'=>'bad_product'],422);
-    $s=$pdo->prepare("SELECT r.id,r.rating,r.review_text,r.created_at,c.name FROM product_reviews r LEFT JOIN customers c ON c.id=r.customer_id WHERE r.product_id=? AND r.status='approved' ORDER BY r.id DESC LIMIT 50");$s->execute([$pid]);$rows=$s->fetchAll();
+    $s=$pdo->prepare("SELECT r.id,r.rating,r.review_text,r.created_at,c.name,EXISTS(SELECT 1 FROM orders o JOIN order_items oi ON oi.order_id=o.id WHERE o.customer_id=r.customer_id AND oi.product_id=r.product_id AND o.status='completed') AS verified_purchase FROM product_reviews r LEFT JOIN customers c ON c.id=r.customer_id WHERE r.product_id=? AND r.status='approved' ORDER BY r.id DESC LIMIT 50");$s->execute([$pid]);$rows=$s->fetchAll();
+    foreach($rows as &$row)$row['verified_purchase']=(bool)$row['verified_purchase'];unset($row);
     $avg=0;if($rows)$avg=array_sum(array_map(fn($r)=>(int)$r['rating'],$rows))/count($rows);
     json_response(['ok'=>true,'count'=>count($rows),'average'=>round($avg,1),'items'=>$rows]);
   }
   if($action==='review_submit'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$pid=(int)($in['product_id']??0);$rating=(int)($in['rating']??0);$text=trim((string)($in['text']??''));
     if($pid<1||$rating<1||$rating>5||mb_strlen($text)<10||mb_strlen($text)>5000)json_response(['ok'=>false,'error'=>'invalid_review'],422);
-    $product=$pdo->prepare('SELECT id FROM products WHERE id=? AND is_active=1');$product->execute([$pid]);if(!$product->fetchColumn())json_response(['ok'=>false,'error'=>'bad_product'],404);
-    $s=$pdo->prepare('INSERT INTO product_reviews(customer_id,product_id,rating,review_text,status) VALUES(?,?,?,?,\'pending\')');$s->execute([(int)$u['id'],$pid,$rating,$text]);
-    json_response(['ok'=>true,'status'=>'pending']);
+    $customerId=(int)$u['id'];$lock='profisport_review_'.$customerId.'_'.$pid;
+    $l=$pdo->prepare('SELECT GET_LOCK(?,5)');$l->execute([$lock]);if((int)$l->fetchColumn()!==1)json_response(['ok'=>false,'error'=>'busy'],409);
+    try{
+      $purchase=$pdo->prepare("SELECT o.id FROM orders o JOIN order_items oi ON oi.order_id=o.id WHERE o.customer_id=? AND oi.product_id=? AND o.status='completed' ORDER BY o.id DESC LIMIT 1");
+      $purchase->execute([$customerId,$pid]);if(!$purchase->fetchColumn())json_response(['ok'=>false,'error'=>'review_not_eligible'],403);
+      $existing=$pdo->prepare('SELECT id,status FROM product_reviews WHERE customer_id=? AND product_id=? ORDER BY id DESC LIMIT 1');$existing->execute([$customerId,$pid]);$review=$existing->fetch();
+      if($review){
+        if((string)$review['status']!=='rejected')json_response(['ok'=>false,'error'=>'duplicate_review'],409);
+        $s=$pdo->prepare("UPDATE product_reviews SET rating=?,review_text=?,status='pending',updated_at=NOW() WHERE id=?");$s->execute([$rating,$text,(int)$review['id']]);
+        json_response(['ok'=>true,'status'=>'pending','resubmitted'=>true,'review_id'=>(int)$review['id']]);
+      }
+      $s=$pdo->prepare("INSERT INTO product_reviews(customer_id,product_id,rating,review_text,status) VALUES(?,?,?,?,'pending')");$s->execute([$customerId,$pid,$rating,$text]);
+      json_response(['ok'=>true,'status'=>'pending','resubmitted'=>false,'review_id'=>(int)$pdo->lastInsertId()]);
+    }finally{
+      try{$release=$pdo->prepare('SELECT RELEASE_LOCK(?)');$release->execute([$lock]);}catch(Throwable $ignored){}
+    }
   }
   json_response(['ok'=>false,'error'=>'not_found'],404);
 }catch(Throwable $e){error_log($e->__toString());json_response(['ok'=>false,'error'=>'server_error'],500);}
