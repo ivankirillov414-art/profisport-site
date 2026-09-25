@@ -1,0 +1,33 @@
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const assert=require('node:assert/strict');
+
+const bootstrap=read('server/bootstrap.php');
+const migration=read('server/migration.php');
+const api=read('api/migration.php');
+const tick=read('api/migration-tick.php');
+const admin=read('admin/migration.php');
+const js=read('admin/migration.js');
+const deploy=read('.github/workflows/deploy-infinityfree.yml');
+const auto=read('.github/workflows/auto-import-1c.yml');
+const catalog=read('catalog-live-paged.js');
+const loader=read('catalog-loader.js');
+
+assert.match(bootstrap,/db_port/,'database port must be configurable');
+assert.match(migration,/aes-256-gcm/,'migration credentials must be encrypted at rest');
+assert.match(migration,/ftp_ssl_connect/,'migration must require FTPS');
+assert.match(migration,/target_database_not_empty/,'migration must refuse a non-empty target database');
+assert.match(migration,/target_row_count_mismatch/,'migration must verify destination row counts');
+assert.match(migration,/config_cipher=NULL/,'migration secrets must be erased after success');
+assert.match(api,/migration_verify_password/,'migration schedule must re-check the current admin password');
+assert.match(api,/delay_minutes/,'migration must support delayed execution');
+assert.match(tick,/migration_tick_once/,'scheduled migration must have a resumable worker');
+assert.match(admin,/Текущий пароль админки/,'admin migration UI must request password confirmation');
+assert.match(js,/confirm\(/,'admin migration UI must ask for a final confirmation');
+assert.match(deploy,/MIGRATION_KEY/,'production config must contain a stable migration encryption key');
+assert.match(auto,/auto=1/,'automatic 1C job must use no-op snapshot detection');
+assert.doesNotMatch(catalog,/loadStaticCatalogFallback/,'storefront must not use parser fallback');
+assert.doesNotMatch(loader,/staticRowWithDbPhotoFallback/,'base loader must not use parser fallback');
+console.log('Migration readiness and MySQL-only catalog checks passed.');
