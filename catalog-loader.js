@@ -392,3 +392,31 @@ async function loadProduct(id){
   return row?normalizeProduct(row):null;
 }
 
+
+
+const AUTO_1C_CHECK_MS=10*60*1000;
+async function triggerAutomatic1cRefresh(){
+  if(typeof window==='undefined'||location.protocol==='file:')return;
+  const key='profisport_auto_1c_last_check';
+  let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
+  if(Date.now()-last<AUTO_1C_CHECK_MS)return;
+  try{localStorage.setItem(key,String(Date.now()))}catch{}
+  try{
+    let final=null;
+    for(let batch=0;batch<30;batch++){
+      const r=await fetch('api/import-apply.php?auto=1',{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:true});
+      if(!r.ok)break;
+      const j=await r.json();if(!j?.ok)break;final=j;
+      if(j.done||j.unchanged||j.pending||j.busy)break;
+      await new Promise(resolve=>setTimeout(resolve,120));
+    }
+    if(final?.done&&!final.unchanged&&!final.pending&&!final.busy){
+      window.dispatchEvent(new CustomEvent('profisport-catalog-refreshed',{detail:final}));
+    }
+  }catch{}
+}
+if(typeof window!=='undefined'&&typeof document!=='undefined'){
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',triggerAutomatic1cRefresh,{once:true});
+  else setTimeout(triggerAutomatic1cRefresh,0);
+  setInterval(triggerAutomatic1cRefresh,AUTO_1C_CHECK_MS);
+}
