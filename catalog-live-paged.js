@@ -62,31 +62,6 @@
     return live;
   }
 
-  function staticRowWithDbPhoto(row){
-    const name=String(row?.title??row?.name??'').trim();
-    if(!name)return row;
-    const path=Array.isArray(row?.category_path)?row.category_path:[];
-    const cat=String(path[path.length-1]??'').trim();
-    const params=new URLSearchParams({name});
-    if(cat)params.set('cat',cat);
-    const brand=String(row?.brand??'').trim();
-    const model=String(row?.model??'').trim();
-    if(brand)params.set('brand',brand);
-    if(model)params.set('model',model);
-    const resolver=`api/product-db-image.php?${params.toString()}`;
-    return{...row,image:resolver,main_image:resolver,images:[resolver],fallback_image:null};
-  }
-
-  async function loadStaticCatalogFallback(){
-    const manifest=await catalogRequest('data/manifest.json',{},r=>r.json());
-    const parts=Array.isArray(manifest.parts)?manifest.parts:[];
-    const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
-    window.CATALOG_SOURCE='static-db-photo-resolver';
-    window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;
-    window.CATALOG_PHOTO_SOURCE='mysql-resolver-only';
-    return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhoto).map(normalizeProduct);
-  }
-
   const CACHE_KEY='live-catalog-imgtruth5-taxonomy5',CACHE_MAX_AGE=120000;
   function catalogCache(mode,items){
     return new Promise(resolve=>{
@@ -133,8 +108,9 @@
         return normalized;
       }catch(error){
         window.CATALOG_LOAD_ERROR=String(error?.message||error||'unknown');
-        console.error('Paged live catalog failed; static metadata will resolve photos against DB.',error);
-        return loadStaticCatalogFallback();
+        window.CATALOG_SOURCE='live-unavailable';
+        console.error('Live MySQL catalog is unavailable. Stale parser data is intentionally not used.',error);
+        throw error;
       }
     })();
     return pagedCatalogPromise;
