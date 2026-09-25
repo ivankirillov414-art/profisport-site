@@ -27,9 +27,11 @@ assert.match(importer,/\(\$_GET\['check'\]\?\?''\)==='1'/,'import endpoint must 
 assert.match(importer,/source_settling/,'automatic import must wait for freshly written source files to settle');
 assert.match(importer,/unchanged.*done/s,'unchanged exports must be a no-op');
 assert.match(importer,/GET_LOCK\('profisport_1c_import',0\)/,'manual and automatic import batches must be serialized');
-const autoWorkflow=read('.github/workflows/auto-import-1c.yml');
-assert.match(autoWorkflow,/cron: '\*\/15 \* \* \* \*'/,'automatic import must run every 15 minutes');
-assert.match(autoWorkflow,/X-Import-Token/,'automatic import must authenticate server-side');
-assert.match(autoWorkflow,/current_snapshot == \$snapshot/,'automatic import must verify activation after the last batch');
+assert.match(importer,/\$autoMode=\(\(\$_GET\['auto'\]\?\?''\)==='1'\)/,'automatic import mode must be explicit and narrow');
+assert.match(importer,/\$limit=\$autoMode\?50000/,'browser automatic mode must complete one stable export in a single request');
+assert.match(importer,/\(\$tokenAuth\|\|\$autoMode\)&&!\$stable/,'automatic mode must wait for source files to settle');
+assert.match(loader,/triggerAutomatic1cRefresh/,'storefront must trigger automatic 1C detection');
+assert.match(loader,/api\/import-apply\.php\?auto=1/,'storefront automatic refresh must call the safe auto endpoint');
+assert.match(loader,/AUTO_1C_CHECK_MS=10\*60\*1000/,'open storefronts must recheck every ten minutes');
 
 console.log('Current 1C export source-of-truth regression checks passed.');
