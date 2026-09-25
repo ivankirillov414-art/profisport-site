@@ -107,8 +107,10 @@ p1['stock_qty']=0;p1['is_active']=0
 assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 favorite_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
 assert favorite_account['favorites']==['1'] and favorite_account['favorite_details'][0]['available'] is False
-removed=call('api/customer.php?action=favorite',{'product_id':1},customer_cookie,customer_csrf)[1]
-assert removed['active'] is False and removed['count']==0
+removed=call('api/customer.php?action=favorite_remove',{'product_id':1},customer_cookie,customer_csrf)[1]
+assert removed['active'] is False and removed['removed'] is True and removed['count']==0
+removed_again=call('api/customer.php?action=favorite_remove',{'product_id':1},customer_cookie,customer_csrf)[1]
+assert removed_again['active'] is False and removed_again['removed'] is False and removed_again['count']==0
 merged=call('api/customer.php?action=favorites_merge',{'product_ids':[1]},customer_cookie,customer_csrf)[1]
 assert merged['merged']==1
 favorite_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
