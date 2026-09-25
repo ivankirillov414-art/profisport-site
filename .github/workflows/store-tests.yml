@@ -74,7 +74,8 @@ jobs:
           node tests/security-regression.js
       - name: Verify order and catalog schema invariants
         run: |
-          grep -Fq 'source_hash,name,slug,sku' api/import-apply.php
+          grep -Fq 'source_hash,catalog_snapshot,name,slug,sku' api/import-apply.php
+          grep -Fq "COALESCE(stock_qty,0)>0" api/catalog.php
           grep -Fq 'SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active FROM products' api/order-create.php
           grep -Fq "action==='favorites_merge'" api/customer.php
           grep -Fq "action==='order'" api/customer.php
