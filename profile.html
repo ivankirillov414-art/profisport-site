@@ -173,7 +173,7 @@
       button.disabled=true;
       const card=button.closest('[data-favorite-card]');
       try{
-        const j=await api('favorite',{method:'POST',body:JSON.stringify({product_id:Number(id)})});
+        const j=await api('favorite_remove',{method:'POST',body:JSON.stringify({product_id:Number(id)})});
         if(j.active)throw new Error('favorite_toggle_failed');
         if(card)card.remove();
         $('#favoritesCount').textContent=Number(j.count||0);
