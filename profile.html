@@ -180,6 +180,7 @@
           '<div class="activeOrderFact"><span>Номер</span><b>'+esc(active.order_number)+'</b></div>'+
           '<div class="activeOrderFact"><span>Дата</span><b>'+esc(formatDate(active.created_at)||'—')+'</b></div>'+
           '<div class="activeOrderFact"><span>Сумма</span><b>'+Number(active.total_rub||0).toLocaleString('ru-RU')+' ₽</b></div>'+
+          '<div class="activeOrderFact"><span>Получение</span><b>'+esc(orderDeliveryText(active))+'</b></div>'+
           '<button class="activeOrderOpen" type="button" data-active-order="'+esc(active.order_number)+'">Открыть заказ</button>'+
           '</div>';
         const activeButton=activeBox.querySelector('[data-active-order]');
@@ -191,7 +192,9 @@
         activeBox.innerHTML='<div class="activeOrderEmpty"><p><b>Активных заказов сейчас нет.</b><br><span class="muted">Новые заказы и их статус появятся здесь автоматически.</span></p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
       }
 
-      $('#customerOrders').innerHTML=orders.map(o=>'<div class="orderRow"><span>'+esc(o.order_number)+' · '+esc(statuses[o.status]||o.status)+'<br><small class="muted">'+esc(formatDate(o.created_at))+'</small></span><strong>'+Number(o.total_rub).toLocaleString('ru-RU')+' ₽</strong><button type="button" data-order="'+esc(o.order_number)+'">Состав</button></div>').join('')||'<p class="muted">Заказов пока нет.</p>';
+      $('#customerOrders').innerHTML=orders.map(function(o){
+        return '<article class="customerOrderCard"><div class="customerOrderCardMain"><div><span class="customerOrderNumber">'+esc(o.order_number)+'</span><span class="orderStatusChip" data-status="'+esc(o.status)+'">'+esc(statuses[o.status]||o.status)+'</span></div><strong>'+Number(o.total_rub||0).toLocaleString('ru-RU')+' ₽</strong></div><div class="customerOrderCardMeta"><span>'+esc(formatDate(o.created_at))+'</span><span>'+esc(orderDeliveryText(o))+'</span></div><button type="button" data-order="'+esc(o.order_number)+'">Подробнее</button></article>';
+      }).join('')||'<p class="muted">Заказов пока нет.</p>';
       document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>openOrder(b.dataset.order,b));
 
       let all=[];
