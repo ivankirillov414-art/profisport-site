@@ -15,7 +15,7 @@ assert.match(api,/function customer_review_eligible/,'account API must expose co
 assert.match(api,/o\.status='completed'/,'review eligibility must require completed orders');
 assert.match(api,/review_not_eligible/,'review submit must reject non-purchases');
 assert.match(api,/duplicate_review/,'review submit must reject duplicates');
-assert.match(api,/\$review\['status'\]\)!=='rejected'/,'rejected review must be resubmittable instead of duplicated');
+assert.match(api,/\$review\['status'\]!=='rejected'/,'rejected review must be resubmittable instead of duplicated');
 assert.match(api,/GET_LOCK/,'review creation must serialize customer/product submissions');
 assert.match(api,/verified_purchase/,'public and account review payloads must include verified purchase');
 assert.match(api,/review_details/,'me payload must include review details');
