@@ -14,7 +14,7 @@ function customer_me(PDO $pdo): ?array {
   customer_session();
   $id=(int)($_SESSION['customer_id']??0);
   if($id<1)return null;
-  $s=$pdo->prepare('SELECT id,name,last_name,email,phone,birth_date,bonus_balance FROM customers WHERE id=? AND is_active=1 LIMIT 1');
+  $s=$pdo->prepare('SELECT id,name,last_name,email,phone,birth_date,preferred_store,bonus_balance FROM customers WHERE id=? AND is_active=1 LIMIT 1');
   $s->execute([$id]);
   $u=$s->fetch();
   return $u?:null;
@@ -35,6 +35,11 @@ function customer_birth_date(string $raw): string {
   return $date<=$today&&$date>=$oldest?$date->format('Y-m-d'):'';
 }
 function customer_valid_name(string $value): bool { $n=mb_strlen($value);return $n>=2&&$n<=120&&!preg_match('/[<>]/u',$value); }
+function customer_preferred_store(string $value): ?string {
+  $value=trim($value);
+  if($value==='')return null;
+  return in_array($value,['Проспект Победы, 79','Проспект Победы, 118 строение 2'],true)?$value:null;
+}
 
 function customer_order_image(array $row): ?string {
   $decoded=json_decode((string)($row['images']??''),true);if(!is_array($decoded))$decoded=[];
@@ -171,6 +176,21 @@ try{
     $s=$pdo->prepare('SELECT id,password_hash,is_active FROM customers WHERE email=? LIMIT 1');$s->execute([$email]);$u=$s->fetch();
     if(!$u||!(int)$u['is_active']||!password_verify($password,(string)$u['password_hash'])){auth_rate_failure($pdo,'customer_login',$email);json_response(['ok'=>false,'error'=>'invalid_credentials'],401);}
     auth_rate_clear($pdo,'customer_login',$email);session_regenerate_id(true);$_SESSION['customer_id']=(int)$u['id'];$_SESSION['customer_csrf']=bin2hex(random_bytes(24));
+    json_response(['ok'=>true,'customer'=>customer_me($pdo),'csrf'=>customer_csrf()]);
+  }
+  if($action==='profile_update'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();
+    $name=trim((string)($in['name']??''));$lastName=trim((string)($in['last_name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=customer_phone((string)($in['phone']??''));$birthDate=customer_birth_date((string)($in['birth_date']??''));$preferredRaw=(string)($in['preferred_store']??'');$preferred=customer_preferred_store($preferredRaw);$currentPassword=(string)($in['current_password']??'');
+    if(!customer_valid_name($name)||!customer_valid_name($lastName)||mb_strlen($email)>200||!filter_var($email,FILTER_VALIDATE_EMAIL)||$phone===''||$birthDate===''||($preferredRaw!==''&&$preferred===null))json_response(['ok'=>false,'error'=>'invalid_input'],422);
+    $customerId=(int)$u['id'];$emailChanged=!hash_equals((string)$u['email'],$email);
+    if($emailChanged){
+      if($currentPassword==='')json_response(['ok'=>false,'error'=>'password_required'],403);
+      $p=$pdo->prepare('SELECT password_hash FROM customers WHERE id=? LIMIT 1');$p->execute([$customerId]);$hash=(string)$p->fetchColumn();
+      if($hash===''||!password_verify($currentPassword,$hash))json_response(['ok'=>false,'error'=>'invalid_password'],403);
+      $q=$pdo->prepare('SELECT id FROM customers WHERE email=? AND id<>? LIMIT 1');$q->execute([$email,$customerId]);if($q->fetchColumn())json_response(['ok'=>false,'error'=>'email_exists'],409);
+    }
+    $s=$pdo->prepare('UPDATE customers SET name=?,last_name=?,email=?,phone=?,birth_date=?,preferred_store=? WHERE id=?');
+    $s->execute([$name,$lastName,$email,$phone,$birthDate,$preferred,$customerId]);
     json_response(['ok'=>true,'customer'=>customer_me($pdo),'csrf'=>customer_csrf()]);
   }
   if($action==='logout'&&$_SERVER['REQUEST_METHOD']==='POST'){
