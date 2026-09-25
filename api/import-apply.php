@@ -21,6 +21,7 @@ function imageIndex(string $root,int $offset):array{$cache=__DIR__.'/../uploads/
 function photoUrls(string $cell,array $idx):array{$o=[];foreach(preg_split('/[|,\r\n]+/u',$cell)?:[] as $x){$x=mb_strtolower(basename(str_replace('\\','/',trim($x," \t\"'"))));if($x!==''&&isset($idx[$x]))$o[]='/import/'.$idx[$x];}return array_values(array_unique($o));}
 try{
  $tokenAuth=authImport($config);if($_SERVER['REQUEST_METHOD']!=='POST')throw new RuntimeException('post_required');
+ $importLock=(int)$pdo->query("SELECT GET_LOCK('profisport_1c_import',0)")->fetchColumn();if($importLock!==1)throw new RuntimeException('Импорт уже выполняется. Повторите попытку позже.');
  $root=realpath(__DIR__.'/../import');if(!$root)throw new RuntimeException('import_missing');[$pf,$cf]=findFiles($root);if(!$pf||!$cf)throw new RuntimeException('1c_csv_missing');
  $snapshot=sourceSnapshot($pf,$cf);$currentSnapshot=settingValue($pdo,'current_1c_snapshot');$offset=max(0,(int)($_GET['offset']??0));$limit=min(1000,max(100,(int)($_GET['limit']??500)));$requestedSnapshot=trim((string)($_GET['snapshot']??''));$latestSourceMtime=max((int)filemtime($pf),(int)filemtime($cf));$stable=(time()-$latestSourceMtime)>=180;
  if($requestedSnapshot!==''&&!hash_equals($requestedSnapshot,$snapshot))throw new RuntimeException('Выгрузка изменилась во время обновления. Автоматический импорт начнёт её заново.');
