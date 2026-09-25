@@ -150,8 +150,18 @@ assert public_review['count']==1 and public_review['items'][0]['verified_purchas
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
 assert account['review_details'][0]['status']=='approved' and account['review_details'][0]['rating']==4
 assert account['customer']['bonus_balance']==50 and len(account['loyalty'])==1
+profile={'name':'Updated','last_name':'Buyer','email':'buyer@example.test','phone':'+79991112233','birth_date':'1990-02-03','preferred_store':'Проспект Победы, 79','current_password':''}
+status,updated,_=call('api/customer.php?action=profile_update',profile,customer_cookie,customer_csrf);assert status==200
+assert updated['customer']['name']=='Updated' and updated['customer']['phone']=='+79991112233' and updated['customer']['birth_date']=='1990-02-03' and updated['customer']['preferred_store']=='Проспект Победы, 79'
+email_change={**profile,'email':'updated-buyer@example.test'}
+status,j,_=call('api/customer.php?action=profile_update',email_change,customer_cookie,customer_csrf);assert (status,j['error'])==(403,'password_required')
+status,j,_=call('api/customer.php?action=profile_update',{**email_change,'current_password':'wrong-password'},customer_cookie,customer_csrf);assert (status,j['error'])==(403,'invalid_password')
+status,updated,_=call('api/customer.php?action=profile_update',{**email_change,'current_password':'test-only-password'},customer_cookie,customer_csrf);assert status==200
+assert updated['customer']['email']=='updated-buyer@example.test' and updated['customer']['preferred_store']=='Проспект Победы, 79'
+status,j,_=call('api/customer.php?action=profile_update',{**email_change,'preferred_store':'Неизвестный магазин','current_password':''},customer_cookie,customer_csrf);assert (status,j['error'])==(422,'invalid_input')
 assert call('api/customer.php?action=logout',{},customer_cookie,customer_csrf)[0]==200
 assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['customer'] is None
-status,logged,h=call('api/customer.php?action=login',{'email':'buyer@example.test','password':'test-only-password'})
-assert status==200 and logged['customer']['bonus_balance']==50
-print('PASS: account login/logout, favorites, verified-purchase review eligibility, rejection/resubmit, moderation, CSRF and one-time bonus')
+assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'test-only-password'})[0]==401
+status,logged,h=call('api/customer.php?action=login',{'email':'updated-buyer@example.test','password':'test-only-password'})
+assert status==200 and logged['customer']['bonus_balance']==50 and logged['customer']['preferred_store']=='Проспект Победы, 79'
+print('PASS: account login/logout, favorites, reviews, secure profile editing, preferred store and email change')
