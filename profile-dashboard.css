@@ -1,0 +1,62 @@
+/* ProfiSport customer cabinet — dashboard block 1 */
+.profilePage.profileDashboardPage{max-width:1040px;padding-top:26px}
+.profileDashboardTitle{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:0 0 18px}
+.profileDashboardTitle h1{margin:0;font-size:34px;letter-spacing:-.7px}
+.profileDashboardTitle p{margin:5px 0 0;color:#747a80}
+
+.profileDashboardHero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:0;margin-bottom:16px;padding:24px;border:1px solid #e3e3df;border-radius:20px;background:linear-gradient(135deg,#fff 0%,#fffdf4 62%,#fff3b8 100%);box-shadow:0 12px 30px #22252a0d;overflow:hidden}
+.profileDashboardHero:after{content:"";position:absolute;right:-52px;top:-76px;width:190px;height:190px;border-radius:50%;background:#f2c94c33;pointer-events:none}
+.profileIdentity{position:relative;z-index:1;display:flex;align-items:center;gap:16px;min-width:0}
+.profileAvatar{display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;border-radius:18px;background:#454b53;color:#f2c94c;font-size:20px;font-weight:950;letter-spacing:.5px;box-shadow:0 8px 20px #22252a1f}
+.profileIdentityCopy{min-width:0}.profileEyebrow{margin-bottom:2px;color:#7b7f82;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+.profileIdentity h2{margin:0;font-size:27px;line-height:1.12;overflow-wrap:anywhere}
+.profileContactLine{display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:7px;font-size:14px}.profileContactLine span{overflow-wrap:anywhere}
+.profileContactPhone{font-weight:800;color:#2b3034}
+.profileLogout{position:relative;z-index:1;flex:0 0 auto;min-width:104px}
+
+.profileDashboardActive{margin:0 0 16px!important;padding:22px!important}
+.profileSectionHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.profileSectionHead h3{margin:3px 0 0!important;font-size:22px}
+.profileSectionKicker{display:block;color:#777d82;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+.orderStatusChip{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:#fff3b8;color:#5e4b00;font-size:12px;font-weight:900}
+.orderStatusChip[data-status="ready"]{background:#e6f7ea;color:#1d7135}
+.orderStatusChip[data-status="processing"]{background:#eaf1ff;color:#315c9f}
+.activeOrderEmpty{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:15px;padding:14px 16px;border-radius:14px;background:#f7f7f4}
+.activeOrderEmpty p{margin:0}
+.profileShopLink{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 13px;border-radius:10px;background:#454b53;color:#fff;font-weight:850;white-space:nowrap}
+.activeOrderGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:12px;align-items:end;margin-top:16px}
+.activeOrderFact{min-width:0;padding:12px 14px;border-radius:13px;background:#faf9f5;border:1px solid #ece9e1}
+.activeOrderFact span{display:block;margin-bottom:4px;color:#7a7e82;font-size:11px}.activeOrderFact b{display:block;font-size:15px;overflow-wrap:anywhere}
+.activeOrderOpen{min-height:46px;box-shadow:none}
+
+.profileQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 20px}
+.profileQuickCard{position:relative;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;align-items:center;gap:3px 11px;min-width:0;padding:17px;border:1px solid #e3e3df;border-radius:17px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 8px 22px #22252a0a;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.profileQuickCard:hover,.profileQuickCard:focus-visible{transform:translateY(-2px);border-color:#d9bd45;box-shadow:0 12px 28px #22252a12}
+.profileQuickIcon{grid-row:1/3;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#f5f3eb}
+.profileQuickIcon svg{width:22px;height:22px;fill:none;stroke:#353a3f;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.profileQuickCard b{font-size:16px}.profileQuickCard strong{font-size:22px;line-height:1;color:#25292d}.profileQuickCard small{grid-column:2/4;color:#7a7e82;font-size:12px}
+
+.profileSecondaryCard{scroll-margin-top:18px}
+.profileSectionIntro{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.profileSectionIntro h3{margin:0!important}.profileSectionIntro span{font-size:12px;color:#747a80}
+.profileReviewsSummary{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 16px;border-radius:14px;background:#faf9f5;border:1px solid #ece9e1}.profileReviewsSummary p{margin:0}
+.profileReviewsCount{font-size:30px;font-weight:950;color:#3a3f44}
+.profileFav a{transition:border-color .16s ease,transform .16s ease}.profileFav a:hover{border-color:#d9bd45;transform:translateY(-1px)}
+
+@media(max-width:760px){
+  .profilePage.profileDashboardPage{padding:18px 14px 92px}
+  .profileDashboardTitle{margin-bottom:14px}.profileDashboardTitle h1{font-size:28px}
+  .profileDashboardHero{align-items:flex-start;padding:18px;border-radius:18px}
+  .profileAvatar{width:50px;height:50px;flex-basis:50px;border-radius:15px}
+  .profileIdentity{gap:12px}.profileIdentity h2{font-size:22px}
+  .profileLogout{min-width:auto;padding:10px 12px}
+  .activeOrderGrid{grid-template-columns:1fr 1fr}.activeOrderOpen{grid-column:1/-1;width:100%}
+  .profileQuickGrid{grid-template-columns:1fr;gap:9px}
+  .profileQuickCard{padding:14px 15px}
+  .activeOrderEmpty{align-items:flex-start;flex-direction:column}.profileShopLink{width:100%}
+}
+@media(max-width:430px){
+  .profileDashboardHero{display:block}.profileIdentity{padding-right:0}.profileLogout{width:100%;margin-top:15px}
+  .profileContactLine{display:grid;gap:4px}.activeOrderGrid{grid-template-columns:1fr}
+  .activeOrderOpen{grid-column:auto}
+  .profileReviewsSummary{align-items:flex-start;flex-direction:column}
+}

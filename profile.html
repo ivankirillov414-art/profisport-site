@@ -6,24 +6,74 @@
   <meta name="theme-color" content="#ffffff">
   <title>Личный кабинет — ПрофиСпорт</title>
   <link rel="stylesheet" href="storefront-v2.css?v=34">
+  <link rel="stylesheet" href="profile-dashboard.css?v=1">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
 <link rel="stylesheet" href="back-to-top.css?v=1"></head>
 <body>
   <div class="top"><b><a href="index.html" aria-label="ПрофиСпорт — на главную">Профи<span>Спорт</span></a></b><div class="topActions"><a href="index.html">← Магазин</a></div></div>
-  <main class="profilePage">
-    <h1>Личный кабинет</h1>
+  <main class="profilePage profileDashboardPage">
+    <div class="profileDashboardTitle"><div><h1>Личный кабинет</h1><p>Заказы, избранное и всё важное по вашему аккаунту.</p></div></div>
     <div id="guest"><section class="profileCard"><div class="authTabs"><button id="loginTab">Войти</button><button id="registerTab" class="secondary">Регистрация</button></div><form id="loginForm" class="profileForm"><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button>Войти</button></form><form id="registerForm" class="profileForm hidden"><label>Имя<input name="name" required minlength="2" maxlength="120" autocomplete="given-name"></label><label>Фамилия<input name="last_name" required minlength="2" maxlength="120" autocomplete="family-name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Телефон<input name="phone" type="tel" required autocomplete="tel"></label><label>Дата рождения<input name="birth_date" type="date" required autocomplete="bday"></label><label>Пароль<input name="password" type="password" minlength="8" required autocomplete="new-password"></label><label class="profileConsent"><input name="consent" type="checkbox" required> Согласен на <a href="buyer-info.html#privacy" target="_blank">обработку персональных данных</a></label><button>Создать кабинет</button></form><div id="authMsg" class="profileMsg"></div></section></div>
     <div id="account" class="hidden">
-      <div class="profileGrid"><section class="profileCard"><h2 id="customerName"></h2><div id="customerEmail" class="muted"></div><p><button id="logout" class="secondary">Выйти</button></p></section><section class="profileCard"><h3>Бонусный баланс</h3><div class="bonus"><span id="bonus">0</span> <small>бонусов</small></div><p class="muted">Информацию об условиях бонусной программы можно уточнить в магазине.</p></section></div>
-      <section class="profileCard"><h3>Избранное</h3><div id="favorites" class="profileFav"></div></section>
-      <section class="profileCard"><h3>Мои заказы</h3><div id="customerOrders"></div><div id="orderDetails"></div></section>
-      <section class="profileCard"><h3>История бонусов</h3><div id="loyalty"></div></section>
+      <section class="profileDashboardHero">
+        <div class="profileIdentity">
+          <div id="customerAvatar" class="profileAvatar" aria-hidden="true">PS</div>
+          <div class="profileIdentityCopy">
+            <div class="profileEyebrow">Личный кабинет</div>
+            <h2 id="customerName"></h2>
+            <div class="profileContactLine">
+              <span id="customerPhone" class="profileContactPhone"></span>
+              <span id="customerEmail" class="muted"></span>
+            </div>
+          </div>
+        </div>
+        <button id="logout" class="secondary profileLogout">Выйти</button>
+      </section>
+
+      <section class="profileCard profileDashboardActive" aria-labelledby="activeOrderHeading">
+        <div class="profileSectionHead">
+          <div><span class="profileSectionKicker">Текущий заказ</span><h3 id="activeOrderHeading">Статус покупки</h3></div>
+          <span id="activeOrderStatus" class="orderStatusChip hidden"></span>
+        </div>
+        <div id="activeOrder"></div>
+      </section>
+
+      <nav class="profileQuickGrid" aria-label="Разделы личного кабинета">
+        <a class="profileQuickCard" href="#orders">
+          <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>
+          <b>Заказы</b><strong id="ordersCount">0</strong><small>История и статусы</small>
+        </a>
+        <a class="profileQuickCard" href="#favorites-section">
+          <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.2-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.8-7 10-7 10z"/></svg></span>
+          <b>Избранное</b><strong id="favoritesCount">0</strong><small>Сохранённые товары</small>
+        </a>
+        <a class="profileQuickCard" href="#reviews">
+          <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5zM8 9h8M8 13h5"/></svg></span>
+          <b>Отзывы</b><strong id="reviewsCount">0</strong><small>Ваши отзывы о товарах</small>
+        </a>
+      </nav>
+
+      <section id="orders" class="profileCard profileSecondaryCard">
+        <div class="profileSectionIntro"><h3>Мои заказы</h3><span>Все покупки аккаунта</span></div>
+        <div id="customerOrders"></div>
+        <div id="orderDetails"></div>
+      </section>
+
+      <section id="favorites-section" class="profileCard profileSecondaryCard">
+        <div class="profileSectionIntro"><h3>Избранное</h3><span>Актуальные цена и наличие</span></div>
+        <div id="favorites" class="profileFav"></div>
+      </section>
+
+      <section id="reviews" class="profileCard profileSecondaryCard">
+        <div class="profileSectionIntro"><h3>Отзывы</h3><span>Краткая сводка</span></div>
+        <div id="reviewsSummary" class="profileReviewsSummary"></div>
+      </section>
     </div>
   </main>
   <footer class="buyerCompactFooter"><a href="index.html">ПрофиСпорт · Оренбург</a><div class="buyerFooterLinks" aria-label="Информация покупателям"><a href="buyer-info.html#warranty">Гарантия</a><a href="buyer-info.html#payment">Оплата</a><a href="buyer-info.html#delivery">Доставка</a></div></footer>
-  <script src="catalog-loader.js?v=30"></script>
+  <script src="catalog-loader.js?v=31"></script>
   <script>
     let csrf='';const $=s=>document.querySelector(s);const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     async function api(action,opts={}){opts.headers={...(opts.headers||{}),'Content-Type':'application/json'};if(csrf)opts.headers['X-CSRF-Token']=csrf;const r=await fetch('api/customer.php?action='+action,opts);const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);if(j.csrf)csrf=j.csrf;return j}
@@ -33,7 +83,64 @@
     async function mergeGuestFavorites(){const ids=guestFavoriteIds();if(!ids.length)return false;await api('favorites_merge',{method:'POST',body:JSON.stringify({product_ids:ids})});try{const a=JSON.parse(localStorage.getItem('ps-favorites')||'[]');const keep=Array.isArray(a)?a.filter(x=>!/^[1-9][0-9]*$/.test(String(x))):[];localStorage.setItem('ps-favorites',JSON.stringify(keep))}catch(e){}return true}
     const statuses={new:'Новый',confirmed:'Подтверждён',processing:'В работе',ready:'Готов к выдаче',completed:'Завершён',cancelled:'Отменён'};
     async function openOrder(number,button){const box=$('#orderDetails');button.disabled=true;box.innerHTML='<div class="orderDetails">Загрузка состава заказа…</div>';try{const j=await api('order&number='+encodeURIComponent(number),{cache:'no-store'}),o=j.order;box.innerHTML=`<div class="orderDetails"><b>${esc(o.order_number)} · ${esc(statuses[o.status]||o.status)}</b>${(j.items||[]).map(i=>`<div class="orderDetailItem"><span>${esc(i.title)} × ${Number(i.quantity)}</span><b>${Number(i.line_total_rub).toLocaleString('ru-RU')} ₽</b></div>`).join('')}<p><b>Итого: ${Number(o.total_rub).toLocaleString('ru-RU')} ₽</b></p><p class="muted">${o.delivery_method==='pickup'?'Самовывоз':'Доставка по Оренбургу'}${o.address?' · '+esc(o.address):''}</p>${o.comment?`<p>${esc(o.comment)}</p>`:''}</div>`}catch(e){box.innerHTML='<div class="orderDetails">Не удалось загрузить состав заказа.</div>'}finally{button.disabled=false}}
-    async function render(j){csrf=j.csrf||csrf;const u=j.customer;$('#guest').classList.toggle('hidden',!!u);$('#account').classList.toggle('hidden',!u);if(!u)return;$('#customerName').textContent=[u.name,u.last_name].filter(Boolean).join(' ');$('#customerEmail').textContent=u.email;$('#bonus').textContent=Number(u.bonus_balance||0).toLocaleString('ru-RU');$('#customerOrders').innerHTML=(j.orders||[]).map(o=>`<div class="orderRow"><span>${esc(o.order_number)} · ${esc(statuses[o.status]||o.status)}</span><strong>${Number(o.total_rub).toLocaleString('ru-RU')} ₽</strong><button type="button" data-order="${esc(o.order_number)}">Состав</button></div>`).join('')||'<p>Заказов пока нет.</p>';document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>openOrder(b.dataset.order,b));let all=[];const ids=[...new Set((j.favorites||[]).map(String))];try{for(let i=0;i<ids.length;i+=8)all.push(...(await Promise.all(ids.slice(i,i+8).map(loadProduct))).filter(Boolean))}catch(e){}const byId=new Map(all.map(p=>[String(p.id),p]));const fav=(j.favorites||[]).map(id=>byId.get(String(id))).filter(Boolean);$('#favorites').innerHTML=fav.length?fav.map(p=>`<a href="product.html?id=${encodeURIComponent(p.id)}"><b>${esc(p.name)}</b><br><span class="muted">${Number(p.price||0).toLocaleString('ru-RU')} ₽</span></a>`).join(''):'<p class="muted">Избранных товаров пока нет.</p>';$('#loyalty').innerHTML=(j.loyalty||[]).length?(j.loyalty||[]).map(x=>`<div class="loyaltyRow"><span>${esc(x.note||x.kind)}</span><b>${Number(x.amount)>0?'+':''}${Number(x.amount)}</b></div>`).join(''):'<p class="muted">Операций пока нет.</p>'}
+    function formatPhone(value){const d=String(value||'').replace(/\D/g,'');if(d.length===11&&d[0]==='7')return '+7 ('+d.slice(1,4)+') '+d.slice(4,7)+'-'+d.slice(7,9)+'-'+d.slice(9);return value||''}
+    function formatDate(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})}
+    function initials(u){const a=[u?.name,u?.last_name].filter(Boolean).map(x=>String(x).trim()[0]||'').join('').slice(0,2).toUpperCase();return a||'PS'}
+    function reviewText(n){const x=Math.abs(Number(n)||0)%100;if(x>=11&&x<=14)return 'отзывов';const y=x%10;return y===1?'отзыв':(y>=2&&y<=4?'отзыва':'отзывов')}
+    async function render(j){
+      csrf=j.csrf||csrf;
+      const u=j.customer;
+      $('#guest').classList.toggle('hidden',!!u);
+      $('#account').classList.toggle('hidden',!u);
+      if(!u)return;
+
+      const fullName=[u.name,u.last_name].filter(Boolean).join(' ')||'Покупатель';
+      $('#customerName').textContent=fullName;
+      $('#customerAvatar').textContent=initials(u);
+      $('#customerPhone').textContent=formatPhone(u.phone)||'Телефон не указан';
+      $('#customerEmail').textContent=u.email||'';
+
+      const orders=Array.isArray(j.orders)?j.orders:[];
+      const favoriteIds=[...new Set((j.favorites||[]).map(String))];
+      const reviewsCount=Number(j.reviews_count||0);
+      $('#ordersCount').textContent=orders.length;
+      $('#favoritesCount').textContent=favoriteIds.length;
+      $('#reviewsCount').textContent=reviewsCount;
+
+      const active=orders.find(o=>!['completed','cancelled'].includes(String(o.status||'')));
+      const activeBox=$('#activeOrder'),activeStatus=$('#activeOrderStatus');
+      if(active){
+        activeStatus.classList.remove('hidden');
+        activeStatus.dataset.status=String(active.status||'');
+        activeStatus.textContent=statuses[active.status]||active.status||'Заказ';
+        activeBox.innerHTML='<div class="activeOrderGrid">'+
+          '<div class="activeOrderFact"><span>Номер</span><b>'+esc(active.order_number)+'</b></div>'+
+          '<div class="activeOrderFact"><span>Дата</span><b>'+esc(formatDate(active.created_at)||'—')+'</b></div>'+
+          '<div class="activeOrderFact"><span>Сумма</span><b>'+Number(active.total_rub||0).toLocaleString('ru-RU')+' ₽</b></div>'+
+          '<button class="activeOrderOpen" type="button" data-active-order="'+esc(active.order_number)+'">Открыть заказ</button>'+
+          '</div>';
+        const activeButton=activeBox.querySelector('[data-active-order]');
+        activeButton.onclick=async()=>{document.querySelector('#orders').scrollIntoView({behavior:'smooth',block:'start'});await openOrder(activeButton.dataset.activeOrder,activeButton)};
+      }else{
+        activeStatus.classList.add('hidden');
+        activeStatus.removeAttribute('data-status');
+        activeStatus.textContent='';
+        activeBox.innerHTML='<div class="activeOrderEmpty"><p><b>Активных заказов сейчас нет.</b><br><span class="muted">Новые заказы и их статус появятся здесь автоматически.</span></p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
+      }
+
+      $('#customerOrders').innerHTML=orders.map(o=>'<div class="orderRow"><span>'+esc(o.order_number)+' · '+esc(statuses[o.status]||o.status)+'<br><small class="muted">'+esc(formatDate(o.created_at))+'</small></span><strong>'+Number(o.total_rub).toLocaleString('ru-RU')+' ₽</strong><button type="button" data-order="'+esc(o.order_number)+'">Состав</button></div>').join('')||'<p class="muted">Заказов пока нет.</p>';
+      document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>openOrder(b.dataset.order,b));
+
+      let all=[];
+      try{for(let i=0;i<favoriteIds.length;i+=8)all.push(...(await Promise.all(favoriteIds.slice(i,i+8).map(loadProduct))).filter(Boolean))}catch(e){}
+      const byId=new Map(all.map(p=>[String(p.id),p]));
+      const fav=favoriteIds.map(id=>byId.get(String(id))).filter(Boolean);
+      $('#favorites').innerHTML=fav.length?fav.map(p=>'<a href="product.html?id='+encodeURIComponent(p.id)+'"><b>'+esc(p.name)+'</b><br><span class="muted">'+Number(p.price||0).toLocaleString('ru-RU')+' ₽</span></a>').join(''):'<p class="muted">Избранных товаров пока нет.</p>';
+
+      $('#reviewsSummary').innerHTML=reviewsCount
+        ?'<div><b>Вы оставили '+reviewsCount+' '+reviewText(reviewsCount)+'.</b><p class="muted">Полное управление отзывами добавим отдельным этапом.</p></div><div class="profileReviewsCount">'+reviewsCount+'</div>'
+        :'<div><b>Отзывов пока нет.</b><p class="muted">После покупки здесь появится история ваших отзывов.</p></div><div class="profileReviewsCount">0</div>';
+    }
     async function refresh(merge=true){let j=await api('me');if(j.customer&&merge&&await mergeGuestFavorites())j=await api('me');await render(j)}
     $('#loginForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api('login',{method:'POST',body:JSON.stringify(Object.fromEntries(f))});await refresh(true);$('#authMsg').textContent=''}catch(err){$('#authMsg').textContent='Не удалось войти. Проверьте email и пароль.'}};
     $('#registerForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api('register',{method:'POST',body:JSON.stringify(Object.fromEntries(f))});await refresh(true);$('#authMsg').textContent=''}catch(err){$('#authMsg').textContent=err.message==='email_exists'?'Такой email уже зарегистрирован.':'Не удалось создать кабинет.'}};

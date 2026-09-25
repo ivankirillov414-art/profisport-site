@@ -74,6 +74,7 @@ jobs:
           node tests/photo-source-ownership.js
           node tests/catalog-startup-regression.js
           node tests/security-regression.js
+          node tests/profile-dashboard-regression.js
       - name: Verify order and catalog schema invariants
         run: |
           grep -Fq 'source_hash,catalog_snapshot,name,slug,sku' api/import-apply.php
