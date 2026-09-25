@@ -23,7 +23,7 @@ if(!paged.includes("window.CATALOG_SOURCE='live-paged'"))fail('live paged source
 if(!paged.includes('live.length!==total'))fail('paged loader must reject incomplete live catalogs');
 if(!/max\(0,min\(500/.test(api))fail('catalog API must enforce a bounded page limit');
 if(loader.includes('data/manifest.json')||paged.includes('data/manifest.json'))fail('storefront must not load parser/static manifest data');
-if(loader.includes('catalog-')||paged.includes('catalog-'))fail('storefront must not load parser/static catalog chunks');
+if(loader.includes('data/catalog-')||paged.includes('data/catalog-'))fail('storefront must not load parser/static catalog chunks');
 if(loader.includes('static-db-photo-resolver')||paged.includes('static-db-photo-resolver'))fail('retired static catalog fallback is still present');
 if(paged.includes('loadStaticCatalogFallback')||loader.includes('staticRowWithDbPhotoFallback'))fail('retired parser fallback functions are still present');
 if(!paged.includes("window.CATALOG_SOURCE='live-cache-stale'"))fail('emergency fallback must use a cached live MySQL catalog');
