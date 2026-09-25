@@ -50,7 +50,7 @@ function customer_order_image(array $row): ?string {
 }
 function customer_order_history(PDO $pdo,array $order): array {
   $s=$pdo->prepare('SELECT status,source,created_at FROM order_status_history WHERE order_id=? ORDER BY id');$s->execute([(int)$order['id']]);$rows=$s->fetchAll();
-  if($rows)return ['complete'=>true,'items'=>$rows];
+  if($rows){$complete=true;foreach($rows as $row)if(str_starts_with((string)($row['source']??''),'legacy')){$complete=false;break;}return ['complete'=>$complete,'items'=>$rows];}
   $items=[['status'=>'new','source'=>'legacy','created_at'=>(string)$order['created_at']]];
   if((string)$order['status']!=='new')$items[]=['status'=>(string)$order['status'],'source'=>'legacy_current','created_at'=>(string)($order['updated_at']?:$order['created_at'])];
   return ['complete'=>false,'items'=>$items];
