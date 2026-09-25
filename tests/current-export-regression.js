@@ -26,6 +26,7 @@ assert.match(importer,/sourceSnapshot\(\$pf,\$cf\)/,'automatic import must finge
 assert.match(importer,/\(\$_GET\['check'\]\?\?''\)==='1'/,'import endpoint must expose a read-only change check');
 assert.match(importer,/source_settling/,'automatic import must wait for freshly written source files to settle');
 assert.match(importer,/unchanged.*done/s,'unchanged exports must be a no-op');
+assert.match(importer,/GET_LOCK\('profisport_1c_import',0\)/,'manual and automatic import batches must be serialized');
 const autoWorkflow=read('.github/workflows/auto-import-1c.yml');
 assert.match(autoWorkflow,/cron: '\*\/15 \* \* \* \*'/,'automatic import must run every 15 minutes');
 assert.match(autoWorkflow,/X-Import-Token/,'automatic import must authenticate server-side');
