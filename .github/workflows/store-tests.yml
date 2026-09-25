@@ -60,18 +60,22 @@ jobs:
           php tests/source-photo-reconcile.php
           node --check admin/analyze.js
           node --check admin/reconcile.js
+          node --check admin/import-run.js
+          node --check admin/import-apply.js
           node tests/product-loader-regression.js
           node tests/cart-quantity-regression.js
           node tests/product-gallery-regression.js
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
           node tests/catalog-live-source-regression.js
+          node tests/current-export-regression.js
           node tests/photo-source-ownership.js
           node tests/catalog-startup-regression.js
           node tests/security-regression.js
       - name: Verify order and catalog schema invariants
         run: |
-          grep -Fq 'source_hash,name,slug,sku' api/import-apply.php
+          grep -Fq 'source_hash,catalog_snapshot,name,slug,sku' api/import-apply.php
+          grep -Fq "COALESCE(stock_qty,0)>0" api/catalog.php
           grep -Fq 'SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active FROM products' api/order-create.php
           grep -Fq "action==='favorites_merge'" api/customer.php
           grep -Fq "action==='order'" api/customer.php
