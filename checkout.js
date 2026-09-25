@@ -7,7 +7,7 @@ function addressState(){const delivery=form.elements.delivery.value,needed=deliv
 form.elements.delivery.onchange=addressState;addressState();form.elements.phone.oninput=()=>form.elements.phone.setCustomValidity('');
 async function request(url,opts={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);try{const r=await fetch(url,{...opts,signal:controller.signal});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'server_error');return j}finally{clearTimeout(timer)}}
 // Account prefill is optional and never blocks the cart.
-request('api/customer.php?action=me',{cache:'no-store'}).then(j=>{if(j.customer)for(const key of ['name','email','phone'])if(!form.elements[key].value)form.elements[key].value=j.customer[key]||''}).catch(()=>{});
+request('api/customer.php?action=me',{cache:'no-store'}).then(j=>{if(j.customer){for(const key of ['name','email','phone'])if(!form.elements[key].value)form.elements[key].value=j.customer[key]||'';if(j.customer.preferred_store&&form.elements.pickup_store?.querySelector('option[value="'+CSS.escape(j.customer.preferred_store)+'"]'))form.elements.pickup_store.value=j.customer.preferred_store}}).catch(()=>{});
 (async()=>{try{
 const ids=[...new Set(cart.map(String))],all=[];
 for(let i=0;i<ids.length;i+=8){const batch=await Promise.all(ids.slice(i,i+8).map(loadProduct));all.push(...batch.filter(Boolean))}
