@@ -28,8 +28,8 @@ if(manifest.authoritative_photo_source!=='mysql.products.main_image/images')fail
 if('with_images' in manifest)fail('ambiguous with_images metric must not be used for parser coverage');
 console.log(`Parser mirror image coverage is ${manifest.parser_rows_with_images}/${manifest.products}; this is not live DB photo health.`);
 if(loader.includes("window.CATALOG_SOURCE='static';"))fail('base loader must not expose raw parser static photos');
-if(!loader.includes("window.CATALOG_SOURCE='static-db-photo-resolver'"))fail('base loader emergency fallback must resolve photos against MySQL');
-if(!loader.includes('map(staticRowWithDbPhotoFallback).map(normalizeProduct)'))fail('base loader must resolve static metadata photos against MySQL');
+if(loader.includes("window.CATALOG_SOURCE='static-db-photo-resolver'"))fail('base loader must not expose archived parser metadata as a storefront fallback');
+if(loader.includes('staticRowWithDbPhotoFallback'))fail('base loader must not retain parser/static fallback mapping');
 if(api.includes("$images[]='api/product-fallback-image.php"))fail('catalog API must not mix fallback images into DB source images');
 if(!api.includes("'fallback_image'=>null"))fail('catalog API must not offer unverified parser photos');
 if(!api.includes("'image_source'=>$imageSource"))fail('catalog API image source diagnostic is missing');
@@ -40,5 +40,6 @@ if(!importer.includes("catalog_snapshot"))fail('1C import must tag every accepte
 if(!importer.includes("catalog_snapshot<>?"))fail('completed 1C import must hide products absent from the current snapshot');
 if(!importer.includes("Выгрузка изменилась во время обновления"))fail('1C import must stop if the source file changes between batches');
 if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql'"))fail('live catalog must expose MySQL as authoritative photo source');
-if(!paged.includes("window.CATALOG_PHOTO_SOURCE='mysql-resolver-only'"))fail('static metadata fallback must resolve photos exclusively against MySQL');
+if(paged.includes('loadStaticCatalogFallback'))fail('paged loader must not fall back to archived parser data');
+if(!paged.includes("window.CATALOG_SOURCE='live-unavailable'"))fail('live failure must be observable without serving stale parser data');
 if(!process.exitCode)console.log('Catalog live source regression checks passed.');
