@@ -72,6 +72,14 @@ assert detail['order']['pickup_store']=='Проспект Победы, 118 ст
 assert [h['status'] for h in detail['history']]==['new','completed'] and detail['history_complete'] is True
 status,repeated,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
 assert repeated['cart_items']==['1'] and repeated['added_count']==1 and repeated['skipped']==[]
+live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
+p1['stock_qty']=0;p1['is_active']=0
+assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
+status,unavailable,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
+assert unavailable['added_count']==0 and unavailable['cart_items']==[] and unavailable['skipped'][0]['reason']=='unavailable'
+live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
+p1['price_rub']=200;p1['old_price_rub']=300;p1['stock_qty']=2;p1['is_active']=1
+assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 assert call('api/customer.php?action=me')[1]['customer'] is None
 print('PASS: authenticated checkout, pickup store, photo, exact status history and safe repeat-order preview')
 for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php']:
