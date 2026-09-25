@@ -1,4 +1,4 @@
-import json, urllib.request, urllib.error
+import json, urllib.request, urllib.error, urllib.parse
 from datetime import datetime
 from zoneinfo import ZoneInfo
 BASE='http://127.0.0.1:8080/'
@@ -62,8 +62,18 @@ assert status==200
 customer_cookie=next(c.split(';')[0] for c in reversed(h.get_all('Set-Cookie')) if c.startswith('PROFISPORT_CUSTOMER='))
 status,j,_=call('api/order-create.php',{**base,'items':[1],'request_key':'c'*64},customer_cookie);assert status==200
 status,j,_=call('api/customer.php?action=me',cookie=customer_cookie);assert len(j['orders'])==1 and j['orders'][0]['total_rub']==200
+customer_order_number=j['orders'][0]['order_number'];customer_csrf=customer['csrf']
+assert j['orders'][0]['pickup_store']=='Проспект Победы, 118 строение 2'
+assert call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf)[0]==409
+admin_order=call('api/orders.php?q='+urllib.parse.quote(customer_order_number),cookie=cookie)[1]['items'][0]
+assert call('api/orders.php',{'id':admin_order['id'],'status':'completed','previous_status':'new'},cookie,csrf)[0]==200
+status,detail,_=call('api/customer.php?action=order&number='+urllib.parse.quote(customer_order_number),cookie=customer_cookie);assert status==200
+assert detail['order']['pickup_store']=='Проспект Победы, 118 строение 2' and detail['items'][0]['image']=='https://example.test/test-ball.jpg'
+assert [h['status'] for h in detail['history']]==['new','completed'] and detail['history_complete'] is True
+status,repeated,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
+assert repeated['cart_items']==['1'] and repeated['added_count']==1 and repeated['skipped']==[]
 assert call('api/customer.php?action=me')[1]['customer'] is None
-print('PASS: authenticated checkout and private order history')
+print('PASS: authenticated checkout, pickup store, photo, exact status history and safe repeat-order preview')
 for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php']:
     with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
         assert r.geturl().endswith('/admin/login.php'),page
@@ -76,7 +86,6 @@ for page in ['categories.php','stats.php']:
 print('PASS: category filters, live dashboard counts and reports')
 
 # Account workflows and moderation, using only this disposable database.
-customer_csrf=customer['csrf']
 assert call('api/customer.php?action=register',{'name':'Duplicate','last_name':'Buyer','email':'buyer@example.test','phone':'+79997654321','birth_date':'1991-02-02','password':'test-only-password','consent':True})[0]==409
 assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'wrong-password'})[0]==401
 assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie)[0]==403
