@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 function validate_order(array $in): array {
     $out=[];
-    foreach(['name'=>200,'phone'=>40,'email'=>200,'address'=>2000,'comment'=>4000] as $key=>$max){
+    foreach(['name'=>200,'phone'=>40,'email'=>200,'address'=>2000,'comment'=>4000,'pickup_store'=>180] as $key=>$max){
         if(isset($in[$key])&&!is_string($in[$key]))throw new InvalidArgumentException('invalid_input');
         $out[$key]=trim($in[$key]??'');
         if(mb_strlen($out[$key])>$max)throw new InvalidArgumentException('invalid_input');
@@ -15,6 +15,14 @@ function validate_order(array $in): array {
     $out['delivery']=$in['delivery']??'pickup';
     if(!in_array($out['delivery'],['pickup','orenburg_delivery'],true))throw new InvalidArgumentException('invalid_delivery');
     if($out['delivery']==='orenburg_delivery'&&mb_strlen($out['address'])<5)throw new InvalidArgumentException('address_required');
+    $pickupStores=['Проспект Победы, 79','Проспект Победы, 118 строение 2'];
+    if($out['delivery']==='pickup'){
+        if($out['pickup_store']==='')$out['pickup_store']=$pickupStores[0];
+        if(!in_array($out['pickup_store'],$pickupStores,true))throw new InvalidArgumentException('invalid_pickup_store');
+        $out['address']='';
+    }else{
+        $out['pickup_store']='';
+    }
     $ids=$in['items']??null;
     if(!is_array($ids)||!count($ids)||count($ids)>500)throw new InvalidArgumentException('invalid_items');
     $out['groups']=[];

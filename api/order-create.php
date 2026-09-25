@@ -30,7 +30,7 @@ try{
   $number='PS-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
   insert_order_row($pdo,'orders',[
     'customer_id'=>$customerId,'order_number'=>$number,'customer_name'=>$in['name'],'phone'=>$in['phone'],
-    'email'=>$in['email']?:null,'delivery_method'=>$in['delivery'],'address'=>$in['address']?:null,
+    'email'=>$in['email']?:null,'delivery_method'=>$in['delivery'],'pickup_store'=>$in['pickup_store']?:null,'address'=>$in['address']?:null,
     'comment'=>$in['comment']?:null,'status'=>'new','total_rub'=>$calculated['total'],
     'request_key'=>$in['request_key'],'request_hash'=>$hash,
   ]);
@@ -39,6 +39,7 @@ try{
     'order_id'=>$orderId,'product_id'=>$x['id'],'title'=>$x['title'],'price_rub'=>$x['price'],
     'quantity'=>$x['qty'],'line_total_rub'=>$x['line'],
   ]);
+  record_order_status($pdo,$orderId,'new',null,'checkout');
   $pdo->commit();order_result(['order_number'=>$number,'total_rub'=>$calculated['total']]);
 }catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>$e->getMessage()],422);
 }catch(DomainException $e){if($pdo->inTransaction())$pdo->rollBack();json_response(['ok'=>false,'error'=>$e->getMessage()],409);

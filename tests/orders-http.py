@@ -1,4 +1,4 @@
-import json, urllib.request, urllib.error
+import json, urllib.request, urllib.error, urllib.parse
 from datetime import datetime
 from zoneinfo import ZoneInfo
 BASE='http://127.0.0.1:8080/'
@@ -11,10 +11,11 @@ def call(path, data=None, cookie=None, csrf=None):
     except urllib.error.HTTPError as e: r=e
     raw=r.read()
     return r.status,json.loads(raw),r.headers
-base={'name':'Test buyer','phone':'+79991234567','items':[1,1],'request_key':'a'*64}
+base={'name':'Test buyer','phone':'+79991234567','pickup_store':'Проспект Победы, 118 строение 2','items':[1,1],'request_key':'a'*64}
 status,j,_=call('api/order-create.php',{**base,'items':[1,1,1]});assert (status,j['error'])==(409,'insufficient_stock')
 status,j,_=call('api/order-create.php',{**base,'items':[2]});assert (status,j['error'])==(409,'price_unavailable')
 status,j,_=call('api/order-create.php',{**base,'delivery':'orenburg_delivery'});assert (status,j['error'])==(422,'address_required')
+status,j,_=call('api/order-create.php',{**base,'pickup_store':'Неизвестный магазин'});assert (status,j['error'])==(422,'invalid_pickup_store')
 status,order,_=call('api/order-create.php',base);assert status==200 and order['total_rub']==300,(status,order)
 status,replay,_=call('api/order-create.php',base);assert replay==order
 status,j,_=call('api/order-create.php',{**base,'name':'Changed buyer'});assert (status,j['error'])==(409,'request_conflict')
@@ -26,6 +27,7 @@ id=j['items'][0]['id']
 created=datetime.fromisoformat(j['items'][0]['created_at']).replace(tzinfo=ZoneInfo('Asia/Yekaterinburg'))
 assert abs((datetime.now(ZoneInfo('Asia/Yekaterinburg'))-created).total_seconds())<120
 status,j,_=call('api/orders.php?id='+str(id),cookie=cookie);assert len(j['items'])==1 and j['items'][0]['quantity']==2
+assert j['order']['pickup_store']=='Проспект Победы, 118 строение 2' and [h['status'] for h in j['history']]==['new']
 payload={'id':id,'status':'confirmed','previous_status':'new'}
 assert call('api/orders.php',payload,cookie)[0]==403
 assert call('api/orders.php',payload,cookie,csrf)[0]==200
@@ -33,6 +35,7 @@ assert call('api/orders.php',payload,cookie,csrf)[0]==409
 status,j,_=call('api/orders.php?status=confirmed',cookie=cookie);assert j['total']==1
 assert call('api/orders.php',{'id':id,'status':'processing','previous_status':'confirmed'},cookie,csrf)[0]==200
 assert call('api/orders.php?status=processing',cookie=cookie)[1]['total']==1
+status,hist,_=call('api/orders.php?id='+str(id),cookie=cookie);assert [h['status'] for h in hist['history']]==['new','confirmed','processing']
 print('PASS: stock, price, address, order persistence, deduplication, admin auth, detail, CSRF, status conflict')
 # Requests reach the workshop and survive a retry.
 service={'name':'Test service','phone':'+79991234567','type':'Диагностика','bike':'Test bike','problem':'Test repair request','request_key':'b'*64}
@@ -59,8 +62,26 @@ assert status==200
 customer_cookie=next(c.split(';')[0] for c in reversed(h.get_all('Set-Cookie')) if c.startswith('PROFISPORT_CUSTOMER='))
 status,j,_=call('api/order-create.php',{**base,'items':[1],'request_key':'c'*64},customer_cookie);assert status==200
 status,j,_=call('api/customer.php?action=me',cookie=customer_cookie);assert len(j['orders'])==1 and j['orders'][0]['total_rub']==200
+customer_order_number=j['orders'][0]['order_number'];customer_csrf=customer['csrf']
+assert j['orders'][0]['pickup_store']=='Проспект Победы, 118 строение 2'
+assert call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf)[0]==409
+admin_order=call('api/orders.php?q='+urllib.parse.quote(customer_order_number),cookie=cookie)[1]['items'][0]
+assert call('api/orders.php',{'id':admin_order['id'],'status':'completed','previous_status':'new'},cookie,csrf)[0]==200
+status,detail,_=call('api/customer.php?action=order&number='+urllib.parse.quote(customer_order_number),cookie=customer_cookie);assert status==200
+assert detail['order']['pickup_store']=='Проспект Победы, 118 строение 2' and detail['items'][0]['image']=='https://example.test/test-ball.jpg'
+assert [h['status'] for h in detail['history']]==['new','completed'] and detail['history_complete'] is True
+status,repeated,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
+assert repeated['cart_items']==['1'] and repeated['added_count']==1 and repeated['skipped']==[]
+live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
+p1['stock_qty']=0;p1['is_active']=0
+assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
+status,unavailable,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
+assert unavailable['added_count']==0 and unavailable['cart_items']==[] and unavailable['skipped'][0]['reason']=='unavailable'
+live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
+p1['price_rub']=200;p1['old_price_rub']=300;p1['stock_qty']=2;p1['is_active']=1
+assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 assert call('api/customer.php?action=me')[1]['customer'] is None
-print('PASS: authenticated checkout and private order history')
+print('PASS: authenticated checkout, pickup store, photo, exact status history and safe repeat-order preview')
 for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php']:
     with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
         assert r.geturl().endswith('/admin/login.php'),page
@@ -73,7 +94,6 @@ for page in ['categories.php','stats.php']:
 print('PASS: category filters, live dashboard counts and reports')
 
 # Account workflows and moderation, using only this disposable database.
-customer_csrf=customer['csrf']
 assert call('api/customer.php?action=register',{'name':'Duplicate','last_name':'Buyer','email':'buyer@example.test','phone':'+79997654321','birth_date':'1991-02-02','password':'test-only-password','consent':True})[0]==409
 assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'wrong-password'})[0]==401
 assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie)[0]==403

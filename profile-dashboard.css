@@ -24,7 +24,7 @@
 .activeOrderEmpty{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:15px;padding:14px 16px;border-radius:14px;background:#f7f7f4}
 .activeOrderEmpty p{margin:0}
 .profileShopLink{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 13px;border-radius:10px;background:#454b53;color:#fff;font-weight:850;white-space:nowrap}
-.activeOrderGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:12px;align-items:end;margin-top:16px}
+.activeOrderGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:12px;align-items:end;margin-top:16px}
 .activeOrderFact{min-width:0;padding:12px 14px;border-radius:13px;background:#faf9f5;border:1px solid #ece9e1}
 .activeOrderFact span{display:block;margin-bottom:4px;color:#7a7e82;font-size:11px}.activeOrderFact b{display:block;font-size:15px;overflow-wrap:anywhere}
 .activeOrderOpen{min-height:46px;box-shadow:none}
@@ -59,4 +59,42 @@
   .profileContactLine{display:grid;gap:4px}.activeOrderGrid{grid-template-columns:1fr}
   .activeOrderOpen{grid-column:auto}
   .profileReviewsSummary{align-items:flex-start;flex-direction:column}
+}
+
+
+/* Customer cabinet — orders block 2 */
+.orderStatusChip[data-status="new"]{background:#fff3b8;color:#5e4b00}
+.orderStatusChip[data-status="confirmed"]{background:#e8f2ff;color:#245d9d}
+.orderStatusChip[data-status="completed"]{background:#e7f7ea;color:#216f37}
+.orderStatusChip[data-status="cancelled"]{background:#f7e9e7;color:#9a342c}
+
+#customerOrders{display:grid;gap:10px}
+.customerOrderCard{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;padding:16px;border:1px solid #e6e3dc;border-radius:15px;background:#faf9f5}
+.customerOrderCardMain{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0}.customerOrderCardMain>div{display:flex;align-items:center;gap:9px;min-width:0;flex-wrap:wrap}
+.customerOrderNumber{font-weight:950;overflow-wrap:anywhere}.customerOrderCardMain>strong{white-space:nowrap;font-size:18px}
+.customerOrderCardMeta{display:flex;gap:8px 18px;flex-wrap:wrap;color:#747a80;font-size:13px;min-width:0}.customerOrderCardMeta span{overflow-wrap:anywhere}
+.customerOrderCard>button{grid-column:2;grid-row:1/3;min-width:112px;box-shadow:none}
+
+.customerOrderDetails{scroll-margin-top:18px;margin-top:14px!important;padding:20px!important;background:#fff!important}
+.customerOrderDetailHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.customerOrderDetailHead h3{margin:3px 0 8px;font-size:25px}.customerOrderClose{flex:0 0 auto}
+.customerOrderMeta{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin:18px 0}
+.customerOrderMeta>div{min-width:0;padding:12px 14px;border:1px solid #ece9e1;border-radius:13px;background:#faf9f5}.customerOrderMeta span{display:block;color:#747a80;font-size:11px;margin-bottom:4px}.customerOrderMeta b{display:block;overflow-wrap:anywhere}
+.customerOrderProducts,.customerOrderHistory,.customerOrderComment{margin-top:20px}.customerOrderProducts h4,.customerOrderHistory h4,.customerOrderComment h4{margin:0 0 10px;font-size:17px}
+.customerOrderItem{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:13px;align-items:center;padding:11px 0;border-top:1px solid #ece9e1}.customerOrderItem:first-of-type{border-top:0}
+.customerOrderItemImage{width:72px;height:72px;display:grid;place-items:center;border-radius:11px;background:#f6f5f1;overflow:hidden}.customerOrderItemImage img{width:100%;height:100%;object-fit:contain}.customerOrderItemPh{font-size:11px;color:#8b8d8f}
+.customerOrderItemInfo{display:grid;gap:3px;min-width:0}.customerOrderItemInfo b{overflow-wrap:anywhere}.customerOrderItemInfo>span{font-size:12px;color:#747a80}.customerOrderItem>strong{white-space:nowrap}
+.orderItemNow{display:inline-flex!important;width:max-content;max-width:100%;padding:3px 7px;border-radius:999px;font-size:10px!important;font-weight:850}.orderItemNow.available{background:#e7f7ea;color:#216f37}.orderItemNow.unavailable{background:#f5ece9;color:#914238}
+.customerOrderHistory{padding:15px;border-radius:14px;background:#faf9f5;border:1px solid #ece9e1}.customerOrderHistoryRow{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;padding:4px 0 13px}.customerOrderHistoryRow:not(:last-of-type):before{content:"";position:absolute;left:7px;top:17px;bottom:-1px;width:2px;background:#ddd9ce}.customerOrderHistoryDot{position:relative;z-index:1;width:16px;height:16px;border:4px solid #fff;border-radius:50%;background:#b9b6ad;box-shadow:0 0 0 1px #d8d4ca}.customerOrderHistoryRow.current .customerOrderHistoryDot{background:#f2c94c;box-shadow:0 0 0 1px #d9b735}.customerOrderHistoryRow b{display:block}.customerOrderHistoryRow small{display:block;margin-top:2px;color:#747a80}.orderHistoryNote{margin:4px 0 0;color:#747a80;font-size:12px}
+.customerOrderComment{padding:14px 15px;border-radius:14px;background:#fffdf5;border:1px solid #eee2a7}.customerOrderComment p{margin:0;white-space:pre-wrap}
+.customerOrderActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.customerRepeatOrder{min-height:42px}.orderRepeatWarn{display:block;margin-top:12px;padding:12px 14px;border-radius:12px;background:#fff3d4;color:#63520b}.orderRepeatWarn a{text-decoration:underline;font-weight:850}
+
+@media(max-width:760px){
+  .activeOrderGrid{grid-template-columns:1fr 1fr}
+  .customerOrderCard{grid-template-columns:1fr}.customerOrderCard>button{grid-column:auto;grid-row:auto;width:100%}.customerOrderCardMain{align-items:flex-start}
+  .customerOrderMeta{grid-template-columns:1fr}.customerOrderItem{grid-template-columns:60px minmax(0,1fr)}.customerOrderItemImage{width:60px;height:60px}.customerOrderItem>strong{grid-column:2}
+  .customerOrderDetailHead{gap:10px}.customerOrderClose{padding:9px 11px}.customerOrderActions>*{width:100%}
+}
+@media(max-width:430px){
+  .customerOrderCardMain{display:grid}.customerOrderCardMain>strong{font-size:17px}.customerOrderCardMeta{display:grid;gap:4px}
+  .customerOrderItem{grid-template-columns:52px minmax(0,1fr)}.customerOrderItemImage{width:52px;height:52px}
 }
