@@ -17,7 +17,7 @@ This file is a technical checklist for moving the store from the temporary Infin
 2. `Catalog quality audit` must complete successfully.
 3. `Autonomous photo autofill` must remain conservative: no SKU/article matching, no candidate below the configured confidence threshold.
 4. Verify `api/health.php` returns `ok: true` and a plausible active catalog count on the destination host.
-5. Run a full 1C import on a copy of the production database before DNS switch.
+5. Verify the automatic 1C watcher on the current host: a changed server-side export must become `current_1c_snapshot`; an unchanged snapshot must be a no-op.
 6. Test customer registration/login, favorites, checkout, order creation, admin status updates and customer order history.
 7. Verify product prices and stock are read server-side during checkout; browser values must never be trusted.
 
@@ -26,7 +26,7 @@ This file is a technical checklist for moving the store from the temporary Infin
 - Export/import the MySQL database with UTF-8 (`utf8mb4`).
 - Preserve product IDs so favorites, reviews and order item references remain valid.
 - Preserve `source_id` / `source_hash` so the next 1C import updates existing rows rather than creating duplicates.
-- Copy required import/upload image directories separately from Git source.
+- Copy required import/upload image directories. The built-in migration engine includes runtime files, `/import` and `/uploads` while excluding Git/test-only material.
 - Take a database backup immediately before DNS cutover.
 
 ## Security
@@ -38,6 +38,12 @@ This file is a technical checklist for moving the store from the temporary Infin
 - Keep CSRF checks enabled for customer and admin writes.
 - Do not expose database/admin credentials to browser JavaScript.
 
+## Automatic hosting migration
+
+The owner can open **Admin → Перенос сайта**, enter the new host's FTPS and MySQL credentials, run a preflight, choose a delay, and confirm the migration with the current admin password. Credentials are AES-256-GCM encrypted on the source server, never returned to the browser after scheduling, and are erased from the migration record after a successful transfer.
+
+The destination database must be empty. The worker copies schema/data in resumable chunks, copies runtime files over FTPS, writes the destination server config, verifies table row counts, and optionally checks the destination HTTPS health endpoint. Failed jobs can be retried from their saved cursor. DNS switching remains a separate registrar action.
+
 ## Cutover
 
 1. Deploy the exact tested `main` commit.
@@ -48,6 +54,14 @@ This file is a technical checklist for moving the store from the temporary Infin
 6. Point the final domain/DNS to the new host.
 7. Only after the final domain is known, add canonical URLs, robots/sitemap host URLs and production analytics.
 8. Keep the old host available briefly for rollback, but do not accept parallel orders on two databases.
+
+## Catalog source policy
+
+- The current 1C/MySQL export is the only storefront catalog source of truth.
+- The server checks automatically for a changed 1C snapshot; unchanged snapshots are no-ops.
+- Zero-stock products and products absent from the current snapshot are hidden.
+- Product photos come only from the current source data. Missing photos are intentionally left missing.
+- The old `velo56-parser` pipeline and fallback photo research are retired and must not be reintroduced as storefront fallbacks.
 
 ## Backups and monitoring
 
