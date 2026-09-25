@@ -98,8 +98,26 @@ assert call('api/customer.php?action=register',{'name':'Duplicate','last_name':'
 assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'wrong-password'})[0]==401
 assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie)[0]==403
 assert call('api/customer.php?action=favorite',{'product_id':999999},customer_cookie,customer_csrf)[0]==404
-assert call('api/customer.php?action=favorite',{'product_id':1},customer_cookie,customer_csrf)[1]['active'] is True
-assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['favorites']==['1']
+fav_added=call('api/customer.php?action=favorite',{'product_id':1},customer_cookie,customer_csrf)[1];assert fav_added['active'] is True and fav_added['count']==1
+favorite_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert favorite_account['favorites']==['1'] and len(favorite_account['favorite_details'])==1
+assert favorite_account['favorite_details'][0]['available'] is True and favorite_account['favorite_details'][0]['price_rub']==200 and favorite_account['favorite_details'][0]['image']=='https://example.test/test-ball.jpg'
+live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
+p1['stock_qty']=0;p1['is_active']=0
+assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
+favorite_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert favorite_account['favorites']==['1'] and favorite_account['favorite_details'][0]['available'] is False
+removed=call('api/customer.php?action=favorite_remove',{'product_id':1},customer_cookie,customer_csrf)[1]
+assert removed['active'] is False and removed['removed'] is True and removed['count']==0
+removed_again=call('api/customer.php?action=favorite_remove',{'product_id':1},customer_cookie,customer_csrf)[1]
+assert removed_again['active'] is False and removed_again['removed'] is False and removed_again['count']==0
+merged=call('api/customer.php?action=favorites_merge',{'product_ids':[1]},customer_cookie,customer_csrf)[1]
+assert merged['merged']==1
+favorite_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert favorite_account['favorites']==['1'] and favorite_account['favorite_details'][0]['available'] is False
+live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
+p1['price_rub']=200;p1['old_price_rub']=300;p1['stock_qty']=2;p1['is_active']=1
+assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 review={'product_id':1,'rating':5,'text':'Useful test review for moderation'}
 assert call('api/customer.php?action=review_submit',review,customer_cookie)[0]==403
 assert call('api/customer.php?action=review_submit',{**review,'product_id':999999},customer_cookie,customer_csrf)[0]==404
@@ -118,4 +136,4 @@ assert call('api/customer.php?action=logout',{},customer_cookie,customer_csrf)[0
 assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['customer'] is None
 status,logged,h=call('api/customer.php?action=login',{'email':'buyer@example.test','password':'test-only-password'})
 assert status==200 and logged['customer']['bonus_balance']==50
-print('PASS: account login/logout, duplicate account, favorites, review moderation, CSRF and one-time bonus')
+print('PASS: account login/logout, favorite availability persistence/merge/removal, review moderation, CSRF and one-time bonus')

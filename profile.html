@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Личный кабинет — ПрофиСпорт</title>
   <link rel="stylesheet" href="storefront-v2.css?v=34">
-  <link rel="stylesheet" href="profile-dashboard.css?v=2">
+  <link rel="stylesheet" href="profile-dashboard.css?v=3">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
@@ -62,7 +62,7 @@
       </section>
 
       <section id="favorites-section" class="profileCard profileSecondaryCard">
-        <div class="profileSectionIntro"><h3>Избранное</h3><span>Актуальные цена и наличие</span></div>
+        <div class="profileSectionIntro"><h3>Избранное</h3><span id="favoritesSummary">Актуальные цена и наличие</span></div>
         <div id="favorites" class="profileFav"></div>
       </section>
 
@@ -150,6 +150,73 @@
     function formatDateTime(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
     function initials(u){const a=[u?.name,u?.last_name].filter(Boolean).map(x=>String(x).trim()[0]||'').join('').slice(0,2).toUpperCase();return a||'PS'}
     function reviewText(n){const x=Math.abs(Number(n)||0)%100;if(x>=11&&x<=14)return 'отзывов';const y=x%10;return y===1?'отзыв':(y>=2&&y<=4?'отзыва':'отзывов')}
+    function favoritePriceMarkup(p){
+      const price=Number(p.price_rub||0),old=Number(p.old_price_rub||0);
+      if(price<=0)return '<span class="favoritePriceUnknown">Цена уточняется</span>';
+      return '<span class="favoritePrice">'+price.toLocaleString('ru-RU')+' ₽</span>'+(old>price?'<del>'+old.toLocaleString('ru-RU')+' ₽</del>':'');
+    }
+    function favoriteStockMarkup(p){
+      if(!p.available)return '<span class="favoriteStock unavailable">Нет в наличии</span>';
+      const qty=Number(p.stock_qty||0);
+      return '<span class="favoriteStock available">В наличии'+(qty>0?' · '+qty+' шт.':'')+'</span>';
+    }
+    function favoriteCardMarkup(p){
+      const id=String(p.product_id);
+      const image=p.image?'<img src="'+esc(p.image)+'" alt="" loading="lazy" decoding="async">':'<span class="favoriteImagePlaceholder">Фото уточняется</span>';
+      const title=p.exists?esc(p.name):'Товар больше недоступен';
+      const link=p.url?'<a class="favoriteTitle" href="'+esc(p.url)+'">'+title+'</a>':'<span class="favoriteTitle">'+title+'</span>';
+      const cart=p.available?'<button type="button" class="favoriteAddCart" data-favorite-cart="'+esc(id)+'">В корзину</button>':'<button type="button" class="favoriteAddCart" disabled>Нет в наличии</button>';
+      return '<article class="favoriteCard" data-favorite-card="'+esc(id)+'"><button type="button" class="favoriteRemove" data-favorite-remove="'+esc(id)+'" aria-label="Удалить из избранного">♥</button><div class="favoriteImage">'+image+'</div><div class="favoriteBody">'+link+favoriteStockMarkup(p)+'<div class="favoritePriceRow">'+favoritePriceMarkup(p)+'</div><div class="favoriteActions">'+cart+(p.url?'<a href="'+esc(p.url)+'" class="favoriteOpen">Открыть</a>':'')+'</div><div class="favoriteNotice" aria-live="polite"></div></div></article>';
+    }
+    function favoriteEmptyMarkup(){return '<div class="favoriteEmpty"><b>В избранном пока пусто.</b><p>Добавляйте товары сердечком в каталоге — после входа они сохранятся в аккаунте.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>'}
+    async function removeFavorite(id,button){
+      button.disabled=true;
+      const card=button.closest('[data-favorite-card]');
+      try{
+        const j=await api('favorite_remove',{method:'POST',body:JSON.stringify({product_id:Number(id)})});
+        if(j.active)throw new Error('favorite_toggle_failed');
+        if(card)card.remove();
+        $('#favoritesCount').textContent=Number(j.count||0);
+        const left=document.querySelectorAll('[data-favorite-card]').length;
+        const available=document.querySelectorAll('[data-favorite-cart]:not([disabled])').length;
+        $('#favoritesSummary').textContent=left?'В наличии: '+available+' из '+left:'Актуальные цена и наличие';
+        if(!left)$('#favorites').innerHTML=favoriteEmptyMarkup();
+      }catch(e){
+        button.disabled=false;
+        const notice=card?.querySelector('.favoriteNotice');if(notice)notice.textContent='Не удалось удалить. Попробуйте ещё раз.';
+      }
+    }
+    async function addFavoriteToCart(id,button){
+      const card=button.closest('[data-favorite-card]'),notice=card?.querySelector('.favoriteNotice');
+      button.disabled=true;button.textContent='Проверяем…';if(notice)notice.textContent='';
+      try{
+        const product=await loadProduct(id);
+        if(!product||product.stockCode==='out'||Number(product.price||0)<=0){
+          button.textContent='Нет в наличии';
+          if(notice)notice.textContent='Товар сейчас недоступен для заказа.';
+          card?.querySelector('.favoriteStock')?.classList.add('unavailable');
+          return;
+        }
+        let cart=[];try{const raw=JSON.parse(localStorage.getItem('ps-cart')||'[]');if(Array.isArray(raw))cart=raw}catch(e){}
+        const current=cart.filter(x=>String(x)===String(product.id)).length;
+        if(product.stockQty!==null&&current>=Number(product.stockQty)){
+          button.textContent='Остаток в корзине';
+          if(notice)notice.textContent='В корзине уже максимальное доступное количество.';
+          return;
+        }
+        cart.push(String(product.id));localStorage.setItem('ps-cart',JSON.stringify(cart));
+        button.textContent='Добавлено';
+        if(notice)notice.innerHTML='Товар добавлен. <a href="checkout.html">Перейти в корзину</a>';
+        setTimeout(()=>{if(button.isConnected){button.disabled=false;button.textContent='В корзину'}},1200);
+      }catch(e){
+        button.disabled=false;button.textContent='В корзину';if(notice)notice.textContent='Не удалось добавить товар.';
+      }
+    }
+    function bindFavoriteCards(){
+      document.querySelectorAll('[data-favorite-remove]').forEach(function(button){button.onclick=function(){removeFavorite(button.dataset.favoriteRemove,button)}});
+      document.querySelectorAll('[data-favorite-cart]').forEach(function(button){if(!button.disabled)button.onclick=function(){addFavoriteToCart(button.dataset.favoriteCart,button)}});
+      document.querySelectorAll('.favoriteImage img').forEach(function(img){img.onerror=function(){const ph=document.createElement('span');ph.className='favoriteImagePlaceholder';ph.textContent='Фото уточняется';img.replaceWith(ph)}});
+    }
     async function render(j){
       csrf=j.csrf||csrf;
       const u=j.customer;
@@ -197,11 +264,12 @@
       }).join('')||'<p class="muted">Заказов пока нет.</p>';
       document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>openOrder(b.dataset.order,b));
 
-      let all=[];
-      try{for(let i=0;i<favoriteIds.length;i+=8)all.push(...(await Promise.all(favoriteIds.slice(i,i+8).map(loadProduct))).filter(Boolean))}catch(e){}
-      const byId=new Map(all.map(p=>[String(p.id),p]));
-      const fav=favoriteIds.map(id=>byId.get(String(id))).filter(Boolean);
-      $('#favorites').innerHTML=fav.length?fav.map(p=>'<a href="product.html?id='+encodeURIComponent(p.id)+'"><b>'+esc(p.name)+'</b><br><span class="muted">'+Number(p.price||0).toLocaleString('ru-RU')+' ₽</span></a>').join(''):'<p class="muted">Избранных товаров пока нет.</p>';
+      const favoriteDetails=Array.isArray(j.favorite_details)?j.favorite_details.slice():[];
+      favoriteDetails.sort(function(a,b){return Number(Boolean(b.available))-Number(Boolean(a.available))||String(b.saved_at||'').localeCompare(String(a.saved_at||''))});
+      const availableFavorites=favoriteDetails.filter(function(x){return x.available}).length;
+      $('#favoritesSummary').textContent=favoriteDetails.length?'В наличии: '+availableFavorites+' из '+favoriteDetails.length:'Актуальные цена и наличие';
+      $('#favorites').innerHTML=favoriteDetails.length?favoriteDetails.map(favoriteCardMarkup).join(''):favoriteEmptyMarkup();
+      bindFavoriteCards();
 
       $('#reviewsSummary').innerHTML=reviewsCount
         ?'<div><b>Вы оставили '+reviewsCount+' '+reviewText(reviewsCount)+'.</b><p class="muted">Полное управление отзывами добавим отдельным этапом.</p></div><div class="profileReviewsCount">'+reviewsCount+'</div>'

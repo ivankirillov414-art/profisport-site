@@ -55,13 +55,37 @@ function customer_order_history(PDO $pdo,array $order): array {
   if((string)$order['status']!=='new')$items[]=['status'=>(string)$order['status'],'source'=>'legacy_current','created_at'=>(string)($order['updated_at']?:$order['created_at'])];
   return ['complete'=>false,'items'=>$items];
 }
+function customer_favorite_details(PDO $pdo,int $customerId): array {
+  $s=$pdo->prepare('SELECT cf.product_id,cf.created_at AS saved_at,p.name,p.price_rub,p.old_price_rub,p.stock_qty,p.stock_status,p.availability,p.is_active,p.main_image,p.images FROM customer_favorites cf LEFT JOIN products p ON p.id=cf.product_id WHERE cf.customer_id=? ORDER BY cf.created_at DESC,cf.product_id DESC');
+  $s->execute([$customerId]);$items=[];
+  foreach($s->fetchAll() as $row){
+    $exists=$row['name']!==null;
+    $qty=$row['stock_qty']!==null?(int)$row['stock_qty']:null;
+    $price=(int)($row['price_rub']??0);$old=$row['old_price_rub']!==null?(int)$row['old_price_rub']:null;
+    $available=$exists&&(int)($row['is_active']??0)===1&&$qty!==null&&$qty>0&&($row['stock_status']??'')!=='out_of_stock'&&($row['availability']??'')!=='out_of_stock'&&$price>0;
+    $items[]=[
+      'product_id'=>(int)$row['product_id'],
+      'name'=>$exists?(string)$row['name']:'Товар больше недоступен',
+      'price_rub'=>$price,
+      'old_price_rub'=>$old!==null&&$old>$price?$old:null,
+      'stock_qty'=>$qty,
+      'available'=>$available,
+      'exists'=>$exists,
+      'image'=>$exists?customer_order_image($row):null,
+      'saved_at'=>(string)$row['saved_at'],
+      'url'=>$exists?'product.html?id='.(int)$row['product_id']:null
+    ];
+  }
+  return $items;
+}
 function customer_payload(PDO $pdo,array $u): array {
   $f=$pdo->prepare('SELECT product_id FROM customer_favorites WHERE customer_id=? ORDER BY created_at DESC');$f->execute([(int)$u['id']]);
   $history=$pdo->prepare('SELECT amount,kind,note,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 20');$history->execute([(int)$u['id']]);
   $orders=$pdo->prepare('SELECT order_number,status,total_rub,delivery_method,pickup_store,address,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 50');$orders->execute([(int)$u['id']]);
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
-  return ['ok'=>true,'customer'=>$u,'favorites'=>array_map('strval',array_column($f->fetchAll(),'product_id')),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'csrf'=>customer_csrf()];
+  $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
+  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
@@ -119,16 +143,27 @@ try{
   }
   if($action==='favorite'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$pid=(int)($in['product_id']??0);if($pid<1)json_response(['ok'=>false,'error'=>'bad_product'],422);
-    $product=$pdo->prepare('SELECT id FROM products WHERE id=? AND is_active=1');$product->execute([$pid]);if(!$product->fetchColumn())json_response(['ok'=>false,'error'=>'bad_product'],404);
     $s=$pdo->prepare('SELECT 1 FROM customer_favorites WHERE customer_id=? AND product_id=?');$s->execute([(int)$u['id'],$pid]);$exists=(bool)$s->fetchColumn();
-    if($exists){$d=$pdo->prepare('DELETE FROM customer_favorites WHERE customer_id=? AND product_id=?');$d->execute([(int)$u['id'],$pid]);$active=false;}else{$i=$pdo->prepare('INSERT IGNORE INTO customer_favorites(customer_id,product_id) VALUES(?,?)');$i->execute([(int)$u['id'],$pid]);$active=true;}
-    json_response(['ok'=>true,'active'=>$active]);
+    if($exists){
+      $d=$pdo->prepare('DELETE FROM customer_favorites WHERE customer_id=? AND product_id=?');$d->execute([(int)$u['id'],$pid]);$active=false;
+    }else{
+      $product=$pdo->prepare('SELECT id FROM products WHERE id=?');$product->execute([$pid]);if(!$product->fetchColumn())json_response(['ok'=>false,'error'=>'bad_product'],404);
+      $i=$pdo->prepare('INSERT IGNORE INTO customer_favorites(customer_id,product_id) VALUES(?,?)');$i->execute([(int)$u['id'],$pid]);$active=true;
+    }
+    $count=$pdo->prepare('SELECT COUNT(*) FROM customer_favorites WHERE customer_id=?');$count->execute([(int)$u['id']]);
+    json_response(['ok'=>true,'active'=>$active,'count'=>(int)$count->fetchColumn()]);
+  }
+  if($action==='favorite_remove'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$pid=(int)($in['product_id']??0);if($pid<1)json_response(['ok'=>false,'error'=>'bad_product'],422);
+    $d=$pdo->prepare('DELETE FROM customer_favorites WHERE customer_id=? AND product_id=?');$d->execute([(int)$u['id'],$pid]);
+    $count=$pdo->prepare('SELECT COUNT(*) FROM customer_favorites WHERE customer_id=?');$count->execute([(int)$u['id']]);
+    json_response(['ok'=>true,'active'=>false,'removed'=>$d->rowCount()>0,'count'=>(int)$count->fetchColumn()]);
   }
   if($action==='favorites_merge'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$raw=is_array($in['product_ids']??null)?$in['product_ids']:[];
     $ids=[];foreach(array_slice($raw,0,300) as $v){$id=(int)$v;if($id>0)$ids[$id]=true;}
     if(!$ids)json_response(['ok'=>true,'merged'=>0]);
-    $marks=implode(',',array_fill(0,count($ids),'?'));$s=$pdo->prepare("SELECT id FROM products WHERE id IN ($marks) AND is_active=1");$s->execute(array_keys($ids));$valid=array_map('intval',$s->fetchAll(PDO::FETCH_COLUMN));
+    $marks=implode(',',array_fill(0,count($ids),'?'));$s=$pdo->prepare("SELECT id FROM products WHERE id IN ($marks)");$s->execute(array_keys($ids));$valid=array_map('intval',$s->fetchAll(PDO::FETCH_COLUMN));
     $ins=$pdo->prepare('INSERT IGNORE INTO customer_favorites(customer_id,product_id) VALUES(?,?)');$merged=0;foreach($valid as $pid){$ins->execute([(int)$u['id'],$pid]);$merged+=$ins->rowCount();}
     json_response(['ok'=>true,'merged'=>$merged]);
   }
