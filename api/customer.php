@@ -35,10 +35,30 @@ function customer_birth_date(string $raw): string {
   return $date<=$today&&$date>=$oldest?$date->format('Y-m-d'):'';
 }
 function customer_valid_name(string $value): bool { $n=mb_strlen($value);return $n>=2&&$n<=120&&!preg_match('/[<>]/u',$value); }
+
+function customer_order_image(array $row): ?string {
+  $decoded=json_decode((string)($row['images']??''),true);if(!is_array($decoded))$decoded=[];
+  $urls=array_values(array_unique(array_filter(array_merge([(string)($row['main_image']??'')],array_map('strval',$decoded)),fn($v)=>trim((string)$v)!=='')));
+  foreach($urls as $url){
+    $url=trim((string)$url);if($url==='')continue;
+    if(str_starts_with($url,'/import/'))return 'api/product-image.php?p='.rawurlencode(substr($url,8));
+    if(str_starts_with($url,'import/'))return 'api/product-image.php?p='.rawurlencode(substr($url,7));
+    if(preg_match('~^https?://~i',$url))return $url;
+    if(str_starts_with($url,'api/'))return $url;
+  }
+  return null;
+}
+function customer_order_history(PDO $pdo,array $order): array {
+  $s=$pdo->prepare('SELECT status,source,created_at FROM order_status_history WHERE order_id=? ORDER BY id');$s->execute([(int)$order['id']]);$rows=$s->fetchAll();
+  if($rows)return ['complete'=>true,'items'=>$rows];
+  $items=[['status'=>'new','source'=>'legacy','created_at'=>(string)$order['created_at']]];
+  if((string)$order['status']!=='new')$items[]=['status'=>(string)$order['status'],'source'=>'legacy_current','created_at'=>(string)($order['updated_at']?:$order['created_at'])];
+  return ['complete'=>false,'items'=>$items];
+}
 function customer_payload(PDO $pdo,array $u): array {
   $f=$pdo->prepare('SELECT product_id FROM customer_favorites WHERE customer_id=? ORDER BY created_at DESC');$f->execute([(int)$u['id']]);
   $history=$pdo->prepare('SELECT amount,kind,note,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 20');$history->execute([(int)$u['id']]);
-  $orders=$pdo->prepare('SELECT order_number,status,total_rub,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 50');$orders->execute([(int)$u['id']]);
+  $orders=$pdo->prepare('SELECT order_number,status,total_rub,delivery_method,pickup_store,address,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 50');$orders->execute([(int)$u['id']]);
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
   return ['ok'=>true,'customer'=>$u,'favorites'=>array_map('strval',array_column($f->fetchAll(),'product_id')),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'csrf'=>customer_csrf()];
@@ -114,9 +134,33 @@ try{
   }
   if($action==='order'&&$_SERVER['REQUEST_METHOD']==='GET'){
     $u=customer_require($pdo);$number=trim((string)($_GET['number']??''));if($number==='')json_response(['ok'=>false,'error'=>'bad_order'],422);
-    $s=$pdo->prepare('SELECT id,order_number,status,total_rub,delivery_method,address,comment,created_at FROM orders WHERE customer_id=? AND order_number=? LIMIT 1');$s->execute([(int)$u['id'],$number]);$order=$s->fetch();if(!$order)json_response(['ok'=>false,'error'=>'not_found'],404);
-    $items=$pdo->prepare('SELECT product_id,title,price_rub,quantity,line_total_rub FROM order_items WHERE order_id=? ORDER BY id');$items->execute([(int)$order['id']]);
-    unset($order['id']);json_response(['ok'=>true,'order'=>$order,'items'=>$items->fetchAll()]);
+    $s=$pdo->prepare('SELECT id,order_number,status,total_rub,delivery_method,pickup_store,address,comment,created_at,updated_at FROM orders WHERE customer_id=? AND order_number=? LIMIT 1');$s->execute([(int)$u['id'],$number]);$order=$s->fetch();if(!$order)json_response(['ok'=>false,'error'=>'not_found'],404);
+    $items=$pdo->prepare('SELECT oi.product_id,oi.title,oi.price_rub,oi.quantity,oi.line_total_rub,p.main_image,p.images,p.is_active,p.stock_qty,p.stock_status,p.availability,p.price_rub AS current_price_rub FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=? ORDER BY oi.id');$items->execute([(int)$order['id']]);$itemRows=$items->fetchAll();
+    foreach($itemRows as &$item){
+      $item['image']=customer_order_image($item);
+      $item['current_available']=((int)($item['is_active']??0)===1)&&(($item['stock_status']??'')!=='out_of_stock')&&(($item['availability']??'')!=='out_of_stock')&&($item['stock_qty']===null||(int)$item['stock_qty']>0)&&((int)($item['current_price_rub']??0)>0);
+      unset($item['main_image'],$item['images'],$item['is_active'],$item['stock_status'],$item['availability']);
+    }unset($item);
+    $history=customer_order_history($pdo,$order);
+    unset($order['id'],$order['updated_at']);
+    json_response(['ok'=>true,'order'=>$order,'items'=>$itemRows,'history'=>$history['items'],'history_complete'=>$history['complete']]);
+  }
+  if($action==='repeat_order'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$number=trim((string)($in['order_number']??''));if($number==='')json_response(['ok'=>false,'error'=>'bad_order'],422);
+    $s=$pdo->prepare("SELECT id,status FROM orders WHERE customer_id=? AND order_number=? LIMIT 1");$s->execute([(int)$u['id'],$number]);$order=$s->fetch();if(!$order)json_response(['ok'=>false,'error'=>'not_found'],404);
+    if((string)$order['status']!=='completed')json_response(['ok'=>false,'error'=>'repeat_not_available'],409);
+    $q=$pdo->prepare('SELECT oi.product_id,oi.title,oi.quantity,p.is_active,p.stock_qty,p.stock_status,p.availability,p.price_rub FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=? ORDER BY oi.id');$q->execute([(int)$order['id']]);
+    $cart=[];$skipped=[];
+    foreach($q->fetchAll() as $row){
+      $requested=max(1,(int)$row['quantity']);$pid=(int)($row['product_id']??0);
+      $available=$pid>0&&(int)($row['is_active']??0)===1&&($row['stock_status']??'')!=='out_of_stock'&&($row['availability']??'')!=='out_of_stock'&&(int)($row['price_rub']??0)>0;
+      if(!$available){$skipped[]=['product_id'=>$pid,'title'=>(string)$row['title'],'requested'=>$requested,'added'=>0,'reason'=>'unavailable'];continue;}
+      $allowed=$requested;if($row['stock_qty']!==null)$allowed=min($allowed,max(0,(int)$row['stock_qty']));
+      if($allowed<1){$skipped[]=['product_id'=>$pid,'title'=>(string)$row['title'],'requested'=>$requested,'added'=>0,'reason'=>'out_of_stock'];continue;}
+      for($i=0;$i<$allowed&&count($cart)<500;$i++)$cart[]=(string)$pid;
+      if($allowed<$requested)$skipped[]=['product_id'=>$pid,'title'=>(string)$row['title'],'requested'=>$requested,'added'=>$allowed,'reason'=>'reduced_stock'];
+    }
+    json_response(['ok'=>true,'order_number'=>$number,'cart_items'=>$cart,'added_count'=>count($cart),'skipped'=>$skipped]);
   }
   if($action==='reviews'&&$_SERVER['REQUEST_METHOD']==='GET'){
     $pid=(int)($_GET['product_id']??0);if($pid<1)json_response(['ok'=>false,'error'=>'bad_product'],422);
