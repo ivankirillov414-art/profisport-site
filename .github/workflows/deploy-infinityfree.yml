@@ -210,6 +210,19 @@ jobs:
           fi
           echo 'Public InfinityFree storefront HTML passed the smoke check.'
 
+      - name: Verify live catalog and business flow after deploy
+        shell: bash
+        env:
+          PROFISPORT_DB_PASSWORD: ${{ secrets.DB_PASSWORD || secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          BASE='https://ferryffggg.infinityfreeapp.com'
+          TOKEN="$(printf '%s' "profisport-1c-auto-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
+          curl -fsS --retry 4 --retry-delay 3 --max-time 30 -A 'ProfiSport-Deploy-Smoke/1.0' "$BASE/api/health.php" -o /tmp/profisport-health.json
+          curl -fsS --retry 4 --retry-delay 3 --max-time 30 -A 'ProfiSport-Deploy-Smoke/1.0' "$BASE/api/catalog.php?limit=1&count=1" -o /tmp/profisport-catalog.json
+          curl -fsS --retry 4 --retry-delay 3 --max-time 60 -A 'ProfiSport-Deploy-Smoke/1.0' -H "X-Import-Token: $TOKEN" -X POST "$BASE/api/live-smoke.php" -o /tmp/profisport-smoke.json
+          python3 -c "import json; h=json.load(open('/tmp/profisport-health.json')); c=json.load(open('/tmp/profisport-catalog.json')); s=json.load(open('/tmp/profisport-smoke.json')); assert h.get('ok') and h.get('database'); assert c.get('ok') and c.get('count',0)>=1 and c.get('total',0)>=1; assert s.get('ok') and s.get('rolled_back') is True and all(s.get('checks',{}).values()); print('Live production business flow passed after deploy.')"
+
       - name: Report photo source policy
         run: |
           echo 'PHOTO_SOURCE=1C_MYSQL_ONLY'
