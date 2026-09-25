@@ -30,13 +30,14 @@ for(const cls of ['profileSettingsLayout','profileSettingsSummary','profileEditF
 assert.match(cookieJs,/profisport_cookie_consent_v1/,'cookie consent must persist acceptance');
 assert.match(cookieJs,/localStorage\.setItem/,'cookie consent must save acceptance locally');
 assert.match(cookieJs,/buyer-info\.html#cookies/,'cookie consent must link to browser-storage explanation');
+assert.match(cookieJs,/cookie-consent\.css\?v=1/,'cookie consent script must lazy-load its stylesheet');
 assert.match(cookieCss,/\.cookieConsent/,'cookie consent must be styled');
 assert.match(cookieCss,/cookieConsentHasMobileNav/,'cookie consent must avoid mobile bottom navigation');
 assert.match(buyer,/id="cookies"/,'buyer info must document cookie/browser storage');
 
 for(const page of ['index.html','product.html','checkout.html','profile.html','service.html','shop.html','workshop.html','buyer-info.html']){
   const html=read(page);
-  assert.match(html,/cookie-consent\.css\?v=1/,'missing cookie CSS on '+page);
+  assert.doesNotMatch(html,/cookie-consent\.css\?v=1/,'cookie CSS must stay lazy-loaded on '+page);
   assert.match(html,/cookie-consent\.js\?v=1/,'missing cookie JS on '+page);
 }
 
