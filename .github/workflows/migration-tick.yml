@@ -1,0 +1,26 @@
+name: ProfiSport migration tick
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+concurrency:
+  group: profisport-site-migration
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Advance scheduled migration
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 3 --max-time 65             -A 'ProfiSport-Migration-Tick/1.0'             -X POST 'https://ferryffggg.infinityfreeapp.com/api/migration-tick.php' >/tmp/migration.json
+          python3 - <<'PY'
+import json
+j=json.load(open('/tmp/migration.json',encoding='utf-8'))
+if not j.get('ok'):
+    raise SystemExit('migration tick failed')
+print('migration tick:',j)
+PY
