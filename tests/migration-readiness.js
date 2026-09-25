@@ -24,6 +24,8 @@ assert.match(migration,/config_cipher=NULL/,'migration secrets must be erased af
 assert.match(api,/migration_verify_password/,'migration schedule must re-check the current admin password');
 assert.match(api,/delay_minutes/,'migration must support delayed execution');
 assert.match(tick,/migration_tick_once/,'scheduled migration must have a resumable worker');
+assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration tick endpoint must require a server-side token');
+assert.match(deploy,/MIGRATION_TICK_TOKEN/,'deploy must configure the migration tick token');
 assert.match(admin,/Текущий пароль админки/,'admin migration UI must request password confirmation');
 assert.match(js,/confirm\(/,'admin migration UI must ask for a final confirmation');
 assert.match(deploy,/MIGRATION_KEY/,'production config must contain a stable migration encryption key');
