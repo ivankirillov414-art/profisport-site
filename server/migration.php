@@ -119,6 +119,15 @@ function migration_target_config(array $cfg): string {
   return "<?php\nreturn ".var_export($vals,true).";\n";
 }
 function migration_cursor(array $job): array {$x=json_decode((string)($job['cursor_json']??''),true);return is_array($x)?$x:[];}
+function migration_table_digest(PDO $db,string $table): array {
+  $cols=$db->query('SHOW COLUMNS FROM '.migration_quote_ident($table))->fetchAll(PDO::FETCH_ASSOC);if(!$cols)return[0,hash('sha256','')];
+  $order=migration_quote_ident((string)$cols[0]['Field']);$stmt=$db->query('SELECT * FROM '.migration_quote_ident($table).' ORDER BY '.$order);$ctx=hash_init('sha256');$count=0;
+  while($row=$stmt->fetch(PDO::FETCH_ASSOC)){hash_update($ctx,json_encode($row,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRESERVE_ZERO_FRACTION)."\n");$count++;}
+  return[$count,hash_final($ctx)];
+}
+function migration_database_digest(PDO $db,array $tables): string {
+  $ctx=hash_init('sha256');foreach($tables as $table){[$count,$digest]=migration_table_digest($db,$table);hash_update($ctx,$table.'|'.$count.'|'.$digest."\n");}return hash_final($ctx);
+}
 function migration_save(PDO $pdo,int $id,string $phase,array $cursor,array $progress=[],?string $status=null,?string $error=null): void {
   $sql='UPDATE site_migrations SET phase=?,cursor_json=?,progress_json=?,error_text=?'.($status!==null?',status=?':'').' WHERE id=?';
   $args=[$phase,json_encode($cursor,JSON_UNESCAPED_UNICODE),json_encode($progress,JSON_UNESCAPED_UNICODE),$error];if($status!==null)$args[]=$status;$args[]=$id;$pdo->prepare($sql)->execute($args);
@@ -160,8 +169,10 @@ function migration_tick_once(PDO $pdo): array {
       $phase='verify';migration_save($pdo,$id,$phase,[],$progress);return ['ran'=>true,'phase'=>$phase];
     }
     if($phase==='verify'){
-      foreach($sourceTables as $table){$a=(int)$pdo->query('SELECT COUNT(*) FROM '.migration_quote_ident($table))->fetchColumn();$b=(int)$target->query('SELECT COUNT(*) FROM '.migration_quote_ident($table))->fetchColumn();if($a!==$b)throw new RuntimeException('target_row_count_mismatch:'.$table);}
-      $progress['database_verified']=true;$progress['verified_at']=date(DATE_ATOM);
+      $sourceDigest=migration_database_digest($pdo,$sourceTables);$targetDigest=migration_database_digest($target,$sourceTables);
+      if(!hash_equals($sourceDigest,$targetDigest))throw new RuntimeException('target_database_digest_mismatch');
+      $sourceDigestAfter=migration_database_digest($pdo,$sourceTables);if(!hash_equals($sourceDigest,$sourceDigestAfter))throw new RuntimeException('source_changed_during_verify');
+      $progress['database_verified']=true;$progress['database_digest']=$sourceDigest;$progress['verified_at']=date(DATE_ATOM);
       if($cfg['target_url']!==''){$ctx=stream_context_create(['http'=>['timeout'=>12,'ignore_errors'=>true,'header'=>"User-Agent: ProfiSport-Migration\r\n"]]);$raw=@file_get_contents($cfg['target_url'].'/api/health.php',false,$ctx);$j=is_string($raw)?json_decode($raw,true):null;if(!is_array($j)||empty($j['ok']))throw new RuntimeException('target_http_health_failed');$progress['http_verified']=true;}
       $pdo->prepare("UPDATE site_migrations SET status='completed',phase='completed',cursor_json='{}',progress_json=?,config_cipher=NULL,error_text=NULL,completed_at=NOW() WHERE id=?")->execute([json_encode($progress,JSON_UNESCAPED_UNICODE),$id]);
       audit($pdo,'site_migration_completed','site_migration',(string)$id,['target_url'=>$cfg['target_url']]);return ['ran'=>true,'phase'=>'completed'];
