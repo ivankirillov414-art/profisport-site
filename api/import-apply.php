@@ -20,6 +20,8 @@ function photoUrls(string $cell,array $idx):array{$o=[];foreach(preg_split('/[|,
 try{
  authImport($config);if($_SERVER['REQUEST_METHOD']!=='POST')throw new RuntimeException('post_required');
  $root=realpath(__DIR__.'/../import');if(!$root)throw new RuntimeException('import_missing');[$pf,$cf]=findFiles($root);if(!$pf||!$cf)throw new RuntimeException('1c_csv_missing');$snapshot=hash_file('sha256',$pf);if($snapshot===false)throw new RuntimeException('Не удалось проверить файл товаров.');$requestedSnapshot=trim((string)($_GET['snapshot']??''));if($requestedSnapshot!==''&&!hash_equals($requestedSnapshot,$snapshot))throw new RuntimeException('Выгрузка изменилась во время обновления. Запустите импорт заново.');
+ $auto=(string)($_GET['auto']??'')==='1';$offset=max(0,(int)($_GET['offset']??0));
+ if($auto&&$offset===0){$s=$pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key='current_1c_snapshot' LIMIT 1");$s->execute();$current=(string)($s->fetchColumn()?:'');if($current!==''&&hash_equals($current,$snapshot))out(['ok'=>true,'source'=>basename($pf),'snapshot'=>$snapshot,'unchanged'=>true,'done'=>true,'next_offset'=>0,'processed'=>0,'total_rows'=>0]);}
  $r=rows($pf);$catsRaw=rows($cf);if(!$r)throw new RuntimeException('Файл товаров 1С пуст.');
  $first=headerMap($r[0]);$hasHeader=count($first)>=2;
  if($hasHeader){$map=$first;foreach(['source_id','name','price','stock'] as $requiredField)if(!isset($map[$requiredField]))throw new RuntimeException('В выгрузке 1С не найдена обязательная колонка: '.$requiredField);$stockIndex=$map['stock'];$stockLabel=(string)($r[0][$stockIndex]??'Остаток');array_shift($r);}else{
@@ -33,7 +35,7 @@ try{
  foreach($r as $rr){$name=trim((string)($rr[$map['name']]??''));if($name===''&&!$hasHeader)$name=trim((string)($rr[6]??''));if($name==='')continue;$productRows++;$q=qty((string)($rr[$stockIndex]??''));if($q===null){$invalid++;continue;}$valid++;if($q===0)$zeroAll++;else$positiveAll++;if($q===1)$onesAll++;$maxStock=max($maxStock,$q);}
  if($productRows===0||$valid/max(1,$productRows)<.99)throw new RuntimeException('Остатки заполнены недостаточно полно. Импорт остановлен до изменения базы.');
  $sourceCounts=[];foreach($r as $rr){$id=trim((string)($rr[$map['source_id']]??''));if($id!=='')$sourceCounts[$id]=($sourceCounts[$id]??0)+1;}
- $offset=max(0,(int)($_GET['offset']??0));$limit=min(1000,max(100,(int)($_GET['limit']??500)));$slice=array_slice($r,$offset,$limit);
+ $limit=min(1000,max(100,(int)($_GET['limit']??500)));$slice=array_slice($r,$offset,$limit);
  $cats=[];foreach($catsRaw as $x){$id=trim((string)($x[0]??''));$name=trim((string)($x[1]??''));if($id===''||$name==='')continue;$cats[$id]=['name'=>$name,'parent'=>trim((string)($x[2]??''))];}
  $catPath=function(string $id)use(&$cats):string{$parts=[];$seen=[];while($id!==''&&isset($cats[$id])&&!isset($seen[$id])){$seen[$id]=1;array_unshift($parts,$cats[$id]['name']);$id=(string)($cats[$id]['parent']??'');}return implode(' / ',$parts);};
  [$img,$imageFiles]=imageIndex($root,$offset);
