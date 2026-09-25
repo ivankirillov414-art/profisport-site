@@ -30,4 +30,6 @@ assert.match(deploy,/MIGRATION_KEY/,'production config must contain a stable mig
 assert.match(auto,/auto=1/,'automatic 1C job must use no-op snapshot detection');
 assert.doesNotMatch(catalog,/loadStaticCatalogFallback/,'storefront must not use parser fallback');
 assert.doesNotMatch(loader,/staticRowWithDbPhotoFallback/,'base loader must not use parser fallback');
+assert.equal(fs.existsSync(path.join(root,'.github/workflows/sync-catalog.yml')),false,'parser catalog sync workflow must stay retired');
+assert.equal(fs.existsSync(path.join(root,'.github/workflows/photo-autofill.yml')),false,'fallback photo research workflow must stay retired');
 console.log('Migration readiness and MySQL-only catalog checks passed.');
