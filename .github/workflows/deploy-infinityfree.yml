@@ -46,6 +46,7 @@ jobs:
           node tests/security-regression.js
           node tests/profile-dashboard-regression.js
           node tests/profile-orders-regression.js
+          node tests/profile-favorites-regression.js
           php tests/catalog-quality.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
