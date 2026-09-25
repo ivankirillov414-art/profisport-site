@@ -8,6 +8,7 @@ const importer=read('api/import-apply.php');
 const catalog=read('api/catalog.php');
 const run=read('admin/import-run.js');
 const apply=read('admin/import-apply.js');
+const loader=read('catalog-loader.js');
 
 assert.match(importer,/usort\(\$a,fn\(\$x,\$y\)=>\(\$y\['m'\]<=>\$x\['m'\]\)/,'newest 1C file must be selected first');
 assert.match(importer,/foreach\(\['source_id','name','price','stock'\] as \$requiredField\)/,'header import must require identity, name, price and stock');
