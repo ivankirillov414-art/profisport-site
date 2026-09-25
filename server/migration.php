@@ -114,8 +114,8 @@ function migration_upload_file($ftp,string $root,string $localRoot,string $rel):
 }
 function migration_target_config(array $cfg): string {
   global $config;
-  $importToken=(string)($config['import_token']??'');$migrationKey=hash('sha256','profisport-migration-v1|'.$cfg['db_host'].'|'.$cfg['db_name'].'|'.$cfg['db_user'].'|'.$cfg['db_pass']);
-  $vals=['timezone'=>'Asia/Yekaterinburg','db_timezone'=>'+05:00','db_host'=>$cfg['db_host'],'db_port'=>$cfg['db_port'],'db_name'=>$cfg['db_name'],'db_user'=>$cfg['db_user'],'db_pass'=>$cfg['db_pass'],'import_token'=>$importToken,'migration_key'=>$migrationKey,'recovery_bootstrap_hash'=>''];
+  $importToken=(string)($config['import_token']??'');$migrationKey=hash('sha256','profisport-migration-v1|'.$cfg['db_host'].'|'.$cfg['db_name'].'|'.$cfg['db_user'].'|'.$cfg['db_pass']);$tickToken=hash('sha256','profisport-migration-tick-v1|'.$cfg['db_host'].'|'.$cfg['db_name'].'|'.$cfg['db_user'].'|'.$cfg['db_pass']);
+  $vals=['timezone'=>'Asia/Yekaterinburg','db_timezone'=>'+05:00','db_host'=>$cfg['db_host'],'db_port'=>$cfg['db_port'],'db_name'=>$cfg['db_name'],'db_user'=>$cfg['db_user'],'db_pass'=>$cfg['db_pass'],'import_token'=>$importToken,'migration_key'=>$migrationKey,'migration_tick_token'=>$tickToken,'recovery_bootstrap_hash'=>''];
   return "<?php\nreturn ".var_export($vals,true).";\n";
 }
 function migration_cursor(array $job): array {$x=json_decode((string)($job['cursor_json']??''),true);return is_array($x)?$x:[];}
