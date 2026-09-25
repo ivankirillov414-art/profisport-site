@@ -11,10 +11,11 @@ def call(path, data=None, cookie=None, csrf=None):
     except urllib.error.HTTPError as e: r=e
     raw=r.read()
     return r.status,json.loads(raw),r.headers
-base={'name':'Test buyer','phone':'+79991234567','items':[1,1],'request_key':'a'*64}
+base={'name':'Test buyer','phone':'+79991234567','pickup_store':'Проспект Победы, 118 строение 2','items':[1,1],'request_key':'a'*64}
 status,j,_=call('api/order-create.php',{**base,'items':[1,1,1]});assert (status,j['error'])==(409,'insufficient_stock')
 status,j,_=call('api/order-create.php',{**base,'items':[2]});assert (status,j['error'])==(409,'price_unavailable')
 status,j,_=call('api/order-create.php',{**base,'delivery':'orenburg_delivery'});assert (status,j['error'])==(422,'address_required')
+status,j,_=call('api/order-create.php',{**base,'pickup_store':'Неизвестный магазин'});assert (status,j['error'])==(422,'invalid_pickup_store')
 status,order,_=call('api/order-create.php',base);assert status==200 and order['total_rub']==300,(status,order)
 status,replay,_=call('api/order-create.php',base);assert replay==order
 status,j,_=call('api/order-create.php',{**base,'name':'Changed buyer'});assert (status,j['error'])==(409,'request_conflict')
@@ -26,6 +27,7 @@ id=j['items'][0]['id']
 created=datetime.fromisoformat(j['items'][0]['created_at']).replace(tzinfo=ZoneInfo('Asia/Yekaterinburg'))
 assert abs((datetime.now(ZoneInfo('Asia/Yekaterinburg'))-created).total_seconds())<120
 status,j,_=call('api/orders.php?id='+str(id),cookie=cookie);assert len(j['items'])==1 and j['items'][0]['quantity']==2
+assert j['order']['pickup_store']=='Проспект Победы, 118 строение 2' and [h['status'] for h in j['history']]==['new']
 payload={'id':id,'status':'confirmed','previous_status':'new'}
 assert call('api/orders.php',payload,cookie)[0]==403
 assert call('api/orders.php',payload,cookie,csrf)[0]==200
@@ -33,6 +35,7 @@ assert call('api/orders.php',payload,cookie,csrf)[0]==409
 status,j,_=call('api/orders.php?status=confirmed',cookie=cookie);assert j['total']==1
 assert call('api/orders.php',{'id':id,'status':'processing','previous_status':'confirmed'},cookie,csrf)[0]==200
 assert call('api/orders.php?status=processing',cookie=cookie)[1]['total']==1
+status,hist,_=call('api/orders.php?id='+str(id),cookie=cookie);assert [h['status'] for h in hist['history']]==['new','confirmed','processing']
 print('PASS: stock, price, address, order persistence, deduplication, admin auth, detail, CSRF, status conflict')
 # Requests reach the workshop and survive a retry.
 service={'name':'Test service','phone':'+79991234567','type':'Диагностика','bike':'Test bike','problem':'Test repair request','request_key':'b'*64}
