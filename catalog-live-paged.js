@@ -62,33 +62,8 @@
     return live;
   }
 
-  function staticRowWithDbPhoto(row){
-    const name=String(row?.title??row?.name??'').trim();
-    if(!name)return row;
-    const path=Array.isArray(row?.category_path)?row.category_path:[];
-    const cat=String(path[path.length-1]??'').trim();
-    const params=new URLSearchParams({name});
-    if(cat)params.set('cat',cat);
-    const brand=String(row?.brand??'').trim();
-    const model=String(row?.model??'').trim();
-    if(brand)params.set('brand',brand);
-    if(model)params.set('model',model);
-    const resolver=`api/product-db-image.php?${params.toString()}`;
-    return{...row,image:resolver,main_image:resolver,images:[resolver],fallback_image:null};
-  }
-
-  async function loadStaticCatalogFallback(){
-    const manifest=await catalogRequest('data/manifest.json',{},r=>r.json());
-    const parts=Array.isArray(manifest.parts)?manifest.parts:[];
-    const arrays=await Promise.all(parts.map(file=>catalogRequest(`data/${file}`,{},r=>r.json())));
-    window.CATALOG_SOURCE='static-db-photo-resolver';
-    window.CATALOG_PARSER_ROWS_WITH_IMAGES=Number(manifest.parser_rows_with_images)||0;
-    window.CATALOG_PHOTO_SOURCE='mysql-resolver-only';
-    return arrays.flat().filter(isPurchasableCatalogRow).map(staticRowWithDbPhoto).map(normalizeProduct);
-  }
-
   const CACHE_KEY='live-catalog-imgtruth5-taxonomy5',CACHE_MAX_AGE=120000;
-  function catalogCache(mode,items){
+  function catalogCache(mode,items,maxAge=CACHE_MAX_AGE){
     return new Promise(resolve=>{
       let database,settled=false;
       const finish=value=>{if(settled)return;settled=true;clearTimeout(timer);if(database)database.close();resolve(value)};
@@ -107,13 +82,13 @@
           }else{
             const get=bucket.get(CACHE_KEY);
             get.onerror=()=>finish(null);
-            get.onsuccess=()=>{const record=get.result,age=Date.now()-Number(record?.savedAt);finish(record&&age>=0&&age<CACHE_MAX_AGE&&Array.isArray(record.items)&&record.items.length?record.items:null)};
+            get.onsuccess=()=>{const record=get.result,age=Date.now()-Number(record?.savedAt);finish(record&&age>=0&&age<maxAge&&Array.isArray(record.items)&&record.items.length?record.items:null)};
           }
         };
       }catch(error){finish(null)}
     });
   }
-  const readCatalogCache=()=>catalogCache('readonly');
+  const readCatalogCache=(maxAge=CACHE_MAX_AGE)=>catalogCache('readonly',undefined,maxAge);
   const writeCatalogCache=items=>catalogCache('readwrite',items);
 
   window.loadRealCatalog=function loadRealCatalogPaged(onInitial){
@@ -133,8 +108,15 @@
         return normalized;
       }catch(error){
         window.CATALOG_LOAD_ERROR=String(error?.message||error||'unknown');
-        console.error('Paged live catalog failed; static metadata will resolve photos against DB.',error);
-        return loadStaticCatalogFallback();
+        console.error('Paged live catalog failed; parser fallback is disabled.',error);
+        const stale=await readCatalogCache(24*60*60*1000);
+        if(stale){
+          window.CATALOG_SOURCE='live-cache-stale';
+          window.CATALOG_PHOTO_SOURCE='mysql';
+          window.CATALOG_LIVE_ROWS=stale.length;
+          return stale;
+        }
+        throw error;
       }
     })();
     return pagedCatalogPromise;
