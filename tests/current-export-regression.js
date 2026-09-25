@@ -28,10 +28,11 @@ assert.match(importer,/source_settling/,'automatic import must wait for freshly 
 assert.match(importer,/unchanged.*done/s,'unchanged exports must be a no-op');
 assert.match(importer,/GET_LOCK\('profisport_1c_import',0\)/,'manual and automatic import batches must be serialized');
 assert.match(importer,/\$autoMode=\(\(\$_GET\['auto'\]\?\?''\)==='1'\)/,'automatic import mode must be explicit and narrow');
-assert.match(importer,/\$limit=\$autoMode\?50000/,'browser automatic mode must complete one stable export in a single request');
+assert.match(importer,/auto_1c_progress/,'browser automatic mode must persist its server-side progress');
 assert.match(importer,/\(\$tokenAuth\|\|\$autoMode\)&&!\$stable/,'automatic mode must wait for source files to settle');
 assert.match(loader,/triggerAutomatic1cRefresh/,'storefront must trigger automatic 1C detection');
 assert.match(loader,/api\/import-apply\.php\?auto=1/,'storefront automatic refresh must call the safe auto endpoint');
 assert.match(loader,/AUTO_1C_CHECK_MS=10\*60\*1000/,'open storefronts must recheck every ten minutes');
+assert.match(loader,/for\(let batch=0;batch<30;batch\+\+\)/,'one browser check must finish a normal catalog through resumable batches');
 
 console.log('Current 1C export source-of-truth regression checks passed.');
