@@ -82,9 +82,72 @@
     function guestFavoriteIds(){try{const a=JSON.parse(localStorage.getItem('ps-favorites')||'[]');return Array.isArray(a)?[...new Set(a.map(String).filter(x=>/^[1-9][0-9]*$/.test(x)))]:[]}catch(e){return[]}}
     async function mergeGuestFavorites(){const ids=guestFavoriteIds();if(!ids.length)return false;await api('favorites_merge',{method:'POST',body:JSON.stringify({product_ids:ids})});try{const a=JSON.parse(localStorage.getItem('ps-favorites')||'[]');const keep=Array.isArray(a)?a.filter(x=>!/^[1-9][0-9]*$/.test(String(x))):[];localStorage.setItem('ps-favorites',JSON.stringify(keep))}catch(e){}return true}
     const statuses={new:'Новый',confirmed:'Подтверждён',processing:'В работе',ready:'Готов к выдаче',completed:'Завершён',cancelled:'Отменён'};
-    async function openOrder(number,button){const box=$('#orderDetails');button.disabled=true;box.innerHTML='<div class="orderDetails">Загрузка состава заказа…</div>';try{const j=await api('order&number='+encodeURIComponent(number),{cache:'no-store'}),o=j.order;box.innerHTML=`<div class="orderDetails"><b>${esc(o.order_number)} · ${esc(statuses[o.status]||o.status)}</b>${(j.items||[]).map(i=>`<div class="orderDetailItem"><span>${esc(i.title)} × ${Number(i.quantity)}</span><b>${Number(i.line_total_rub).toLocaleString('ru-RU')} ₽</b></div>`).join('')}<p><b>Итого: ${Number(o.total_rub).toLocaleString('ru-RU')} ₽</b></p><p class="muted">${o.delivery_method==='pickup'?'Самовывоз':'Доставка по Оренбургу'}${o.address?' · '+esc(o.address):''}</p>${o.comment?`<p>${esc(o.comment)}</p>`:''}</div>`}catch(e){box.innerHTML='<div class="orderDetails">Не удалось загрузить состав заказа.</div>'}finally{button.disabled=false}}
+    function orderDeliveryText(o){
+      if(o.delivery_method==='pickup')return 'Самовывоз · '+(o.pickup_store||'Проспект Победы, 79');
+      return 'Доставка по Оренбургу'+(o.address?' · '+o.address:'');
+    }
+    function orderHistoryMarkup(j){
+      const rows=Array.isArray(j.history)?j.history:[];
+      const timeline=rows.map(function(h,index){
+        const label=statuses[h.status]||h.status||'Статус';
+        return '<div class="customerOrderHistoryRow'+(index===rows.length-1?' current':'')+'"><span class="customerOrderHistoryDot"></span><div><b>'+esc(label)+'</b><small>'+esc(formatDateTime(h.created_at))+'</small></div></div>';
+      }).join('');
+      const note=j.history_complete?'':'<p class="orderHistoryNote">Для старого заказа сохранены дата создания и текущий статус. Точные промежуточные изменения начали записываться после запуска нового кабинета.</p>';
+      return '<section class="customerOrderHistory"><h4>История статусов</h4>'+timeline+note+'</section>';
+    }
+    function orderItemsMarkup(items){
+      return (items||[]).map(function(i){
+        const image=i.image?'<img src="'+esc(i.image)+'" alt="" loading="lazy" decoding="async">':'<span class="customerOrderItemPh">Фото</span>';
+        const availability=i.current_available?'<span class="orderItemNow available">Сейчас в наличии</span>':'<span class="orderItemNow unavailable">Сейчас недоступен</span>';
+        return '<div class="customerOrderItem"><div class="customerOrderItemImage">'+image+'</div><div class="customerOrderItemInfo"><b>'+esc(i.title)+'</b><span>'+Number(i.quantity)+' шт. × '+Number(i.price_rub||0).toLocaleString('ru-RU')+' ₽</span>'+availability+'</div><strong>'+Number(i.line_total_rub||0).toLocaleString('ru-RU')+' ₽</strong></div>';
+      }).join('');
+    }
+    async function repeatOrder(number,button){
+      button.disabled=true;button.textContent='Проверяем наличие…';
+      try{
+        const j=await api('repeat_order',{method:'POST',body:JSON.stringify({order_number:number})});
+        const ids=Array.isArray(j.cart_items)?j.cart_items.map(String).filter(function(x){return /^[1-9][0-9]*$/.test(x)}):[];
+        if(!ids.length){
+          const notice=document.querySelector('#repeatOrderNotice');
+          if(notice)notice.innerHTML='<span class="orderRepeatWarn">Сейчас ни одной позиции из этого заказа нет в продаже.</span>';
+          return;
+        }
+        let existing=[];try{const raw=JSON.parse(localStorage.getItem('ps-cart')||'[]');if(Array.isArray(raw))existing=raw}catch(e){}
+        localStorage.setItem('ps-cart',JSON.stringify(existing.concat(ids)));
+        if((j.skipped||[]).length){
+          const notice=document.querySelector('#repeatOrderNotice');
+          const skipped=(j.skipped||[]).map(function(x){return esc(x.title)+(x.reason==='reduced_stock'?' — добавлено '+Number(x.added)+' из '+Number(x.requested):' — недоступен')}).join('<br>');
+          if(notice)notice.innerHTML='<div class="orderRepeatWarn"><b>Корзина собрана частично.</b><br>'+skipped+'<br><a href="checkout.html">Перейти к оформлению</a></div>';
+          button.textContent='Добавлено в корзину';
+          return;
+        }
+        location.href='checkout.html';
+      }catch(e){
+        const notice=document.querySelector('#repeatOrderNotice');
+        if(notice)notice.innerHTML='<span class="orderRepeatWarn">Не удалось повторить заказ. Обновите страницу и попробуйте ещё раз.</span>';
+      }finally{button.disabled=false;if(button.textContent==='Проверяем наличие…')button.textContent='Повторить заказ'}
+    }
+    async function openOrder(number,button){
+      const box=$('#orderDetails');button.disabled=true;box.innerHTML='<div class="orderDetails customerOrderDetails">Загрузка заказа…</div>';
+      try{
+        const j=await api('order&number='+encodeURIComponent(number),{cache:'no-store'}),o=j.order;
+        const repeat=o.status==='completed'?'<button class="customerRepeatOrder" id="repeatOrderBtn" type="button">Повторить заказ</button>':'';
+        box.innerHTML='<article class="orderDetails customerOrderDetails"><div class="customerOrderDetailHead"><div><span class="profileSectionKicker">Заказ</span><h3>'+esc(o.order_number)+'</h3><span class="orderStatusChip" data-status="'+esc(o.status)+'">'+esc(statuses[o.status]||o.status)+'</span></div><button type="button" class="secondary customerOrderClose" id="closeOrderDetails">Свернуть</button></div>'+
+          '<div class="customerOrderMeta"><div><span>Дата</span><b>'+esc(formatDate(o.created_at))+'</b></div><div><span>Получение</span><b>'+esc(orderDeliveryText(o))+'</b></div><div><span>Сумма заказа</span><b>'+Number(o.total_rub||0).toLocaleString('ru-RU')+' ₽</b></div></div>'+
+          '<section class="customerOrderProducts"><h4>Товары</h4>'+orderItemsMarkup(j.items)+'</section>'+
+          (o.comment?'<section class="customerOrderComment"><h4>Комментарий</h4><p>'+esc(o.comment)+'</p></section>':'')+
+          orderHistoryMarkup(j)+
+          '<div class="customerOrderActions">'+repeat+'<a class="profileShopLink" href="index.html#catalogProducts">В каталог</a></div><div id="repeatOrderNotice"></div></article>';
+        const close=document.querySelector('#closeOrderDetails');if(close)close.onclick=function(){box.innerHTML=''};
+        box.querySelectorAll('.customerOrderItem img').forEach(function(img){img.onerror=function(){const ph=document.createElement('span');ph.className='customerOrderItemPh';ph.textContent='Фото';img.replaceWith(ph)}});
+        const repeatButton=document.querySelector('#repeatOrderBtn');if(repeatButton)repeatButton.onclick=function(){repeatOrder(o.order_number,repeatButton)};
+        box.scrollIntoView({behavior:'smooth',block:'start'});
+      }catch(e){box.innerHTML='<div class="orderDetails customerOrderDetails">Не удалось загрузить заказ.</div>'}
+      finally{button.disabled=false}
+    }
     function formatPhone(value){const d=String(value||'').replace(/\D/g,'');if(d.length===11&&d[0]==='7')return '+7 ('+d.slice(1,4)+') '+d.slice(4,7)+'-'+d.slice(7,9)+'-'+d.slice(9);return value||''}
     function formatDate(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})}
+    function formatDateTime(value){const d=new Date(String(value||'').replace(' ','T'));return Number.isNaN(d.getTime())?'':d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
     function initials(u){const a=[u?.name,u?.last_name].filter(Boolean).map(x=>String(x).trim()[0]||'').join('').slice(0,2).toUpperCase();return a||'PS'}
     function reviewText(n){const x=Math.abs(Number(n)||0)%100;if(x>=11&&x<=14)return 'отзывов';const y=x%10;return y===1?'отзыв':(y>=2&&y<=4?'отзыва':'отзывов')}
     async function render(j){
