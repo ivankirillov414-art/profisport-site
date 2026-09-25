@@ -2,15 +2,6 @@ name: ProfiSport production smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'api/**'
-      - 'server/**'
-      - 'admin/**'
-      - 'catalog-loader.js'
-      - 'catalog-live-paged.js'
-      - '.github/workflows/production-smoke.yml'
 
 concurrency:
   group: profisport-production-smoke
