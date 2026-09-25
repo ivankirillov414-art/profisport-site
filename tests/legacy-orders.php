@@ -8,6 +8,8 @@ $pdo->exec("CREATE TABLE order_items (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY 
 $pdo->exec("INSERT INTO orders(id,order_number,customer_name,phone,delivery_type,status,total_amount,created_at,updated_at) VALUES(9000,'LEGACY-1','Test legacy','+79990000000','delivery','processing',151.50,'2020-01-01','2020-02-01')");
 $pdo->exec("INSERT INTO order_items(order_id,product_name,quantity,price,total) VALUES(9000,'Legacy ball',2,75.75,151.50)");
 ensure_schema($pdo);ensure_schema($pdo);
+$orderCols=table_columns($pdo,'orders');if(!isset($orderCols['pickup_store']))throw new RuntimeException('Pickup store column was not added');
+if((int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='order_status_history'")->fetchColumn()!==1)throw new RuntimeException('Order status history table was not created');
 $o=$pdo->query('SELECT * FROM orders WHERE id=9000')->fetch();$i=$pdo->query('SELECT * FROM order_items WHERE order_id=9000')->fetch();
 if($o['delivery_method']!=='orenburg_delivery'||$o['total_rub']!=='151.50'||$o['total_amount']!=='151.50'||$o['status']!=='processing'||$o['updated_at']!=='2020-02-01 00:00:00')throw new RuntimeException('Legacy order was not preserved');
 if($i['title']!=='Legacy ball'||$i['price_rub']!=='75.75'||$i['line_total_rub']!=='151.50'||$i['product_name']!=='Legacy ball')throw new RuntimeException('Legacy lines were not preserved');
