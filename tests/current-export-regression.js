@@ -26,9 +26,14 @@ assert.match(importer,/sourceSnapshot\(\$pf,\$cf\)/,'automatic import must finge
 assert.match(importer,/\(\$_GET\['check'\]\?\?''\)==='1'/,'import endpoint must expose a read-only change check');
 assert.match(importer,/source_settling/,'automatic import must wait for freshly written source files to settle');
 assert.match(importer,/unchanged.*done/s,'unchanged exports must be a no-op');
-const autoWorkflow=read('.github/workflows/auto-import-1c.yml');
-assert.match(autoWorkflow,/cron: '\*\/15 \* \* \* \*'/,'automatic import must run every 15 minutes');
-assert.match(autoWorkflow,/X-Import-Token/,'automatic import must authenticate server-side');
-assert.match(autoWorkflow,/current_snapshot == \$snapshot/,'automatic import must verify activation after the last batch');
+const loader=read('catalog-loader.js');
+assert.match(importer,/HTTP_SEC_FETCH_SITE/,'browser auto-import must require a same-origin browser request');
+assert.match(importer,/HTTP_X_PROFISPORT_AUTO_IMPORT/,'browser auto-import must require its explicit browser header');
+assert.match(importer,/GET_LOCK\('profisport_1c_import',0\)/,'automatic import batches must be serialized');
+assert.match(importer,/auto_1c_offset/,'browser auto-import progress must be stored server-side');
+assert.match(loader,/async function autoImport1C\(\)/,'catalog pages must start the automatic 1C worker');
+assert.match(loader,/X-Profisport-Auto-Import/,'browser worker must identify automatic requests');
+assert.match(loader,/setInterval\(autoImport1C,10\*60\*1000\)/,'open storefronts must re-check periodically');
+assert.equal(fs.existsSync(path.join(root,'.github/workflows/auto-import-1c.yml')),false,'blocked external HTTP poller must stay removed on InfinityFree');
 
 console.log('Current 1C export source-of-truth regression checks passed.');
