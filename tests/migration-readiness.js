@@ -31,7 +31,7 @@ assert.match(api,/delay_minutes/,'migration must support delayed execution');
 assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration worker endpoint must support a server-side token');
 assert.match(tick,/browserTrigger/,'migration worker must support a browser fallback for the current host');
 assert.match(tick,/cross_site/,'browser fallback must reject obvious cross-site requests');
-assert.match(catalogLoader,/migration-tick\\.php\\?browser=1/,'storefront traffic must provide the migration fallback trigger');
+assert.match(catalogLoader,/migration-tick\.php\?browser=1/,'storefront traffic must provide the migration fallback trigger');
 assert.match(tickWorkflow,/schedule:/,'migration worker must run on a schedule');
 assert.match(tickWorkflow,/profisport-migration-tick-v1/,'workflow token derivation must match deployment');
 assert.match(deploy,/MIGRATION_KEY/,'deployment must configure a stable migration encryption key');
