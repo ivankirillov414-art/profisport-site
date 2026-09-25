@@ -7,10 +7,16 @@ try{
   if($_SERVER['REQUEST_METHOD']==='POST'){
     csrf_check();$in=input_json();$id=(int)($in['id']??0);$status=$in['status']??'';
     if($id<1||!in_array($status,$statuses,true))json_response(['ok'=>false,'error'=>'invalid_input'],422);
-    $pdo->beginTransaction();$s=$pdo->prepare('SELECT status FROM orders WHERE id=? FOR UPDATE');$s->execute([$id]);$old=$s->fetchColumn();
-    if($old===false){$pdo->rollBack();json_response(['ok'=>false,'error'=>'not_found'],404);}
+    $pdo->beginTransaction();$s=$pdo->prepare('SELECT status,created_at,updated_at FROM orders WHERE id=? FOR UPDATE');$s->execute([$id]);$orderRow=$s->fetch();
+    if(!$orderRow){$pdo->rollBack();json_response(['ok'=>false,'error'=>'not_found'],404);}
+    $old=(string)$orderRow['status'];
     if($old!==($in['previous_status']??null)){$pdo->rollBack();json_response(['ok'=>false,'error'=>'order_changed'],409);}
     if($status!==$old){
+      $hc=$pdo->prepare('SELECT COUNT(*) FROM order_status_history WHERE order_id=?');$hc->execute([$id]);
+      if((int)$hc->fetchColumn()===0){
+        record_order_status($pdo,$id,'new',null,'legacy',(string)$orderRow['created_at']);
+        if($old!=='new')record_order_status($pdo,$id,$old,null,'legacy_current',(string)($orderRow['updated_at']?:$orderRow['created_at']));
+      }
       $s=$pdo->prepare('UPDATE orders SET status=? WHERE id=?');$s->execute([$status,$id]);
       record_order_status($pdo,$id,$status,(int)$admin['id'],'admin');
     }
