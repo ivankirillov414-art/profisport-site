@@ -1,0 +1,27 @@
+name: ProfiSport migration tick
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+concurrency:
+  group: profisport-site-migration
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Advance scheduled migration
+        env:
+          PROFISPORT_DB_PASSWORD: ${{ secrets.DB_PASSWORD || secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          TOKEN="$(printf '%s' "profisport-migration-tick-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
+          curl -fsS --retry 3 --retry-delay 3 --max-time 65 \
+            -A 'ProfiSport-Migration-Tick/1.0' \
+            -H "X-Migration-Token: $TOKEN" \
+            -X POST 'https://ferryffggg.infinityfreeapp.com/api/migration-tick.php' \
+            -o /tmp/migration.json
+          python3 -c "import json; j=json.load(open('/tmp/migration.json',encoding='utf-8')); assert j.get('ok'); print('migration tick:',j)"
