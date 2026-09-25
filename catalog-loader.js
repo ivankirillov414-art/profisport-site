@@ -415,7 +415,7 @@ async function triggerAutomatic1cRefresh(){
     }
   }catch{}
 }
-if(typeof window!=='undefined'){
+if(typeof window!=='undefined'&&typeof document!=='undefined'){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',triggerAutomatic1cRefresh,{once:true});
   else setTimeout(triggerAutomatic1cRefresh,0);
   setInterval(triggerAutomatic1cRefresh,AUTO_1C_CHECK_MS);
