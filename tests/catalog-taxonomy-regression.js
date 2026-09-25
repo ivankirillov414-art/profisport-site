@@ -37,18 +37,18 @@ equal(
   'product name overrides polluted source category for a bicycle'
 );
 
-equal(resolveCatalogBrand('Велосипед 24 STELS Turbo 470 MD','',{}).brand,'STELS','static fallback infers STELS');
-equal(resolveCatalogBrand('Самокат трюковой Provokator 47 версия 2','',{}).brand,'Provokator','static fallback infers Provokator');
+equal(resolveCatalogBrand('Велосипед 24 STELS Turbo 470 MD','',{}).brand,'STELS','catalog normalization infers STELS');
+equal(resolveCatalogBrand('Самокат трюковой Provokator 47 версия 2','',{}).brand,'Provokator','catalog normalization infers Provokator');
 equal(resolveCatalogBrand('Ботинки лыжные NNN Comfort one size','',{}).brand,'','noise token is not a brand');
-equal(resolveCatalogBrand('Любой товар','',{'Производитель':'Fischer'}).brand,'Fischer','static fallback uses manufacturer spec');
+equal(resolveCatalogBrand('Любой товар','',{'Производитель':'Fischer'}).brand,'Fischer','catalog normalization uses manufacturer spec');
 
-equal(isPurchasableCatalogRow({price_rub:0}),false,'zero-price static rows are hidden');
-equal(isPurchasableCatalogRow({price_rub:1200}),true,'priced static rows remain visible');
+equal(isPurchasableCatalogRow({price_rub:0}),false,'zero-price catalog rows are hidden');
+equal(isPurchasableCatalogRow({price_rub:1200}),true,'priced catalog rows remain visible');
 const badSpecs=sanitizeCatalogSpecs('Палки лыжные TREK Snowline',{'Ростовка рамы':'Пластик','Материал':'Алюминий'});
-equal(Object.prototype.hasOwnProperty.call(badSpecs,'Ростовка рамы'),false,'bad frame-size material is removed in static fallback');
-equal(badSpecs['Материал'],'Алюминий','valid static spec remains');
+equal(Object.prototype.hasOwnProperty.call(badSpecs,'Ростовка рамы'),false,'bad frame-size material is removed in catalog normalization');
+equal(badSpecs['Материал'],'Алюминий','valid catalog spec remains');
 const bikeSpecs=sanitizeCatalogSpecs('Велосипед STELS Navigator',{'Ростовка рамы':'18'});
-equal(bikeSpecs['Ростовка рамы'],'18','bicycle frame size remains in static fallback');
+equal(bikeSpecs['Ростовка рамы'],'18','bicycle frame size remains in catalog normalization');
 
 // Navigation coverage and real ambiguous names found in the source catalog.
 const {catalogMatchesDepartment,catalogSectionFor,catalogSubcategory,CATALOG_DEPARTMENTS,CATALOG_SECTIONS}=context.__taxonomy;
@@ -116,5 +116,5 @@ equal(filtered("selectedSubcategory='';minPrice.value='2500';sort.value='priceAs
 equal(filtered("minPrice.value='';sort.value='popular';q.value='сапборды'"),'1','SUP search finds boards through Russian plural alias');
 equal(filtered("q.value='';mobileQ.value='';category.value='cycling'"),'5','bike parts exclude SUP equipment');
 
-if(!process.exitCode)console.log('Catalog taxonomy and fallback quality regression checks passed.');
+if(!process.exitCode)console.log('Catalog taxonomy and normalization regression checks passed.');
 
