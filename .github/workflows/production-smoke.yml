@@ -31,14 +31,4 @@ jobs:
           curl -fsS --retry 4 --retry-delay 3 --max-time 30 -A 'ProfiSport-Smoke/1.0' "$BASE/api/health.php" -o /tmp/health.json
           curl -fsS --retry 4 --retry-delay 3 --max-time 30 -A 'ProfiSport-Smoke/1.0' "$BASE/api/catalog.php?limit=1&count=1" -o /tmp/catalog.json
           curl -fsS --retry 4 --retry-delay 3 --max-time 60 -A 'ProfiSport-Smoke/1.0' -H "X-Import-Token: $TOKEN" -X POST "$BASE/api/live-smoke.php" -o /tmp/smoke.json
-          python3 - <<'PY'
-import json
-health=json.load(open('/tmp/health.json',encoding='utf-8'))
-catalog=json.load(open('/tmp/catalog.json',encoding='utf-8'))
-smoke=json.load(open('/tmp/smoke.json',encoding='utf-8'))
-assert health.get('ok') and health.get('database')
-assert catalog.get('ok') and catalog.get('count',0)>=1 and catalog.get('total',0)>=1
-assert smoke.get('ok') and smoke.get('rolled_back') is True
-assert all(smoke.get('checks',{}).values())
-print('Production health, live catalog and rollback-only customer/order/status/profile flow passed.')
-PY
+          python3 -c "import json; h=json.load(open('/tmp/health.json')); c=json.load(open('/tmp/catalog.json')); s=json.load(open('/tmp/smoke.json')); assert h.get('ok') and h.get('database'); assert c.get('ok') and c.get('count',0)>=1 and c.get('total',0)>=1; assert s.get('ok') and s.get('rolled_back') is True and all(s.get('checks',{}).values()); print('Production health, live catalog and rollback-only business flow passed.')"
