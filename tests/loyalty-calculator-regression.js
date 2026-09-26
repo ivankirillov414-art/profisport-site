@@ -18,11 +18,12 @@ assert.match(page,/Экономика на примере заказа/,'calcula
 assert.match(js,/function currentConfig/,'calculator must build a draft config');
 assert.match(js,/function update/,'calculator must update live economics');
 assert.match(js,/conservativeMargin/,'calculator must estimate conservative margin');
+assert.match(js,/window\.confirm/,'live state changes must require an explicit confirmation');
 assert.match(js,/action:'save_draft'/,'calculator must save drafts');
 assert.match(api,/loyalty_save_draft/,'admin API must save validated loyalty drafts');
 assert.match(api,/can_edit/,'admin API must expose edit permission');
 assert.match(api,/category_options/,'admin API must expose catalog categories');
-assert.match(api,/live_activation_available'=>true/,'live activation must be available after the engine is wired');
+assert.match(api,/live_activation_available'=>\$status\['configured'\]&&!\$status\['enabled'\]/,'live activation must require a configured, currently disabled program');
 assert.match(api,/action==='activate'/,'admin API must support explicit activation');
 assert.match(api,/action==='deactivate'/,'admin API must support explicit deactivation');
 assert.match(engine,/cfg\['enabled'\]=false/,'draft sanitizer must keep saved drafts non-live until explicit activation');
