@@ -36,29 +36,24 @@
     const style=document.createElement('style');
     style.id='servicePriceListStyle';
     style.textContent=`
-      #serviceWorks .serviceCatalog{display:block;margin-top:22px}
-      #serviceWorks .workCategories{display:block;margin:0 0 18px;padding:0;border:0;background:transparent}
-      .servicePriceIntro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;padding:18px 20px;margin:0 0 18px;border:1px solid #ead46a;border-radius:18px;background:linear-gradient(135deg,#fffdf5,#fff7d6)}
+      #serviceWorks.servicePriceSection{position:relative;overflow:hidden}
+      #serviceWorks.servicePriceSection::before{content:"";position:absolute;inset:18px 18px auto auto;width:180px;height:180px;border-radius:999px;background:rgba(245,201,40,.18);filter:blur(4px);pointer-events:none}
+      .servicePriceIntro{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;padding:18px 20px;margin:22px 0 18px;border:1px solid #ead46a;border-radius:18px;background:linear-gradient(135deg,#fffdf5,#fff7d6)}
       .servicePriceIntro small{font-size:11px;font-weight:900;letter-spacing:.12em;color:#766116}.servicePriceIntro b{display:block;margin-top:4px;font-size:26px;letter-spacing:-.4px}.servicePriceIntro span{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border-radius:999px;background:#17191c;color:#fff;font-size:13px;font-weight:800;white-space:nowrap}
-      #serviceWorks .workOptions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+      #serviceWorks .servicePriceList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:0}
       #serviceWorks .servicePriceCard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;padding:18px;border:1px solid #e5e0cf;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(34,38,43,.07)}
-      .servicePriceCard .workNumber{grid-row:1 / span 3;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#f5c928;color:#17191c;font-size:13px;font-weight:900}.servicePriceCard h3{margin:0;font-size:20px}.servicePriceCard b{display:block;margin-top:5px;color:#38414a;font-size:14px}.servicePriceCard p{margin:8px 0 0;color:#626b74;font-size:14px;line-height:1.5}.servicePriceMeta{display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:2;margin-top:12px}.servicePriceMeta strong{font-size:15px}.servicePriceMeta span{color:#6b727a;font-size:12px}.servicePriceCard .workMore{justify-self:end;min-height:36px;padding:8px 13px;border-radius:999px;background:#f5c928;box-shadow:none;font-size:13px}.servicePriceCard.is-linked{outline:3px solid #f5c928;outline-offset:3px;box-shadow:0 14px 34px rgba(211,169,8,.24)}
-      #serviceWorks .workSummary{display:none!important}
-      @media(max-width:760px){.servicePriceIntro{grid-template-columns:1fr;align-items:start}.servicePriceIntro span{justify-self:start}#serviceWorks .workOptions{grid-template-columns:1fr}.servicePriceMeta{display:grid}.servicePriceCard .workMore{justify-self:start}}
+      .servicePriceCard .workNumber{grid-row:1 / span 3;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#f5c928;color:#17191c;font-size:13px;font-weight:900}.servicePriceCard h3{margin:0;font-size:20px}.servicePriceCard b{display:block;margin-top:5px;color:#38414a;font-size:14px}.servicePriceCard p{margin:8px 0 0;color:#626b74;font-size:14px;line-height:1.5}.servicePriceMeta{display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:2;margin-top:12px}.servicePriceMeta strong{font-size:15px}.servicePriceMeta span{display:block;margin-top:3px;color:#6b727a;font-size:12px}.servicePriceCard .workMore{justify-self:end;min-height:36px;padding:8px 13px;border-radius:999px;background:#f5c928;box-shadow:none;font-size:13px}.servicePriceCard.is-linked{outline:3px solid #f5c928;outline-offset:3px;box-shadow:0 14px 34px rgba(211,169,8,.24)}
+      .servicePriceFooter{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-top:18px;padding:16px 18px;border-radius:16px;background:#f6f8fb}.servicePriceFooter p{margin:0;max-width:720px;color:#4f5963}.servicePriceFooter .serviceCall{white-space:nowrap}
+      @media(max-width:760px){.servicePriceIntro{grid-template-columns:1fr;align-items:start}.servicePriceIntro span{justify-self:start}#serviceWorks .servicePriceList{grid-template-columns:1fr}.servicePriceMeta{display:grid}.servicePriceCard .workMore{justify-self:start}.servicePriceFooter{display:grid}.servicePriceFooter .serviceCall{justify-self:start}}
     `;
     document.head.appendChild(style);
   };
 
   injectPriceListStyle();
-  const workCategories=document.getElementById('workCategories');
-  if(workCategories){
-    workCategories.classList.add('servicePriceIntro');
-    workCategories.innerHTML='<div><small>ПРАЙС-ЛИСТ МАСТЕРСКОЙ</small><b>Актуальные работы</b></div><span>6 направлений</span>';
-  }
   const workOptions=document.getElementById('workOptions');
-  workOptions.innerHTML=works.map(([id,title,lead,body,price],i)=>`<article class="workOption servicePriceCard" id="price-${id}" data-work-id="${id}"><span class="workNumber">${String(i+1).padStart(2,'0')}</span><div><h3>${title}</h3><b>${lead}</b><p>${body}</p></div><div class="servicePriceMeta"><div><strong>${price}</strong><span>Точную сумму мастер согласует до начала ремонта</span></div><button type="button" class="workMore" data-work-details="${id}">Подробнее</button></div></article>`).join('');
-  const summary=document.querySelector('#serviceWorks .workSummary');
-  if(summary)summary.hidden=true;
+  if(workOptions){
+    workOptions.innerHTML=works.map(([id,title,lead,body,price],i)=>`<article class="servicePriceCard" id="price-${id}"><span class="workNumber">${String(i+1).padStart(2,'0')}</span><div><h3>${title}</h3><b>${lead}</b><p>${body}</p></div><div class="servicePriceMeta"><div><strong>${price}</strong><span>Точную сумму мастер согласует до начала ремонта</span></div><button type="button" class="workMore" data-work-details="${id}">Подробнее</button></div></article>`).join('');
+  }
 
   const workDialog=document.getElementById('workDialog');let detailedId='';
   const showPriceCard=id=>{
@@ -68,19 +63,23 @@
     card.classList.add('is-linked');
     setTimeout(()=>card.classList.remove('is-linked'),2200);
   };
-  workDialog.querySelector('.dialogClose').onclick=()=>workDialog.close();
-  document.querySelectorAll('[data-work-details]').forEach(button=>button.onclick=()=>{
-    detailedId=button.dataset.workDetails;const work=works.find(w=>w[0]===detailedId);
-    document.getElementById('workTitle').textContent=work[1];document.getElementById('workDescription').textContent=work[3];
-    document.getElementById('workDetails').innerHTML=details[detailedId].map(text=>`<li>${text}</li>`).join('');
-    document.getElementById('chooseDetailedWork').textContent='Показать в прайс-листе';workDialog.showModal();
-  });
-  document.getElementById('chooseDetailedWork').onclick=()=>{const id=detailedId;workDialog.close();showPriceCard(id)};
+  if(workDialog){
+    workDialog.querySelector('.dialogClose').onclick=()=>workDialog.close();
+    document.querySelectorAll('[data-work-details]').forEach(button=>button.onclick=()=>{
+      detailedId=button.dataset.workDetails;const work=works.find(w=>w[0]===detailedId);
+      document.getElementById('workTitle').textContent=work[1];document.getElementById('workDescription').textContent=work[3];
+      document.getElementById('workDetails').innerHTML=details[detailedId].map(text=>`<li>${text}</li>`).join('');
+      document.getElementById('chooseDetailedWork').textContent='Показать в прайс-листе';workDialog.showModal();
+    });
+    document.getElementById('chooseDetailedWork').onclick=()=>{const id=detailedId;workDialog.close();showPriceCard(id)};
+  }
   window.selectedServiceWorks=()=>[];
 
-  document.getElementById('bikeHotspots').innerHTML=parts.map(([name,x,y],i)=>`<button type="button" data-part="${i}" class="bikeHotspot" style="left:${x}%;top:${y}%" aria-label="${i+1}. ${name}">${i+1}</button>`).join('');
+  const hotspots=document.getElementById('bikeHotspots');
+  if(hotspots)hotspots.innerHTML=parts.map(([name,x,y],i)=>`<button type="button" data-part="${i}" class="bikeHotspot" style="left:${x}%;top:${y}%" aria-label="${i+1}. ${name}">${i+1}</button>`).join('');
   const partLabel=i=>`<button type="button" data-part="${i}" aria-controls="partDialog"><span>${String(i+1).padStart(2,'0')}</span>${parts[i][0]}</button>`;
-  document.getElementById('bikeParts').innerHTML=`<div class="bikePartsSide bikePartsLeft">${[0,11,12,7,8,9,10].map(partLabel).join('')}</div><div class="bikePartsSide bikePartsRight">${[1,2,3,4,5,6].map(partLabel).join('')}</div>`;
+  const bikeParts=document.getElementById('bikeParts');
+  if(bikeParts)bikeParts.innerHTML=`<div class="bikePartsSide bikePartsLeft">${[0,11,12,7,8,9,10].map(partLabel).join('')}</div><div class="bikePartsSide bikePartsRight">${[1,2,3,4,5,6].map(partLabel).join('')}</div>`;
   const partButtons=[...document.querySelectorAll('[data-part]')];
   const highlightPart=id=>partButtons.forEach(button=>button.classList.toggle('is-highlighted',button.dataset.part===id));
   partButtons.forEach(button=>{
@@ -91,6 +90,8 @@
   });
   const dialog=document.getElementById('partDialog');let current=0;
   document.querySelectorAll('[data-part]').forEach(button=>button.onclick=()=>{current=Number(button.dataset.part);const [name,,,description,symptoms]=parts[current];document.getElementById('partTitle').textContent=name;document.getElementById('partDescription').textContent=description;document.getElementById('partSymptoms').textContent=symptoms;dialog.showModal()});
-  dialog.querySelector('.dialogClose').onclick=()=>dialog.close();
-  document.getElementById('partRequest').onclick=()=>{const part=parts[current];dialog.close();showPriceCard(part[5])};
+  if(dialog){
+    dialog.querySelector('.dialogClose').onclick=()=>dialog.close();
+    document.getElementById('partRequest').onclick=()=>{const part=parts[current];dialog.close();showPriceCard(part[5])};
+  }
 })();

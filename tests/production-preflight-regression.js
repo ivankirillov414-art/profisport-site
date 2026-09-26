@@ -16,6 +16,7 @@ const deploy=read('.github/workflows/deploy-infinityfree.yml');
 const pages=read('.github/workflows/pages.yml');
 const backToTop=read('back-to-top.js');
 const serviceGuide=read('service-guide.js');
+const serviceHtml=read('service.html');
 
 assert.match(ht,/ErrorDocument 404 \/404\.html/,'Apache must route missing pages to branded 404');
 assert.match(ht,/ErrorDocument 500 \/500\.html/,'Apache must route server errors to branded 500');
@@ -70,10 +71,19 @@ assert.ok(backToTop.includes('border-radius: 0 !important'),'popup close buttons
 assert.ok(backToTop.includes('background: transparent !important'),'popup close buttons must be transparent');
 assert.ok(backToTop.includes('top: -38px !important'),'popup close buttons must sit outside the modal card on desktop');
 
+assert.ok(serviceHtml.includes('Актуальный прайс-лист'),'service page must expose the actual price-list section');
+assert.ok(serviceHtml.includes('ПРАЙС-ЛИСТ МАСТЕРСКОЙ'),'service page must be introduced as a price list');
+assert.ok(serviceHtml.includes('servicePriceList'),'service page must contain the new price-list container');
+assert.ok(serviceHtml.includes('service-guide.js?v=8'),'service guide asset version must bump after removing cached old picker');
+for(const oldMarkup of ['serviceCatalog','workCategories','workSummary','selectedWorkCount','selectedWorkChips','Выберите интересующие работы']){
+  assert.doesNotMatch(serviceHtml,new RegExp(oldMarkup),'old service picker markup must be absent from service.html: '+oldMarkup);
+}
+assert.doesNotMatch(serviceHtml,/>\s*Выбрать работу\s*</,'old select-work button text must be absent from service.html');
 assert.ok(serviceGuide.includes('servicePriceCard'),'service works must render as price-list cards');
-assert.ok(serviceGuide.includes('ПРАЙС-ЛИСТ МАСТЕРСКОЙ'),'service works must be introduced as a price list');
 assert.ok(serviceGuide.includes('Стоимость после осмотра'),'service price list must not invent unconfirmed prices');
-assert.ok(serviceGuide.includes('workSummary{display:none!important}'),'old selectable-work summary must be hidden');
+assert.doesNotMatch(serviceGuide,/serviceCatalog/,'old service catalog wrapper must not remain in service JS');
+assert.doesNotMatch(serviceGuide,/workCategories/,'old category column must not remain in service JS');
+assert.doesNotMatch(serviceGuide,/workSummary\{display:none!important\}/,'old summary must not be hidden as a workaround; it must be removed');
 assert.doesNotMatch(serviceGuide,/data-work-group/,'old service category tab controls must not be rendered');
 assert.doesNotMatch(serviceGuide,/aria-pressed/,'old service tab state must not remain in price-list UI');
 
