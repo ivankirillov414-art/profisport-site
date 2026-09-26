@@ -330,14 +330,78 @@ function vehicle_maintenance_refresh_daily(PDO $pdo): array {
     }finally{$pdo->query("SELECT RELEASE_LOCK('profisport_vehicle_maintenance')");}
 }
 
+function vehicle_compatible_component_keys(): array {
+    return ['front_brake_pads','rear_brake_pads','chain','cassette','front_tire','rear_tire','brake_rotors'];
+}
+
+function vehicle_part_match_tokens(array $component): array {
+    $model=mb_strtolower(trim((string)($component['model']??'')),'UTF-8');
+    $model=str_replace('ё','е',$model);
+    preg_match_all('/[a-zа-я0-9]+/u',$model,$m);
+    $tokens=[];
+    foreach($m[0]??[] as $token){
+        $hasLetter=(bool)preg_match('/[a-zа-я]/u',$token);$hasDigit=(bool)preg_match('/[0-9]/',$token);
+        if($hasLetter&&$hasDigit&&mb_strlen($token)>=2)$tokens[]=$token;
+    }
+    return array_values(array_unique($tokens));
+}
+
+function vehicle_part_text_tokens(string $value): array {
+    $value=mb_strtolower($value,'UTF-8');$value=str_replace('ё','е',$value);
+    preg_match_all('/[a-zа-я0-9]+/u',$value,$m);
+    return array_values(array_unique($m[0]??[]));
+}
+
+function vehicle_passport_find_unique_compatible_product(PDO $pdo,array $component): ?array {
+    if(!in_array((string)($component['component_key']??''),vehicle_compatible_component_keys(),true))return null;
+    $strong=vehicle_part_match_tokens($component);if(!$strong)return null;
+    usort($strong,fn($a,$b)=>mb_strlen($b)<=>mb_strlen($a));$anchor=$strong[0];
+    $like='%'.$anchor.'%';
+    $s=$pdo->prepare("SELECT id,name,brand,sku,price_rub,stock_qty,is_active FROM products WHERE is_active=1 AND COALESCE(stock_qty,0)>0 AND COALESCE(price_rub,0)>0 AND (LOWER(name) LIKE ? OR LOWER(COALESCE(sku,'')) LIKE ?) ORDER BY id LIMIT 60");
+    $s->execute([$like,$like]);$candidates=[];
+    $manufacturer=mb_strtolower(trim((string)($component['manufacturer']??'')),'UTF-8');$manufacturer=str_replace('ё','е',$manufacturer);
+    foreach($s->fetchAll() as $row){
+        $haystack=trim((string)($row['brand']??'').' '.(string)($row['name']??'').' '.(string)($row['sku']??''));
+        $tokens=vehicle_part_text_tokens($haystack);
+        $ok=true;foreach($strong as $token)if(!in_array($token,$tokens,true)){$ok=false;break;}
+        if(!$ok)continue;
+        if($manufacturer!==''){
+            $manufacturerTokens=vehicle_part_text_tokens($manufacturer);$manufacturerMatched=false;
+            foreach($manufacturerTokens as $token)if(mb_strlen($token)>=3&&in_array($token,$tokens,true)){$manufacturerMatched=true;break;}
+            if($manufacturerTokens&&!$manufacturerMatched)continue;
+        }
+        $candidates[]=$row;
+    }
+    if(count($candidates)!==1)return null;
+    $row=$candidates[0];
+    return ['id'=>(int)$row['id'],'name'=>(string)$row['name'],'price_rub'=>(float)$row['price_rub'],'stock_qty'=>(int)$row['stock_qty']];
+}
+
+function vehicle_passport_auto_link_compatible_products(PDO $pdo,int $vehicleId): int {
+    if($vehicleId<1)return 0;
+    $s=$pdo->prepare('SELECT id,component_key,manufacturer,model,compatible_product_id FROM vehicle_components WHERE vehicle_id=? AND is_active=1 AND compatible_product_id IS NULL ORDER BY id');
+    $s->execute([$vehicleId]);$update=$pdo->prepare('UPDATE vehicle_components SET compatible_product_id=? WHERE id=? AND compatible_product_id IS NULL');$linked=0;
+    foreach($s->fetchAll() as $component){
+        $candidate=vehicle_passport_find_unique_compatible_product($pdo,$component);if(!$candidate)continue;
+        $update->execute([(int)$candidate['id'],(int)$component['id']]);$linked+=$update->rowCount();
+    }
+    return $linked;
+}
+
 function vehicle_passport_components(PDO $pdo,int $vehicleId,bool $includeEvents=false): array {
     vehicle_passport_seed_vehicle($pdo,$vehicleId);
+    vehicle_passport_auto_link_compatible_products($pdo,$vehicleId);
     $v=$pdo->prepare('SELECT odometer_km FROM customer_vehicles WHERE id=? LIMIT 1');$v->execute([$vehicleId]);$od=$v->fetchColumn();$odometer=$od!==false&&$od!==null?(float)$od:null;
-    $s=$pdo->prepare('SELECT * FROM vehicle_components WHERE vehicle_id=? AND is_active=1 ORDER BY id');$s->execute([$vehicleId]);$rows=$s->fetchAll();
+    $s=$pdo->prepare('SELECT c.*,p.name compatible_product_name,p.price_rub compatible_product_price,p.stock_qty compatible_product_stock,p.is_active compatible_product_active FROM vehicle_components c LEFT JOIN products p ON p.id=c.compatible_product_id WHERE c.vehicle_id=? AND c.is_active=1 ORDER BY c.id');$s->execute([$vehicleId]);$rows=$s->fetchAll();
     $events=$includeEvents?$pdo->prepare('SELECT id,event_type,event_at,odometer_km,measurement_value,measurement_unit,include_learning,note,admin_user_id,source_order_id,source_product_id FROM vehicle_component_events WHERE component_id=? ORDER BY event_at DESC,id DESC LIMIT 50'):null;
     $pending=$pdo->prepare("SELECT id,event_at,source_order_id,source_product_id,note FROM vehicle_component_events p WHERE p.component_id=? AND p.event_type='replacement_purchase' AND NOT EXISTS(SELECT 1 FROM vehicle_component_events r WHERE r.component_id=p.component_id AND r.event_type='replaced' AND r.event_at>=p.event_at) ORDER BY p.event_at DESC,p.id DESC LIMIT 1");
     foreach($rows as &$row){
-        $row['id']=(int)$row['id'];$row['vehicle_id']=(int)$row['vehicle_id'];$row['wear']=vehicle_passport_wear($pdo,$row,$odometer);
+        $row['id']=(int)$row['id'];$row['vehicle_id']=(int)$row['vehicle_id'];$row['compatible_product_id']=$row['compatible_product_id']!==null?(int)$row['compatible_product_id']:null;$row['wear']=vehicle_passport_wear($pdo,$row,$odometer);
+        $available=$row['compatible_product_id']!==null&&(int)($row['compatible_product_active']??0)===1&&(int)($row['compatible_product_stock']??0)>0&&(float)($row['compatible_product_price']??0)>0;
+        $row['compatible_product']=$row['compatible_product_id']!==null?[
+            'id'=>$row['compatible_product_id'],'name'=>$row['compatible_product_name']??null,'price_rub'=>$row['compatible_product_price']!==null?(float)$row['compatible_product_price']:null,'stock_qty'=>$row['compatible_product_stock']!==null?(int)$row['compatible_product_stock']:null,'available'=>$available
+        ]:null;
+        unset($row['compatible_product_name'],$row['compatible_product_price'],$row['compatible_product_stock'],$row['compatible_product_active']);
         $pending->execute([(int)$row['id']]);$row['pending_replacement_purchase']=$pending->fetch()?:null;
         if($includeEvents&&$events){$events->execute([(int)$row['id']]);$row['events']=$events->fetchAll();}
     }unset($row);
