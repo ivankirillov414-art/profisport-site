@@ -322,6 +322,37 @@ jobs:
           fi
           echo 'Public InfinityFree storefront HTML passed the smoke check.'
 
+      - name: Smoke-check public health and 404
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://ferryffggg.infinityfreeapp.com'
+          UA='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'
+
+          HEALTH_CODE="$(curl -sS --retry 3 --retry-delay 3 --max-time 30 -A "$UA" "$BASE/api/health.php?deploy=${GITHUB_SHA}" -o /tmp/live-health -w '%{http_code}')"
+          if grep -Eqi '/aes\.js|aes\.js|javascript is required' /tmp/live-health; then
+            echo 'InfinityFree browser challenge intercepted public health smoke; FTP verification remains authoritative for deployed bytes.'
+          else
+            test "$HEALTH_CODE" = "200"
+            python3 - <<'PY'
+          import json
+          payload=json.load(open('/tmp/live-health',encoding='utf-8'))
+          assert payload.get('ok') is True, payload
+          assert payload.get('database') is True, payload
+          assert payload.get('schema') is True, payload
+          print('Public health endpoint passed:', payload)
+          PY
+          fi
+
+          MISS_CODE="$(curl -sS --retry 3 --retry-delay 3 --max-time 30 -A "$UA" "$BASE/profisport-preflight-missing-${GITHUB_SHA}" -o /tmp/live-404 -w '%{http_code}')"
+          if grep -Eqi '/aes\.js|aes\.js|javascript is required' /tmp/live-404; then
+            echo 'InfinityFree browser challenge intercepted public 404 smoke.'
+          else
+            test "$MISS_CODE" = "404"
+            grep -Fq 'Ошибка 404' /tmp/live-404
+            echo 'Public branded 404 passed.'
+          fi
+
       - name: Report live photo audit status
         run: |
           echo 'LIVE_MYSQL_PHOTO_AUDIT=NOT_RUN'
