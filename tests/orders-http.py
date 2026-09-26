@@ -169,7 +169,8 @@ status,submitted,_=call('api/customer.php?action=review_submit',review,customer_
 review_id=submitted['review_id']
 status,duplicate,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert (status,duplicate['error'])==(409,'duplicate_review')
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
-assert account['reviews_count']==1 and account['review_eligible']==[]
+assert account['reviews_count']==1
+assert all(x['product_id']!=1 for x in account['review_eligible']) and any(x['product_id']==3 for x in account['review_eligible'])
 assert len(account['review_details'])==1 and account['review_details'][0]['status']=='pending' and account['review_details'][0]['verified_purchase'] is True
 assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id
