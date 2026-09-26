@@ -44,8 +44,8 @@ body.motion-page:not(.motion-admin)::before {
 .motion-page:not(.motion-admin) .logo,
 .motion-page:not(.motion-admin) .hubLogo {
   font-family: Arial,sans-serif;
-  font-weight: 950;
-  font-style: italic;
+  font-weight: 700;
+  font-style: normal;
   letter-spacing: -1.4px;
 }
 .motion-page:not(.motion-admin) .top>b span,
@@ -105,7 +105,7 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   background: #111820;
   border-top: 1px solid rgb(255 255 255 / 7%);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
@@ -193,7 +193,7 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   background: var(--energy);
   border-radius: 4px;
   font-size: 11px;
-  font-weight: 950;
+  font-weight: 700;
   letter-spacing: .06em;
 }
 .storefrontHome .heroLayout .heroCopy h1,
@@ -201,12 +201,12 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   max-width: 690px;
   margin: 20px 0 17px;
   color: #fff;
-  font-family: Impact,'Arial Narrow',Arial,sans-serif;
-  font-size: clamp(52px,6.2vw,82px);
-  font-style: italic;
-  font-weight: 900;
-  line-height: .89;
-  letter-spacing: -.045em;
+  font-family: 'Segoe UI',Arial,sans-serif;
+  font-size: clamp(40px,4.7vw,62px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -.015em;
   text-transform: uppercase;
   text-shadow: 0 3px 18px rgb(0 0 0 / 28%);
 }
@@ -277,8 +277,8 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
 .storefrontHome>#picker>h2,
 .storefrontHome>#service h2,
 .locationCard h2 {
-  font-family: Impact,'Arial Narrow',Arial,sans-serif;
-  font-style: italic;
+  font-family: 'Segoe UI',Arial,sans-serif;
+  font-style: normal;
   text-transform: uppercase;
   letter-spacing: -.02em;
 }
@@ -327,9 +327,9 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
 #categoryTiles .categoryTile h3 {
   max-width: 88%;
   margin: 4px 0 8px;
-  font-family: Impact,'Arial Narrow',Arial,sans-serif;
+  font-family: 'Segoe UI',Arial,sans-serif;
   font-size: clamp(22px,2.3vw,32px);
-  font-style: italic;
+  font-style: normal;
   line-height: .98;
   text-transform: uppercase;
 }
@@ -450,14 +450,14 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   top: 24px;
   width: 190px;
   color: var(--energy);
-  font-family: Impact,'Arial Narrow',Arial,sans-serif;
+  font-family: 'Segoe UI',Arial,sans-serif;
   font-size: 20px;
-  font-style: italic;
+  font-style: normal;
   line-height: 1;
   rotate: -5deg;
   text-align: right;
 }
-.storefrontHome>#picker small { color: var(--energy); font-weight: 900; letter-spacing: .08em; }
+.storefrontHome>#picker small { color: var(--energy); font-weight: 700; letter-spacing: .08em; }
 .storefrontHome>#picker h2 { margin: 10px 0 6px; font-size: clamp(34px,4.4vw,54px); }
 .storefrontHome>#picker>p { color: #cbd3d9; }
 .storefrontHome>#picker .pickgrid { grid-template-columns: 1fr 1fr; }
@@ -504,9 +504,9 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   display: block;
   margin-top: 20px;
   color: var(--energy);
-  font-family: Impact,'Arial Narrow',Arial,sans-serif;
+  font-family: 'Segoe UI',Arial,sans-serif;
   font-size: 20px;
-  font-style: italic;
+  font-style: normal;
   letter-spacing: .02em;
 }
 .locationCard small { color: var(--energy); }
@@ -521,8 +521,8 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
 .productShell .galleryMain { position: relative; border: 0; border-radius: 24px; box-shadow: 0 18px 45px rgb(15 24 32 / 10%); }
 .productShell .galleryMain::before { content: ''; position: absolute; inset: 0 0 auto; height: 7px; background: linear-gradient(90deg,var(--energy) 0 35%,#111820 35%); }
 .productShell .buyCard { border: 0; border-radius: 24px; box-shadow: 0 18px 45px rgb(15 24 32 / 12%); }
-.productShell .buyCard h1 { font-family: Impact,'Arial Narrow',Arial,sans-serif; font-style: italic; text-transform: uppercase; letter-spacing: -.02em; }
-.productShell .priceNow { font-family: Impact,'Arial Narrow',Arial,sans-serif; font-style: italic; }
+.productShell .buyCard h1 { font-family: 'Segoe UI',Arial,sans-serif; font-style: normal; text-transform: uppercase; letter-spacing: -.02em; }
+.productShell .priceNow { font-family: 'Segoe UI',Arial,sans-serif; font-style: normal; }
 .productShell .deliveryBox { border-left: 5px solid var(--energy); background: #f1f4f5; }
 .profileDashboardHero { color: #fff; border: 0!important; background: linear-gradient(135deg,#111820,#24323d)!important; }
 .profileDashboardHero::after { background: var(--energy)!important; opacity: .12; }
@@ -530,7 +530,7 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
 .profileAvatar { color: #111820!important; background: var(--energy)!important; }
 .profileQuickCard:hover { border-color: var(--energy-strong)!important; }
 .checkoutPage { border: 0; border-radius: 24px; box-shadow: 0 18px 45px rgb(15 24 32 / 10%); }
-.checkoutPage h1,.profileDashboardTitle h1 { font-family: Impact,'Arial Narrow',Arial,sans-serif; font-style: italic; text-transform: uppercase; }
+.checkoutPage h1,.profileDashboardTitle h1 { font-family: 'Segoe UI',Arial,sans-serif; font-style: normal; text-transform: uppercase; }
 
 /* Hub pages: the same energy, with their existing photography. */
 .referenceHubs .hubHeader { color: #fff; }
@@ -538,14 +538,14 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
 .referenceHubs .hubHeader nav a[aria-current] { color: #111820; background: var(--energy); }
 .referenceHubs .hubCrumb { color: #69747c; }
 .referenceHubs .shopIntro h1,.referenceHubs .hubHero h1 {
-  font-family: Impact,'Arial Narrow',Arial,sans-serif;
+  font-family: 'Segoe UI',Arial,sans-serif;
   font-size: clamp(44px,7vw,78px);
-  font-style: italic;
+  font-style: normal;
   text-transform: uppercase;
 }
 .referenceHubs .shopIntro h1::after,.referenceHubs .hubHero h1::after { content: ''; display: inline-block; width: 55px; height: 12px; margin-left: 14px; background: var(--energy); clip-path: polygon(0 55%,100% 0,75% 100%); }
 .referenceHubs .shopM2Card,.referenceHubs .photoHubCard { border: 0; border-radius: 22px; box-shadow: 0 16px 38px rgb(15 24 32 / 15%); }
-.referenceHubs .shopM2Card h2,.referenceHubs .photoHubCard h2 { font-family: Impact,'Arial Narrow',Arial,sans-serif; font-style: italic; text-transform: uppercase; }
+.referenceHubs .shopM2Card h2,.referenceHubs .photoHubCard h2 { font-family: 'Segoe UI',Arial,sans-serif; font-style: normal; text-transform: uppercase; }
 .referenceHubs .catalogOpenButton,.referenceHubs .photoHubAction { color: #111820; background: var(--energy); }
 .referenceHubs .hubContact { color: #fff; border: 0; background: linear-gradient(135deg,#111820,#24323d); box-shadow: var(--energy-shadow); }
 .referenceHubs .hubContact a { color: #111820; background: var(--energy); }
@@ -557,7 +557,7 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
     #111820;
   border-top: 4px solid var(--energy);
 }
-.motion-page:not(.motion-admin) footer b,.motion-page:not(.motion-admin) .storeFooter>div:first-child>b { color: #fff; font-style: italic; }
+.motion-page:not(.motion-admin) footer b,.motion-page:not(.motion-admin) .storeFooter>div:first-child>b { color: #fff; font-style: normal; }
 .motion-page:not(.motion-admin) footer a:hover { color: var(--energy); }
 .motion-page:not(.motion-admin) .mobileBottomNav .active .navBubble { color: #111820; background: var(--energy); }
 
@@ -584,7 +584,7 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
     width: 100%!important;
     padding: 210px 26px 58px!important;
   }
-  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1 { font-size: clamp(39px,11vw,58px); }
+  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1 { font-size: clamp(32px,8vw,46px); }
   .storefrontHome .heroLayout .heroCopy p,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p { font-size: 14px; }
   .storefrontHome .heroLayout .dots { left: 25px!important; bottom: 20px!important; transform: none!important; }
   .storefrontHome .heroLayout .heroArrow { display: none; }
@@ -609,7 +609,7 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   .storefrontHome .heroLayout .hero,.storefrontHome .heroLayout .heroSlide,.storefrontHome .heroLayout .heroSlide.serviceSlide { min-height: 500px; }
   .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy { padding: 190px 20px 56px!important; }
   .storefrontHome .heroLayout .heroCopy small { font-size: 9px; }
-  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1 { margin: 14px 0 12px; font-size: clamp(37px,12vw,51px); }
+  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1 { margin: 14px 0 12px; font-size: clamp(29px,8vw,40px); }
   .storefrontHome .heroLayout .heroCopy .primary { min-height: 46px; padding: 11px 14px; font-size: 12px; }
   .energyProof>div { padding: 14px 10px 14px 36px; }
   .energyProof>div::before { left: 14px; }
@@ -626,4 +626,27 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
 
 @media (prefers-reduced-motion: reduce) {
   .storefrontHome .heroSlide .heroPhoto { scale: 1!important; }
+}
+
+/* Readable Cyrillic and a deliberate, visible entrance. */
+.motion-page:not(.motion-admin) :is(h1,h2,h3) { font-weight: 650; line-height: 1.18; }
+.storefrontHome .heroLayout .heroCopy h1 { font-weight: 650; }
+#categoryTiles .categoryTile h3 { font-size: clamp(18px,2vw,26px); line-height: 1.25; letter-spacing: 0; text-transform: none; }
+.productShell .buyCard h1 { font-weight: 650; line-height: 1.3; text-transform: none; }
+.productShell .priceNow { font-weight: 700; }
+.motion-page:not(.motion-admin) :is(button,.primary) { font-weight: 600; }
+.motion-page:not(.motion-admin) a.topIconBtn { color: #fff; }
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes energy-copy-in { from { opacity: 0; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
+  .storefrontHome .heroSlide.is-active .heroCopy { animation: none; }
+  .storefrontHome .heroSlide.is-active .heroCopy > :is(small,h1,p,a) {
+    animation: energy-copy-in 750ms var(--motion-ease) both;
+  }
+  .storefrontHome .heroSlide.is-active .heroCopy > h1 { animation-delay: 80ms; }
+  .storefrontHome .heroSlide.is-active .heroCopy > p { animation-delay: 160ms; }
+  .storefrontHome .heroSlide.is-active .heroCopy > a { animation-delay: 240ms; }
+  #categoryTiles.motion-enter { animation: ps-fade 900ms ease; }
+  #categoryTiles.motion-enter > .categoryTile { animation: ps-reveal var(--motion-reveal) var(--motion-ease) both; }
+  #categoryTiles.motion-enter > .categoryTile:nth-child(2n) { animation-delay: 90ms; }
+  #categoryTiles.motion-enter > .categoryTile:nth-child(3n) { animation-delay: 180ms; }
 }

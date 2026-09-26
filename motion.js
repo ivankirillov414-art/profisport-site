@@ -34,7 +34,7 @@
     try {
       observer = new IntersectionObserver(entries => {
         entries.forEach(entry => { if (entry.isIntersecting) reveal(entry.target); });
-      }, { rootMargin: '0px 0px 40px 0px', threshold: 0 });
+      }, { rootMargin: '0px 0px -64px 0px', threshold: 0 });
       // Explicitly bounded marketing sections only: never observe the catalog,
       // its replacement cards, map iframe, dialogs or an entire document subtree.
       const targets = document.querySelectorAll('[data-motion], .fade-up, .fade-in, .scale-in, .slide-in, .categorySection > .sectionHead, #categoryTiles, #picker, #service, .locationCard, .footerSection, .shopM2Card, .photoHubCard, .hubContact');
