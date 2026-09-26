@@ -1,0 +1,42 @@
+const fs=require('fs');
+const path=require('path');
+const assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+
+const engine=read('server/loyalty.php');
+const bootstrap=read('server/bootstrap.php');
+const orders=read('api/orders.php');
+const create=read('api/order-create.php');
+const validation=read('server/order-validation.php');
+const reviews=read('api/review-moderation.php');
+const customerAdmin=read('api/customer-admin.php');
+const admin=read('admin/index.php');
+const customers=read('admin/customers.php');
+const loyaltyPage=read('admin/loyalty.php');
+
+assert.match(engine,/enabled'=>false/,'loyalty must default to disabled');
+assert.match(engine,/earn_percent_bp'=>null/,'earn percent must remain unset');
+assert.match(engine,/max_redeem_percent_bp'=>null/,'redeem percent must remain unset');
+assert.match(engine,/point_value_kopeks'=>null/,'point value must remain unset');
+assert.match(engine,/expiration_days'=>null/,'expiration must remain unset');
+assert.match(engine,/review_bonus'=>null/,'review bonus must remain unset');
+assert.match(engine,/function loyalty_post/,'loyalty ledger posting helper is required');
+assert.match(engine,/function loyalty_manual_adjustment/,'manual adjustments must use loyalty engine');
+assert.match(engine,/function loyalty_award_review/,'review hook must use loyalty engine');
+assert.match(engine,/function loyalty_handle_order_status_change/,'order hook must use loyalty engine');
+assert.match(engine,/function loyalty_order_earn_preview/,'earn preview must exist');
+assert.match(bootstrap,/ensure_loyalty_schema\(\$pdo\)/,'bootstrap must migrate loyalty ledger');
+assert.match(orders,/loyalty_handle_order_status_change/,'order status must call loyalty hook');
+assert.match(reviews,/loyalty_award_review/,'review moderation must call loyalty hook');
+assert.doesNotMatch(reviews,/bonus_balance=bonus_balance\+/,'review moderation must not write balances directly');
+assert.match(customerAdmin,/loyalty_manual_adjustment/,'admin adjustments must use ledger');
+assert.doesNotMatch(customerAdmin,/UPDATE customers SET bonus_balance=\?/,'customer admin must not write balance directly');
+assert.match(create,/category_path FROM products/,'checkout must snapshot product category');
+assert.match(create,/'category_path'=>\$x\['category_path'\]/,'order item must persist category snapshot');
+assert.match(validation,/'category_path'=>\(string\)/,'order calculation must carry category');
+assert.match(admin,/href="loyalty\.php"/,'admin dashboard must link loyalty status');
+assert.match(customers,/Автоматическая бонусная программа сейчас выключена/,'customer admin must label program as disabled');
+assert.match(loyaltyPage,/Программа/,'loyalty admin status page must exist');
+
+console.log('Loyalty engine foundation regression checks passed.');
