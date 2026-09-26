@@ -16,11 +16,11 @@ try{
         ],
     ]);
     discount_check(loyalty_configured($cfg),'discount-only config must be valid');
-    $s=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
-    $s->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
+    $settings=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
+    $settings->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
 
-    $s=$pdo->prepare("INSERT INTO customers(name,email,phone,password_hash,bonus_balance) VALUES('Discount test','discount-test@example.test','+79990000009',NULL,0)");
-    $s->execute();$customerId=(int)$pdo->lastInsertId();
+    $customerInsert=$pdo->prepare("INSERT INTO customers(name,email,phone,password_hash,bonus_balance) VALUES('Discount test','discount-test@example.test','+79990000009',NULL,0)");
+    $customerInsert->execute();$customerId=(int)$pdo->lastInsertId();
 
     $base=[
         'items'=>[
@@ -42,11 +42,11 @@ try{
     $priced=loyalty_discount_order_items($pdo,$base,$customerId);
     discount_check($priced['items'][0]['discount_percent_bp']===1500&&$priced['items'][1]['discount_percent_bp']===0,'group-scoped personal discount must stay in its group');
 
-    $cfg['discount_stack_rule']='sum';$s->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
+    $cfg['discount_stack_rule']='sum';$settings->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
     $priced=loyalty_discount_order_items($pdo,$base,$customerId);
     discount_check($priced['items'][0]['discount_percent_bp']===2500,'sum rule must combine category and personal discount');
 
-    $cfg['enabled']=false;$s->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
+    $cfg['enabled']=false;$settings->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
     $priced=loyalty_discount_order_items($pdo,$base,$customerId);
     discount_check($priced['discount']===0&&$priced['total']===7000,'master switch must disable all discounts');
 
