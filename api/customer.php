@@ -223,6 +223,13 @@ try{
     auth_rate_clear($pdo,'customer_service_request',(string)$customerId);
     json_response(['ok'=>true,'request_number'=>$row['request_number'],'request_id'=>(int)$row['id'],'service_requests'=>customer_service_rows($pdo,$customerId)]);
   }
+  if($action==='confirm_component_replacement'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$componentId=(int)($in['component_id']??0);
+    if($componentId<1)json_response(['ok'=>false,'error'=>'bad_component'],422);
+    $result=vehicle_passport_confirm_customer_replacement($pdo,(int)$u['id'],$componentId);
+    audit($pdo,'customer_component_replacement_confirm','vehicle_component',(string)$componentId,['customer_id'=>(int)$u['id'],'event_id'=>$result['event_id']]);
+    json_response(['ok'=>true,'vehicles'=>customer_vehicle_rows($pdo,(int)$u['id']),'csrf'=>customer_csrf()]);
+  }
   if($action==='logout'&&$_SERVER['REQUEST_METHOD']==='POST'){
     customer_require($pdo);customer_csrf_check();$_SESSION=[];if(ini_get('session.use_cookies')){$p=session_get_cookie_params();setcookie(session_name(),'',time()-42000,$p['path'],$p['domain']??'',(bool)$p['secure'],(bool)$p['httponly']);}session_destroy();json_response(['ok'=>true]);
   }
