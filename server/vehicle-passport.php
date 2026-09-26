@@ -315,6 +315,21 @@ function vehicle_maintenance_refresh_all(PDO $pdo,int $limit=10000): array {
     return ['vehicles'=>$vehicles,'active_alerts'=>$alerts];
 }
 
+function vehicle_maintenance_refresh_daily(PDO $pdo): array {
+    $today=date('Y-m-d');$key='vehicle_maintenance_last_refresh_date';
+    $s=$pdo->prepare('SELECT setting_value FROM site_settings WHERE setting_key=? LIMIT 1');$s->execute([$key]);
+    if((string)($s->fetchColumn()?:'')===$today)return ['ran'=>false,'date'=>$today,'reason'=>'current'];
+    $lock=(int)$pdo->query("SELECT GET_LOCK('profisport_vehicle_maintenance',0)")->fetchColumn();
+    if($lock!==1)return ['ran'=>false,'date'=>$today,'reason'=>'busy'];
+    try{
+        $s->execute([$key]);if((string)($s->fetchColumn()?:'')===$today)return ['ran'=>false,'date'=>$today,'reason'=>'current'];
+        $result=vehicle_maintenance_refresh_all($pdo,10000);
+        $save=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
+        $save->execute([$key,$today]);
+        return ['ran'=>true,'date'=>$today]+$result;
+    }finally{$pdo->query("SELECT RELEASE_LOCK('profisport_vehicle_maintenance')");}
+}
+
 function vehicle_passport_components(PDO $pdo,int $vehicleId,bool $includeEvents=false): array {
     vehicle_passport_seed_vehicle($pdo,$vehicleId);
     $v=$pdo->prepare('SELECT odometer_km FROM customer_vehicles WHERE id=? LIMIT 1');$v->execute([$vehicleId]);$od=$v->fetchColumn();$odometer=$od!==false&&$od!==null?(float)$od:null;
