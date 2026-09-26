@@ -100,6 +100,13 @@ try{
     $queue=vehicle_spec_registry_queue($pdo,'unmatched',1000);
     vsr_check(count(array_filter($queue,fn($x)=>(int)$x['product_id']===$unknownId))===1,'unverified bicycle must remain in research queue');
 
+    $pdo->prepare('DELETE FROM site_settings WHERE setting_key=?')->execute(['vehicle_spec_registry_applied_version']);
+    $sync=vehicle_spec_registry_sync_once($pdo);
+    vsr_check($sync['ran']===true&&$sync['version']===VEHICLE_SPEC_REGISTRY_VERSION,'first registry maintenance sync must apply current version');
+    $againSync=vehicle_spec_registry_sync_once($pdo);
+    vsr_check($againSync['ran']===false&&$againSync['reason']==='current','registry maintenance sync must be idempotent for current version');
+    vsr_check(vehicle_spec_registry_applied_version($pdo)===VEHICLE_SPEC_REGISTRY_VERSION,'applied registry version must be persisted');
+
     $pdo->rollBack();
     echo "PASS: verified Aspect/Hagen/Welt/STARK registry matching, official provenance, source precedence and research queue\n";
 }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
