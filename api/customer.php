@@ -134,7 +134,7 @@ $action=(string)($_GET['action']??'me');
 try{
   if($action==='me'){
     $u=customer_me($pdo);
-    if(!$u)json_response(['ok'=>true,'customer'=>null,'csrf'=>customer_csrf()]);
+    if(!$u)json_response(['ok'=>true,'customer'=>null,'customer_discount'=>null,'loyalty_program'=>loyalty_program_status($pdo),'csrf'=>customer_csrf()]);
     json_response(customer_payload($pdo,$u));
   }
   if($action==='register'&&$_SERVER['REQUEST_METHOD']==='POST'){
