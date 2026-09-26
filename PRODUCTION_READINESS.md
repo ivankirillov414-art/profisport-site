@@ -13,6 +13,8 @@ This file is a technical checklist for moving the store from the temporary Infin
 
 ## Automated repository preflight
 
+GitHub Pages is intentionally manual-only and is not a production target because it cannot execute the PHP/MySQL checkout, account, admin or service flows.
+
 The repository now blocks the InfinityFree deploy job behind a fresh/legacy MySQL matrix preflight. It validates PHP/JavaScript syntax, storefront regressions, customer cabinet flows, the admin customer card, phone/email login, checkout/order lifecycle, the live loyalty FIFO/expiry/refund engine, migration invariants and the final production preflight. The deploy phase starts only after both database variants pass.
 
 Apache routes missing pages to the static branded `404.html` and server errors to `500.html`. The public `api/health.php` verifies the database plus the key catalog, customer, order, loyalty, vehicle and service schema before returning `ok: true`. The owner-only `admin/health.php` exposes the more detailed schema checklist.
