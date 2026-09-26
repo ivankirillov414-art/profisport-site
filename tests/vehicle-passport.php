@@ -5,7 +5,8 @@ function vp_check(bool $ok,string $message): void { if(!$ok)throw new RuntimeExc
 
 $pdo->beginTransaction();
 try{
-    $pdo->exec("UPDATE products SET specs='{"Цепь":"KMC TEST","Тормоза":"Shimano TEST","Цвет":"Black"}' WHERE id=3");
+    $specUpdate=$pdo->prepare('UPDATE products SET specs=? WHERE id=3');
+    $specUpdate->execute([json_encode(['Цепь'=>'KMC TEST','Тормоза'=>'Shimano TEST','Цвет'=>'Black'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
     $s=$pdo->prepare("INSERT INTO customers(name,email,phone,password_hash,bonus_balance) VALUES('Passport test','passport-test@example.test','+79990000008',NULL,0)");
     $s->execute();$customerId=(int)$pdo->lastInsertId();
     $snapshot=json_encode(['Цепь'=>'KMC SNAPSHOT','Тормоза'=>'Shimano SNAPSHOT','Цвет'=>'Blue'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
