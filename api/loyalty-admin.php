@@ -21,17 +21,6 @@ try{
       audit($pdo,'loyalty_publish','loyalty','v2',['enabled'=>$program['enabled'],'config'=>$program['config']]);
       out(['ok'=>true,'program'=>$program,'draft'=>loyalty_center_draft($pdo),'csrf'=>$_SESSION['csrf']??'']);
     }
-    // Backward-compatible server actions. The admin UI no longer exposes a second activation path.
-    if($action==='activate'){
-      $program=loyalty_set_program_enabled($pdo,true,(int)($admin['id']??0));
-      audit($pdo,'loyalty_activate_legacy','loyalty','v1',['activation_at'=>$program['activation_at']]);
-      out(['ok'=>true,'program'=>$program,'csrf'=>$_SESSION['csrf']??'']);
-    }
-    if($action==='deactivate'){
-      $program=loyalty_set_program_enabled($pdo,false,(int)($admin['id']??0));
-      audit($pdo,'loyalty_deactivate_legacy','loyalty','v1');
-      out(['ok'=>true,'program'=>$program,'csrf'=>$_SESSION['csrf']??'']);
-    }
     out(['ok'=>false,'error'=>'bad_action'],422);
   }
   if($_SERVER['REQUEST_METHOD']!=='GET')out(['ok'=>false,'error'=>'method_not_allowed'],405);
