@@ -104,6 +104,7 @@ jobs:
           PHP
           if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-orders.php; fi
           php tests/seed.php
+          php tests/loyalty-live.php
           php -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID"' EXIT
