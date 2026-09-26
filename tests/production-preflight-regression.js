@@ -13,6 +13,7 @@ const h500=read('500.html');
 const health=read('api/health.php');
 const adminHealth=read('admin/health.php');
 const deploy=read('.github/workflows/deploy-infinityfree.yml');
+const pages=read('.github/workflows/pages.yml');
 
 assert.match(ht,/ErrorDocument 404 \/404\.html/,'Apache must route missing pages to branded 404');
 assert.match(ht,/ErrorDocument 500 \/500\.html/,'Apache must route server errors to branded 500');
@@ -47,5 +48,8 @@ assert.ok(deploy.includes("ErrorDocument 404 /404.html"),'FTP verification must 
 assert.ok(deploy.includes("ErrorDocument 500 /500.html"),'FTP verification must inspect 500 routing');
 assert.ok(deploy.includes('Smoke-check public health and 404'),'deploy must probe the public health endpoint and branded 404');
 assert.ok(deploy.includes("payload.get('schema') is True"),'live health smoke must require schema readiness');
+assert.match(pages,/workflow_dispatch:/,'GitHub Pages preview must stay available manually');
+assert.doesNotMatch(pages,/\bpush\s*:/,'GitHub Pages must not auto-publish an incomplete static copy on main pushes');
+assert.match(pages,/manual static preview only/,'Pages workflow must clearly identify its non-production role');
 
 console.log('Production preflight, error handling, health and deployment gate checks passed.');
