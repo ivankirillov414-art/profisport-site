@@ -74,7 +74,10 @@ function ensure_vehicle_passport_schema(PDO $pdo): void {
         include_learning TINYINT(1) NOT NULL DEFAULT 1,
         note VARCHAR(1000) NULL,
         admin_user_id INT UNSIGNED NULL,
+        source_order_id BIGINT UNSIGNED NULL,
+        source_product_id BIGINT UNSIGNED NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY idx_component_purchase_event(component_id,event_type,source_order_id,source_product_id),
         INDEX idx_component_events_component(component_id,event_at,id),
         INDEX idx_component_events_type(component_id,event_type,event_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
@@ -202,9 +205,11 @@ function vehicle_passport_components(PDO $pdo,int $vehicleId,bool $includeEvents
     vehicle_passport_seed_vehicle($pdo,$vehicleId);
     $v=$pdo->prepare('SELECT odometer_km FROM customer_vehicles WHERE id=? LIMIT 1');$v->execute([$vehicleId]);$od=$v->fetchColumn();$odometer=$od!==false&&$od!==null?(float)$od:null;
     $s=$pdo->prepare('SELECT * FROM vehicle_components WHERE vehicle_id=? AND is_active=1 ORDER BY id');$s->execute([$vehicleId]);$rows=$s->fetchAll();
-    $events=$includeEvents?$pdo->prepare('SELECT id,event_type,event_at,odometer_km,measurement_value,measurement_unit,include_learning,note,admin_user_id FROM vehicle_component_events WHERE component_id=? ORDER BY event_at DESC,id DESC LIMIT 50'):null;
+    $events=$includeEvents?$pdo->prepare('SELECT id,event_type,event_at,odometer_km,measurement_value,measurement_unit,include_learning,note,admin_user_id,source_order_id,source_product_id FROM vehicle_component_events WHERE component_id=? ORDER BY event_at DESC,id DESC LIMIT 50'):null;
+    $pending=$pdo->prepare("SELECT id,event_at,source_order_id,source_product_id,note FROM vehicle_component_events p WHERE p.component_id=? AND p.event_type='replacement_purchase' AND NOT EXISTS(SELECT 1 FROM vehicle_component_events r WHERE r.component_id=p.component_id AND r.event_type='replaced' AND r.event_at>=p.event_at) ORDER BY p.event_at DESC,p.id DESC LIMIT 1");
     foreach($rows as &$row){
         $row['id']=(int)$row['id'];$row['vehicle_id']=(int)$row['vehicle_id'];$row['wear']=vehicle_passport_wear($pdo,$row,$odometer);
+        $pending->execute([(int)$row['id']]);$row['pending_replacement_purchase']=$pending->fetch()?:null;
         if($includeEvents&&$events){$events->execute([(int)$row['id']]);$row['events']=$events->fetchAll();}
     }unset($row);
     return $rows;
@@ -248,16 +253,43 @@ function vehicle_passport_save_component(PDO $pdo,int $vehicleId,array $in,int $
 }
 
 function vehicle_passport_record_event(PDO $pdo,int $componentId,array $in,int $adminId): int {
-    $type=(string)($in['event_type']??'');if(!in_array($type,['installed','replaced','measured','inspected'],true))throw new InvalidArgumentException('invalid_event');
+    $type=(string)($in['event_type']??'');if(!in_array($type,['installed','replaced','measured','inspected','replacement_purchase'],true))throw new InvalidArgumentException('invalid_event');
     $eventAt=trim((string)($in['event_at']??''));if($eventAt==='')$eventAt=date('Y-m-d H:i:s');
     $odo=is_numeric($in['odometer_km']??null)?(float)$in['odometer_km']:null;$measurement=is_numeric($in['measurement_value']??null)?(float)$in['measurement_value']:null;$unit=trim((string)($in['measurement_unit']??''))?:null;
     $include=($in['include_learning']??true)!==false;$note=mb_substr(trim((string)($in['note']??'')),0,1000);
-    $s=$pdo->prepare('INSERT INTO vehicle_component_events(component_id,event_type,event_at,odometer_km,measurement_value,measurement_unit,include_learning,note,admin_user_id) VALUES(?,?,?,?,?,?,?,?,?)');
-    $s->execute([$componentId,$type,$eventAt,$odo,$measurement,$unit,$include?1:0,$note?:null,$adminId]);$id=(int)$pdo->lastInsertId();
+    $s=$pdo->prepare('INSERT INTO vehicle_component_events(component_id,event_type,event_at,odometer_km,measurement_value,measurement_unit,include_learning,note,admin_user_id,source_order_id,source_product_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)');
+    $s->execute([$componentId,$type,$eventAt,$odo,$measurement,$unit,$include?1:0,$note?:null,$adminId,(int)($in['source_order_id']??0)?:null,(int)($in['source_product_id']??0)?:null]);$id=(int)$pdo->lastInsertId();
     if(in_array($type,['installed','replaced'],true))$pdo->prepare('UPDATE vehicle_components SET installed_at=?,current_measurement=NULL,current_measurement_at=NULL WHERE id=?')->execute([$eventAt,$componentId]);
     if($type==='measured'&&$measurement!==null)$pdo->prepare('UPDATE vehicle_components SET current_measurement=?,measurement_unit=COALESCE(?,measurement_unit),current_measurement_at=? WHERE id=?')->execute([$measurement,$unit,$eventAt,$componentId]);
     if($odo!==null){
         $pdo->prepare('UPDATE customer_vehicles v JOIN vehicle_components c ON c.vehicle_id=v.id SET v.odometer_km=?,v.odometer_updated_at=? WHERE c.id=?')->execute([$odo,$eventAt,$componentId]);
     }
     audit($pdo,'vehicle_component_event','vehicle_component',(string)$componentId,['event_id'=>$id,'event_type'=>$type,'include_learning'=>$include]);return $id;
+}
+
+
+function vehicle_passport_sync_replacement_purchases(PDO $pdo,int $orderId): int {
+    $o=$pdo->prepare("SELECT customer_id,status,created_at FROM orders WHERE id=? LIMIT 1");$o->execute([$orderId]);$order=$o->fetch();
+    if(!$order||(string)$order['status']!=='completed'||(int)($order['customer_id']??0)<1)return 0;
+    $q=$pdo->prepare("SELECT DISTINCT c.id component_id,oi.product_id,oi.title FROM order_items oi JOIN customer_vehicles v ON v.customer_id=? AND v.is_active=1 JOIN vehicle_components c ON c.vehicle_id=v.id AND c.is_active=1 AND c.compatible_product_id=oi.product_id WHERE oi.order_id=? AND oi.product_id IS NOT NULL");
+    $q->execute([(int)$order['customer_id'],$orderId]);$insert=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note,source_order_id,source_product_id) VALUES(?,'replacement_purchase',?,0,?,?,?)");$count=0;
+    foreach($q->fetchAll() as $row){
+        $note='Куплен совместимый расходник: '.mb_substr((string)$row['title'],0,500);
+        $insert->execute([(int)$row['component_id'],(string)$order['created_at'],$note,$orderId,(int)$row['product_id']]);$count+=$insert->rowCount();
+    }
+    return $count;
+}
+
+function vehicle_passport_confirm_customer_replacement(PDO $pdo,int $customerId,int $componentId): array {
+    $s=$pdo->prepare("SELECT c.id,c.vehicle_id,v.odometer_km FROM vehicle_components c JOIN customer_vehicles v ON v.id=c.vehicle_id WHERE c.id=? AND v.customer_id=? AND c.is_active=1 AND v.is_active=1 LIMIT 1");
+    $s->execute([$componentId,$customerId]);$row=$s->fetch();if(!$row)throw new DomainException('component_not_owned');
+    $p=$pdo->prepare("SELECT id,event_at,source_order_id,source_product_id FROM vehicle_component_events WHERE component_id=? AND event_type='replacement_purchase' AND NOT EXISTS(SELECT 1 FROM vehicle_component_events r WHERE r.component_id=? AND r.event_type='replaced' AND r.event_at>=vehicle_component_events.event_at) ORDER BY event_at DESC,id DESC LIMIT 1");
+    $p->execute([$componentId,$componentId]);$purchase=$p->fetch();if(!$purchase)throw new DomainException('replacement_purchase_not_found');
+    $event=[
+        'event_type'=>'replaced','event_at'=>date('Y-m-d H:i:s'),'odometer_km'=>$row['odometer_km']!==null?(float)$row['odometer_km']:null,
+        'include_learning'=>true,'note'=>'Замена подтверждена клиентом после покупки совместимого расходника',
+        'source_order_id'=>(int)$purchase['source_order_id'],'source_product_id'=>(int)$purchase['source_product_id'],
+    ];
+    $eventId=vehicle_passport_record_event($pdo,$componentId,$event,0);
+    return ['event_id'=>$eventId,'vehicle_id'=>(int)$row['vehicle_id']];
 }
