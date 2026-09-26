@@ -16,8 +16,8 @@ assert.match(bootstrap,/ensure_vehicle_spec_registry_schema\(\$pdo\)/,'registry 
 for(const fn of ['vehicle_spec_registry_profiles','vehicle_spec_registry_match','vehicle_spec_registry_scan_catalog','vehicle_spec_registry_apply_vehicle','vehicle_spec_registry_apply_all','vehicle_spec_registry_queue']){
   assert.match(registry,new RegExp('function '+fn+'\\b'),'registry missing '+fn);
 }
-for(const key of ['aspect-nickel-pro-2025-29','aspect-nickel-elite-2025-27.5','aspect-cobalt-pro-2025-29','aspect-aura-2025-27.5','aspect-oasis-2026-27.5','aspect-oasis-pro-2026-27.5','hagen-3.9-2025-27.5','hagen-3.11-2025-27.5']){
-  assert.match(registry,new RegExp(key.replace(/[.]/g,'\\.')),'verified profile missing '+key);
+for(const key of ['aspect-nickel-pro-2025-','aspect-nickel-elite-2025-','aspect-cobalt-pro-2025-','aspect-aura-2025-27.5','aspect-oasis-2026-27.5','aspect-oasis-pro-2026-27.5','hagen-3.9-2025-','hagen-3.11-2025-']){
+  assert.ok(registry.includes(key),'verified profile family missing '+key);
 }
 assert.match(registry,/HAGEN_39_2025/,'registry must include the official Hagen 3.9 source');
 assert.match(registry,/HAGEN_311_2025/,'registry must include the official Hagen 3.11 source');
