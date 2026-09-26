@@ -66,6 +66,7 @@
       <section id="vehicles-service" class="profileCard profileSecondaryCard vehicleServiceSection">
         <div class="profileSectionIntro"><h3>Моя техника</h3><span id="vehiclesSummary">Покупки, которые можно обслуживать</span></div>
         <div id="customerVehicles" class="customerVehicles"></div>
+        <div id="vehiclePassport" class="vehiclePassport hidden"></div>
         <div id="serviceComposer" class="vehicleServiceComposer hidden"></div>
         <div class="profileSectionIntro serviceHistoryHead"><h3>Сервис</h3><span id="serviceSummary">История обращений</span></div>
         <div id="customerServiceRequests" class="customerServiceRequests"></div>
@@ -289,10 +290,54 @@
       return serviceState.find(function(r){return String(r.vehicle_id)===String(vehicleId)&&!['completed','cancelled'].includes(String(r.status||''))})||null;
     }
     function vehicleCardMarkup(v){
-      const current=latestVehicleService(v.id);
-      const status=current?'<span class="vehicleServiceState" data-status="'+esc(current.status)+'">'+esc(serviceStatusLabels[current.status]||current.status)+'</span>':'<span class="vehicleServiceState idle">Сервис не требуется</span>';
+      const current=latestVehicleService(v.id),components=Array.isArray(v.passport?.components)?v.passport.components:[],known=components.filter(c=>c.model||c.manufacturer).length;
+      const attention=components.filter(c=>['soon','due'].includes(String(c.wear?.state||''))).length;
+      const status=current?'<span class="vehicleServiceState" data-status="'+esc(current.status)+'">'+esc(serviceStatusLabels[current.status]||current.status)+'</span>':attention?'<span class="vehicleServiceState" data-status="repair">Внимание: '+attention+'</span>':'<span class="vehicleServiceState idle">Сервис не требуется</span>';
       const product=v.product_id?'<a class="vehicleTitle" href="product.html?id='+encodeURIComponent(v.product_id)+'">'+esc(v.title)+'</a>':'<span class="vehicleTitle">'+esc(v.title)+'</span>';
-      return '<article class="vehicleCard" data-vehicle-card="'+Number(v.id)+'"><div class="vehicleImage">'+vehicleImageMarkup(v)+'</div><div class="vehicleBody"><div class="vehicleTop"><span class="vehicleType">'+esc(vehicleTypeLabel(v.vehicle_type))+'</span>'+status+'</div>'+product+'<div class="vehicleMeta"><span>Покупка: '+esc(formatDate(v.purchase_date)||'—')+'</span><span>Заказ '+esc(v.order_number||'—')+'</span>'+(Number(v.unit_index)>1?'<span>Экземпляр '+Number(v.unit_index)+'</span>':'')+'</div><div class="vehicleActions"><button type="button" data-service-vehicle="'+Number(v.id)+'">'+(current?'Новое обращение':'Записать в сервис')+'</button>'+(current?'<a href="#service-'+Number(current.id)+'">Текущий ремонт</a>':'')+'</div></div></article>';
+      return '<article class="vehicleCard" data-vehicle-card="'+Number(v.id)+'"><div class="vehicleImage">'+vehicleImageMarkup(v)+'</div><div class="vehicleBody"><div class="vehicleTop"><span class="vehicleType">'+esc(vehicleTypeLabel(v.vehicle_type))+'</span>'+status+'</div>'+product+'<div class="vehicleMeta"><span>Покупка: '+esc(formatDate(v.purchase_date)||'—')+'</span><span>Заказ '+esc(v.order_number||'—')+'</span>'+(v.odometer_km!==null&&v.odometer_km!==undefined?'<span>'+Number(v.odometer_km).toLocaleString('ru-RU')+' км</span>':'')+(Number(v.unit_index)>1?'<span>Экземпляр '+Number(v.unit_index)+'</span>':'')+'</div><div class="vehicleMeta"><span>Подтверждено компонентов: '+known+'</span></div><div class="vehicleActions"><button type="button" class="secondary" data-open-passport="'+Number(v.id)+'">Паспорт техники</button><button type="button" data-service-vehicle="'+Number(v.id)+'">'+(current?'Новое обращение':'Записать в сервис')+'</button>'+(current?'<a href="#service-'+Number(current.id)+'">Текущий ремонт</a>':'')+'</div></div></article>';
+    }
+    function passportWearLabel(w){
+      if(!w||w.percent===null||w.percent===undefined)return 'Состояние не рассчитано';
+      return 'Расчётный износ '+Number(w.percent).toLocaleString('ru-RU',{maximumFractionDigits:1})+'%';
+    }
+    function passportRemaining(w){
+      if(!w||w.remaining===null||w.remaining===undefined)return '';
+      if(w.unit==='days')return 'Ориентировочно осталось '+Math.max(0,Math.round(Number(w.remaining)))+' дн.';
+      if(w.unit==='km')return 'Ориентировочно осталось '+Math.max(0,Math.round(Number(w.remaining))).toLocaleString('ru-RU')+' км';
+      return '';
+    }
+    function passportSource(c){
+      if(c.source_type==='official')return c.source_verified_at?'Официальный источник · проверено':'Официальный источник · не подтверждено администратором';
+      if(c.source_type==='1c_spec')return 'Комплектация из карточки 1С';
+      if(c.source_type==='service')return 'Данные сервиса';
+      return 'Данные внесены вручную';
+    }
+    function passportStateForHotspot(passport,key){
+      const components=(passport.components||[]).filter(c=>c.hotspot_key===key&&c.wear?.percent!==null&&c.wear?.percent!==undefined);
+      if(!components.length)return 'unknown';
+      return components.reduce((a,c)=>Number(c.wear.percent)>Number(a.wear.percent)?c:a,components[0]).wear.state||'unknown';
+    }
+    function passportComponentCard(c){
+      const model=[c.manufacturer,c.model].filter(Boolean).join(' ');
+      const source=c.source_url?'<a href="'+esc(c.source_url)+'" target="_blank" rel="noopener">'+esc(passportSource(c))+'</a>':'<span>'+esc(passportSource(c))+'</span>';
+      const replacement=c.compatible_product_id?'<a class="vehiclePassportAction" href="product.html?id='+encodeURIComponent(c.compatible_product_id)+'">Подобрать замену</a>':'';
+      return '<article class="vehiclePassportComponent" data-passport-component="'+Number(c.id)+'" data-state="'+esc(c.wear?.state||'unknown')+'"><div><b>'+esc(c.label)+'</b><strong>'+esc(model||'Точная модель не подтверждена')+'</strong><small>'+source+'</small></div><div class="vehicleWearInfo"><span>'+esc(passportWearLabel(c.wear))+'</span><small>'+esc(passportRemaining(c.wear))+'</small><small>'+(Number(c.wear?.personal_samples||0)?'Персональных циклов: '+Number(c.wear.personal_samples):'Персональной истории пока нет')+'</small></div>'+replacement+'</article>';
+    }
+    function openVehiclePassport(vehicle){
+      const box=$('#vehiclePassport'),passport=vehicle.passport;if(!passport){box.classList.remove('hidden');box.innerHTML='<div class="vehiclePassportEmpty">Паспорт техники пока недоступен.</div>';return}
+      const components=Array.isArray(passport.components)?passport.components:[],hotspots=Array.isArray(passport.hotspots)?passport.hotspots:[];
+      const attention=components.filter(c=>['soon','due'].includes(String(c.wear?.state||''))).length;
+      box.classList.remove('hidden');
+      box.innerHTML='<div class="vehiclePassportHead"><div><span class="profileSectionKicker">Паспорт техники</span><h4>'+esc(vehicle.title)+'</h4><p>'+(attention?'Требуют внимания: '+attention+' узл.':'Критических прогнозов сейчас нет.')+'</p></div><button id="closeVehiclePassport" class="secondary" type="button">Свернуть</button></div>'+
+        '<div class="vehiclePassportLayout"><div><div class="vehiclePassportDiagram"><img src="assets/guide/bicycle.png" width="1382" height="1130" alt="Схема велосипеда">'+hotspots.map((h,i)=>'<button type="button" class="vehiclePassportHotspot '+passportStateForHotspot(passport,h.key)+'" style="left:'+Number(h.x)+'%;top:'+Number(h.y)+'%" data-passport-hotspot="'+esc(h.key)+'" aria-label="'+esc(h.label)+'">'+(i+1)+'</button>').join('')+'</div><div class="vehiclePassportLegend"><span>Зелёный — запас ресурса</span><span>Жёлтый — наблюдать</span><span>Оранжевый — скоро</span><span>Красный — расчётный ресурс исчерпан</span><span>Серый — данных недостаточно</span></div></div>'+
+        '<div><div id="vehiclePassportComponentList" class="vehiclePassportComponentList">'+(components.length?components.map(passportComponentCard).join(''):'<div class="vehiclePassportEmpty"><b>Точная комплектация ещё не подтверждена.</b><p>Мы не показываем выдуманные компоненты: здесь появятся только данные из 1С, сервиса или проверенного источника.</p></div>')+'</div><div class="vehiclePassportFoot"><button type="button" data-service-vehicle="'+Number(vehicle.id)+'">Записать велосипед в сервис</button></div></div></div>';
+      $('#closeVehiclePassport').onclick=()=>{box.classList.add('hidden');box.innerHTML=''};
+      box.querySelectorAll('[data-passport-hotspot]').forEach(button=>button.onclick=()=>{
+        const match=components.find(c=>c.hotspot_key===button.dataset.passportHotspot);if(!match)return;
+        const card=box.querySelector('[data-passport-component="'+match.id+'"]');if(card){box.querySelectorAll('.vehiclePassportComponent').forEach(x=>x.classList.remove('active'));card.classList.add('active');card.scrollIntoView({behavior:'smooth',block:'nearest'})}
+      });
+      box.querySelectorAll('[data-service-vehicle]').forEach(button=>button.onclick=()=>openVehicleService(vehicle));
+      box.scrollIntoView({behavior:'smooth',block:'start'});
     }
     function serviceHistoryMarkup(r){
       const rows=Array.isArray(r.history)?r.history:[];
@@ -312,6 +357,7 @@
       $('#customerVehicles').innerHTML=vehicleState.length?vehicleState.map(vehicleCardMarkup).join(''):'<div class="vehicleEmpty"><b>Техника появится здесь после завершённой покупки.</b><p>Велосипеды и самокаты из завершённых заказов добавляются автоматически.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
       $('#customerServiceRequests').innerHTML=serviceState.length?serviceState.map(serviceRequestMarkup).join(''):'<div class="serviceEmpty"><b>Обращений в сервис пока нет.</b><p>Выберите технику выше, чтобы создать первую заявку.</p></div>';
       document.querySelectorAll('[data-service-vehicle]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.serviceVehicle)});if(vehicle)openVehicleService(vehicle)}});
+      document.querySelectorAll('[data-open-passport]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.openPassport)});if(vehicle)openVehiclePassport(vehicle)}});
       document.querySelectorAll('.vehicleImage img').forEach(function(img){img.onerror=function(){const ph=document.createElement('span');ph.className='vehicleImagePlaceholder';ph.textContent='Фото техники';img.replaceWith(ph)}});
     }
     function newServiceRequestKey(){
