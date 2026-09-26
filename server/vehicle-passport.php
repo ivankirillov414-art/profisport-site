@@ -81,6 +81,9 @@ function ensure_vehicle_passport_schema(PDO $pdo): void {
         INDEX idx_component_events_component(component_id,event_at,id),
         INDEX idx_component_events_type(component_id,event_type,event_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $eventCols=table_columns($pdo,'vehicle_component_events');
+    $eventDefs=['source_order_id'=>'BIGINT UNSIGNED NULL','source_product_id'=>'BIGINT UNSIGNED NULL'];
+    foreach($eventDefs as $name=>$def)if(!isset($eventCols[$name]))$pdo->exec("ALTER TABLE vehicle_component_events ADD COLUMN `$name` $def");
 }
 
 function vehicle_passport_component_templates(): array {
@@ -229,7 +232,7 @@ function vehicle_passport_payload(PDO $pdo,int $vehicleId,bool $includeEvents=fa
 function vehicle_passport_save_component(PDO $pdo,int $vehicleId,array $in,int $adminId): array {
     $id=(int)($in['id']??0);$componentKey=trim((string)($in['component_key']??''));$hotspot=trim((string)($in['hotspot_key']??''));$label=trim((string)($in['label']??''));
     if($vehicleId<1||$componentKey===''||$hotspot===''||$label==='')throw new InvalidArgumentException('invalid_component');
-    $allowedHotspots=array_column(vehicle_passport_hotspots(),'key');if(!in_array($hotspot,$allowedHotspots,true))throw new InvalidArgumentException('invalid_hotspot');
+    $allowedHotspots=array_merge(['general'],array_column(vehicle_passport_hotspots(),'key'));if(!in_array($hotspot,$allowedHotspots,true))throw new InvalidArgumentException('invalid_hotspot');
     $wearMode=(string)($in['wear_mode']??'inspection');if(!in_array($wearMode,['inspection','time','distance','measurement'],true))throw new InvalidArgumentException('invalid_wear_mode');
     $sourceType=(string)($in['source_type']??'manual');if(!in_array($sourceType,['manual','1c_spec','official','service'],true))throw new InvalidArgumentException('invalid_source_type');
     $url=trim((string)($in['source_url']??''));if($url!==''&&!filter_var($url,FILTER_VALIDATE_URL))throw new InvalidArgumentException('invalid_source_url');
@@ -274,11 +277,14 @@ function vehicle_passport_record_event(PDO $pdo,int $componentId,array $in,int $
 function vehicle_passport_sync_replacement_purchases(PDO $pdo,int $orderId): int {
     $o=$pdo->prepare("SELECT customer_id,status,created_at FROM orders WHERE id=? LIMIT 1");$o->execute([$orderId]);$order=$o->fetch();
     if(!$order||(string)$order['status']!=='completed'||(int)($order['customer_id']??0)<1)return 0;
-    $q=$pdo->prepare("SELECT DISTINCT c.id component_id,oi.product_id,oi.title FROM order_items oi JOIN customer_vehicles v ON v.customer_id=? AND v.is_active=1 JOIN vehicle_components c ON c.vehicle_id=v.id AND c.is_active=1 AND c.compatible_product_id=oi.product_id WHERE oi.order_id=? AND oi.product_id IS NOT NULL");
-    $q->execute([(int)$order['customer_id'],$orderId]);$insert=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note,source_order_id,source_product_id) VALUES(?,'replacement_purchase',?,0,?,?,?)");$count=0;
-    foreach($q->fetchAll() as $row){
-        $note='Куплен совместимый расходник: '.mb_substr((string)$row['title'],0,500);
-        $insert->execute([(int)$row['component_id'],(string)$order['created_at'],$note,$orderId,(int)$row['product_id']]);$count+=$insert->rowCount();
+    $items=$pdo->prepare("SELECT DISTINCT product_id,title FROM order_items WHERE order_id=? AND product_id IS NOT NULL");$items->execute([$orderId]);
+    $matches=$pdo->prepare("SELECT c.id component_id FROM customer_vehicles v JOIN vehicle_components c ON c.vehicle_id=v.id AND c.is_active=1 WHERE v.customer_id=? AND v.is_active=1 AND c.compatible_product_id=? ORDER BY c.id");
+    $insert=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note,source_order_id,source_product_id) VALUES(?,'replacement_purchase',?,0,?,?,?)");$count=0;
+    foreach($items->fetchAll() as $item){
+        $matches->execute([(int)$order['customer_id'],(int)$item['product_id']]);$rows=$matches->fetchAll();
+        if(count($rows)!==1)continue; // Не угадываем, для какого из нескольких совместимых велосипедов куплена деталь.
+        $note='Куплен совместимый расходник: '.mb_substr((string)$item['title'],0,500);
+        $insert->execute([(int)$rows[0]['component_id'],(string)$order['created_at'],$note,$orderId,(int)$item['product_id']]);$count+=$insert->rowCount();
     }
     return $count;
 }
