@@ -37,6 +37,8 @@ assert.match(tick,/browser_context_required/,'browser fallback must reject reque
 assert.match(tick,/HTTP_REFERER/,'browser fallback may verify same-origin referer when fetch metadata is unavailable');
 assert.match(catalogLoader,/migration-tick\.php\?browser=1/,'storefront traffic must provide the migration fallback trigger');
 assert.match(tickWorkflow,/schedule:/,'migration worker must run on a schedule');
+assert.match(tickWorkflow,/push:/,'migration worker changes must trigger an immediate production smoke run');
+assert.match(tickWorkflow,/api\/migration-tick\.php/,'migration smoke run must watch the worker endpoint');
 assert.match(tickWorkflow,/profisport-migration-tick-v1/,'workflow token derivation must match deployment');
 assert.match(tickWorkflow,/migration\.headers/,'scheduled worker must capture response headers');
 assert.match(tickWorkflow,/migration\.body/,'scheduled worker must inspect the raw response body');
