@@ -4,6 +4,11 @@ declare(strict_types=1);
 function loyalty_default_config(): array {
     return [
         'enabled'=>false,
+        'earn_enabled'=>false,
+        'redeem_enabled'=>false,
+        'expiration_enabled'=>false,
+        'review_bonus_enabled'=>false,
+        'category_exclusions_enabled'=>false,
         'activation_at'=>null,
         'earn_percent_bp'=>null,
         'max_redeem_percent_bp'=>null,
@@ -45,7 +50,7 @@ function loyalty_config(PDO $pdo): array {
     $raw=$s->fetchColumn();$decoded=is_string($raw)?json_decode($raw,true):null;
     if(!is_array($decoded))return $base;
     $cfg=array_merge($base,array_intersect_key($decoded,$base));
-    $cfg['enabled']=($cfg['enabled']??false)===true;
+    foreach(['enabled','earn_enabled','redeem_enabled','expiration_enabled','review_bonus_enabled','category_exclusions_enabled'] as $key)$cfg[$key]=($cfg[$key]??false)===true;
     foreach(['earn_percent_bp','max_redeem_percent_bp','point_value_kopeks','expiration_days','min_order_rub','review_bonus'] as $key){
         if($cfg[$key]===null||$cfg[$key]==='')$cfg[$key]=null;
         elseif(is_numeric($cfg[$key]))$cfg[$key]=(int)$cfg[$key];
@@ -58,12 +63,17 @@ function loyalty_config(PDO $pdo): array {
 }
 
 function loyalty_configured(array $cfg): bool {
-    return is_int($cfg['earn_percent_bp'])&&$cfg['earn_percent_bp']>=0&&$cfg['earn_percent_bp']<=10000
-        &&is_int($cfg['max_redeem_percent_bp'])&&$cfg['max_redeem_percent_bp']>=0&&$cfg['max_redeem_percent_bp']<=10000
-        &&is_int($cfg['point_value_kopeks'])&&$cfg['point_value_kopeks']>=1&&$cfg['point_value_kopeks']<=100000
-        &&is_int($cfg['expiration_days'])&&$cfg['expiration_days']>=1&&$cfg['expiration_days']<=3650
-        &&is_int($cfg['min_order_rub'])&&$cfg['min_order_rub']>=0
-        &&is_int($cfg['review_bonus'])&&$cfg['review_bonus']>=0;
+    $anyFeature=$cfg['earn_enabled']||$cfg['redeem_enabled']||$cfg['review_bonus_enabled'];
+    if(!$anyFeature)return false;
+    if(!is_int($cfg['point_value_kopeks'])||$cfg['point_value_kopeks']<1||$cfg['point_value_kopeks']>100000)return false;
+    if($cfg['earn_enabled']){
+        if(!is_int($cfg['earn_percent_bp'])||$cfg['earn_percent_bp']<0||$cfg['earn_percent_bp']>5000)return false;
+        if(!is_int($cfg['min_order_rub'])||$cfg['min_order_rub']<0||$cfg['min_order_rub']>10000000)return false;
+    }
+    if($cfg['redeem_enabled']&&(!is_int($cfg['max_redeem_percent_bp'])||$cfg['max_redeem_percent_bp']<0||$cfg['max_redeem_percent_bp']>10000))return false;
+    if($cfg['expiration_enabled']&&(!is_int($cfg['expiration_days'])||$cfg['expiration_days']<1||$cfg['expiration_days']>3650))return false;
+    if($cfg['review_bonus_enabled']&&(!is_int($cfg['review_bonus'])||$cfg['review_bonus']<0||$cfg['review_bonus']>1000000))return false;
+    return true;
 }
 
 function loyalty_program_status(PDO $pdo): array {
@@ -126,10 +136,10 @@ function loyalty_category_excluded(string $categoryPath,array $cfg): bool {
 }
 
 function loyalty_order_earn_preview(array $items,array $cfg): array {
-    if(!loyalty_configured($cfg))return ['eligible_rub'=>0,'points'=>0];
+    if(!loyalty_configured($cfg)||!$cfg['earn_enabled'])return ['eligible_rub'=>0,'points'=>0];
     $eligible=0;
     foreach($items as $item){
-        if(loyalty_category_excluded((string)($item['category_path']??''),$cfg))continue;
+        if($cfg['category_exclusions_enabled']&&loyalty_category_excluded((string)($item['category_path']??''),$cfg))continue;
         $eligible+=max(0,(int)($item['line_total_rub']??0));
     }
     if($eligible<(int)$cfg['min_order_rub'])return ['eligible_rub'=>$eligible,'points'=>0];
@@ -139,14 +149,25 @@ function loyalty_order_earn_preview(array $items,array $cfg): array {
     return ['eligible_rub'=>$eligible,'points'=>max(0,$points)];
 }
 
+function loyalty_redemption_preview(int $orderRub,int $balancePoints,array $cfg): array {
+    $orderRub=max(0,$orderRub);$balancePoints=max(0,$balancePoints);
+    if(!loyalty_configured($cfg)||!$cfg['redeem_enabled'])return ['max_points'=>0,'discount_rub'=>0,'payable_rub'=>$orderRub];
+    $pointKopeks=(int)$cfg['point_value_kopeks'];$maxShareKopeks=intdiv($orderRub*100*(int)$cfg['max_redeem_percent_bp'],10000);
+    $balanceValueKopeks=$balancePoints*$pointKopeks;$discountKopeks=min($maxShareKopeks,$balanceValueKopeks,$orderRub*100);
+    $maxPoints=$pointKopeks>0?intdiv($discountKopeks,$pointKopeks):0;
+    $discountRub=intdiv($maxPoints*$pointKopeks,100);
+    return ['max_points'=>$maxPoints,'discount_rub'=>$discountRub,'payable_rub'=>max(0,$orderRub-$discountRub)];
+}
+
 function loyalty_expiry_date(array $cfg): ?string {
-    if(!is_int($cfg['expiration_days'])||$cfg['expiration_days']<1)return null;
+    if(!$cfg['expiration_enabled']||!is_int($cfg['expiration_days'])||$cfg['expiration_days']<1)return null;
     return (new DateTimeImmutable())->modify('+'.$cfg['expiration_days'].' days')->format('Y-m-d H:i:s');
 }
 
 function loyalty_award_review(PDO $pdo,int $reviewId,int $customerId): array {
     $status=loyalty_program_status($pdo);$cfg=$status['config'];
     if(!$status['enabled'])return ['awarded'=>0,'reason'=>$status['configured']?'program_disabled':'program_unconfigured'];
+    if(!$cfg['review_bonus_enabled'])return ['awarded'=>0,'reason'=>'review_bonus_disabled'];
     $amount=(int)$cfg['review_bonus'];if($amount<=0)return ['awarded'=>0,'reason'=>'review_bonus_zero'];
     $result=loyalty_post($pdo,$customerId,$amount,'review_bonus','review',(string)$reviewId,null,'Бонус за опубликованный отзыв',loyalty_expiry_date($cfg),null,['review_id'=>$reviewId]);
     $pdo->prepare('UPDATE product_reviews SET bonus_awarded=1 WHERE id=?')->execute([$reviewId]);
@@ -170,6 +191,7 @@ function loyalty_handle_order_status_change(PDO $pdo,int $orderId,string $from,s
     if(!$order||(int)($order['customer_id']??0)<1)return ['changed'=>false,'reason'=>'no_customer'];
     $customerId=(int)$order['customer_id'];
     if($to==='completed'&&$from!=='completed'){
+        if(!$cfg['earn_enabled'])return ['changed'=>false,'reason'=>'earn_disabled'];
         $items=$pdo->prepare('SELECT line_total_rub,category_path FROM order_items WHERE order_id=? ORDER BY id');$items->execute([$orderId]);
         $preview=loyalty_order_earn_preview($items->fetchAll(),$cfg);$points=(int)$preview['points'];
         if($points<=0)return ['changed'=>false,'reason'=>'zero_earn','preview'=>$preview];
