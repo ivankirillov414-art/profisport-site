@@ -48,8 +48,48 @@ try{
     $row=component_row($pdo,(int)$measured['id']);$wear=vehicle_passport_wear($pdo,$row,null);
     vp_check(abs((float)$wear['percent']-50.0)<0.1&&$wear['basis']==='measurement','real service measurement must override timer-style estimation');
 
+    $alertComponent=vehicle_passport_save_component($pdo,$vehicleId,[
+        'component_key'=>'test_alert_part','hotspot_key'=>'general','label'=>'Тестовый расходник','source_type'=>'service','source_verified'=>true,
+        'wear_mode'=>'time','baseline_life_value'=>100,'baseline_life_unit'=>'days','installed_at'=>(new DateTimeImmutable('-85 days'))->format('Y-m-d H:i:s')
+    ],1);
+    $alertId=(int)$alertComponent['id'];
+    vehicle_passport_record_event($pdo,$alertId,['event_type'=>'installed','event_at'=>(new DateTimeImmutable('-85 days'))->format('Y-m-d H:i:s'),'include_learning'=>false],1);
+    $passport=vehicle_passport_payload($pdo,$vehicleId,false);
+    $alerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+    $alert=array_values(array_filter($alerts,fn($x)=>(int)$x['component_id']===$alertId))[0]??null;
+    vp_check($alert!==null&&$alert['severity']==='soon'&&(float)$alert['wear_percent']>=80,'85 percent time wear must create a soon maintenance alert');
+    vp_check(vehicle_maintenance_acknowledge($pdo,$customerId,(int)$alert['id'])===true,'customer must be able to acknowledge own open alert');
+    $alerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+    $ack=array_values(array_filter($alerts,fn($x)=>(int)$x['component_id']===$alertId))[0]??null;
+    vp_check($ack!==null&&$ack['status']==='acknowledged','acknowledged alert must remain visible until technical resolution');
+
+    $pdo->prepare('UPDATE vehicle_components SET baseline_life_value=85 WHERE id=?')->execute([$alertId]);
+    vehicle_passport_payload($pdo,$vehicleId,false);
+    $alerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+    $escalated=array_values(array_filter($alerts,fn($x)=>(int)$x['component_id']===$alertId))[0]??null;
+    vp_check($escalated!==null&&$escalated['severity']==='due'&&$escalated['status']==='open','severity escalation must reopen an acknowledged alert');
+
+    vehicle_passport_record_event($pdo,$alertId,['event_type'=>'replaced','event_at'=>date('Y-m-d H:i:s'),'include_learning'=>true],1);
+    $passport=vehicle_passport_payload($pdo,$vehicleId,false);
+    $alerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+    vp_check(count(array_filter($alerts,fn($x)=>(int)$x['component_id']===$alertId))===0,'confirmed replacement must automatically resolve the maintenance alert');
+
+    $dueComponent=vehicle_passport_save_component($pdo,$vehicleId,[
+        'component_key'=>'test_due_part','hotspot_key'=>'general','label'=>'Просроченный расходник','source_type'=>'service','source_verified'=>true,
+        'wear_mode'=>'time','baseline_life_value'=>100,'baseline_life_unit'=>'days','installed_at'=>(new DateTimeImmutable('-100 days'))->format('Y-m-d H:i:s')
+    ],1);
+    $dueId=(int)$dueComponent['id'];vehicle_passport_record_event($pdo,$dueId,['event_type'=>'installed','event_at'=>(new DateTimeImmutable('-100 days'))->format('Y-m-d H:i:s'),'include_learning'=>false],1);
+    vehicle_passport_payload($pdo,$vehicleId,false);
+    $dueAlerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+    $due=array_values(array_filter($dueAlerts,fn($x)=>(int)$x['component_id']===$dueId))[0]??null;
+    vp_check($due!==null&&$due['severity']==='due','95+ percent wear must create a due alert');
+
+    $pdo->prepare('DELETE FROM site_settings WHERE setting_key=?')->execute(['vehicle_maintenance_last_refresh_date']);
+    $daily=vehicle_maintenance_refresh_daily($pdo);vp_check($daily['ran']===true,'first daily maintenance refresh must run');
+    $dailyAgain=vehicle_maintenance_refresh_daily($pdo);vp_check($dailyAgain['ran']===false&&$dailyAgain['reason']==='current','second maintenance refresh on the same day must be a no-op');
+
     $pdo->rollBack();
-    echo "PASS: vehicle passport snapshot truth, no inferred parts, adaptive replacement learning and measurement wear\n";
+    echo "PASS: vehicle passport truth, adaptive wear, persistent alerts, acknowledgment, replacement resolution and daily refresh\n";
 }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 
 function next_component(array $rows,string $key): ?array { foreach($rows as $row)if(($row['component_key']??'')===$key)return $row;return null; }

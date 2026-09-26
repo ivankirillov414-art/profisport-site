@@ -32,6 +32,7 @@ assert.match(api,/migration_verify_password/,'migration schedule must re-check c
 assert.match(api,/delay_minutes/,'migration must support delayed execution');
 assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration worker endpoint must support a server-side token');
 assert.match(tick,/vehicle_spec_registry_sync_once/,'protected maintenance tick must apply verified vehicle spec registry versions');
+assert.match(tick,/vehicle_maintenance_refresh_daily/,'protected maintenance tick must refresh due vehicle wear alerts daily');
 assert.match(tick,/browserTrigger/,'migration worker must support a browser fallback for the current host');
 assert.match(tick,/cross_site/,'browser fallback must reject obvious cross-site requests');
 assert.match(tick,/browser_context_required/,'browser fallback must reject requests without trusted browser context');
@@ -51,6 +52,7 @@ assert.match(deploy,/MIGRATION_KEY/,'deployment must configure a stable migratio
 assert.match(deploy,/MIGRATION_TICK_TOKEN/,'deployment must configure the migration worker token');
 assert.match(deploy,/Apply verified vehicle spec registry/,'deploy must run the protected registry maintenance tick');
 assert.match(deploy,/vehicle_specs/,'post-deploy maintenance must verify the registry sync response');
+assert.match(deploy,/vehicle wear maintenance/,'post-deploy maintenance must report daily wear refresh state');
 assert.match(admin,/Текущий пароль админки/,'admin migration UI must request current password');
 assert.match(adminJs,/confirm\(/,'admin migration UI must request final confirmation');
 
