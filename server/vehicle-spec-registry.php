@@ -25,7 +25,8 @@ const VEHICLE_SPEC_WELT_BRAVE_20_24_HD_2026='https://www.welt-bikes.com/ru/ru/vs
 const VEHICLE_SPEC_ASPECT_AIR_20_2026='https://www.aspect-bikes.ru/catalog/aspect-air-20/';
 const VEHICLE_SPEC_ASPECT_AURA_20_2026='https://www.aspect-bikes.ru/catalog/aspect-aura-20/';
 const VEHICLE_SPEC_WELT_MOOVIX_10_MD_24_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/movix1md24_2026?optionId=1070';
-const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch5';
+const VEHICLE_SPEC_ASPECT_AIR_LITE_24_2026='https://www.aspect-bikes.ru/catalog/aspect-air-lite-24/';
+const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch6';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -413,6 +414,28 @@ function vehicle_spec_registry_aspect_aura_20_2026(): array {
     ];
 }
 
+function vehicle_spec_registry_aspect_air_lite_24_2026(): array {
+    $source=VEHICLE_SPEC_ASPECT_AIR_LITE_24_2026;$note='Официальная карточка модели; официальный каталог Aspect относит AIR LITE 24 к JUNIOR 2026';
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','RIGID ALLOY FORK',$source,null,$note),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Tourney RD-TY300D',$source,'Shimano',$note),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','SL-A700-7W-2',$source,'LTWOO',$note),
+        vehicle_spec_registry_component('cranks','cranks','Система','Alloy 32T×140mm',$source,'Prowheel',$note),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','TZ500-7 14-28T',$source,'Shimano',$note),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','DSC310 Mechanical Disc',$source,'RPT',$note),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','DSC310 Mechanical Disc',$source,'RPT',$note),
+        vehicle_spec_registry_component('brake_rotors','front_brake','Тормозные диски','RPT-009 160/160',$source,'RPT',$note),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Code Kids JR, 31.8×620mm, rise 30mm, backsweep 9°',$source,'Code',$note),
+        vehicle_spec_registry_component('stem','cockpit','Вынос','Code-007, 50mm, 7°',$source,'Code',$note),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','Code 609 27.2×300mm Alloy',$source,'Code',$note),
+        vehicle_spec_registry_component('saddle','saddle','Седло','Code-K176',$source,'Code',$note),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','Code H1, industrial bearings, alloy body 100/135mm 32H',$source,'Code',$note),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy Double Wall',$source,null,$note),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Kenda K1153 24x2.1',$source,'Kenda',$note),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Kenda K1153 24x2.1',$source,'Kenda',$note),
+    ];
+}
+
 function vehicle_spec_registry_conflicts(): array {
     return [[
         'key'=>'conflict-welt-moovix-1.0-md-24-2026',
@@ -435,6 +458,7 @@ function vehicle_spec_registry_profiles(): array {
     $profiles[]=['key'=>'aspect-oasis-pro-2026-27.5','brand'=>'Aspect','model'=>'Oasis Pro','year'=>2026,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_OASIS_PRO_2026,'components'=>vehicle_spec_registry_2026_oasis(true)];
     $profiles[]=['key'=>'aspect-air-20-2026-20','brand'=>'Aspect','model'=>'Air','year'=>2026,'wheel'=>'20','source_url'=>VEHICLE_SPEC_ASPECT_AIR_20_2026,'components'=>vehicle_spec_registry_aspect_air_20_2026()];
     $profiles[]=['key'=>'aspect-aura-20-2026-20','brand'=>'Aspect','model'=>'Aura','year'=>2026,'wheel'=>'20','source_url'=>VEHICLE_SPEC_ASPECT_AURA_20_2026,'components'=>vehicle_spec_registry_aspect_aura_20_2026()];
+    $profiles[]=['key'=>'aspect-air-lite-24-2026-24','brand'=>'Aspect','model'=>'Air Lite','year'=>2026,'wheel'=>'24','source_url'=>VEHICLE_SPEC_ASPECT_AIR_LITE_24_2026,'components'=>vehicle_spec_registry_aspect_air_lite_24_2026()];
     foreach(['27.5','29'] as $wheel){
         $profiles[]=['key'=>'hagen-3.9-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.9','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_39_2025,'components'=>vehicle_spec_registry_hagen_2025('3.9')];
         $profiles[]=['key'=>'hagen-3.11-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.11','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_311_2025,'components'=>vehicle_spec_registry_hagen_2025('3.11')];
