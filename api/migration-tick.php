@@ -32,4 +32,5 @@ if(!$tokenOk&&!$browserTrigger){http_response_code(401);echo json_encode(['ok'=>
 @set_time_limit(55);
 $result=migration_tick_once($pdo);
 $vehicleSpecs=function_exists('vehicle_spec_registry_sync_once')?vehicle_spec_registry_sync_once($pdo):['ran'=>false,'reason'=>'unavailable'];
-echo json_encode(['ok'=>true,'ran'=>(bool)($result['ran']??false),'vehicle_specs'=>$vehicleSpecs],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+$maintenance=function_exists('vehicle_maintenance_refresh_daily')?vehicle_maintenance_refresh_daily($pdo):['ran'=>false,'reason'=>'unavailable'];
+echo json_encode(['ok'=>true,'ran'=>(bool)($result['ran']??false),'vehicle_specs'=>$vehicleSpecs,'maintenance'=>$maintenance],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
