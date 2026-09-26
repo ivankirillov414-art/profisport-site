@@ -5,6 +5,7 @@ require_once __DIR__.'/loyalty.php';
 require_once __DIR__.'/loyalty-center.php';
 require_once __DIR__.'/customer-vehicles.php';
 require_once __DIR__.'/vehicle-passport.php';
+require_once __DIR__.'/vehicle-spec-registry.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!is_file($configFile)) { http_response_code(500); exit('Server configuration is missing'); }
