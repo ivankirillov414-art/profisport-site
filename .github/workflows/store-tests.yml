@@ -83,6 +83,7 @@ jobs:
           node tests/profile-phone-login-regression.js
           node tests/profile-vehicles-service-regression.js
           node tests/admin-customer-card-regression.js
+          node tests/customer-phone-login-regression.js
           node tests/loyalty-foundation-regression.js
           node tests/loyalty-calculator-regression.js
           node tests/loyalty-live-regression.js
@@ -115,4 +116,5 @@ jobs:
             sleep 1
           done
           python3 tests/orders-http.py
+          python3 tests/phone-login-http.py
           if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-order-writes.php; fi
