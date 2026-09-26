@@ -156,10 +156,102 @@ function vehicle_spec_registry_match(string $title): ?array {
         if(!preg_match('/(?:^| )'.preg_quote($wheel,'/').'(?: |$)/u',$n))continue;
         $matches[]=$profile;
     }
-    if(count($matches)!==1)return null;
-    return $matches[0];
+    if(!$matches)return null;
+    usort($matches,fn($a,$b)=>mb_strlen((string)$b['model'])<=>mb_strlen((string)$a['model']));
+    $best=$matches[0];$bestLen=mb_strlen((string)$best['model']);
+    if(isset($matches[1])&&mb_strlen((string)$matches[1]['model'])===$bestLen)return null;
+    return $best;
 }
 
 function vehicle_spec_registry_profile_keys(): array {
     return array_column(vehicle_spec_registry_profiles(),'key');
+}
+
+
+function ensure_vehicle_spec_registry_schema(PDO $pdo): void {
+    $componentCols=table_columns($pdo,'vehicle_components');
+    $defs=[
+        'source_profile_key'=>'VARCHAR(120) NULL',
+        'source_profile_version'=>'VARCHAR(40) NULL',
+    ];
+    foreach($defs as $name=>$def)if(!isset($componentCols[$name]))$pdo->exec("ALTER TABLE vehicle_components ADD COLUMN `$name` $def");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS vehicle_spec_research_queue (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        product_id BIGINT UNSIGNED NOT NULL,
+        title VARCHAR(500) NOT NULL,
+        brand VARCHAR(180) NULL,
+        model VARCHAR(255) NULL,
+        match_key VARCHAR(120) NULL,
+        status VARCHAR(30) NOT NULL DEFAULT 'unmatched',
+        first_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY idx_vehicle_spec_research_product(product_id),
+        INDEX idx_vehicle_spec_research_status(status,last_seen_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+}
+
+function vehicle_spec_registry_scan_catalog(PDO $pdo,int $limit=1500): array {
+    $limit=max(1,min(5000,$limit));
+    $s=$pdo->query("SELECT id,name,brand,model,category_path,is_active,stock_qty FROM products WHERE is_active=1 AND COALESCE(stock_qty,0)>0 ORDER BY id DESC LIMIT ".$limit);
+    $upsert=$pdo->prepare("INSERT INTO vehicle_spec_research_queue(product_id,title,brand,model,match_key,status,first_seen_at,last_seen_at) VALUES(?,?,?,?,?,?,NOW(),NOW()) ON DUPLICATE KEY UPDATE title=VALUES(title),brand=VALUES(brand),model=VALUES(model),match_key=VALUES(match_key),status=VALUES(status),last_seen_at=NOW()");
+    $matched=0;$unmatched=0;$rows=[];
+    foreach($s->fetchAll() as $row){
+        $type=function_exists('customer_vehicle_type')?customer_vehicle_type((string)$row['name'],(string)($row['category_path']??'')):null;
+        if($type!=='bicycle')continue;
+        $profile=vehicle_spec_registry_match((string)$row['name']);$status=$profile?'matched':'unmatched';
+        $upsert->execute([(int)$row['id'],(string)$row['name'],$row['brand']!==null?(string)$row['brand']:null,$row['model']!==null?(string)$row['model']:null,$profile['key']??null,$status]);
+        $status==='matched'?$matched++:$unmatched++;
+        $rows[]=['product_id'=>(int)$row['id'],'title'=>(string)$row['name'],'brand'=>$row['brand'],'model'=>$row['model'],'status'=>$status,'profile_key'=>$profile['key']??null];
+    }
+    return ['matched'=>$matched,'unmatched'=>$unmatched,'total'=>$matched+$unmatched,'items'=>$rows];
+}
+
+function vehicle_spec_registry_apply_vehicle(PDO $pdo,int $vehicleId): array {
+    if($vehicleId<1)return ['matched'=>false,'inserted'=>0,'updated'=>0,'profile'=>null];
+    $q=$pdo->prepare("SELECT id,title,vehicle_type,purchase_date,created_at FROM customer_vehicles WHERE id=? AND is_active=1 LIMIT 1");$q->execute([$vehicleId]);$vehicle=$q->fetch();
+    if(!$vehicle||(string)$vehicle['vehicle_type']!=='bicycle')return ['matched'=>false,'inserted'=>0,'updated'=>0,'profile'=>null];
+    $profile=vehicle_spec_registry_match((string)$vehicle['title']);if(!$profile)return ['matched'=>false,'inserted'=>0,'updated'=>0,'profile'=>null];
+    $installedAt=(string)($vehicle['purchase_date']?:$vehicle['created_at']?:'');$installedAt=$installedAt!==''?$installedAt:null;
+    $find=$pdo->prepare('SELECT id,source_type,source_profile_key FROM vehicle_components WHERE vehicle_id=? AND component_key=? LIMIT 1');
+    $insert=$pdo->prepare("INSERT INTO vehicle_components(vehicle_id,component_key,hotspot_key,label,manufacturer,model,source_type,source_url,source_note,source_verified_at,source_profile_key,source_profile_version,wear_mode,installed_at,is_active) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)");
+    $update=$pdo->prepare("UPDATE vehicle_components SET hotspot_key=?,label=?,manufacturer=?,model=?,source_type='official',source_url=?,source_note=?,source_verified_at=?,source_profile_key=?,source_profile_version=?,is_active=1 WHERE id=?");
+    $event=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note) VALUES(?,'installed',?,0,'Начальная установка по покупке техники')");
+    $inserted=0;$updated=0;
+    foreach($profile['components'] as $component){
+        $find->execute([$vehicleId,(string)$component['component_key']]);$existing=$find->fetch();
+        if($existing){
+            if(in_array((string)$existing['source_type'],['manual','service'],true))continue;
+            $update->execute([
+                (string)$component['hotspot_key'],(string)$component['label'],$component['manufacturer']??null,(string)$component['model'],
+                (string)$component['source_url'],(string)$component['source_note'],(string)$component['source_verified_at'],
+                (string)$profile['key'],'2026-09-26',(int)$existing['id']
+            ]);$updated++;
+            continue;
+        }
+        $insert->execute([
+            $vehicleId,(string)$component['component_key'],(string)$component['hotspot_key'],(string)$component['label'],$component['manufacturer']??null,(string)$component['model'],
+            'official',(string)$component['source_url'],(string)$component['source_note'],(string)$component['source_verified_at'],
+            (string)$profile['key'],'2026-09-26','inspection',$installedAt
+        ]);
+        $id=(int)$pdo->lastInsertId();if($id>0&&$installedAt)$event->execute([$id,$installedAt]);$inserted++;
+    }
+    return ['matched'=>true,'inserted'=>$inserted,'updated'=>$updated,'profile'=>$profile['key']];
+}
+
+function vehicle_spec_registry_apply_all(PDO $pdo,int $limit=5000): array {
+    $limit=max(1,min(10000,$limit));
+    $s=$pdo->query("SELECT id FROM customer_vehicles WHERE is_active=1 AND vehicle_type='bicycle' ORDER BY id LIMIT ".$limit);
+    $matched=0;$inserted=0;$updated=0;
+    foreach($s->fetchAll() as $row){
+        $result=vehicle_spec_registry_apply_vehicle($pdo,(int)$row['id']);
+        if($result['matched'])$matched++;$inserted+=(int)$result['inserted'];$updated+=(int)$result['updated'];
+    }
+    return ['vehicles_matched'=>$matched,'components_inserted'=>$inserted,'components_updated'=>$updated];
+}
+
+function vehicle_spec_registry_queue(PDO $pdo,string $status='unmatched',int $limit=200): array {
+    $status=in_array($status,['matched','unmatched'],true)?$status:'unmatched';$limit=max(1,min(1000,$limit));
+    $s=$pdo->prepare("SELECT product_id,title,brand,model,match_key,status,first_seen_at,last_seen_at FROM vehicle_spec_research_queue WHERE status=? ORDER BY last_seen_at DESC,product_id DESC LIMIT ".$limit);
+    $s->execute([$status]);return $s->fetchAll();
 }
