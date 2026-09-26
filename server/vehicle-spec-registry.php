@@ -213,7 +213,7 @@ function vehicle_spec_registry_apply_vehicle(PDO $pdo,int $vehicleId): array {
     if(!$vehicle||(string)$vehicle['vehicle_type']!=='bicycle')return ['matched'=>false,'inserted'=>0,'updated'=>0,'profile'=>null];
     $profile=vehicle_spec_registry_match((string)$vehicle['title']);if(!$profile)return ['matched'=>false,'inserted'=>0,'updated'=>0,'profile'=>null];
     $installedAt=(string)($vehicle['purchase_date']?:$vehicle['created_at']?:'');$installedAt=$installedAt!==''?$installedAt:null;
-    $find=$pdo->prepare('SELECT id,source_type,source_profile_key FROM vehicle_components WHERE vehicle_id=? AND component_key=? LIMIT 1');
+    $find=$pdo->prepare('SELECT id,source_type,source_profile_key,source_verified_at FROM vehicle_components WHERE vehicle_id=? AND component_key=? LIMIT 1');
     $insert=$pdo->prepare("INSERT INTO vehicle_components(vehicle_id,component_key,hotspot_key,label,manufacturer,model,source_type,source_url,source_note,source_verified_at,source_profile_key,source_profile_version,wear_mode,installed_at,is_active) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)");
     $update=$pdo->prepare("UPDATE vehicle_components SET hotspot_key=?,label=?,manufacturer=?,model=?,source_type='official',source_url=?,source_note=?,source_verified_at=?,source_profile_key=?,source_profile_version=?,is_active=1 WHERE id=?");
     $event=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note) VALUES(?,'installed',?,0,'Начальная установка по покупке техники')");
@@ -221,7 +221,11 @@ function vehicle_spec_registry_apply_vehicle(PDO $pdo,int $vehicleId): array {
     foreach($profile['components'] as $component){
         $find->execute([$vehicleId,(string)$component['component_key']]);$existing=$find->fetch();
         if($existing){
-            if(in_array((string)$existing['source_type'],['manual','service'],true))continue;
+            $sourceType=(string)$existing['source_type'];$existingProfile=(string)($existing['source_profile_key']??'');
+            // Manually/service curated data and separately verified official data always win over the built-in registry.
+            if(in_array($sourceType,['manual','service'],true))continue;
+            if($sourceType==='official'&&$existingProfile!==''&&$existingProfile!==(string)$profile['key'])continue;
+            if($sourceType==='official'&&$existingProfile===''&&!empty($existing['source_verified_at']))continue;
             $update->execute([
                 (string)$component['hotspot_key'],(string)$component['label'],$component['manufacturer']??null,(string)$component['model'],
                 (string)$component['source_url'],(string)$component['source_note'],(string)$component['source_verified_at'],
@@ -235,6 +239,15 @@ function vehicle_spec_registry_apply_vehicle(PDO $pdo,int $vehicleId): array {
             (string)$profile['key'],'2026-09-26','inspection',$installedAt
         ]);
         $id=(int)$pdo->lastInsertId();if($id>0&&$installedAt)$event->execute([$id,$installedAt]);$inserted++;
+    }
+    $preciseKeys=array_column($profile['components'],'component_key');
+    $legacy=[];
+    if(in_array('front_brake',$preciseKeys,true)||in_array('rear_brake',$preciseKeys,true))$legacy[]='brakes';
+    if(in_array('front_tire',$preciseKeys,true)||in_array('rear_tire',$preciseKeys,true))$legacy[]='tires';
+    if($legacy){
+        $marks=implode(',',array_fill(0,count($legacy),'?'));
+        $hide=$pdo->prepare("UPDATE vehicle_components SET is_active=0 WHERE vehicle_id=? AND source_type='1c_spec' AND component_key IN ($marks)");
+        $hide->execute(array_merge([$vehicleId],$legacy));
     }
     return ['matched'=>true,'inserted'=>$inserted,'updated'=>$updated,'profile'=>$profile['key']];
 }
