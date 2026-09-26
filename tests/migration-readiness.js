@@ -31,6 +31,7 @@ assert.match(migration,/config_cipher=NULL/,'migration secrets must be erased af
 assert.match(api,/migration_verify_password/,'migration schedule must re-check current admin password');
 assert.match(api,/delay_minutes/,'migration must support delayed execution');
 assert.match(tick,/HTTP_X_MIGRATION_TOKEN/,'migration worker endpoint must support a server-side token');
+assert.match(tick,/vehicle_spec_registry_sync_once/,'protected maintenance tick must apply verified vehicle spec registry versions');
 assert.match(tick,/browserTrigger/,'migration worker must support a browser fallback for the current host');
 assert.match(tick,/cross_site/,'browser fallback must reject obvious cross-site requests');
 assert.match(tick,/browser_context_required/,'browser fallback must reject requests without trusted browser context');
@@ -39,6 +40,7 @@ assert.match(catalogLoader,/migration-tick\.php\?browser=1/,'storefront traffic 
 assert.match(tickWorkflow,/schedule:/,'migration worker must run on a schedule');
 assert.match(tickWorkflow,/push:/,'migration worker changes must trigger an immediate production smoke run');
 assert.match(tickWorkflow,/api\/migration-tick\.php/,'migration smoke run must watch the worker endpoint');
+assert.match(tickWorkflow,/server\/vehicle-spec-registry\.php/,'registry changes must trigger the protected maintenance worker');
 assert.match(tickWorkflow,/profisport-migration-tick-v1/,'workflow token derivation must match deployment');
 assert.match(tickWorkflow,/migration\.headers/,'scheduled worker must capture response headers');
 assert.match(tickWorkflow,/migration\.body/,'scheduled worker must inspect the raw response body');
@@ -47,6 +49,8 @@ assert.match(tickWorkflow,/same-origin storefront traffic remains the authorized
 assert.doesNotMatch(tickWorkflow,/json\.load\(open\('\/tmp\/migration\.json'/,'scheduled worker must not blindly parse an anti-bot response as JSON');
 assert.match(deploy,/MIGRATION_KEY/,'deployment must configure a stable migration encryption key');
 assert.match(deploy,/MIGRATION_TICK_TOKEN/,'deployment must configure the migration worker token');
+assert.match(deploy,/Apply verified vehicle spec registry/,'deploy must run the protected registry maintenance tick');
+assert.match(deploy,/vehicle_specs/,'post-deploy maintenance must verify the registry sync response');
 assert.match(admin,/Текущий пароль админки/,'admin migration UI must request current password');
 assert.match(adminJs,/confirm\(/,'admin migration UI must request final confirmation');
 
