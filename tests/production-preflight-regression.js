@@ -15,6 +15,7 @@ const adminHealth=read('admin/health.php');
 const deploy=read('.github/workflows/deploy-infinityfree.yml');
 const pages=read('.github/workflows/pages.yml');
 const backToTop=read('back-to-top.js');
+const serviceGuide=read('service-guide.js');
 
 assert.match(ht,/ErrorDocument 404 \/404\.html/,'Apache must route missing pages to branded 404');
 assert.match(ht,/ErrorDocument 500 \/500\.html/,'Apache must route server errors to branded 500');
@@ -68,5 +69,12 @@ for(const selector of ['customerRegisterClose','storagePromoClose','dialogClose'
 assert.ok(backToTop.includes('border-radius: 0 !important'),'popup close buttons must not be circular');
 assert.ok(backToTop.includes('background: transparent !important'),'popup close buttons must be transparent');
 assert.ok(backToTop.includes('top: -38px !important'),'popup close buttons must sit outside the modal card on desktop');
+
+assert.ok(serviceGuide.includes('servicePriceCard'),'service works must render as price-list cards');
+assert.ok(serviceGuide.includes('ПРАЙС-ЛИСТ МАСТЕРСКОЙ'),'service works must be introduced as a price list');
+assert.ok(serviceGuide.includes('Стоимость после осмотра'),'service price list must not invent unconfirmed prices');
+assert.ok(serviceGuide.includes('workSummary{display:none!important}'),'old selectable-work summary must be hidden');
+assert.doesNotMatch(serviceGuide,/data-work-group/,'old service category tab controls must not be rendered');
+assert.doesNotMatch(serviceGuide,/aria-pressed/,'old service tab state must not remain in price-list UI');
 
 console.log('Production preflight, error handling, health and deployment gate checks passed.');
