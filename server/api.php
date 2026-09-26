@@ -4,16 +4,122 @@ require __DIR__ . '/bootstrap.php';
 start_secure_session();
 $action=$_GET['action']??'health';
 const OWNER='Иван Кириллов 414';
+
+function admin_setting_protected(string $key): bool {
+    return str_starts_with($key, 'loyalty_');
+}
+
 try{
  if($action==='health'){json_response(['ok'=>true,'service'=>'profisport']);}
- if($action==='setup_status'){$s=$pdo->prepare('SELECT id,username,password_hash,force_password_setup FROM admin_users WHERE username=? LIMIT 1');$s->execute([OWNER]);$u=$s->fetch();json_response(['ok'=>true,'setup_required'=>!$u||empty($u['password_hash'])||(int)$u['force_password_setup']===1]);}
- if($action==='login'&&$_SERVER['REQUEST_METHOD']==='POST'){$in=input_json();$username=trim((string)($in['username']??''));$password=(string)($in['password']??'');auth_rate_check($pdo,'admin_login',$username);$s=$pdo->prepare('SELECT id,username,password_hash,role,is_active FROM admin_users WHERE username=? LIMIT 1');$s->execute([$username]);$u=$s->fetch();if(!$u||!(int)$u['is_active']||empty($u['password_hash'])||!password_verify($password,$u['password_hash'])){auth_rate_failure($pdo,'admin_login',$username);json_response(['ok'=>false,'error'=>'invalid_credentials'],401);}auth_rate_clear($pdo,'admin_login',$username);session_regenerate_id(true);$_SESSION['admin']=['id'=>(int)$u['id'],'username'=>$u['username'],'role'=>$u['role']];$_SESSION['csrf']=bin2hex(random_bytes(24));audit($pdo,'login','admin_user',(string)$u['id']);json_response(['ok'=>true,'admin'=>$_SESSION['admin'],'csrf'=>$_SESSION['csrf']]);}
- if($action==='password_change'&&$_SERVER['REQUEST_METHOD']==='POST'){$a=require_admin();csrf_check();$in=input_json();$current=(string)($in['current_password']??'');$p=(string)($in['new_password']??'');$p2=(string)($in['confirm_password']??'');$s=$pdo->prepare('SELECT password_hash FROM admin_users WHERE id=? AND username=? LIMIT 1');$s->execute([(int)$a['id'],OWNER]);$hash=(string)($s->fetchColumn()?:'');if($hash===''||!password_verify($current,$hash))json_response(['ok'=>false,'error'=>'current_password_invalid'],403);if(strlen($p)<10||strlen($p)>72)json_response(['ok'=>false,'error'=>'password_too_short'],422);if(!hash_equals($p,$p2))json_response(['ok'=>false,'error'=>'password_mismatch'],422);$s=$pdo->prepare('UPDATE admin_users SET password_hash=?,force_password_setup=0 WHERE id=? AND username=?');$s->execute([password_hash($p,PASSWORD_DEFAULT),(int)$a['id'],OWNER]);session_regenerate_id(true);$_SESSION['csrf']=bin2hex(random_bytes(24));audit($pdo,'password_change','admin_user',(string)$a['id']);json_response(['ok'=>true,'csrf'=>$_SESSION['csrf']]);}
- if($action==='logout'&&$_SERVER['REQUEST_METHOD']==='POST'){require_admin();csrf_check();audit($pdo,'logout');$_SESSION=[];if(ini_get('session.use_cookies')){$p=session_get_cookie_params();setcookie(session_name(),'',time()-42000,$p['path'],$p['domain']??'',(bool)$p['secure'],(bool)$p['httponly']);}session_destroy();json_response(['ok'=>true]);}
+
+ if($action==='setup_status'){
+  $s=$pdo->prepare('SELECT id,username,password_hash,force_password_setup FROM admin_users WHERE username=? LIMIT 1');
+  $s->execute([OWNER]);$u=$s->fetch();
+  json_response(['ok'=>true,'setup_required'=>!$u||empty($u['password_hash'])||(int)$u['force_password_setup']===1]);
+ }
+
+ if($action==='login'&&$_SERVER['REQUEST_METHOD']==='POST'){
+  $in=input_json();$username=trim((string)($in['username']??''));$password=(string)($in['password']??'');
+  auth_rate_check($pdo,'admin_login',$username);
+  $s=$pdo->prepare('SELECT id,username,password_hash,role,is_active FROM admin_users WHERE username=? LIMIT 1');
+  $s->execute([$username]);$u=$s->fetch();
+  if(!$u||!(int)$u['is_active']||empty($u['password_hash'])||!password_verify($password,$u['password_hash'])){
+   auth_rate_failure($pdo,'admin_login',$username);
+   json_response(['ok'=>false,'error'=>'invalid_credentials'],401);
+  }
+  auth_rate_clear($pdo,'admin_login',$username);session_regenerate_id(true);
+  $_SESSION['admin']=['id'=>(int)$u['id'],'username'=>$u['username'],'role'=>$u['role']];
+  $_SESSION['csrf']=bin2hex(random_bytes(24));
+  audit($pdo,'login','admin_user',(string)$u['id']);
+  json_response(['ok'=>true,'admin'=>$_SESSION['admin'],'csrf'=>$_SESSION['csrf']]);
+ }
+
+ if($action==='password_change'&&$_SERVER['REQUEST_METHOD']==='POST'){
+  $a=require_admin();csrf_check();$in=input_json();$current=(string)($in['current_password']??'');$p=(string)($in['new_password']??'');$p2=(string)($in['confirm_password']??'');
+  $s=$pdo->prepare('SELECT password_hash FROM admin_users WHERE id=? AND username=? LIMIT 1');
+  $s->execute([(int)$a['id'],OWNER]);$hash=(string)($s->fetchColumn()?:'');
+  if($hash===''||!password_verify($current,$hash))json_response(['ok'=>false,'error'=>'current_password_invalid'],403);
+  if(strlen($p)<10||strlen($p)>72)json_response(['ok'=>false,'error'=>'password_too_short'],422);
+  if(!hash_equals($p,$p2))json_response(['ok'=>false,'error'=>'password_mismatch'],422);
+  $s=$pdo->prepare('UPDATE admin_users SET password_hash=?,force_password_setup=0 WHERE id=? AND username=?');
+  $s->execute([password_hash($p,PASSWORD_DEFAULT),(int)$a['id'],OWNER]);
+  session_regenerate_id(true);$_SESSION['csrf']=bin2hex(random_bytes(24));
+  audit($pdo,'password_change','admin_user',(string)$a['id']);
+  json_response(['ok'=>true,'csrf'=>$_SESSION['csrf']]);
+ }
+
+ if($action==='logout'&&$_SERVER['REQUEST_METHOD']==='POST'){
+  require_admin();csrf_check();audit($pdo,'logout');$_SESSION=[];
+  if(ini_get('session.use_cookies')){
+   $p=session_get_cookie_params();
+   setcookie(session_name(),'',time()-42000,$p['path'],$p['domain']??'',(bool)$p['secure'],(bool)$p['httponly']);
+  }
+  session_destroy();json_response(['ok'=>true]);
+ }
+
  if($action==='me'){$a=require_admin();json_response(['ok'=>true,'admin'=>$a,'csrf'=>$_SESSION['csrf']??'']);}
- if($action==='stats'){require_admin();$products=(int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1')->fetchColumn();$productsToday=(int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1 AND created_at>=CURRENT_DATE() AND created_at<CURRENT_DATE()+INTERVAL 1 DAY')->fetchColumn();$newOrders=(int)$pdo->query("SELECT COUNT(*) FROM orders WHERE status='new'")->fetchColumn();$ordersToday=(int)$pdo->query('SELECT COUNT(*) FROM orders WHERE created_at>=CURRENT_DATE() AND created_at<CURRENT_DATE()+INTERVAL 1 DAY')->fetchColumn();json_response(['ok'=>true,'products'=>$products,'products_today'=>$productsToday,'new_orders'=>$newOrders,'orders_today'=>$ordersToday,'customers'=>(int)$pdo->query('SELECT COUNT(*) FROM customers')->fetchColumn(),'new_service'=>(int)$pdo->query("SELECT COUNT(*) FROM service_requests WHERE status='new'")->fetchColumn()]);}
- if($action==='products'&&$_SERVER['REQUEST_METHOD']==='GET'){require_admin();$q=trim((string)($_GET['q']??''));$page=max(1,(int)($_GET['page']??1));$limit=40;$offset=($page-1)*$limit;if($q!==''){$s=$pdo->prepare('SELECT *,name AS title FROM products WHERE name LIKE ? OR sku LIKE ? ORDER BY id DESC LIMIT '.$limit.' OFFSET '.$offset);$s->execute(['%'.$q.'%','%'.$q.'%']);}else $s=$pdo->query('SELECT *,name AS title FROM products ORDER BY id DESC LIMIT '.$limit.' OFFSET '.$offset);$rows=$s->fetchAll();foreach($rows as &$r){$r['images']=json_decode($r['images']?:'[]',true)?:[];$r['specs']=json_decode($r['specs']?:'{}',true)?:[];}json_response(['ok'=>true,'items'=>$rows,'page'=>$page]);}
- if($action==='settings'&&$_SERVER['REQUEST_METHOD']==='GET'){require_admin();$rows=$pdo->query('SELECT setting_key,setting_value FROM site_settings ORDER BY setting_key')->fetchAll();$out=[];foreach($rows as $r)$out[$r['setting_key']]=$r['setting_value'];json_response(['ok'=>true,'settings'=>$out]);}
- if($action==='settings_save'&&$_SERVER['REQUEST_METHOD']==='POST'){require_admin();csrf_check();$in=input_json();$s=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');foreach(($in['settings']??[]) as $k=>$v){if(preg_match('/^[a-z0-9_]{1,120}$/i',(string)$k))$s->execute([(string)$k,(string)$v]);}audit($pdo,'settings_save','settings');json_response(['ok'=>true]);}
+
+ if($action==='stats'){
+  require_admin();
+  $products=(int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1')->fetchColumn();
+  $productsToday=(int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1 AND created_at>=CURRENT_DATE() AND created_at<CURRENT_DATE()+INTERVAL 1 DAY')->fetchColumn();
+  $newOrders=(int)$pdo->query("SELECT COUNT(*) FROM orders WHERE status='new'")->fetchColumn();
+  $ordersToday=(int)$pdo->query('SELECT COUNT(*) FROM orders WHERE created_at>=CURRENT_DATE() AND created_at<CURRENT_DATE()+INTERVAL 1 DAY')->fetchColumn();
+  json_response([
+   'ok'=>true,
+   'products'=>$products,
+   'products_today'=>$productsToday,
+   'new_orders'=>$newOrders,
+   'orders_today'=>$ordersToday,
+   'customers'=>(int)$pdo->query('SELECT COUNT(*) FROM customers')->fetchColumn(),
+   'new_service'=>(int)$pdo->query("SELECT COUNT(*) FROM service_requests WHERE status='new'")->fetchColumn()
+  ]);
+ }
+
+ if($action==='products'&&$_SERVER['REQUEST_METHOD']==='GET'){
+  require_admin();$q=trim((string)($_GET['q']??''));$page=max(1,(int)($_GET['page']??1));$limit=40;$offset=($page-1)*$limit;
+  if($q!==''){
+   $s=$pdo->prepare('SELECT *,name AS title FROM products WHERE name LIKE ? OR sku LIKE ? ORDER BY id DESC LIMIT '.$limit.' OFFSET '.$offset);
+   $s->execute(['%'.$q.'%','%'.$q.'%']);
+  }else $s=$pdo->query('SELECT *,name AS title FROM products ORDER BY id DESC LIMIT '.$limit.' OFFSET '.$offset);
+  $rows=$s->fetchAll();
+  foreach($rows as &$r){$r['images']=json_decode($r['images']?:'[]',true)?:[];$r['specs']=json_decode($r['specs']?:'{}',true)?:[];}
+  json_response(['ok'=>true,'items'=>$rows,'page'=>$page]);
+ }
+
+ if($action==='settings'&&$_SERVER['REQUEST_METHOD']==='GET'){
+  require_admin();$rows=$pdo->query('SELECT setting_key,setting_value FROM site_settings ORDER BY setting_key')->fetchAll();$out=[];
+  foreach($rows as $r){
+   $key=(string)$r['setting_key'];
+   if(admin_setting_protected($key))continue;
+   $out[$key]=$r['setting_value'];
+  }
+  json_response(['ok'=>true,'settings'=>$out,'protected_settings_hidden'=>true]);
+ }
+
+ if($action==='settings_save'&&$_SERVER['REQUEST_METHOD']==='POST'){
+  require_admin();csrf_check();$in=input_json();$raw=$in['settings']??[];
+  if(!is_array($raw))json_response(['ok'=>false,'error'=>'bad_settings'],422);
+  $clean=[];$blocked=[];
+  foreach($raw as $k=>$v){
+   $key=(string)$k;
+   if(!preg_match('/^[a-z0-9_]{1,120}$/i',$key))continue;
+   if(admin_setting_protected($key)){$blocked[]=$key;continue;}
+   $clean[$key]=(string)$v;
+  }
+  if($blocked){
+   audit($pdo,'settings_save_blocked','settings',null,['blocked_keys'=>array_values($blocked)]);
+   json_response(['ok'=>false,'error'=>'protected_settings','blocked'=>array_values($blocked),'message'=>'Центр лояльности настраивается только через admin/loyalty.php'],403);
+  }
+  $s=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
+  foreach($clean as $k=>$v)$s->execute([$k,$v]);
+  audit($pdo,'settings_save','settings',null,['keys'=>array_keys($clean)]);
+  json_response(['ok'=>true,'saved_keys'=>array_keys($clean)]);
+ }
+
  json_response(['ok'=>false,'error'=>'not_found'],404);
-}catch(Throwable $e){error_log($e->__toString());if($pdo->inTransaction())$pdo->rollBack();json_response(['ok'=>false,'error'=>'server_error'],500);}
+}catch(Throwable $e){
+ error_log($e->__toString());
+ if($pdo->inTransaction())$pdo->rollBack();
+ json_response(['ok'=>false,'error'=>'server_error'],500);
+}
