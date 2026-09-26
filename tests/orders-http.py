@@ -118,19 +118,19 @@ stats=call('server/api.php?action=stats',cookie=cookie)[1]
 assert stats['customers']==1 and stats['new_service']==0
 assert call('api/loyalty-admin.php')[0]==401
 status,loyalty_status,_=call('api/loyalty-admin.php',cookie=cookie);assert status==200
-assert loyalty_status['program']['enabled'] is False and loyalty_status['program']['configured'] is False and loyalty_status['live_activation_available'] is False
+assert loyalty_status['program']['enabled'] is False and loyalty_status['program']['configured'] is False
 assert loyalty_status['can_edit'] is True and any(x['name']=='Sport' for x in loyalty_status['category_options'])
 draft={'earn_enabled':True,'redeem_enabled':True,'expiration_enabled':True,'review_bonus_enabled':True,'category_exclusions_enabled':True,'earn_percent_bp':500,'max_redeem_percent_bp':3000,'point_value_kopeks':100,'expiration_days':365,'min_order_rub':1000,'review_bonus':50,'excluded_category_prefixes':['Sport']}
 assert call('api/loyalty-admin.php',{'action':'save_draft','config':draft},cookie)[0]==403
 status,saved,_=call('api/loyalty-admin.php',{'action':'save_draft','config':draft},cookie,csrf);assert status==200
-assert saved['program']['configured'] is True and saved['program']['enabled'] is False and saved['program']['stored_enabled'] is False
-assert saved['program']['config']['earn_enabled'] is True and saved['program']['config']['redeem_enabled'] is True
+assert saved['program']['configured'] is False and saved['program']['enabled'] is False and saved['program']['stored_enabled'] is False
+assert saved['draft']['earn_enabled'] is True and saved['draft']['redeem_enabled'] is True
 status,invalid,_=call('api/loyalty-admin.php',{'action':'save_draft','config':{**draft,'earn_percent_bp':999999}},cookie,csrf);assert status==422
 status,draft_order,_=call('api/order-create.php',{**base,'items':[1],'request_key':'d'*64},customer_cookie);assert status==200
 draft_order_row=call('api/orders.php?q='+urllib.parse.quote(draft_order['order_number']),cookie=cookie)[1]['items'][0]
 assert call('api/orders.php',{'id':draft_order_row['id'],'status':'completed','previous_status':'new'},cookie,csrf)[0]==200
 draft_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
-assert draft_account['customer']['bonus_balance']==0 and draft_account['loyalty_program']['configured'] is True and draft_account['loyalty_program']['enabled'] is False
+assert draft_account['customer']['bonus_balance']==0 and draft_account['loyalty_program']['configured'] is False and draft_account['loyalty_program']['enabled'] is False
 for page in ['categories.php','stats.php']:
     req=urllib.request.Request(BASE+'admin/'+page,headers={'Cookie':cookie})
     with urllib.request.urlopen(req,timeout=15) as r: assert r.status==200 and r.geturl().endswith(page)
@@ -184,7 +184,7 @@ status,resubmitted,_=call('api/customer.php?action=review_submit',fixed,customer
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id and pending[0]['rating']==4
 approval={'review_id':review_id,'action':'approve','bonus':50}
 status,approved,_=call('api/review-moderation.php',approval,cookie,csrf);assert status==200
-assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_disabled'
+assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_unconfigured'
 assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
 status,approved_duplicate,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert (status,approved_duplicate['error'])==(409,'duplicate_review')
 public_review=call('api/customer.php?action=reviews&product_id=1')[1]
@@ -192,7 +192,7 @@ assert public_review['count']==1 and public_review['items'][0]['verified_purchas
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
 assert account['review_details'][0]['status']=='approved' and account['review_details'][0]['rating']==4
 assert account['customer']['bonus_balance']==0 and len(account['loyalty'])==0
-assert account['loyalty_program']['enabled'] is False and account['loyalty_program']['configured'] is True
+assert account['loyalty_program']['enabled'] is False and account['loyalty_program']['configured'] is False
 manual={'customer_id':account['customer']['id'],'amount':40,'note':'Test ledger adjustment'}
 assert call('api/customer-admin.php',manual,cookie)[0]==403
 status,adjusted,_=call('api/customer-admin.php',manual,cookie,csrf);assert status==200 and adjusted['bonus_balance']==40 and adjusted['actual_amount']==40
