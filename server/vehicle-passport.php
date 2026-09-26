@@ -223,7 +223,7 @@ function vehicle_passport_payload(PDO $pdo,int $vehicleId,bool $includeEvents=fa
     $s=$pdo->prepare('SELECT v.id,v.customer_id,v.product_id,v.title,v.vehicle_type,v.order_number,v.purchase_date,v.serial_number,v.odometer_km,v.odometer_updated_at,v.created_at,p.brand,p.model,p.sku FROM customer_vehicles v LEFT JOIN products p ON p.id=v.product_id WHERE v.id=? AND v.is_active=1 LIMIT 1');
     $s->execute([$vehicleId]);$vehicle=$s->fetch();if(!$vehicle)return null;
     $vehicle['id']=(int)$vehicle['id'];$vehicle['customer_id']=(int)$vehicle['customer_id'];$vehicle['product_id']=$vehicle['product_id']!==null?(int)$vehicle['product_id']:null;
-    return ['vehicle'=>$vehicle,'hotspots'=>vehicle_passport_hotspots(),'components'=>vehicle_passport_components($pdo,$vehicleId,$includeEvents)];
+    return ['vehicle'=>$vehicle,'hotspots'=>(string)$vehicle['vehicle_type']==='bicycle'?vehicle_passport_hotspots():[],'components'=>vehicle_passport_components($pdo,$vehicleId,$includeEvents)];
 }
 
 function vehicle_passport_save_component(PDO $pdo,int $vehicleId,array $in,int $adminId): array {
