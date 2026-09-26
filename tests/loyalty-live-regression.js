@@ -37,8 +37,8 @@ assert.match(customer,/expires_at,status,created_at/,'customer payload must expo
 assert.match(profile,/id="loyalty"/,'customer profile must expose a loyalty section');
 assert.match(profile,/function renderCustomerLoyalty/,'customer profile must render balance and ledger history');
 
-assert.match(adminApi,/action==='activate'/,'owner API must support explicit activation');
-assert.match(adminApi,/action==='deactivate'/,'owner API must support explicit deactivation');
+assert.match(adminApi,/action==='publish'/,'owner API must publish the single loyalty configuration');
+assert.doesNotMatch(adminApi,/action==='activate'|action==='deactivate'/,'legacy activation endpoints must stay removed');
 assert.match(adminJs,/action:'publish'/,'central loyalty editor must publish through one action');
 assert.match(adminJs,/current_password:password/,'central loyalty publish must require the current admin password');
 assert.doesNotMatch(adminJs,/setProgram\('activate'\)|setProgram\('deactivate'\)/,'secondary activation UI path must stay removed');
