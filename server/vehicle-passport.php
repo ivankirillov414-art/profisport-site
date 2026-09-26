@@ -534,7 +534,7 @@ function vehicle_replacement_pending_for_customer(PDO $pdo,int $customerId): arr
     return array_values(array_filter($rows,fn($row)=>(int)$row['remaining_qty']>0));
 }
 
-function vehicle_replacement_assign_customer(PDO $pdo,int $customerId,int $purchaseId,int $componentId): array {
+function vehicle_replacement_assign_customer(PDO $pdo,int $customerId,int $purchaseId,int $componentId,int $adminUserId=0): array {
     if($customerId<1||$purchaseId<1||$componentId<1)throw new InvalidArgumentException('invalid_replacement_assignment');
     $owns=!$pdo->inTransaction();if($owns)$pdo->beginTransaction();
     try{
@@ -548,10 +548,10 @@ function vehicle_replacement_assign_customer(PDO $pdo,int $customerId,int $purch
 
         $event=[
             'event_type'=>'replaced','event_at'=>date('Y-m-d H:i:s'),'odometer_km'=>$component['odometer_km']!==null?(float)$component['odometer_km']:null,
-            'include_learning'=>true,'note'=>'Установка купленного расходника подтверждена клиентом',
+            'include_learning'=>true,'note'=>$adminUserId>0?'Установка купленного расходника подтверждена администратором':'Установка купленного расходника подтверждена клиентом',
             'source_order_id'=>(int)$purchase['order_id'],'source_product_id'=>(int)$purchase['product_id'],
         ];
-        $eventId=vehicle_passport_record_event($pdo,$componentId,$event,0);
+        $eventId=vehicle_passport_record_event($pdo,$componentId,$event,$adminUserId);
         $i=$pdo->prepare('INSERT INTO vehicle_replacement_assignments(purchase_id,component_id,assigned_at) VALUES(?,?,NOW())');$i->execute([$purchaseId,$componentId]);
         $assignedQty++;
         if($assignedQty>=(int)$purchase['quantity'])$pdo->prepare("UPDATE vehicle_replacement_purchases SET status='assigned' WHERE id=?")->execute([$purchaseId]);
