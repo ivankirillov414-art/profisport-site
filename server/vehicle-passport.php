@@ -89,6 +89,31 @@ function ensure_vehicle_passport_schema(PDO $pdo): void {
         if(!isset($idx['idx_component_purchase_event']))$pdo->exec('CREATE UNIQUE INDEX idx_component_purchase_event ON vehicle_component_events(component_id,event_type,source_order_id,source_product_id)');
     }catch(Throwable $e){error_log('vehicle_passport_event_index_migration_failed: '.$e->getMessage());}
 
+    $pdo->exec("CREATE TABLE IF NOT EXISTS vehicle_replacement_purchases (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        customer_id BIGINT UNSIGNED NOT NULL,
+        order_id BIGINT UNSIGNED NOT NULL,
+        order_item_id BIGINT UNSIGNED NOT NULL,
+        product_id BIGINT UNSIGNED NOT NULL,
+        title VARCHAR(500) NOT NULL,
+        quantity INT UNSIGNED NOT NULL DEFAULT 1,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',
+        created_at DATETIME NOT NULL,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY idx_replacement_purchase_item(order_item_id),
+        INDEX idx_replacement_purchase_customer(customer_id,status,created_at),
+        INDEX idx_replacement_purchase_product(product_id,status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS vehicle_replacement_assignments (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        purchase_id BIGINT UNSIGNED NOT NULL,
+        component_id BIGINT UNSIGNED NOT NULL,
+        assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY idx_replacement_assignment_pair(purchase_id,component_id),
+        INDEX idx_replacement_assignment_purchase(purchase_id,assigned_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
     $pdo->exec("CREATE TABLE IF NOT EXISTS vehicle_maintenance_alerts (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         customer_id BIGINT UNSIGNED NOT NULL,
@@ -482,17 +507,78 @@ function vehicle_passport_record_event(PDO $pdo,int $componentId,array $in,int $
 }
 
 
+function vehicle_replacement_candidate_rows(PDO $pdo,int $customerId,int $productId): array {
+    $s=$pdo->prepare("SELECT c.id component_id,c.vehicle_id,c.component_key,c.label component_label,v.title vehicle_title,v.vehicle_type
+        FROM customer_vehicles v
+        JOIN vehicle_components c ON c.vehicle_id=v.id AND c.is_active=1
+        WHERE v.customer_id=? AND v.is_active=1 AND c.compatible_product_id=?
+        ORDER BY v.id,c.id");
+    $s->execute([$customerId,$productId]);$rows=$s->fetchAll();
+    foreach($rows as &$row){$row['component_id']=(int)$row['component_id'];$row['vehicle_id']=(int)$row['vehicle_id'];}unset($row);
+    return $rows;
+}
+
+function vehicle_replacement_pending_for_customer(PDO $pdo,int $customerId): array {
+    if($customerId<1)return [];
+    $s=$pdo->prepare("SELECT p.id,p.order_id,p.order_item_id,p.product_id,p.title,p.quantity,p.status,p.created_at,
+        (SELECT COUNT(*) FROM vehicle_replacement_assignments a WHERE a.purchase_id=p.id) assigned_qty
+        FROM vehicle_replacement_purchases p
+        WHERE p.customer_id=? AND p.status='pending'
+        ORDER BY p.created_at DESC,p.id DESC");
+    $s->execute([$customerId]);$rows=$s->fetchAll();
+    foreach($rows as &$row){
+        $row['id']=(int)$row['id'];$row['order_id']=(int)$row['order_id'];$row['order_item_id']=(int)$row['order_item_id'];$row['product_id']=(int)$row['product_id'];
+        $row['quantity']=(int)$row['quantity'];$row['assigned_qty']=(int)$row['assigned_qty'];$row['remaining_qty']=max(0,$row['quantity']-$row['assigned_qty']);
+        $row['candidates']=vehicle_replacement_candidate_rows($pdo,$customerId,$row['product_id']);
+    }unset($row);
+    return array_values(array_filter($rows,fn($row)=>(int)$row['remaining_qty']>0));
+}
+
+function vehicle_replacement_assign_customer(PDO $pdo,int $customerId,int $purchaseId,int $componentId): array {
+    if($customerId<1||$purchaseId<1||$componentId<1)throw new InvalidArgumentException('invalid_replacement_assignment');
+    $owns=!$pdo->inTransaction();if($owns)$pdo->beginTransaction();
+    try{
+        $p=$pdo->prepare("SELECT * FROM vehicle_replacement_purchases WHERE id=? AND customer_id=? AND status='pending' FOR UPDATE");
+        $p->execute([$purchaseId,$customerId]);$purchase=$p->fetch();if(!$purchase)throw new DomainException('replacement_purchase_not_found');
+        $assigned=$pdo->prepare('SELECT COUNT(*) FROM vehicle_replacement_assignments WHERE purchase_id=?');$assigned->execute([$purchaseId]);$assignedQty=(int)$assigned->fetchColumn();
+        if($assignedQty>=(int)$purchase['quantity'])throw new DomainException('replacement_purchase_consumed');
+        $c=$pdo->prepare("SELECT c.id,c.vehicle_id,v.odometer_km FROM vehicle_components c JOIN customer_vehicles v ON v.id=c.vehicle_id WHERE c.id=? AND v.customer_id=? AND v.is_active=1 AND c.is_active=1 AND c.compatible_product_id=? LIMIT 1");
+        $c->execute([$componentId,$customerId,(int)$purchase['product_id']]);$component=$c->fetch();if(!$component)throw new DomainException('replacement_component_not_compatible');
+        $dupe=$pdo->prepare('SELECT id FROM vehicle_replacement_assignments WHERE purchase_id=? AND component_id=? LIMIT 1');$dupe->execute([$purchaseId,$componentId]);if($dupe->fetchColumn())throw new DomainException('replacement_already_assigned');
+
+        $event=[
+            'event_type'=>'replaced','event_at'=>date('Y-m-d H:i:s'),'odometer_km'=>$component['odometer_km']!==null?(float)$component['odometer_km']:null,
+            'include_learning'=>true,'note'=>'Установка купленного расходника подтверждена клиентом',
+            'source_order_id'=>(int)$purchase['order_id'],'source_product_id'=>(int)$purchase['product_id'],
+        ];
+        $eventId=vehicle_passport_record_event($pdo,$componentId,$event,0);
+        $i=$pdo->prepare('INSERT INTO vehicle_replacement_assignments(purchase_id,component_id,assigned_at) VALUES(?,?,NOW())');$i->execute([$purchaseId,$componentId]);
+        $assignedQty++;
+        if($assignedQty>=(int)$purchase['quantity'])$pdo->prepare("UPDATE vehicle_replacement_purchases SET status='assigned' WHERE id=?")->execute([$purchaseId]);
+        if($owns)$pdo->commit();
+        return ['event_id'=>$eventId,'vehicle_id'=>(int)$component['vehicle_id'],'remaining_qty'=>max(0,(int)$purchase['quantity']-$assignedQty)];
+    }catch(Throwable $e){if($owns&&$pdo->inTransaction())$pdo->rollBack();throw $e;}
+}
+
 function vehicle_passport_sync_replacement_purchases(PDO $pdo,int $orderId): int {
     $o=$pdo->prepare("SELECT customer_id,status,created_at FROM orders WHERE id=? LIMIT 1");$o->execute([$orderId]);$order=$o->fetch();
     if(!$order||(string)$order['status']!=='completed'||(int)($order['customer_id']??0)<1)return 0;
-    $items=$pdo->prepare("SELECT DISTINCT product_id,title FROM order_items WHERE order_id=? AND product_id IS NOT NULL");$items->execute([$orderId]);
-    $matches=$pdo->prepare("SELECT c.id component_id FROM customer_vehicles v JOIN vehicle_components c ON c.vehicle_id=v.id AND c.is_active=1 WHERE v.customer_id=? AND v.is_active=1 AND c.compatible_product_id=? ORDER BY c.id");
-    $insert=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note,source_order_id,source_product_id) VALUES(?,'replacement_purchase',?,0,?,?,?)");$count=0;
+    $customerId=(int)$order['customer_id'];
+    $items=$pdo->prepare("SELECT id order_item_id,product_id,title,quantity FROM order_items WHERE order_id=? AND product_id IS NOT NULL ORDER BY id");$items->execute([$orderId]);
+    $insertEvent=$pdo->prepare("INSERT IGNORE INTO vehicle_component_events(component_id,event_type,event_at,include_learning,note,source_order_id,source_product_id) VALUES(?,'replacement_purchase',?,0,?,?,?)");
+    $insertPending=$pdo->prepare("INSERT INTO vehicle_replacement_purchases(customer_id,order_id,order_item_id,product_id,title,quantity,status,created_at) VALUES(?,?,?,?,?,?,'pending',?) ON DUPLICATE KEY UPDATE title=VALUES(title),quantity=VALUES(quantity)");
+    $count=0;
     foreach($items->fetchAll() as $item){
-        $matches->execute([(int)$order['customer_id'],(int)$item['product_id']]);$rows=$matches->fetchAll();
-        if(count($rows)!==1)continue; // Не угадываем, для какого из нескольких совместимых велосипедов куплена деталь.
-        $note='Куплен совместимый расходник: '.mb_substr((string)$item['title'],0,500);
-        $insert->execute([(int)$rows[0]['component_id'],(string)$order['created_at'],$note,$orderId,(int)$item['product_id']]);$count+=$insert->rowCount();
+        $rows=vehicle_replacement_candidate_rows($pdo,$customerId,(int)$item['product_id']);
+        if(count($rows)===1){
+            $note='Куплен совместимый расходник: '.mb_substr((string)$item['title'],0,500);
+            $insertEvent->execute([(int)$rows[0]['component_id'],(string)$order['created_at'],$note,$orderId,(int)$item['product_id']]);$count+=$insertEvent->rowCount();
+            continue;
+        }
+        if(count($rows)>1){
+            $insertPending->execute([$customerId,$orderId,(int)$item['order_item_id'],(int)$item['product_id'],mb_substr((string)$item['title'],0,500),max(1,(int)$item['quantity']),(string)$order['created_at']]);
+            $count+=$insertPending->rowCount();
+        }
     }
     return $count;
 }
