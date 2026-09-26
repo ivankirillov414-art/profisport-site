@@ -67,6 +67,8 @@ assert j['orders'][0]['pickup_store']=='Проспект Победы, 118 ст�
 assert call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf)[0]==409
 admin_order=call('api/orders.php?q='+urllib.parse.quote(customer_order_number),cookie=cookie)[1]['items'][0]
 assert call('api/orders.php',{'id':admin_order['id'],'status':'completed','previous_status':'new'},cookie,csrf)[0]==200
+account_after_complete=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account_after_complete['customer']['bonus_balance']==0
 status,detail,_=call('api/customer.php?action=order&number='+urllib.parse.quote(customer_order_number),cookie=customer_cookie);assert status==200
 assert detail['order']['pickup_store']=='Проспект Победы, 118 строение 2' and detail['items'][0]['image']=='https://example.test/test-ball.jpg'
 assert [h['status'] for h in detail['history']]==['new','completed'] and detail['history_complete'] is True
@@ -93,7 +95,14 @@ stats=call('server/api.php?action=stats',cookie=cookie)[1]
 assert stats['customers']==1 and stats['new_service']==0
 assert call('api/loyalty-admin.php')[0]==401
 status,loyalty_status,_=call('api/loyalty-admin.php',cookie=cookie);assert status==200
-assert loyalty_status['program']['enabled'] is False and loyalty_status['program']['configured'] is False
+assert loyalty_status['program']['enabled'] is False and loyalty_status['program']['configured'] is False and loyalty_status['live_activation_available'] is False
+assert loyalty_status['can_edit'] is True
+draft={'earn_enabled':True,'redeem_enabled':True,'expiration_enabled':True,'review_bonus_enabled':True,'category_exclusions_enabled':True,'earn_percent_bp':500,'max_redeem_percent_bp':3000,'point_value_kopeks':100,'expiration_days':365,'min_order_rub':1000,'review_bonus':50,'excluded_category_prefixes':['Sport']}
+assert call('api/loyalty-admin.php',{'action':'save_draft','config':draft},cookie)[0]==403
+status,saved,_=call('api/loyalty-admin.php',{'action':'save_draft','config':draft},cookie,csrf);assert status==200
+assert saved['program']['configured'] is True and saved['program']['enabled'] is False and saved['program']['stored_enabled'] is False
+assert saved['program']['config']['earn_enabled'] is True and saved['program']['config']['redeem_enabled'] is True
+status,invalid,_=call('api/loyalty-admin.php',{'action':'save_draft','config':{**draft,'earn_percent_bp':999999}},cookie,csrf);assert status==422
 for page in ['categories.php','stats.php']:
     req=urllib.request.Request(BASE+'admin/'+page,headers={'Cookie':cookie})
     with urllib.request.urlopen(req,timeout=15) as r: assert r.status==200 and r.geturl().endswith(page)
@@ -146,7 +155,7 @@ status,resubmitted,_=call('api/customer.php?action=review_submit',fixed,customer
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id and pending[0]['rating']==4
 approval={'review_id':review_id,'action':'approve','bonus':50}
 status,approved,_=call('api/review-moderation.php',approval,cookie,csrf);assert status==200
-assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_unconfigured'
+assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_disabled'
 assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
 status,approved_duplicate,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert (status,approved_duplicate['error'])==(409,'duplicate_review')
 public_review=call('api/customer.php?action=reviews&product_id=1')[1]
