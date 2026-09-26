@@ -127,7 +127,9 @@ function customer_payload(PDO $pdo,array $u): array {
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
   $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
-  return ['ok'=>true,'customer'=>$u,'customer_discount'=>loyalty_customer_discount($pdo,$customerId),'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>customer_vehicle_rows($pdo,$customerId),'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
+  $vehicles=customer_vehicle_rows($pdo,$customerId);
+  $maintenanceAlerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+  return ['ok'=>true,'customer'=>$u,'customer_discount'=>loyalty_customer_discount($pdo,$customerId),'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>$vehicles,'maintenance_alerts'=>$maintenanceAlerts,'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
@@ -222,6 +224,12 @@ try{
     ensure_service_request_history($pdo,(int)$row['id']);
     auth_rate_clear($pdo,'customer_service_request',(string)$customerId);
     json_response(['ok'=>true,'request_number'=>$row['request_number'],'request_id'=>(int)$row['id'],'service_requests'=>customer_service_rows($pdo,$customerId)]);
+  }
+  if($action==='ack_maintenance_alert'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$alertId=(int)($in['alert_id']??0);
+    if($alertId<1)json_response(['ok'=>false,'error'=>'bad_alert'],422);
+    vehicle_maintenance_acknowledge($pdo,(int)$u['id'],$alertId);
+    json_response(['ok'=>true,'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,(int)$u['id'],true),'csrf'=>customer_csrf()]);
   }
   if($action==='confirm_component_replacement'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$componentId=(int)($in['component_id']??0);
