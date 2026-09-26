@@ -53,16 +53,18 @@
             <div><strong>Начислять бонусы за покупки</strong><small>Начисление после перевода заказа в статус «Завершён».</small></div>
             <label class="switch"><input id="earnEnabled" type="checkbox"><span></span></label>
           </div>
-          <div id="earnControls" class="controlRow">
-            <input id="earnPercentRange" type="range" min="0" max="3000" step="50" value="500" aria-label="Процент начисления">
-            <input id="earnPercentNumber" type="number" min="0" max="30" step="0.5" value="5" aria-label="Процент начисления">
+          <div id="earnControls">
+            <div class="controlRow">
+              <input id="earnPercentRange" type="range" min="0" max="3000" step="50" value="500" aria-label="Процент начисления">
+              <input id="earnPercentNumber" type="number" min="0" max="30" step="0.5" value="5" aria-label="Процент начисления">
+            </div>
+            <div class="hint">Процент от суммы товаров, участвующих в программе.</div>
+            <div class="controlRow">
+              <input id="minOrderRange" type="range" min="0" max="50000" step="500" value="0" aria-label="Минимальная сумма заказа">
+              <input id="minOrderNumber" type="number" min="0" max="10000000" step="500" value="0" aria-label="Минимальная сумма заказа">
+            </div>
+            <div class="hint">Минимальная сумма участвующих товаров для начисления.</div>
           </div>
-          <div class="hint">Процент от суммы товаров, участвующих в программе.</div>
-          <div id="earnControls" class="controlRow">
-            <input id="minOrderRange" type="range" min="0" max="50000" step="500" value="0" aria-label="Минимальная сумма заказа">
-            <input id="minOrderNumber" type="number" min="0" max="10000000" step="500" value="0" aria-label="Минимальная сумма заказа">
-          </div>
-          <div class="hint">Минимальная сумма участвующих товаров для начисления.</div>
         </div>
 
         <div class="optionCard">
