@@ -25,7 +25,6 @@ const VEHICLE_SPEC_WELT_BRAVE_20_24_HD_2026='https://www.welt-bikes.com/ru/ru/vs
 const VEHICLE_SPEC_ASPECT_AIR_20_2026='https://www.aspect-bikes.ru/catalog/aspect-air-20/';
 const VEHICLE_SPEC_ASPECT_AURA_20_2026='https://www.aspect-bikes.ru/catalog/aspect-aura-20/';
 const VEHICLE_SPEC_WELT_MOOVIX_10_MD_24_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/movix1md24_2026?optionId=1070';
-const VEHICLE_SPEC_PROFISPORT_MOOVIX_10_MD_24_2026='https://velo56.ru/catalog/velosipedy/podrostkovye-24/velosiped-welt-moovix-1-0-md-24-shiny-orange-2026-56804/';
 const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch5';
 
 function vehicle_spec_registry_component(
