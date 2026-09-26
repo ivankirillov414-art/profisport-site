@@ -14,7 +14,7 @@ assert.match(api,/function customer_detail\b/,'admin API must expose customer de
 for(const token of ['preferred_store','customer_vehicle_rows','customer_service_rows','loyalty_transactions','audit_log','order_status_history']){
   assert.match(api,new RegExp(token),'customer detail API missing '+token);
 }
-for(const title of ['Профиль','Персональная скидка','Бонусы','Моя техника','Сервис','Заказы','Избранное','Отзывы','История действий']){
+for(const title of ['Профиль','Персональная скидка','Бонусы','Неназначенные расходники','Моя техника','Сервис','Заказы','Избранное','Отзывы','История действий']){
   assert.match(detail,new RegExp(title),'customer card missing section '+title);
 }
 assert.match(detail,/customer-admin\.php\?id=/,'customer card must load admin customer detail API');
