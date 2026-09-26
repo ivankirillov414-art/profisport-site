@@ -25,9 +25,10 @@ function walk(dir) {
 
 function legacyHelperCallers(helperName) {
   const helperCall = new RegExp(`\\b${helperName}\\s*\\(`);
-  return walk(root)
+  return ['api', 'admin', 'server']
+    .flatMap((dir) => walk(path.join(root, dir)))
     .map((file) => ({ file, rel: path.relative(root, file).replace(/\\/g, '/'), text: fs.readFileSync(file, 'utf8') }))
-    .filter(({ rel }) => !['server/loyalty.php', 'tests/loyalty-settings-route-regression.js'].includes(rel))
+    .filter(({ rel }) => rel !== 'server/loyalty.php')
     .filter(({ text }) => helperCall.test(text))
     .map(({ rel }) => rel);
 }
@@ -48,7 +49,7 @@ assert(blockedPosition < writePosition, 'Protected setting validation must run b
 
 for (const helper of ['loyalty_save_draft', 'loyalty_set_program_enabled']) {
   const callers = legacyHelperCallers(helper);
-  assert(callers.length === 0, `${helper} must not be used outside server/loyalty.php; use admin/loyalty.php + api/loyalty-admin.php instead. Found: ${callers.join(', ')}`);
+  assert(callers.length === 0, `${helper} must not be used by api/admin/server outside server/loyalty.php; use admin/loyalty.php + api/loyalty-admin.php instead. Found: ${callers.join(', ')}`);
 }
 
 console.log('Loyalty settings route regression passed');
