@@ -112,7 +112,7 @@ function loyalty_manual_adjustment(PDO $pdo,int $customerId,int $requestedAmount
         if($current===false)throw new RuntimeException('Customer not found');
         $current=(int)$current;$target=max(0,$current+$requestedAmount);$actual=$target-$current;
         if($actual===0){if($owns)$pdo->commit();return ['transaction_id'=>null,'amount'=>0,'balance'=>$current,'duplicate'=>false];}
-        $result=loyalty_post($pdo,$customerId,$actual,'manual','admin',(string)$adminUserId,null,$note?:'Ручная корректировка',null,$adminUserId,['requested_amount'=>$requestedAmount]);
+        $result=loyalty_post($pdo,$customerId,$actual,'manual','admin',null,null,$note?:'Ручная корректировка',null,$adminUserId,['requested_amount'=>$requestedAmount]);
         if($owns)$pdo->commit();return $result;
     }catch(Throwable $e){if($owns&&$pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
