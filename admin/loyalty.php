@@ -1,6 +1,176 @@
 <?php require __DIR__.'/guard.php'; ?>
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Бонусная система — ПрофиСпорт</title><style>
-:root{--y:#f2c94c;--bg:#f5f5f3;--tx:#202124;--muted:#747a80;--line:#e3e3df;--green:#19964a;--red:#b93429;--page:980px}*{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx)}header{background:#343a40;color:#fff}.top{max-width:var(--page);margin:auto;min-height:64px;padding:0 14px;display:flex;align-items:center;justify-content:space-between}.top a{color:#fff;text-decoration:none}.brand{font-size:21px;font-weight:900}.brand span{color:var(--y)}main{max-width:var(--page);margin:18px auto;padding:0 14px 60px}.status{padding:18px;border:1px solid var(--line);border-radius:18px;background:#fff}.status.off{border-color:#e2c34c;background:#fffaf0}.status b{font-size:24px}.status p{margin:6px 0 0;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.card{padding:16px;border:1px solid var(--line);border-radius:15px;background:#fff}.card span{display:block;color:var(--muted);font-size:12px}.card b{display:block;margin-top:5px;font-size:22px}.panel{margin-top:16px;padding:18px;border:1px solid var(--line);border-radius:18px;background:#fff}.panel h2{margin:0 0 10px}.row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:10px 0;border-top:1px solid #ecece8}.row:first-of-type{border-top:0}.row span{color:var(--muted)}.unset{color:#9a5a21;font-weight:800}.ready{color:var(--green);font-weight:800}.note{padding:14px;border-radius:13px;background:#f7f6f1;color:#5f656a}.back{padding:9px 12px;border-radius:10px;background:#ffffff15;border:1px solid #ffffff24}@media(max-width:700px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.card b{font-size:19px}}
-</style></head><body><header><div class="top"><div class="brand">Профи<span>Спорт</span></div><a class="back" href="index.php">← Админка</a></div></header><main><h1>Бонусная система</h1><div id="status" class="status off"><b>Загрузка…</b></div><div id="stats" class="grid"></div><section class="panel"><h2>Параметры запуска</h2><div id="config"></div></section><section class="panel"><h2>Что уже готово</h2><div class="note">Ledger операций, сроки действия, ручные корректировки, привязка к заказам, отмена начислений, снимок категории товара и безопасные хуки заказов/отзывов. До отдельного решения по экономике автоматические начисления и списания не выполняются.</div></section></main><script>
-const $=s=>document.querySelector(s),fmt=n=>Number(n||0).toLocaleString('ru-RU');function val(v,suffix=''){return v===null||v===undefined?'<span class="unset">Не задано</span>':'<span class="ready">'+fmt(v)+suffix+'</span>'}async function load(){const r=await fetch('../api/loyalty-admin.php',{cache:'no-store'}),j=await r.json();if(!r.ok||!j.ok){status.innerHTML='<b>Не удалось загрузить состояние.</b>';return}const p=j.program,c=p.config;status.classList.toggle('off',!p.enabled);status.innerHTML='<b>Программа '+(p.enabled?'включена':'выключена')+'</b><p>'+(p.configured?'Параметры заданы, но фактический статус зависит от переключателя запуска.':'Экономические параметры ещё не определены. Автоматические начисления и списания заблокированы.')+'</p>';stats.innerHTML='<div class="card"><span>Служебный баланс клиентов</span><b>'+fmt(j.stats.customer_balance)+'</b></div><div class="card"><span>Клиентов с балансом</span><b>'+fmt(j.stats.customers_with_balance)+'</b></div><div class="card"><span>Записей в ledger</span><b>'+fmt(j.stats.transactions)+'</b></div>';config.innerHTML='<div class="row"><span>Начисление за покупку</span>'+val(c.earn_percent_bp===null?null:c.earn_percent_bp/100,'%')+'</div><div class="row"><span>Максимум оплаты бонусами</span>'+val(c.max_redeem_percent_bp===null?null:c.max_redeem_percent_bp/100,'%')+'</div><div class="row"><span>Стоимость 1 бонуса</span>'+val(c.point_value_kopeks===null?null:c.point_value_kopeks/100,' ₽')+'</div><div class="row"><span>Срок жизни</span>'+val(c.expiration_days,' дней')+'</div><div class="row"><span>Минимальная сумма заказа</span>'+val(c.min_order_rub,' ₽')+'</div><div class="row"><span>Бонус за опубликованный отзыв</span>'+val(c.review_bonus,' бонусов')+'</div><div class="row"><span>Исключённые категории</span>'+(c.excluded_category_prefixes?.length?'<b>'+c.excluded_category_prefixes.join(', ')+'</b>':'<span class="unset">Не заданы</span>')+'</div>'}load();
-</script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Калькулятор бонусной системы — ПрофиСпорт</title>
+  <link rel="stylesheet" href="loyalty-calculator.css?v=1">
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand">Профи<span>Спорт</span></div>
+    <a class="back" href="index.php">← Админка</a>
+  </div>
+</header>
+<main>
+  <div class="pageHead">
+    <div>
+      <h1>Калькулятор бонусной системы</h1>
+      <p>Соберите механику программы, сравнивайте экономику и сохраняйте варианты как безопасный черновик.</p>
+    </div>
+  </div>
+
+  <section id="programState" class="programState">
+    <div><b>Загрузка…</b><p>Проверяем состояние бонусного движка.</p></div>
+  </section>
+  <section id="stats" class="stats" aria-label="Статистика бонусной системы"></section>
+
+  <div class="layout">
+    <div>
+      <section class="panel">
+        <h2>Общие параметры</h2>
+        <p class="panelIntro">Стоимость бонуса влияет и на начисление, и на максимальную рублёвую скидку.</p>
+        <div class="optionCard">
+          <div class="optionHead">
+            <div><strong>Стоимость 1 бонуса</strong><small>Сколько рублей клиент получает при списании одного бонуса.</small></div>
+          </div>
+          <div class="controlRow">
+            <input id="pointValueRange" type="range" min="10" max="500" step="10" value="100" aria-label="Стоимость одного бонуса">
+            <input id="pointValueNumber" type="number" min="0.1" max="5" step="0.1" value="1" aria-label="Стоимость одного бонуса в рублях">
+          </div>
+          <div class="hint">Диапазон: 0,10–5 ₽ за 1 бонус.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Опции программы</h2>
+        <p class="panelIntro">Каждую механику можно включать независимо и смотреть её влияние в калькуляторе справа.</p>
+
+        <div class="optionCard">
+          <div class="optionHead">
+            <div><strong>Начислять бонусы за покупки</strong><small>Начисление после перевода заказа в статус «Завершён».</small></div>
+            <label class="switch"><input id="earnEnabled" type="checkbox"><span></span></label>
+          </div>
+          <div id="earnControls" class="controlRow">
+            <input id="earnPercentRange" type="range" min="0" max="3000" step="50" value="500" aria-label="Процент начисления">
+            <input id="earnPercentNumber" type="number" min="0" max="30" step="0.5" value="5" aria-label="Процент начисления">
+          </div>
+          <div class="hint">Процент от суммы товаров, участвующих в программе.</div>
+          <div id="earnControls" class="controlRow">
+            <input id="minOrderRange" type="range" min="0" max="50000" step="500" value="0" aria-label="Минимальная сумма заказа">
+            <input id="minOrderNumber" type="number" min="0" max="10000000" step="500" value="0" aria-label="Минимальная сумма заказа">
+          </div>
+          <div class="hint">Минимальная сумма участвующих товаров для начисления.</div>
+        </div>
+
+        <div class="optionCard">
+          <div class="optionHead">
+            <div><strong>Разрешить оплату бонусами</strong><small>Ограничивает долю заказа, которую в будущем можно будет закрыть бонусами.</small></div>
+            <label class="switch"><input id="redeemEnabled" type="checkbox"><span></span></label>
+          </div>
+          <div id="redeemControls" class="controlRow">
+            <input id="redeemPercentRange" type="range" min="0" max="10000" step="500" value="3000" aria-label="Максимальный процент оплаты бонусами">
+            <input id="redeemPercentNumber" type="number" min="0" max="100" step="5" value="30" aria-label="Максимальный процент оплаты бонусами">
+          </div>
+          <div class="hint">Например, 30% означает: не более 30% стоимости заказа можно закрыть бонусами.</div>
+        </div>
+
+        <div class="optionCard">
+          <div class="optionHead">
+            <div><strong>Срок действия бонусов</strong><small>Дата будущего сгорания сохраняется в ledger. Автоматическое списание подключим после выбора FIFO-логики.</small></div>
+            <label class="switch"><input id="expirationEnabled" type="checkbox"><span></span></label>
+          </div>
+          <div id="expirationControls" class="controlRow">
+            <input id="expirationDaysRange" type="range" min="30" max="1095" step="30" value="365" aria-label="Срок действия бонусов">
+            <input id="expirationDaysNumber" type="number" min="1" max="3650" step="30" value="365" aria-label="Срок действия бонусов в днях">
+          </div>
+        </div>
+
+        <div class="optionCard">
+          <div class="optionHead">
+            <div><strong>Бонус за опубликованный отзыв</strong><small>Фиксированное количество после одобрения проверенного отзыва.</small></div>
+            <label class="switch"><input id="reviewBonusEnabled" type="checkbox"><span></span></label>
+          </div>
+          <div id="reviewControls" class="controlRow">
+            <input id="reviewBonusRange" type="range" min="0" max="1000" step="25" value="50" aria-label="Бонус за отзыв">
+            <input id="reviewBonusNumber" type="number" min="0" max="1000000" step="25" value="50" aria-label="Бонус за отзыв">
+          </div>
+        </div>
+
+        <div class="optionCard">
+          <div class="optionHead">
+            <div><strong>Исключить отдельные категории</strong><small>Для них начисление не будет рассчитываться.</small></div>
+            <label class="switch"><input id="categoryExclusionsEnabled" type="checkbox"><span></span></label>
+          </div>
+          <div id="categoryArea" class="categoryTools" hidden>
+            <input id="categorySearch" class="categorySearch" placeholder="Найти категорию из текущего каталога">
+            <div id="categoryList" class="categoryList"></div>
+            <div class="customCategory">
+              <input id="customCategory" placeholder="Или добавить префикс категории вручную">
+              <button id="addCustomCategory" type="button">Добавить</button>
+            </div>
+            <div id="selectedCategories" class="selectedCategories"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Готовность конфигурации</h2>
+        <div class="readiness">
+          <div class="readinessRow"><span>Стоимость бонуса</span><span id="readyPoint"></span></div>
+          <div class="readinessRow"><span>Выбрана хотя бы одна клиентская механика</span><span id="readyFeatures"></span></div>
+          <div class="readinessRow"><span>Диапазоны и обязательные поля</span><span id="readyConfig"></span></div>
+        </div>
+        <div class="activationLock">
+          <b>Боевой запуск пока заблокирован</b>
+          <p>Опции и цифры сохраняются, но клиентам ничего автоматически не начисляется и не списывается. Сначала подключим фактическое списание бонусов в checkout и правила расходования/сгорания.</p>
+        </div>
+      </section>
+    </div>
+
+    <aside class="calcPanel">
+      <section class="panel">
+        <h2>Экономика на примере заказа</h2>
+        <p class="panelIntro">Меняйте сценарий — результат обновляется мгновенно, без сохранения.</p>
+        <div class="scenarioGrid">
+          <div class="scenarioField">
+            <label><span>Сумма заказа</span><output id="scenarioOrderOut">10 000 ₽</output></label>
+            <input id="scenarioOrder" type="range" min="500" max="200000" step="500" value="10000">
+          </div>
+          <div class="scenarioField">
+            <label><span>Товаров участвует в программе</span><output id="scenarioEligibleOut">100%</output></label>
+            <input id="scenarioEligibleShare" type="range" min="0" max="100" step="5" value="100">
+          </div>
+          <div class="scenarioField">
+            <label><span>Баланс клиента до покупки</span><output id="scenarioBalanceOut">2 000 бонусов</output></label>
+            <input id="scenarioBalance" type="range" min="0" max="50000" step="100" value="2000">
+          </div>
+          <div class="scenarioField">
+            <label><span>Валовая маржа заказа</span><output id="scenarioMarginOut">30%</output></label>
+            <input id="scenarioMargin" type="range" min="5" max="80" step="1" value="30">
+          </div>
+        </div>
+        <div class="results">
+          <div class="result emphasis"><span>Начислим</span><b id="earnedPoints">0 бонусов</b></div>
+          <div class="result"><span>Новая бонусная обязанность</span><b id="earnedValue">0 ₽</b></div>
+          <div class="result"><span>Можно списать</span><b id="maxSpendPoints">0 бонусов</b></div>
+          <div class="result"><span>Скидка бонусами</span><b id="discountRub">0 ₽</b></div>
+          <div class="result emphasis"><span>К оплате деньгами</span><b id="payableRub">10 000 ₽</b></div>
+          <div class="result"><span>Маржа после списания</span><b id="marginAfter">3 000 ₽</b></div>
+          <div class="result"><span>Маржа с резервом будущих бонусов</span><b id="conservativeMargin">3 000 ₽</b></div>
+        </div>
+        <p class="calcNote">Последний показатель — консервативный: из маржи вычитается и текущая скидка бонусами, и полная рублёвая стоимость новых начисленных бонусов как будущая обязанность.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="actionsBar">
+    <span id="saveMsg" class="saveMsg">Изменения пока не сохранены.</span>
+    <button id="saveDraft" type="button">Сохранить черновик программы</button>
+  </div>
+</main>
+<script src="loyalty-calculator.js?v=1"></script>
+</body>
+</html>
