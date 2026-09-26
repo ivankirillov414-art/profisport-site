@@ -126,7 +126,7 @@ async function load(){
   $('#programState').innerHTML='<div><b>Программа '+(j.program?.enabled?'включена':'выключена')+'</b><p>'+(j.live_activation_available?'Боевой запуск доступен.':'Сейчас это безопасный конструктор: настройки сохраняются, но клиентские начисления и списания не запускаются.')+'</p></div><span class="statePill">'+(j.program?.configured?'Конфигурация собрана':'Черновик')+'</span>';
   $('#stats').innerHTML='<div class="stat"><span>Служебный баланс клиентов</span><b>'+fmt(j.stats?.customer_balance)+'</b></div><div class="stat"><span>Клиентов с балансом</span><b>'+fmt(j.stats?.customers_with_balance)+'</b></div><div class="stat"><span>Операций в ledger</span><b>'+fmt(j.stats?.transactions)+'</b></div>';
   applyConfig(savedConfig);
-  $('#saveDraft').disabled=!canEdit;
+  $('#saveDraft').disabled=!canEdit;$('#resetDraft').disabled=false;
   if(!canEdit)$('#saveMsg').textContent='Редактирование доступно только владельцу.';
 }
 async function saveDraft(){
@@ -145,6 +145,7 @@ function init(){
   $('#categorySearch').addEventListener('input',renderCategories);
   $('#addCustomCategory').addEventListener('click',()=>{const input=$('#customCategory'),v=input.value.trim();if(v){state.excluded.add(v.slice(0,250));input.value='';renderCategories();update()}});
   $('#saveDraft').addEventListener('click',saveDraft);
+  $('#resetDraft').addEventListener('click',()=>{applyConfig(savedConfig);const msg=$('#saveMsg');msg.className='saveMsg';msg.textContent='Возвращён последний сохранённый черновик.'});
   load().catch(()=>{$('#programState').innerHTML='<div><b>Не удалось загрузить калькулятор</b><p>Обновите страницу и попробуйте снова.</p></div>'});
 }
 init();
