@@ -11,12 +11,18 @@ This file is a technical checklist for moving the store from the temporary Infin
 - `server/config.php` must be created from `server/config.example.php` on the destination and must not be committed.
 - Database and application timezone: Asia/Yekaterinburg / +05:00 unless the business requirements change.
 
+## Automated repository preflight
+
+The repository now blocks the InfinityFree deploy job behind a fresh/legacy MySQL matrix preflight. It validates PHP/JavaScript syntax, storefront regressions, customer cabinet flows, the admin customer card, phone/email login, checkout/order lifecycle, the live loyalty FIFO/expiry/refund engine, migration invariants and the final production preflight. The deploy phase starts only after both database variants pass.
+
+Apache routes missing pages to the static branded `404.html` and server errors to `500.html`. The public `api/health.php` verifies the database plus the key catalog, customer, order, loyalty, vehicle and service schema before returning `ok: true`. The owner-only `admin/health.php` exposes the more detailed schema checklist.
+
 ## Pre-migration checks
 
 1. `Store checks` GitHub Action must pass for both fresh and legacy schemas.
 2. The current-export regression must pass: the active catalog comes only from the current 1C/MySQL snapshot; the retired parser/static catalog is not a fallback.
 3. Product photos must come only from the current 1C export / MySQL product record. A missing physical photo remains missing; there is no parser or automatic internet-photo recovery path.
-4. Verify `api/health.php` returns `ok: true` and a plausible active catalog count on the destination host.
+4. Verify `api/health.php` returns `ok: true`, `schema: true` and a plausible active catalog count on the destination host.
 5. Run a full 1C import on a copy of the production database before DNS switch.
 6. Test customer registration/login, favorites, checkout, order creation, admin status updates and customer order history.
 7. Verify product prices and stock are read server-side during checkout; browser values must never be trusted.
@@ -72,3 +78,6 @@ The owner-only admin page `admin/migration.php` can prepare a move from the curr
 ## Deliberately not hard-coded yet
 
 The repository must not invent business rules that have not been approved. In particular, production work should not hard-code arbitrary bonus accrual rates, warranty promises, assembly/first-service promises, payment methods, return rules, or final-domain SEO URLs until those rules are explicitly confirmed.
+## Host-dependent checks that remain external
+
+These are intentionally not claimed as complete by repository CI: a fresh production database backup/off-host copy, the live MySQL photo-linkage audit, a real browser smoke test through the final public hostname, and the final DNS cutover to a new host. InfinityFree may return its browser challenge to automated clients, so FTP byte verification proves deployed files but does not replace a human/browser smoke test. These checks should be completed immediately before a real host migration or public launch.
