@@ -129,7 +129,8 @@ function customer_payload(PDO $pdo,array $u): array {
   $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
   $vehicles=customer_vehicle_rows($pdo,$customerId);
   $maintenanceAlerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
-  return ['ok'=>true,'customer'=>$u,'customer_discount'=>loyalty_customer_discount($pdo,$customerId),'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>$vehicles,'maintenance_alerts'=>$maintenanceAlerts,'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
+  $replacementPurchases=vehicle_replacement_pending_for_customer($pdo,$customerId);
+  return ['ok'=>true,'customer'=>$u,'customer_discount'=>loyalty_customer_discount($pdo,$customerId),'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>$vehicles,'maintenance_alerts'=>$maintenanceAlerts,'replacement_purchases'=>$replacementPurchases,'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
@@ -230,6 +231,13 @@ try{
     if($alertId<1)json_response(['ok'=>false,'error'=>'bad_alert'],422);
     vehicle_maintenance_acknowledge($pdo,(int)$u['id'],$alertId);
     json_response(['ok'=>true,'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,(int)$u['id'],true),'csrf'=>customer_csrf()]);
+  }
+  if($action==='assign_replacement_purchase'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$purchaseId=(int)($in['purchase_id']??0);$componentId=(int)($in['component_id']??0);
+    if($purchaseId<1||$componentId<1)json_response(['ok'=>false,'error'=>'bad_assignment'],422);
+    $result=vehicle_replacement_assign_customer($pdo,(int)$u['id'],$purchaseId,$componentId);
+    audit($pdo,'customer_replacement_purchase_assign','vehicle_component',(string)$componentId,['customer_id'=>(int)$u['id'],'purchase_id'=>$purchaseId,'event_id'=>$result['event_id']]);
+    json_response(['ok'=>true,'vehicles'=>customer_vehicle_rows($pdo,(int)$u['id']),'replacement_purchases'=>vehicle_replacement_pending_for_customer($pdo,(int)$u['id']),'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,(int)$u['id'],true),'csrf'=>customer_csrf()]);
   }
   if($action==='confirm_component_replacement'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$componentId=(int)($in['component_id']??0);
