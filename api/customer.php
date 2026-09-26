@@ -125,7 +125,7 @@ function customer_payload(PDO $pdo,array $u): array {
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
   $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
-  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'loyalty_program'=>loyalty_program_status($pdo),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,(int)$u['id']),'review_eligible'=>customer_review_eligible($pdo,(int)$u['id']),'csrf'=>customer_csrf()];
+  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'loyalty_program'=>loyalty_program_status($pdo),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,(int)$u['id']),'review_eligible'=>customer_review_eligible($pdo,(int)$u['id']),'vehicles'=>customer_vehicle_rows($pdo,(int)$u['id']),'service_requests'=>customer_service_rows($pdo,(int)$u['id']),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
@@ -192,6 +192,24 @@ try{
     $s=$pdo->prepare('UPDATE customers SET name=?,last_name=?,email=?,phone=?,birth_date=?,preferred_store=? WHERE id=?');
     $s->execute([$name,$lastName,$email,$phone,$birthDate,$preferred,$customerId]);
     json_response(['ok'=>true,'customer'=>customer_me($pdo),'csrf'=>customer_csrf()]);
+  }
+  if($action==='service_submit'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();$customerId=(int)$u['id'];$vehicleId=(int)($in['vehicle_id']??0);
+    $serviceType=trim((string)($in['service_type']??''));$problem=trim((string)($in['problem']??''));$key=(string)($in['request_key']??'');
+    $allowedTypes=['Диагностика','Тормоза','Передачи и цепь','Колёса и покрышки','Техническое обслуживание','Сборка и настройка','Другое'];
+    if($vehicleId<1||!in_array($serviceType,$allowedTypes,true)||mb_strlen($problem)<5||mb_strlen($problem)>4000||!preg_match('/^[a-f0-9]{64}$/D',$key))json_response(['ok'=>false,'error'=>'invalid_input'],422);
+    $v=$pdo->prepare('SELECT id,title FROM customer_vehicles WHERE id=? AND customer_id=? AND is_active=1 LIMIT 1');$v->execute([$vehicleId,$customerId]);$vehicle=$v->fetch();if(!$vehicle)json_response(['ok'=>false,'error'=>'vehicle_not_found'],404);
+    auth_rate_check($pdo,'customer_service_request',(string)$customerId,10,3600);auth_rate_failure($pdo,'customer_service_request',(string)$customerId,10,3600,3600);
+    $name=trim((string)$u['name'].' '.(string)($u['last_name']??''));$phone=customer_phone((string)$u['phone']);if($phone==='')json_response(['ok'=>false,'error'=>'phone_required'],422);
+    $hash=hash('sha256',json_encode(['customer_id'=>$customerId,'vehicle_id'=>$vehicleId,'service_type'=>$serviceType,'problem'=>$problem],JSON_UNESCAPED_UNICODE));
+    $number='SV-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
+    $s=$pdo->prepare("INSERT INTO service_requests(customer_id,vehicle_id,source,request_number,name,phone,service_type,bike,problem,status,request_key,request_hash) VALUES(?,?,'customer',?,?,?,?,?,'new',?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
+    $s->execute([$customerId,$vehicleId,$number,$name,$phone,$serviceType,(string)$vehicle['title'],$problem,$key,$hash]);$requestId=(int)$pdo->lastInsertId();
+    $q=$pdo->prepare('SELECT id,request_number,request_hash FROM service_requests WHERE request_key=? LIMIT 1');$q->execute([$key]);$row=$q->fetch();
+    if(!$row||!hash_equals((string)$row['request_hash'],$hash))json_response(['ok'=>false,'error'=>'request_conflict'],409);
+    ensure_service_request_history($pdo,(int)$row['id']);
+    auth_rate_clear($pdo,'customer_service_request',(string)$customerId);
+    json_response(['ok'=>true,'request_number'=>$row['request_number'],'request_id'=>(int)$row['id'],'service_requests'=>customer_service_rows($pdo,$customerId)]);
   }
   if($action==='logout'&&$_SERVER['REQUEST_METHOD']==='POST'){
     customer_require($pdo);customer_csrf_check();$_SESSION=[];if(ini_get('session.use_cookies')){$p=session_get_cookie_params();setcookie(session_name(),'',time()-42000,$p['path'],$p['domain']??'',(bool)$p['secure'],(bool)$p['httponly']);}session_destroy();json_response(['ok'=>true]);
