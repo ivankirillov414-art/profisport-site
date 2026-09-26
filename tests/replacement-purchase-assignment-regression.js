@@ -43,6 +43,6 @@ assert.match(adminCustomer,/data-admin-assign-purchase/,'admin card must offer e
 
 const inline=[...profile.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const source of inline)new Function(source);
-const adminInline=[...adminCustomer.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/g)].map(m=>m[1]).filter(Boolean);
+const adminInline=[...adminCustomer.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const source of adminInline)new Function(source);
 console.log('Ambiguous replacement purchase assignment checks passed.');
