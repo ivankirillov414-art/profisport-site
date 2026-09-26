@@ -24,6 +24,9 @@ try{
         ['Велосипед Stark Router 27.4 HD (2024)','stark-router-27.4-hd-2024'],
         ['Велосипед Stark Viva 27.5 HD (2025)','stark-viva-27-5-hd-2025'],
         ['Велосипед Stark Viva 27.2 D (2025)','stark-viva-27-2-d-2025'],
+        ['Велосипед 26 Welt Storm 26 MD Pure Black (2026)','welt-storm-26-md-2026-26'],
+        ['Велосипед 29 Welt Icon 2.0 29 Steel Graphite (2026)','welt-icon-2.0-2026-29'],
+        ['Велосипед 27,5 Welt Icon 2.0 27,5 Steel Graphite (2026)','welt-icon-2.0-2026-27.5'],
         ['Велосипед Stark Router 27.3 HD (2024), красный','stark-router-27.3-hd-2024'],
         ['Велосипед STARK Router 29.3 HD 2024','stark-router-29.3-hd-2024'],
         ['Велосипед Stark Router 27.4 HD (2024)','stark-router-27.4-hd-2024'],
@@ -42,7 +45,7 @@ try{
     vsr_check(vehicle_spec_registry_match('Велосипед 26 Aspect Nickel Pro (2025), Зеленый')===null,'unsupported wheel size must not match');
     vsr_check(vehicle_spec_registry_match('Велосипед Stark Router 29.4 HD (2025)')===null,'STARK profile with wrong year must not match');
     vsr_check(vehicle_spec_registry_match('Велосипед Stark Viva 27.2 HD (2024)')===null,'STARK Viva profile with wrong year must not match');
-    vsr_check(count(vehicle_spec_registry_profiles())===26,'verified registry must contain twenty-six exact profiles after STARK batch');
+    vsr_check(count(vehicle_spec_registry_profiles())===29,'verified registry must contain twenty-nine exact profiles after WELT batch');
 
     $product=$pdo->prepare("INSERT INTO products(title,name,brand,model,price_rub,price,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES(?,?,?,?,120000,120000,2,'in_stock','in_stock',1,'Велосипеды / Горные',NULL,'[]')");
     $title='Велосипед 29 Aspect Nickel Pro (2025), Зеленый';
@@ -70,6 +73,17 @@ try{
     vsr_check($starkResult['matched']===true&&$starkResult['profile']==='stark-router-29.3-hd-2025','exact STARK 2025 profile must apply');
     vsr_check(vsr_component($pdo,$starkVehicleId,'front_brake')['model']==='Tektro HD-M275 hydraulic disc','STARK official M275 brake must be stored');
     vsr_check(vsr_component($pdo,$starkVehicleId,'front_brake_pads')===null,'Tektro M275 pads must remain unconfirmed without a primary compatibility source');
+
+    $weltTitle='Велосипед 29 Welt Icon 2.0 29 Steel Graphite (2026)';
+    $product->execute([$weltTitle,$weltTitle,'Welt','Icon 2.0']);$weltProductId=(int)$pdo->lastInsertId();
+    $vehicle->execute([$customerId,$weltProductId,$weltTitle]);$weltVehicleId=(int)$pdo->lastInsertId();
+    $welt=vehicle_spec_registry_apply_vehicle($pdo,$weltVehicleId);
+    vsr_check($welt['matched']===true&&$welt['profile']==='welt-icon-2.0-2026-29','exact WELT Icon 2.0 2026 profile must apply');
+    $weltBrake=vsr_component($pdo,$weltVehicleId,'front_brake');
+    $weltPads=vsr_component($pdo,$weltVehicleId,'front_brake_pads');
+    vsr_check($weltBrake&&$weltBrake['model']==='MT-200 Hydraulic Disc, 180/160mm','WELT Icon must store official MT-200 brake');
+    vsr_check($weltPads&&$weltPads['model']==='B05S-RX Resin'&&str_contains((string)$weltPads['source_url'],'shimano.com'),'WELT MT-200 pads must come from Shimano compatibility evidence');
+    vsr_check($weltPads['source_profile_version']===VEHICLE_SPEC_REGISTRY_VERSION,'component registry version must track the exact applied registry release');
 
     $starkTitle='Велосипед Stark Router 29.4 HD (2024)';
     $product->execute([$starkTitle,$starkTitle,'Stark','Router 29.4 HD']);$starkProductId=(int)$pdo->lastInsertId();
