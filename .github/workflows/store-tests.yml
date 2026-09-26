@@ -83,6 +83,7 @@ jobs:
           node tests/profile-phone-login-regression.js
           node tests/profile-vehicles-service-regression.js
           node tests/vehicle-passport-regression.js
+          node tests/vehicle-maintenance-alerts-regression.js
           node tests/vehicle-spec-registry-regression.js
           node tests/admin-customer-card-regression.js
           node tests/customer-phone-login-regression.js
