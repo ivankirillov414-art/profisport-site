@@ -88,6 +88,26 @@ function ensure_vehicle_passport_schema(PDO $pdo): void {
         $idx=[];foreach($pdo->query('SHOW INDEX FROM vehicle_component_events') as $row)$idx[(string)$row['Key_name']]=true;
         if(!isset($idx['idx_component_purchase_event']))$pdo->exec('CREATE UNIQUE INDEX idx_component_purchase_event ON vehicle_component_events(component_id,event_type,source_order_id,source_product_id)');
     }catch(Throwable $e){error_log('vehicle_passport_event_index_migration_failed: '.$e->getMessage());}
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS vehicle_maintenance_alerts (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        customer_id BIGINT UNSIGNED NOT NULL,
+        vehicle_id BIGINT UNSIGNED NOT NULL,
+        component_id BIGINT UNSIGNED NOT NULL,
+        alert_key VARCHAR(80) NOT NULL DEFAULT 'wear',
+        severity VARCHAR(20) NOT NULL,
+        wear_percent DECIMAL(6,2) NULL,
+        title VARCHAR(255) NOT NULL,
+        message VARCHAR(1000) NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'open',
+        first_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        acknowledged_at DATETIME NULL,
+        resolved_at DATETIME NULL,
+        UNIQUE KEY idx_vehicle_alert_component(component_id,alert_key),
+        INDEX idx_vehicle_alert_customer(customer_id,status,last_seen_at),
+        INDEX idx_vehicle_alert_vehicle(vehicle_id,status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 }
 
 function vehicle_passport_component_templates(): array {
@@ -217,6 +237,84 @@ function vehicle_passport_wear(PDO $pdo,array $component,?float $vehicleOdometer
     ];
 }
 
+function vehicle_maintenance_alert_payload(array $vehicle,array $component): ?array {
+    $wear=is_array($component['wear']??null)?$component['wear']:[];
+    $percent=$wear['percent']??null;if($percent===null||!is_numeric($percent)||(float)$percent<80)return null;
+    $severity=(float)$percent>=95?'due':'soon';
+    $label=trim((string)($component['label']??'Узел'));
+    $vehicleTitle=trim((string)($vehicle['title']??'Техника'));
+    $remaining=$wear['remaining']??null;$unit=(string)($wear['unit']??'');
+    $tail='';
+    if(is_numeric($remaining)){
+        if($unit==='days')$tail=' Ориентировочно осталось '.max(0,(int)round((float)$remaining)).' дн.';
+        elseif($unit==='km')$tail=' Ориентировочно осталось '.number_format(max(0,(float)$remaining),0,'.',' ').' км.';
+    }
+    return [
+        'severity'=>$severity,'wear_percent'=>round((float)$percent,1),
+        'title'=>$severity==='due'?'Пора проверить: '.$label:'Скоро обслуживание: '.$label,
+        'message'=>$vehicleTitle.': расчётный износ '.$label.' — '.number_format((float)$percent,1,'.','').'%.'.$tail,
+    ];
+}
+
+function vehicle_maintenance_refresh(PDO $pdo,array $vehicle,array $components): array {
+    $vehicleId=(int)($vehicle['id']??0);$customerId=(int)($vehicle['customer_id']??0);
+    if($vehicleId<1||$customerId<1)return [];
+    $upsert=$pdo->prepare("INSERT INTO vehicle_maintenance_alerts(customer_id,vehicle_id,component_id,alert_key,severity,wear_percent,title,message,status,first_seen_at,last_seen_at,acknowledged_at,resolved_at)
+        VALUES(?,?,?,'wear',?,?,?,?, 'open',NOW(),NOW(),NULL,NULL)
+        ON DUPLICATE KEY UPDATE customer_id=VALUES(customer_id),vehicle_id=VALUES(vehicle_id),severity=VALUES(severity),wear_percent=VALUES(wear_percent),title=VALUES(title),message=VALUES(message),status=IF(status='resolved','open',status),last_seen_at=NOW(),resolved_at=NULL");
+    $resolve=$pdo->prepare("UPDATE vehicle_maintenance_alerts SET status='resolved',resolved_at=NOW(),last_seen_at=NOW() WHERE component_id=? AND alert_key='wear' AND status<>'resolved'");
+    $activeIds=[];
+    foreach($components as $component){
+        $componentId=(int)($component['id']??0);if($componentId<1)continue;
+        $alert=vehicle_maintenance_alert_payload($vehicle,$component);
+        if($alert){
+            $upsert->execute([$customerId,$vehicleId,$componentId,$alert['severity'],$alert['wear_percent'],$alert['title'],$alert['message']]);
+            $activeIds[]=$componentId;
+        }else $resolve->execute([$componentId]);
+    }
+    return $activeIds;
+}
+
+function vehicle_maintenance_alerts_for_customer(PDO $pdo,int $customerId,bool $includeAcknowledged=true): array {
+    if($customerId<1)return [];
+    $statuses=$includeAcknowledged?"('open','acknowledged')":"('open')";
+    $s=$pdo->prepare("SELECT a.id,a.vehicle_id,a.component_id,a.severity,a.wear_percent,a.title,a.message,a.status,a.first_seen_at,a.last_seen_at,a.acknowledged_at,
+        v.title vehicle_title,c.label component_label,c.compatible_product_id
+        FROM vehicle_maintenance_alerts a
+        JOIN customer_vehicles v ON v.id=a.vehicle_id
+        JOIN vehicle_components c ON c.id=a.component_id
+        WHERE a.customer_id=? AND a.status IN $statuses AND v.is_active=1 AND c.is_active=1
+        ORDER BY FIELD(a.severity,'due','soon'),a.last_seen_at DESC,a.id DESC");
+    $s->execute([$customerId]);$rows=$s->fetchAll();
+    foreach($rows as &$row){
+        $row['id']=(int)$row['id'];$row['vehicle_id']=(int)$row['vehicle_id'];$row['component_id']=(int)$row['component_id'];
+        $row['wear_percent']=$row['wear_percent']!==null?(float)$row['wear_percent']:null;
+        $row['compatible_product_id']=$row['compatible_product_id']!==null?(int)$row['compatible_product_id']:null;
+    }unset($row);return $rows;
+}
+
+function vehicle_maintenance_acknowledge(PDO $pdo,int $customerId,int $alertId): bool {
+    if($customerId<1||$alertId<1)return false;
+    $s=$pdo->prepare("UPDATE vehicle_maintenance_alerts SET status='acknowledged',acknowledged_at=NOW() WHERE id=? AND customer_id=? AND status='open'");
+    $s->execute([$alertId,$customerId]);return $s->rowCount()>0;
+}
+
+function vehicle_maintenance_refresh_customer(PDO $pdo,int $customerId): array {
+    if($customerId<1)return [];
+    $s=$pdo->prepare("SELECT id FROM customer_vehicles WHERE customer_id=? AND is_active=1 ORDER BY id");$s->execute([$customerId]);
+    foreach($s->fetchAll(PDO::FETCH_COLUMN) as $vehicleId)vehicle_passport_payload($pdo,(int)$vehicleId,false);
+    return vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+}
+
+function vehicle_maintenance_refresh_all(PDO $pdo,int $limit=10000): array {
+    $limit=max(1,min(20000,$limit));$s=$pdo->query("SELECT id FROM customer_vehicles WHERE is_active=1 ORDER BY id LIMIT ".$limit);
+    $vehicles=0;$alerts=0;foreach($s->fetchAll(PDO::FETCH_COLUMN) as $vehicleId){
+        $payload=vehicle_passport_payload($pdo,(int)$vehicleId,false);$vehicles++;
+        $alerts+=count($payload['maintenance_alerts']??[]);
+    }
+    return ['vehicles'=>$vehicles,'active_alerts'=>$alerts];
+}
+
 function vehicle_passport_components(PDO $pdo,int $vehicleId,bool $includeEvents=false): array {
     vehicle_passport_seed_vehicle($pdo,$vehicleId);
     $v=$pdo->prepare('SELECT odometer_km FROM customer_vehicles WHERE id=? LIMIT 1');$v->execute([$vehicleId]);$od=$v->fetchColumn();$odometer=$od!==false&&$od!==null?(float)$od:null;
@@ -237,10 +335,16 @@ function vehicle_passport_payload(PDO $pdo,int $vehicleId,bool $includeEvents=fa
     $s->execute([$vehicleId]);$vehicle=$s->fetch();if(!$vehicle)return null;
     $vehicle['id']=(int)$vehicle['id'];$vehicle['customer_id']=(int)$vehicle['customer_id'];$vehicle['product_id']=$vehicle['product_id']!==null?(int)$vehicle['product_id']:null;
     $verifiedProfile=function_exists('vehicle_spec_registry_match')?vehicle_spec_registry_match((string)$vehicle['title']):null;
+    $components=vehicle_passport_components($pdo,$vehicleId,$includeEvents);
+    vehicle_maintenance_refresh($pdo,$vehicle,$components);
+    $alerts=$pdo->prepare("SELECT id,severity,wear_percent,title,message,status,component_id,last_seen_at FROM vehicle_maintenance_alerts WHERE vehicle_id=? AND status IN ('open','acknowledged') ORDER BY FIELD(severity,'due','soon'),last_seen_at DESC");
+    $alerts->execute([$vehicleId]);$alertRows=$alerts->fetchAll();
+    foreach($alertRows as &$alert){$alert['id']=(int)$alert['id'];$alert['component_id']=(int)$alert['component_id'];$alert['wear_percent']=$alert['wear_percent']!==null?(float)$alert['wear_percent']:null;}unset($alert);
     return [
         'vehicle'=>$vehicle,
         'hotspots'=>(string)$vehicle['vehicle_type']==='bicycle'?vehicle_passport_hotspots():[],
-        'components'=>vehicle_passport_components($pdo,$vehicleId,$includeEvents),
+        'components'=>$components,
+        'maintenance_alerts'=>$alertRows,
         'verified_profile'=>$verifiedProfile?['key'=>$verifiedProfile['key'],'source_url'=>$verifiedProfile['source_url'],'verified_at'=>'2026-09-26']:null,
     ];
 }
@@ -286,7 +390,10 @@ function vehicle_passport_record_event(PDO $pdo,int $componentId,array $in,int $
     if($odo!==null){
         $pdo->prepare('UPDATE customer_vehicles v JOIN vehicle_components c ON c.vehicle_id=v.id SET v.odometer_km=?,v.odometer_updated_at=? WHERE c.id=?')->execute([$odo,$eventAt,$componentId]);
     }
-    audit($pdo,'vehicle_component_event','vehicle_component',(string)$componentId,['event_id'=>$id,'event_type'=>$type,'include_learning'=>$include]);return $id;
+    audit($pdo,'vehicle_component_event','vehicle_component',(string)$componentId,['event_id'=>$id,'event_type'=>$type,'include_learning'=>$include]);
+    $vehicleQ=$pdo->prepare('SELECT vehicle_id FROM vehicle_components WHERE id=? LIMIT 1');$vehicleQ->execute([$componentId]);$vehicleId=(int)$vehicleQ->fetchColumn();
+    if($vehicleId>0)vehicle_passport_payload($pdo,$vehicleId,false);
+    return $id;
 }
 
 
