@@ -66,6 +66,7 @@
       <section id="vehicles-service" class="profileCard profileSecondaryCard vehicleServiceSection">
         <div class="profileSectionIntro"><h3>Моя техника</h3><span id="vehiclesSummary">Покупки, которые можно обслуживать</span></div>
         <div id="maintenanceAlerts" class="maintenanceAlerts hidden"></div>
+        <div id="replacementPurchases" class="replacementPurchases hidden"></div>
         <div id="customerVehicles" class="customerVehicles"></div>
         <div id="vehiclePassport" class="vehiclePassport hidden"></div>
         <div id="serviceComposer" class="vehicleServiceComposer hidden"></div>
@@ -284,7 +285,7 @@
       }
     }
     const serviceStatusLabels={new:'Новая',contacted:'Связались',accepted:'Принята',diagnostics:'Диагностика',repair:'В ремонте',ready:'Готова к выдаче',completed:'Выдана',cancelled:'Отменена'};
-    let vehicleState=[],serviceState=[],maintenanceState=[];
+    let vehicleState=[],serviceState=[],maintenanceState=[],replacementPurchaseState=[];
     function vehicleTypeLabel(type){return type==='scooter'?'Самокат':'Велосипед'}
     function vehicleImageMarkup(v){return v.image?'<img src="'+esc(v.image)+'" alt="" loading="lazy" decoding="async">':'<span class="vehicleImagePlaceholder">Фото техники</span>'}
     function latestVehicleService(vehicleId){
@@ -305,6 +306,29 @@
         button.disabled=true;
         try{const j=await api('ack_maintenance_alert',{method:'POST',body:JSON.stringify({alert_id:Number(button.dataset.ackAlert)})});maintenanceState=Array.isArray(j.maintenance_alerts)?j.maintenance_alerts:maintenanceState;renderMaintenanceAlerts()}
         catch(e){button.disabled=false}
+      });
+    }
+    function replacementPurchaseMarkup(p){
+      const remaining=Number(p.remaining_qty||0),candidates=Array.isArray(p.candidates)?p.candidates:[];
+      return '<article class="replacementPurchaseCard" data-purchase-id="'+Number(p.id)+'"><div><b>'+esc(p.title)+'</b><p>Куплено: '+Number(p.quantity||1)+' · осталось назначить: '+remaining+'</p></div><div class="replacementCandidateList">'+(candidates.length?candidates.map(c=>'<button type="button" data-assign-purchase="'+Number(p.id)+'" data-assign-component="'+Number(c.component_id)+'"><span>'+esc(c.vehicle_title)+'</span><small>'+esc(c.component_label)+'</small></button>').join(''):'<span class="replacementNoCandidate">Совместимая техника сейчас не найдена. Покупка сохранена и не будет назначена автоматически.</span>')+'</div></article>';
+    }
+    function renderReplacementPurchases(){
+      const box=$('#replacementPurchases');if(!box)return;
+      if(!replacementPurchaseState.length){box.classList.add('hidden');box.innerHTML='';return}
+      box.classList.remove('hidden');
+      box.innerHTML='<div class="replacementPurchasesHead"><div><span class="profileSectionKicker">Купленные расходники</span><h4>На какую технику установили?</h4><p>Мы нашли несколько совместимых вариантов и не стали выбирать за вас.</p></div><span>'+replacementPurchaseState.length+'</span></div><div class="replacementPurchasesList">'+replacementPurchaseState.map(replacementPurchaseMarkup).join('')+'</div>';
+      box.querySelectorAll('[data-assign-purchase]').forEach(button=>button.onclick=async()=>{
+        const purchaseId=Number(button.dataset.assignPurchase),componentId=Number(button.dataset.assignComponent);
+        const purchase=replacementPurchaseState.find(x=>Number(x.id)===purchaseId),candidate=purchase?.candidates?.find(x=>Number(x.component_id)===componentId);
+        if(!purchase||!candidate)return;
+        if(!confirm('Подтвердить, что «'+purchase.title+'» установлена на '+candidate.vehicle_title+' — '+candidate.component_label+'? Ресурс этого узла начнёт новый цикл.'))return;
+        box.querySelectorAll('button').forEach(x=>x.disabled=true);
+        try{
+          const j=await api('assign_replacement_purchase',{method:'POST',body:JSON.stringify({purchase_id:purchaseId,component_id:componentId})});
+          replacementPurchaseState=Array.isArray(j.replacement_purchases)?j.replacement_purchases:[];
+          maintenanceState=Array.isArray(j.maintenance_alerts)?j.maintenance_alerts:maintenanceState;
+          await refresh(false);
+        }catch(e){renderReplacementPurchases()}
       });
     }
     function vehicleCardMarkup(v){
@@ -379,6 +403,7 @@
       vehicleState=Array.isArray(j.vehicles)?j.vehicles:[];
       serviceState=Array.isArray(j.service_requests)?j.service_requests:[];
       maintenanceState=Array.isArray(j.maintenance_alerts)?j.maintenance_alerts:[];
+      replacementPurchaseState=Array.isArray(j.replacement_purchases)?j.replacement_purchases:[];
       const active=serviceState.filter(function(r){return !['completed','cancelled'].includes(String(r.status||''))}).length;
       $('#vehiclesCount').textContent=vehicleState.length;
       $('#serviceQuickText').textContent=maintenanceState.length?'Внимание: '+maintenanceState.length:(active?'Активный сервис: '+active:'Покупки и сервис');
@@ -386,6 +411,7 @@
       $('#serviceSummary').textContent=serviceState.length?(active?'Активных: '+active+' · Всего: '+serviceState.length:'Обращений: '+serviceState.length):'История обращений';
       $('#customerVehicles').innerHTML=vehicleState.length?vehicleState.map(vehicleCardMarkup).join(''):'<div class="vehicleEmpty"><b>Техника появится здесь после завершённой покупки.</b><p>Велосипеды и самокаты из завершённых заказов добавляются автоматически.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
       renderMaintenanceAlerts();
+      renderReplacementPurchases();
       $('#customerServiceRequests').innerHTML=serviceState.length?serviceState.map(serviceRequestMarkup).join(''):'<div class="serviceEmpty"><b>Обращений в сервис пока нет.</b><p>Выберите технику выше, чтобы создать первую заявку.</p></div>';
       document.querySelectorAll('[data-service-vehicle]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.serviceVehicle)});if(vehicle)openVehicleService(vehicle)}});
       document.querySelectorAll('[data-open-passport]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.openPassport)});if(vehicle)openVehiclePassport(vehicle)}});
