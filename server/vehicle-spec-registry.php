@@ -7,6 +7,7 @@ const VEHICLE_SPEC_ASPECT_OASIS_PRO_2026='https://www.aspect-bikes.ru/catalog/as
 const VEHICLE_SPEC_SHIMANO_MT200='https://bike.shimano.com/en-SG/products/components/pdp.P-BR-MT200.html';
 const VEHICLE_SPEC_HAGEN_39_2025='https://hagen.bike/threenine';
 const VEHICLE_SPEC_HAGEN_311_2025='https://hagen.bike/mtbthreeelevenblack';
+const VEHICLE_SPEC_WELT_ROCKET_30_HD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/gornye/Welt_Rocket_3.0_HD_26';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -147,6 +148,25 @@ function vehicle_spec_registry_hagen_2025(string $model): array {
     return array_merge($components,vehicle_spec_registry_mt200_pads());
 }
 
+function vehicle_spec_registry_welt_rocket_30_hd_2026(string $wheel): array {
+    $source=VEHICLE_SPEC_WELT_ROCKET_30_HD_2026;
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','996 Alloy ⌀32, Tapered Crown, MLO, 100mm',$source,'2ROXX'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy, double wall',$source,null),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','A282 F/R, 2+2 sealed bearings',$source,'WZ'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','W2030 '.$wheel.'x2.25',$source,'Wanda'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','W2030 '.$wheel.'x2.25',$source,'Wanda'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','RD-U2000-GS, 8sp',$source,'Shimano Essa'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','SL-M315, 8sp',$source,'Shimano Altus'),
+        vehicle_spec_registry_component('cranks','cranks','Система','TL036 Alloy, 170mm/34T',$source,null),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','CS-HR8-40, 11-40T',$source,'Sunshine'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','TKD176 Hydraulic Disc',$source,'Tektro'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','TKD176 Hydraulic Disc',$source,'Tektro'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','LS102 Alloy, 31.8, 720mm, 6° Backsweep',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','VD1213-02 MTB Comfort',$source,null),
+    ];
+}
+
 function vehicle_spec_registry_profiles(): array {
     $profiles=[];
     foreach(['27.5','29'] as $wheel){
@@ -161,6 +181,7 @@ function vehicle_spec_registry_profiles(): array {
     foreach(['27.5','29'] as $wheel){
         $profiles[]=['key'=>'hagen-3.9-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.9','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_39_2025,'components'=>vehicle_spec_registry_hagen_2025('3.9')];
         $profiles[]=['key'=>'hagen-3.11-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.11','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_311_2025,'components'=>vehicle_spec_registry_hagen_2025('3.11')];
+        $profiles[]=['key'=>'welt-rocket-3.0-hd-2026-'.$wheel,'brand'=>'Welt','model'=>'Rocket 3.0 HD','year'=>2026,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_WELT_ROCKET_30_HD_2026,'components'=>vehicle_spec_registry_welt_rocket_30_hd_2026($wheel)];
     }
     return $profiles;
 }
