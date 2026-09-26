@@ -8,6 +8,8 @@ const domain=read('server/vehicle-passport.php');
 const customer=read('api/customer.php');
 const profile=read('profile.html');
 const css=read('profile-dashboard.css');
+const customerAdmin=read('api/customer-admin.php');
+const adminCustomer=read('admin/customer.php');
 
 for(const table of ['vehicle_replacement_purchases','vehicle_replacement_assignments']){
   assert.match(domain,new RegExp('CREATE TABLE IF NOT EXISTS '+table),'replacement assignment schema missing '+table);
@@ -33,6 +35,14 @@ assert.match(profile,/data-assign-purchase/,'each candidate must have an explici
 assert.match(profile,/assign_replacement_purchase/,'UI assignment must call the protected customer API');
 assert.match(css,/\.replacementPurchaseCard/,'replacement assignment cards must be styled');
 
+assert.match(customerAdmin,/replacement_purchases/,'admin payload must expose pending replacement purchases');
+assert.match(customerAdmin,/action==='assign_replacement_purchase'/,'admin API must assign a pending replacement purchase');
+assert.match(customerAdmin,/vehicle_replacement_assign_customer\(\$pdo,\$id,\$purchaseId,\$componentId,\(int\)\(\$admin\['id'\]/,'admin ID must be passed into the replacement event');
+assert.match(adminCustomer,/Неназначенные расходники/,'admin card must surface pending replacement purchases');
+assert.match(adminCustomer,/data-admin-assign-purchase/,'admin card must offer explicit vehicle/component choices');
+
 const inline=[...profile.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const source of inline)new Function(source);
+const adminInline=[...adminCustomer.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/g)].map(m=>m[1]).filter(Boolean);
+for(const source of adminInline)new Function(source);
 console.log('Ambiguous replacement purchase assignment checks passed.');
