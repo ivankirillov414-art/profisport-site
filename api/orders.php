@@ -20,6 +20,7 @@ try{
       $s=$pdo->prepare('UPDATE orders SET status=? WHERE id=?');$s->execute([$status,$id]);
       record_order_status($pdo,$id,$status,(int)$admin['id'],'admin');
       loyalty_handle_order_status_change($pdo,$id,$old,$status,(int)$admin['id']);
+      customer_vehicle_sync_order($pdo,$id);
     }
     audit($pdo,'order_status','order',(string)$id,['from'=>$old,'to'=>$status]);$pdo->commit();
     json_response(['ok'=>true]);

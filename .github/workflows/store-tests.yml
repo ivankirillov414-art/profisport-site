@@ -80,6 +80,7 @@ jobs:
           node tests/profile-favorites-regression.js
           node tests/profile-reviews-regression.js
           node tests/profile-block5-cookie-regression.js
+          node tests/profile-vehicles-service-regression.js
           node tests/loyalty-foundation-regression.js
           node tests/loyalty-calculator-regression.js
           php tests/loyalty-math.php

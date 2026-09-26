@@ -75,6 +75,29 @@ assert [h['status'] for h in detail['history']]==['new','completed'] and detail[
 review_ready=call('api/customer.php?action=me',cookie=customer_cookie)[1]
 assert len(review_ready['review_eligible'])==1 and review_ready['review_eligible'][0]['product_id']==1
 assert review_ready['review_details']==[] and review_ready['reviews_count']==0
+assert review_ready['vehicles']==[] and review_ready['service_requests']==[]
+status,vehicle_order,_=call('api/order-create.php',{**base,'items':[3],'request_key':'e'*64},customer_cookie);assert status==200
+vehicle_order_row=call('api/orders.php?q='+urllib.parse.quote(vehicle_order['order_number']),cookie=cookie)[1]['items'][0]
+assert call('api/orders.php',{'id':vehicle_order_row['id'],'status':'completed','previous_status':'new'},cookie,csrf)[0]==200
+vehicle_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert len(vehicle_account['vehicles'])==1 and vehicle_account['vehicles'][0]['title']=='Demo bicycle'
+assert vehicle_account['vehicles'][0]['vehicle_type']=='bicycle' and vehicle_account['vehicles'][0]['image']=='https://example.test/demo-bicycle.jpg'
+vehicle_id=vehicle_account['vehicles'][0]['id']
+service_account_payload={'vehicle_id':vehicle_id,'service_type':'Диагностика','problem':'Появился посторонний шум при движении','request_key':'f'*64}
+assert call('api/customer.php?action=service_submit',service_account_payload,customer_cookie)[0]==403
+status,customer_service,_=call('api/customer.php?action=service_submit',service_account_payload,customer_cookie,customer_csrf);assert status==200
+status,customer_service_retry,_=call('api/customer.php?action=service_submit',service_account_payload,customer_cookie,customer_csrf);assert status==200 and customer_service_retry['request_number']==customer_service['request_number']
+service_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert len(service_account['service_requests'])==1 and service_account['service_requests'][0]['vehicle_id']==vehicle_id
+assert service_account['service_requests'][0]['status']=='new' and [h['status'] for h in service_account['service_requests'][0]['history']]==['new']
+admin_services=call('api/service.php',cookie=cookie)[1]['items']
+linked_service=next(x for x in admin_services if x['request_number']==customer_service['request_number'])
+assert linked_service['customer_id']==vehicle_account['customer']['id'] and linked_service['vehicle_title']=='Demo bicycle'
+for next_status in ['diagnostics','repair','ready','completed']:
+    assert call('api/service.php?action=status',{'id':linked_service['id'],'status':next_status},cookie,csrf)[0]==200
+service_account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert service_account['service_requests'][0]['status']=='completed'
+assert [h['status'] for h in service_account['service_requests'][0]['history']]==['new','diagnostics','repair','ready','completed']
 status,repeated,_=call('api/customer.php?action=repeat_order',{'order_number':customer_order_number},customer_cookie,customer_csrf);assert status==200
 assert repeated['cart_items']==['1'] and repeated['added_count']==1 and repeated['skipped']==[]
 live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x for x in live if x['id']==1)
@@ -86,7 +109,7 @@ live=call('api/product-admin.php?q=Test',cookie=cookie)[1]['items'];p1=next(x fo
 p1['price_rub']=200;p1['old_price_rub']=300;p1['stock_qty']=2;p1['is_active']=1
 assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 assert call('api/customer.php?action=me')[1]['customer'] is None
-print('PASS: authenticated checkout, pickup store, photo, exact status history and safe repeat-order preview')
+print('PASS: authenticated checkout, vehicle ownership, linked service history and safe repeat-order preview')
 for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php','loyalty.php']:
     with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
         assert r.geturl().endswith('/admin/login.php'),page
@@ -146,7 +169,8 @@ status,submitted,_=call('api/customer.php?action=review_submit',review,customer_
 review_id=submitted['review_id']
 status,duplicate,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert (status,duplicate['error'])==(409,'duplicate_review')
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
-assert account['reviews_count']==1 and account['review_eligible']==[]
+assert account['reviews_count']==1
+assert all(x['product_id']!=1 for x in account['review_eligible']) and any(x['product_id']==3 for x in account['review_eligible'])
 assert len(account['review_details'])==1 and account['review_details'][0]['status']=='pending' and account['review_details'][0]['verified_purchase'] is True
 assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id
