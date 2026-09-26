@@ -18,16 +18,13 @@ try{
   if($_SERVER['REQUEST_METHOD']==='POST'){
     csrf_check();$in=input_json();$id=(int)($in['customer_id']??0);$amount=(int)($in['amount']??0);$note=trim((string)($in['note']??'Ручная корректировка'));
     if($id<1||$amount===0||abs($amount)>1000000)out(['ok'=>false,'error'=>'bad_input'],422);
-    $pdo->beginTransaction();
-    $s=$pdo->prepare('SELECT bonus_balance FROM customers WHERE id=? FOR UPDATE');$s->execute([$id]);$bal=$s->fetchColumn();if($bal===false)out(['ok'=>false,'error'=>'not_found'],404);
-    $new=max(0,(int)$bal+$amount);$actual=$new-(int)$bal;
-    $pdo->prepare('UPDATE customers SET bonus_balance=? WHERE id=?')->execute([$new,$id]);
-    $pdo->prepare("INSERT INTO loyalty_transactions(customer_id,amount,kind,source_type,source_id,note) VALUES(?,?,'manual','admin',?,?)")->execute([$id,$actual,(string)($admin['id']??''),$note?:'Ручная корректировка']);
-    $pdo->commit();audit($pdo,'customer_bonus_adjust','customer',(string)$id,['amount'=>$actual,'note'=>$note]);out(['ok'=>true,'bonus_balance'=>$new]);
+    $result=loyalty_manual_adjustment($pdo,$id,$amount,$note?:'Ручная корректировка',(int)($admin['id']??0));
+    audit($pdo,'customer_bonus_adjust','customer',(string)$id,['amount'=>$result['amount'],'note'=>$note,'program_enabled'=>loyalty_program_enabled($pdo)]);
+    out(['ok'=>true,'bonus_balance'=>$result['balance'],'actual_amount'=>$result['amount'],'loyalty'=>loyalty_program_status($pdo)]);
   }
   $q=trim((string)($_GET['q']??''));
   if(($_GET['export']??'')==='csv'){
     $rows=customer_rows($pdo,$q,10000);header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="profisport-clients-'.date('Y-m-d').'.csv"');header('Cache-Control: no-store');echo "\xEF\xBB\xBF";$stream=fopen('php://output','wb');fputcsv($stream,['ID','Имя','Фамилия','Телефон','Email','Дата рождения','Источник','Есть кабинет','Дата QR-регистрации','Дата добавления'],';');foreach($rows as $row)fputcsv($stream,array_map('csv_safe',[$row['id'],$row['name'],$row['last_name'],$row['phone'],$row['email'],$row['birth_date'],$row['registration_source'],(int)$row['has_account']?'да':'нет',$row['qr_registered_at'],$row['created_at']]));fclose($stream);exit;
   }
-  $items=customer_rows($pdo,$q);$total=(int)$pdo->query('SELECT COUNT(*) FROM customers')->fetchColumn();$qr=(int)$pdo->query('SELECT COUNT(*) FROM customers WHERE qr_registered_at IS NOT NULL')->fetchColumn();out(['ok'=>true,'items'=>$items,'total'=>$total,'qr_total'=>$qr]);
+  $items=customer_rows($pdo,$q);$total=(int)$pdo->query('SELECT COUNT(*) FROM customers')->fetchColumn();$qr=(int)$pdo->query('SELECT COUNT(*) FROM customers WHERE qr_registered_at IS NOT NULL')->fetchColumn();out(['ok'=>true,'items'=>$items,'total'=>$total,'qr_total'=>$qr,'loyalty'=>loyalty_program_status($pdo)]);
 }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log($e->__toString());out(['ok'=>false,'error'=>'server_error'],500);}
