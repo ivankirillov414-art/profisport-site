@@ -31,4 +31,5 @@ if(!$tokenOk&&!$browserTrigger){http_response_code(401);echo json_encode(['ok'=>
 // that the owner already confirmed with the current admin password.
 @set_time_limit(55);
 $result=migration_tick_once($pdo);
-echo json_encode(['ok'=>true,'ran'=>(bool)($result['ran']??false)],JSON_UNESCAPED_SLASHES);
+$vehicleSpecs=function_exists('vehicle_spec_registry_sync_once')?vehicle_spec_registry_sync_once($pdo):['ran'=>false,'reason'=>'unavailable'];
+echo json_encode(['ok'=>true,'ran'=>(bool)($result['ran']??false),'vehicle_specs'=>$vehicleSpecs],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
