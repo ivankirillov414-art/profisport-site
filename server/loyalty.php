@@ -81,21 +81,6 @@ function loyalty_program_enabled(PDO $pdo): bool {
     return loyalty_program_status($pdo)['enabled']===true;
 }
 
-function loyalty_expire_due(PDO $pdo,int $customerId): int {
-    if($customerId<1)return 0;
-    $s=$pdo->prepare("UPDATE loyalty_transactions SET status='expired' WHERE customer_id=? AND status='active' AND amount>0 AND expires_at IS NOT NULL AND expires_at<=NOW()");
-    $s->execute([$customerId]);return $s->rowCount();
-}
-
-function loyalty_recalculate_balance(PDO $pdo,int $customerId): int {
-    if($customerId<1)throw new InvalidArgumentException('Invalid customer');
-    loyalty_expire_due($pdo,$customerId);
-    $s=$pdo->prepare("SELECT COALESCE(SUM(amount),0) FROM loyalty_transactions WHERE customer_id=? AND status='active'");$s->execute([$customerId]);
-    $balance=max(0,(int)$s->fetchColumn());
-    $u=$pdo->prepare('UPDATE customers SET bonus_balance=? WHERE id=?');$u->execute([$balance,$customerId]);
-    return $balance;
-}
-
 function loyalty_post(PDO $pdo,int $customerId,int $amount,string $kind,?string $sourceType=null,?string $sourceId=null,?int $orderId=null,?string $note=null,?string $expiresAt=null,?int $adminUserId=null,array $metadata=[]): array {
     if($customerId<1||$amount===0||!preg_match('/^[a-z_]{2,40}$/D',$kind))throw new InvalidArgumentException('Invalid loyalty transaction');
     if($sourceType!==null&&!preg_match('/^[a-z_]{2,40}$/D',$sourceType))throw new InvalidArgumentException('Invalid loyalty source');
