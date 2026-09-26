@@ -47,7 +47,8 @@ assert.match(registry,/bike\.shimano\.com/,'pad model must carry Shimano source'
 assert.doesNotMatch(registry,/baseline_life_value.*B05S|B05S[\s\S]{0,200}baseline_life_value/,'registry must not invent a pad lifetime');
 assert.doesNotMatch(registry,/M275[\s\S]{0,500}brake_pads/,'M275 pads must not be inferred without a verified compatibility source');
 assert.doesNotMatch(registry,/M275[\s\S]{0,180}(?:B05S|E10\.11|P20\.11)|(?:B05S|E10\.11|P20\.11)[\s\S]{0,180}M275/,'registry must not infer a Tektro M275 pad model');
-assert.match(passport,/count\(\$rows\)!==1/,'replacement purchase must not guess among multiple matching bicycles');
+assert.match(passport,/count\(\$rows\)>1/,'replacement purchase with multiple compatible bicycles must be quarantined for explicit customer assignment');
+assert.match(passport,/vehicle_replacement_purchases/,'ambiguous replacement purchases must persist instead of being guessed');
 assert.match(registry,/in_array\(\$sourceType,\['manual','service'\],true\)/,'manual and service facts must be protected from registry refresh');
 assert.match(registry,/source_profile_key/,'official registry provenance must be persisted');
 assert.match(registry,/vehicle_spec_research_queue/,'unmatched catalog bicycles must enter a research queue');
