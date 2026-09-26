@@ -364,6 +364,25 @@ body.motion-page:not(.motion-admin)>nav:not(.mobileBottomNav)>a:hover { color: v
   border-radius: 50%;
   font-size: 22px;
 }
+#categoryTiles .categoryTile:not(:has(.tileArrow))::after {
+  content: '↗';
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 21px;
+  font-style: normal;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+#categoryTiles .categoryTile:not(:has(.tileArrow)):is(:hover,:focus-visible)::after {
+  transform: translate(3px,-3px);
+}
 
 /* Catalog stays calm; accents make actions feel faster. */
 #catalogProducts {

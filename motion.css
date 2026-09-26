@@ -86,6 +86,24 @@
 }
 @media (max-width: 850px) { :root { --motion-distance: 8px; --motion-reveal: 280ms; --motion-stagger: 30ms } }
 
+/* Account page keeps the same Sport Energy language without another page-level stylesheet. */
+.profileDashboardTitle h1 {
+  font-family: Impact,'Arial Narrow',Arial,sans-serif;
+  font-style: italic;
+  text-transform: uppercase;
+}
+.profileDashboardHero {
+  color: #fff;
+  border-color: transparent !important;
+  background: linear-gradient(135deg,#111820,#24323d) !important;
+  box-shadow: 0 22px 54px rgb(15 24 32 / 18%);
+}
+.profileDashboardHero::after { background: #d8ff18 !important; opacity: .12 }
+.profileDashboardHero .profileEyebrow,
+.profileDashboardHero .profileContactLine { color: #c9d2d8 }
+.profileAvatar { color: #111820 !important; background: #d8ff18 !important }
+.profileQuickCard:hover { border-color: #c7f000 !important }
+
 /* Also overrides legacy smooth scrolling and component animations. */
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
