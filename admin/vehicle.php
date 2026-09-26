@@ -22,7 +22,7 @@ function hotspotState(key){
  const max=list.reduce((a,c)=>Number(c.wear.percent)>Number(a.wear.percent)?c:a,list[0]);return max.wear.state||'unknown';
 }
 function render(){
- const v=passport.vehicle;$('#vehicleTitle').textContent=v.title;$('#vehicleMeta').textContent='Заказ '+(v.order_number||'—')+' · покупка '+dt(v.purchase_date||v.created_at)+' · клиент #'+v.customer_id;$('#serialNumber').value=v.serial_number||'';$('#odometer').value=v.odometer_km??'';
+ const v=passport.vehicle,verified=passport.verified_profile;$('#vehicleTitle').textContent=v.title;$('#vehicleMeta').innerHTML='Заказ '+esc(v.order_number||'—')+' · покупка '+esc(dt(v.purchase_date||v.created_at))+' · клиент #'+Number(v.customer_id)+(verified?' · <a href="'+esc(verified.source_url)+'" target="_blank" rel="noopener">официальный профиль '+esc(verified.key)+' ✓</a>':' · официальная спецификация не сопоставлена');$('#serialNumber').value=v.serial_number||'';$('#odometer').value=v.odometer_km??'';
  $('#diagramArea').innerHTML=passport.vehicle.vehicle_type==='bicycle'
    ?'<div class="vehicleDiagram"><img src="../assets/guide/bicycle.png" width="1382" height="1130" alt="Схема велосипеда"><div id="hotspots">'+passport.hotspots.map((h,i)=>'<button class="hotspot '+hotspotState(h.key)+'" style="left:'+h.x+'%;top:'+h.y+'%" data-hotspot="'+esc(h.key)+'" title="'+esc(h.label)+'">'+(i+1)+'</button>').join('')+'</div></div><div class="legend"><span>🟢 ресурс большой</span><span>🟡 обратить внимание</span><span>🟠 скоро обслуживание</span><span>🔴 расчётный ресурс исчерпан</span><span>⚪ нет достоверного расчёта</span></div>'
    :'<div class="empty"><b>Схема этого типа техники пока не настроена.</b><br>Компоненты можно вести как паспорт без ложной велосипедной картинки.</div>';
