@@ -48,7 +48,7 @@ try{
     'active_transactions'=>(int)$pdo->query("SELECT COUNT(*) FROM loyalty_transactions WHERE status='active'")->fetchColumn(),
     'expired_transactions'=>(int)$pdo->query("SELECT COUNT(*) FROM loyalty_transactions WHERE status='expired'")->fetchColumn(),
   ];
-  out(['ok'=>true,'program'=>$status,'stats'=>$stats,'category_options'=>loyalty_category_options($pdo),'csrf'=>$_SESSION['csrf']??'','can_edit'=>($admin['role']??'')==='owner','live_activation_available'=>true,'can_activate'=>($admin['role']??'')==='owner'&&$status['configured']]);
+  out(['ok'=>true,'program'=>$status,'stats'=>$stats,'category_options'=>loyalty_category_options($pdo),'csrf'=>$_SESSION['csrf']??'','can_edit'=>($admin['role']??'')==='owner','live_activation_available'=>$status['configured']&&!$status['enabled'],'can_activate'=>($admin['role']??'')==='owner'&&$status['configured']&&!$status['enabled']]);
 }catch(InvalidArgumentException $e){out(['ok'=>false,'error'=>$e->getMessage()],422);
 }catch(DomainException $e){out(['ok'=>false,'error'=>$e->getMessage()],409);
 }catch(Throwable $e){error_log($e->__toString());out(['ok'=>false,'error'=>'server_error'],500);}
