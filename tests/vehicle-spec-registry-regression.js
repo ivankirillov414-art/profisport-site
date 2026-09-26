@@ -26,7 +26,7 @@ assert.match(registry,/B05S-RX Resin/,'MT200 profile must include Shimano-confir
 assert.match(registry,/bike\.shimano\.com/,'pad model must carry Shimano source');
 assert.doesNotMatch(registry,/baseline_life_value.*B05S|B05S[\s\S]{0,200}baseline_life_value/,'registry must not invent a pad lifetime');
 assert.match(passport,/count\(\$rows\)!==1/,'replacement purchase must not guess among multiple matching bicycles');
-assert.match(registry,/source_type.*manual.*service/,'manual and service facts must be protected from registry refresh');
+assert.match(registry,/in_array\(\$sourceType,\['manual','service'\],true\)/,'manual and service facts must be protected from registry refresh');
 assert.match(registry,/source_profile_key/,'official registry provenance must be persisted');
 assert.match(registry,/vehicle_spec_research_queue/,'unmatched catalog bicycles must enter a research queue');
 
