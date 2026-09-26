@@ -125,9 +125,9 @@
           <div class="readinessRow"><span>Выбрана хотя бы одна клиентская механика</span><span id="readyFeatures"></span></div>
           <div class="readinessRow"><span>Диапазоны и обязательные поля</span><span id="readyConfig"></span></div>
         </div>
-        <div class="activationLock">
-          <b>Боевой запуск пока заблокирован</b>
-          <p>Опции и цифры сохраняются, но клиентам ничего автоматически не начисляется и не списывается. Сначала подключим фактическое списание бонусов в checkout и правила расходования/сгорания.</p>
+        <div id="activationPanel" class="activationLock">
+          <b>Боевой запуск управляется вручную</b>
+          <p>Сохраните параметры, проверьте расчёт и только после этого включите программу отдельной кнопкой. Без явного запуска начисления и списания не работают.</p>
         </div>
       </section>
     </div>
@@ -172,10 +172,12 @@
     <span id="saveMsg" class="saveMsg">Изменения пока не сохранены.</span>
     <div class="actionButtons">
       <button id="resetDraft" class="secondaryAction" type="button" disabled>Вернуть сохранённый вариант</button>
+      <button id="deactivateProgram" class="dangerAction" type="button" hidden disabled>Выключить программу</button>
+      <button id="activateProgram" class="liveAction" type="button" hidden disabled>Включить программу</button>
       <button id="saveDraft" type="button" disabled>Сохранить черновик программы</button>
     </div>
   </div>
 </main>
-<script src="loyalty-calculator.js?v=1"></script>
+<script src="loyalty-calculator.js?v=2"></script>
 </body>
 </html>
