@@ -50,6 +50,7 @@ function customer_detail(PDO $pdo,int $id): ?array {
     'reviews'=>$reviews->fetchAll(),
     'loyalty'=>$loyalty->fetchAll(),
     'vehicles'=>customer_vehicle_rows($pdo,$id),
+    'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,$id,true),
     'service_requests'=>customer_service_rows($pdo,$id),
     'audit'=>$audit->fetchAll(),
     'loyalty_program'=>loyalty_program_status($pdo),
