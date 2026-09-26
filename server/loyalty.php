@@ -62,6 +62,41 @@ function loyalty_config(PDO $pdo): array {
     return $cfg;
 }
 
+function loyalty_sanitize_config_input(array $input): array {
+    $cfg=loyalty_default_config();
+    foreach(['earn_enabled','redeem_enabled','expiration_enabled','review_bonus_enabled','category_exclusions_enabled'] as $key)$cfg[$key]=($input[$key]??false)===true;
+    $ranges=[
+        'earn_percent_bp'=>[0,5000],
+        'max_redeem_percent_bp'=>[0,10000],
+        'point_value_kopeks'=>[1,100000],
+        'expiration_days'=>[1,3650],
+        'min_order_rub'=>[0,10000000],
+        'review_bonus'=>[0,1000000],
+    ];
+    foreach($ranges as $key=>[$min,$max]){
+        $value=$input[$key]??null;
+        if($value===null||$value===''){$cfg[$key]=null;continue;}
+        if(!is_numeric($value))throw new InvalidArgumentException('invalid_'.$key);
+        $value=(int)round((float)$value);
+        if($value<$min||$value>$max)throw new InvalidArgumentException('invalid_'.$key);
+        $cfg[$key]=$value;
+    }
+    $raw=is_array($input['excluded_category_prefixes']??null)?$input['excluded_category_prefixes']:[];
+    $cfg['excluded_category_prefixes']=array_values(array_slice(array_unique(array_filter(array_map(function($x){
+        $v=trim((string)$x);return mb_substr($v,0,250);
+    },$raw),fn($x)=>$x!=='')),0,100));
+    // Draft calculator is deliberately non-live until checkout redemption is completed.
+    $cfg['enabled']=false;$cfg['activation_at']=null;
+    return $cfg;
+}
+
+function loyalty_save_draft(PDO $pdo,array $input): array {
+    $cfg=loyalty_sanitize_config_input($input);
+    $s=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
+    $s->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
+    return $cfg;
+}
+
 function loyalty_configured(array $cfg): bool {
     $anyFeature=$cfg['earn_enabled']||$cfg['redeem_enabled']||$cfg['review_bonus_enabled'];
     if(!$anyFeature)return false;
