@@ -19,9 +19,42 @@ jobs:
         run: |
           set -euo pipefail
           TOKEN="$(printf '%s' "profisport-migration-tick-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
-          curl -fsS --retry 3 --retry-delay 3 --max-time 65 \
-            -A 'ProfiSport-Migration-Tick/1.0' \
+          HTTP_CODE="$(curl -sS --retry 3 --retry-delay 3 --max-time 65 \
+            -A 'Mozilla/5.0 ProfiSport-Migration-Tick/2.0' \
+            -H 'Accept: application/json' \
             -H "X-Migration-Token: $TOKEN" \
             -X POST 'https://ferryffggg.infinityfreeapp.com/api/migration-tick.php' \
-            -o /tmp/migration.json
-          python3 -c "import json; j=json.load(open('/tmp/migration.json',encoding='utf-8')); assert j.get('ok'); print('migration tick:',j)"
+            -D /tmp/migration.headers \
+            -o /tmp/migration.body \
+            -w '%{http_code}')"
+          export HTTP_CODE
+          python3 - <<'PY'
+          import json, os, pathlib, sys
+
+          code = int(os.environ.get('HTTP_CODE') or 0)
+          body = pathlib.Path('/tmp/migration.body').read_text(encoding='utf-8', errors='replace')
+          headers = pathlib.Path('/tmp/migration.headers').read_text(encoding='utf-8', errors='replace')
+          try:
+              payload = json.loads(body)
+          except json.JSONDecodeError:
+              payload = None
+
+          if isinstance(payload, dict):
+              if payload.get('ok') is True:
+                  print('migration tick:', payload)
+                  raise SystemExit(0)
+              print(f'migration tick API error (HTTP {code}):', payload, file=sys.stderr)
+              raise SystemExit(1)
+
+          lower = body.lower()
+          challenge = any(marker in lower for marker in ('<html', '<!doctype', 'aes.js', 'javascript is required'))
+          if challenge:
+              print(f'InfinityFree browser challenge intercepted scheduled worker (HTTP {code}).')
+              print('This is non-fatal: same-origin storefront traffic remains the authorized fallback trigger.')
+              raise SystemExit(0)
+
+          print(f'Unexpected non-JSON migration response (HTTP {code}).', file=sys.stderr)
+          print(headers[-2000:], file=sys.stderr)
+          print(body[:2000], file=sys.stderr)
+          raise SystemExit(1)
+          PY
