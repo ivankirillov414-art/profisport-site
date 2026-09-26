@@ -134,6 +134,7 @@ function loyalty_set_customer_discount(PDO $pdo,int $customerId,bool $enabled,in
 }
 
 function loyalty_effective_discount(PDO $pdo,string $categoryPath,?int $customerId,array $cfg): array {
+    if(!($cfg['enabled']??false))return ['percent_bp'=>0,'category_percent_bp'=>0,'personal_percent_bp'=>0,'group_key'=>null,'group_name'=>null,'rule'=>(string)($cfg['discount_stack_rule']??'max')];
     $group=loyalty_center_category_group($categoryPath,$cfg);
     $categoryBp=$group?max(0,min(9000,(int)($group['percent_bp']??0))):0;
     $personal=($customerId??0)>0?loyalty_customer_discount($pdo,(int)$customerId):null;
