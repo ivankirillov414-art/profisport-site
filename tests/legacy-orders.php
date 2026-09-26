@@ -9,6 +9,10 @@ $pdo->exec("INSERT INTO orders(id,order_number,customer_name,phone,delivery_type
 $pdo->exec("INSERT INTO order_items(order_id,product_name,quantity,price,total) VALUES(9000,'Legacy ball',2,75.75,151.50)");
 ensure_schema($pdo);ensure_schema($pdo);
 $orderCols=table_columns($pdo,'orders');if(!isset($orderCols['pickup_store']))throw new RuntimeException('Pickup store column was not added');
+foreach(['bonus_spent','bonus_earned','payable_rub'] as $col)if(!isset($orderCols[$col]))throw new RuntimeException('Loyalty order column missing: '.$col);
+$itemCols=table_columns($pdo,'order_items');if(!isset($itemCols['category_path']))throw new RuntimeException('Order item category snapshot column was not added');
+$loyaltyCols=table_columns($pdo,'loyalty_transactions');foreach(['order_id','expires_at','reversal_of_id','status','admin_user_id','metadata'] as $col)if(!isset($loyaltyCols[$col]))throw new RuntimeException('Loyalty ledger column missing: '.$col);
+$cfg=loyalty_program_status($pdo);if($cfg['enabled']||$cfg['configured'])throw new RuntimeException('Loyalty must migrate disabled and unconfigured');
 if((int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='order_status_history'")->fetchColumn()!==1)throw new RuntimeException('Order status history table was not created');
 $o=$pdo->query('SELECT * FROM orders WHERE id=9000')->fetch();$i=$pdo->query('SELECT * FROM order_items WHERE order_id=9000')->fetch();
 if($o['delivery_method']!=='orenburg_delivery'||$o['total_rub']!=='151.50'||$o['total_amount']!=='151.50'||$o['status']!=='processing'||$o['updated_at']!=='2020-02-01 00:00:00')throw new RuntimeException('Legacy order was not preserved');

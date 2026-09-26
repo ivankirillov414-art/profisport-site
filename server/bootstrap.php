@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/order-schema.php';
+require_once __DIR__.'/loyalty.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!is_file($configFile)) { http_response_code(500); exit('Server configuration is missing'); }
@@ -41,6 +42,7 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS customers (id BIGINT UNSIGNED AUTO_INCREM
 ensure_customer_columns($pdo);
 $pdo->exec("CREATE TABLE IF NOT EXISTS customer_favorites (customer_id BIGINT UNSIGNED NOT NULL,product_id BIGINT UNSIGNED NOT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(customer_id,product_id),INDEX idx_fav_product(product_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS loyalty_transactions (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,customer_id BIGINT UNSIGNED NOT NULL,amount INT NOT NULL,kind VARCHAR(40) NOT NULL,source_type VARCHAR(40) NULL,source_id VARCHAR(100) NULL,note VARCHAR(255) NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,INDEX idx_loyalty_customer(customer_id),INDEX idx_loyalty_created(created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+ensure_loyalty_schema($pdo);
 $pdo->exec("CREATE TABLE IF NOT EXISTS product_reviews (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,customer_id BIGINT UNSIGNED NULL,product_id BIGINT UNSIGNED NOT NULL,rating TINYINT UNSIGNED NOT NULL,review_text TEXT NOT NULL,status VARCHAR(30) NOT NULL DEFAULT 'pending',bonus_awarded TINYINT(1) NOT NULL DEFAULT 0,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,INDEX idx_review_product(product_id),INDEX idx_review_status(status),INDEX idx_review_customer(customer_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS orders (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,order_number VARCHAR(40) NOT NULL UNIQUE,customer_name VARCHAR(200) NOT NULL,phone VARCHAR(40) NOT NULL,email VARCHAR(200) NULL,delivery_method VARCHAR(30) NOT NULL DEFAULT 'pickup',address TEXT NULL,comment TEXT NULL,status VARCHAR(30) NOT NULL DEFAULT 'new',total_rub INT NOT NULL DEFAULT 0,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,INDEX idx_status (status),INDEX idx_created (created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 try{$cols=table_columns($pdo,'orders');if(!isset($cols['customer_id']))$pdo->exec('ALTER TABLE orders ADD COLUMN customer_id BIGINT UNSIGNED NULL AFTER id');}catch(Throwable $e){error_log('orders_customer_migration_failed: '.$e->getMessage());}
