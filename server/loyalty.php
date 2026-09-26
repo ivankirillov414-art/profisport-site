@@ -391,8 +391,9 @@ function loyalty_handle_order_status_change(PDO $pdo,int $orderId,string $from,s
     if(!$status['enabled'])return ['changed'=>false,'reason'=>$status['configured']?'program_disabled':'program_unconfigured'];
     if($to==='completed'&&$from!=='completed'){
         if(!$cfg['earn_enabled'])return ['changed'=>false,'reason'=>'earn_disabled'];
-        $items=$pdo->prepare('SELECT line_total_rub,category_path FROM order_items WHERE order_id=? ORDER BY id');$items->execute([$orderId]);
-        $preview=loyalty_order_earn_preview($items->fetchAll(),$cfg);$points=(int)$preview['points'];
+        $basis=($cfg['earn_basis']??'after_discounts')==='before_discounts'?'base_line_total_rub':'line_total_rub';
+        $items=$pdo->prepare("SELECT COALESCE($basis,line_total_rub) line_total_rub,category_path FROM order_items WHERE order_id=? ORDER BY id");$items->execute([$orderId]);
+        $preview=loyalty_order_earn_preview($items->fetchAll(),$cfg);$preview['basis']=$basis;$points=(int)$preview['points'];
         if($points<=0)return ['changed'=>false,'reason'=>'zero_earn','preview'=>$preview];
         $result=loyalty_post($pdo,$customerId,$points,'order_earn','order',(string)$orderId,$orderId,'Бонусы за завершённый заказ',loyalty_expiry_date($cfg),$adminUserId,['eligible_rub'=>$preview['eligible_rub']]);
         $pdo->prepare('UPDATE orders SET bonus_earned=? WHERE id=?')->execute([$result['amount'],$orderId]);
