@@ -65,6 +65,7 @@
 
       <section id="vehicles-service" class="profileCard profileSecondaryCard vehicleServiceSection">
         <div class="profileSectionIntro"><h3>Моя техника</h3><span id="vehiclesSummary">Покупки, которые можно обслуживать</span></div>
+        <div id="maintenanceAlerts" class="maintenanceAlerts hidden"></div>
         <div id="customerVehicles" class="customerVehicles"></div>
         <div id="vehiclePassport" class="vehiclePassport hidden"></div>
         <div id="serviceComposer" class="vehicleServiceComposer hidden"></div>
@@ -283,11 +284,28 @@
       }
     }
     const serviceStatusLabels={new:'Новая',contacted:'Связались',accepted:'Принята',diagnostics:'Диагностика',repair:'В ремонте',ready:'Готова к выдаче',completed:'Выдана',cancelled:'Отменена'};
-    let vehicleState=[],serviceState=[];
+    let vehicleState=[],serviceState=[],maintenanceState=[];
     function vehicleTypeLabel(type){return type==='scooter'?'Самокат':'Велосипед'}
     function vehicleImageMarkup(v){return v.image?'<img src="'+esc(v.image)+'" alt="" loading="lazy" decoding="async">':'<span class="vehicleImagePlaceholder">Фото техники</span>'}
     function latestVehicleService(vehicleId){
       return serviceState.find(function(r){return String(r.vehicle_id)===String(vehicleId)&&!['completed','cancelled'].includes(String(r.status||''))})||null;
+    }
+    function maintenanceAlertMarkup(a){
+      const due=String(a.severity)==='due',pct=a.wear_percent!==null&&a.wear_percent!==undefined?Number(a.wear_percent).toLocaleString('ru-RU',{maximumFractionDigits:1})+'%':'';
+      const replacement=a.compatible_product_id?'<a href="product.html?id='+encodeURIComponent(a.compatible_product_id)+'">Подобрать замену</a>':'';
+      return '<article class="maintenanceAlert '+(due?'due':'soon')+' '+(a.status==='acknowledged'?'acknowledged':'')+'" data-alert-id="'+Number(a.id)+'"><div class="maintenanceAlertIcon">'+(due?'!':'⌛')+'</div><div class="maintenanceAlertBody"><b>'+esc(a.title)+'</b><p>'+esc(a.message)+'</p><div class="maintenanceAlertMeta"><span>'+esc(a.vehicle_title||'Техника')+'</span>'+(pct?'<span>Износ '+pct+'</span>':'')+(a.status==='acknowledged'?'<span>Прочитано</span>':'')+'</div><div class="maintenanceAlertActions"><button type="button" data-alert-vehicle="'+Number(a.vehicle_id)+'">Открыть паспорт</button>'+replacement+(a.status!=='acknowledged'?'<button class="secondary" type="button" data-ack-alert="'+Number(a.id)+'">Прочитано</button>':'')+'</div></div></article>';
+    }
+    function renderMaintenanceAlerts(){
+      const box=$('#maintenanceAlerts');if(!box)return;
+      if(!maintenanceState.length){box.classList.add('hidden');box.innerHTML='';return}
+      box.classList.remove('hidden');
+      box.innerHTML='<div class="maintenanceAlertsHead"><div><span class="profileSectionKicker">Требует внимания</span><h4>Обслуживание техники</h4></div><span>'+maintenanceState.length+'</span></div><div class="maintenanceAlertsList">'+maintenanceState.map(maintenanceAlertMarkup).join('')+'</div>';
+      box.querySelectorAll('[data-alert-vehicle]').forEach(button=>button.onclick=()=>{const vehicle=vehicleState.find(v=>String(v.id)===String(button.dataset.alertVehicle));if(vehicle)openVehiclePassport(vehicle)});
+      box.querySelectorAll('[data-ack-alert]').forEach(button=>button.onclick=async()=>{
+        button.disabled=true;
+        try{const j=await api('ack_maintenance_alert',{method:'POST',body:JSON.stringify({alert_id:Number(button.dataset.ackAlert)})});maintenanceState=Array.isArray(j.maintenance_alerts)?j.maintenance_alerts:maintenanceState;renderMaintenanceAlerts()}
+        catch(e){button.disabled=false}
+      });
     }
     function vehicleCardMarkup(v){
       const current=latestVehicleService(v.id),components=Array.isArray(v.passport?.components)?v.passport.components:[],known=components.filter(c=>c.model||c.manufacturer).length;
@@ -360,12 +378,14 @@
     function renderVehiclesService(j){
       vehicleState=Array.isArray(j.vehicles)?j.vehicles:[];
       serviceState=Array.isArray(j.service_requests)?j.service_requests:[];
+      maintenanceState=Array.isArray(j.maintenance_alerts)?j.maintenance_alerts:[];
       const active=serviceState.filter(function(r){return !['completed','cancelled'].includes(String(r.status||''))}).length;
       $('#vehiclesCount').textContent=vehicleState.length;
-      $('#serviceQuickText').textContent=active?'Активный сервис: '+active:'Покупки и сервис';
+      $('#serviceQuickText').textContent=maintenanceState.length?'Внимание: '+maintenanceState.length:(active?'Активный сервис: '+active:'Покупки и сервис');
       $('#vehiclesSummary').textContent=vehicleState.length?'Техники в кабинете: '+vehicleState.length:'Покупки, которые можно обслуживать';
       $('#serviceSummary').textContent=serviceState.length?(active?'Активных: '+active+' · Всего: '+serviceState.length:'Обращений: '+serviceState.length):'История обращений';
       $('#customerVehicles').innerHTML=vehicleState.length?vehicleState.map(vehicleCardMarkup).join(''):'<div class="vehicleEmpty"><b>Техника появится здесь после завершённой покупки.</b><p>Велосипеды и самокаты из завершённых заказов добавляются автоматически.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
+      renderMaintenanceAlerts();
       $('#customerServiceRequests').innerHTML=serviceState.length?serviceState.map(serviceRequestMarkup).join(''):'<div class="serviceEmpty"><b>Обращений в сервис пока нет.</b><p>Выберите технику выше, чтобы создать первую заявку.</p></div>';
       document.querySelectorAll('[data-service-vehicle]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.serviceVehicle)});if(vehicle)openVehicleService(vehicle)}});
       document.querySelectorAll('[data-open-passport]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.openPassport)});if(vehicle)openVehiclePassport(vehicle)}});
