@@ -18,8 +18,8 @@ if(!/app\.js\?v=\d+/.test(index))fail('index.html must load the unified app.js w
 if(!/catalog-loader\.js\?v=\d+/.test(index))fail('index.html must load catalog-loader.js with a cache version');
 const stylesheetHrefs=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 if(stylesheetHrefs.length!==5)fail('home page must load the storefront, compact-header, back-to-top, motion and Sport Energy theme stylesheets');
-if(!stylesheetHrefs.includes('motion.css?v=1'))fail('shared motion.css is missing');
-if(!stylesheetHrefs.includes('sport-energy.css?v=1'))fail('Sport Energy theme is missing');
+if(!stylesheetHrefs.includes('motion.css?v=2'))fail('shared motion.css is missing');
+if(!stylesheetHrefs.includes('sport-energy.css?v=2'))fail('Sport Energy theme is missing');
 if(!stylesheetHrefs.includes('back-to-top.css?v=1'))fail('back-to-top.css is missing from stylesheet list');
 if(!stylesheetHrefs.some(x=>/^storefront-v2\.css\?v=\d+$/.test(x)))fail('storefront-v2.css is missing from stylesheet list');
 if(!stylesheetHrefs.some(x=>/^header-compact\.css\?v=\d+$/.test(x)))fail('header-compact.css is missing from stylesheet list');
