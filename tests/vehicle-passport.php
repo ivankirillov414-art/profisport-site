@@ -88,8 +88,32 @@ try{
     $daily=vehicle_maintenance_refresh_daily($pdo);vp_check($daily['ran']===true,'first daily maintenance refresh must run');
     $dailyAgain=vehicle_maintenance_refresh_daily($pdo);vp_check($dailyAgain['ran']===false&&$dailyAgain['reason']==='current','second maintenance refresh on the same day must be a no-op');
 
+    $productInsert=$pdo->prepare("INSERT INTO products(title,name,brand,model,sku,price_rub,price,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES(?,?,?,?,?,1200,1200,3,'in_stock','in_stock',1,'Велокомплектующие / Тормоза',NULL,'[]')");
+    $productInsert->execute(['Колодки Shimano B05S-RX Resin','Колодки Shimano B05S-RX Resin','Shimano','B05S-RX Resin','B05S-RX']);$padProductId=(int)$pdo->lastInsertId();
+    $pad=vehicle_passport_save_component($pdo,$vehicleId,[
+        'component_key'=>'rear_brake_pads','hotspot_key'=>'rear_brake','label'=>'Задние тормозные колодки','manufacturer'=>'Shimano','model'=>'B05S-RX Resin',
+        'source_type'=>'official','source_url'=>'https://example.test/b05s','source_verified'=>true,'wear_mode'=>'inspection'
+    ],1);
+    $parts=vehicle_passport_components($pdo,$vehicleId,false);$linked=next_component($parts,'rear_brake_pads');
+    vp_check($linked!==null&&(int)$linked['compatible_product_id']===$padProductId,'one exact in-stock model/manufacturer match must auto-link a compatible product');
+    vp_check(($linked['compatible_product']['available']??false)===true,'linked compatible product must expose live availability');
+
+    $productInsert->execute(['Колодки Shimano B05S-RX Resin OEM','Колодки Shimano B05S-RX Resin OEM','Shimano','B05S-RX Resin','B05S-RX-OEM']);
+    $pdo->prepare('UPDATE vehicle_components SET compatible_product_id=NULL WHERE id=?')->execute([(int)$pad['id']]);
+    vehicle_passport_auto_link_compatible_products($pdo,$vehicleId);
+    $linked=component_row($pdo,(int)$pad['id']);
+    vp_check($linked['compatible_product_id']===null,'multiple exact catalog candidates must stay unlinked instead of guessing');
+
+    $weak=vehicle_passport_save_component($pdo,$vehicleId,[
+        'component_key'=>'front_tire','hotspot_key'=>'front_tire','label'=>'Передняя покрышка','manufacturer'=>'Mitas','model'=>'Ocelot',
+        'source_type'=>'official','source_url'=>'https://example.test/ocelot','source_verified'=>true,'wear_mode'=>'inspection'
+    ],1);
+    $weakProduct=$pdo->prepare("INSERT INTO products(title,name,brand,model,sku,price_rub,price,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES('Покрышка Mitas Ocelot','Покрышка Mitas Ocelot','Mitas','Ocelot','OCELOT',2200,2200,2,'in_stock','in_stock',1,'Велокомплектующие / Покрышки',NULL,'[]')");
+    $weakProduct->execute();vehicle_passport_auto_link_compatible_products($pdo,$vehicleId);$weakRow=component_row($pdo,(int)$weak['id']);
+    vp_check($weakRow['compatible_product_id']===null,'model without a strong alphanumeric identifier must not auto-link');
+
     $pdo->rollBack();
-    echo "PASS: vehicle passport truth, adaptive wear, persistent alerts, acknowledgment, replacement resolution and daily refresh\n";
+    echo "PASS: vehicle passport truth, adaptive wear, alerts and strict unique compatible-product linking\n";
 }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 
 function next_component(array $rows,string $key): ?array { foreach($rows as $row)if(($row['component_key']??'')===$key)return $row;return null; }
