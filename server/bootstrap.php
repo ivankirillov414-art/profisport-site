@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/order-schema.php';
 require_once __DIR__.'/loyalty.php';
+require_once __DIR__.'/customer-vehicles.php';
 
 $configFile = __DIR__ . '/config.php';
 if (!is_file($configFile)) { http_response_code(500); exit('Server configuration is missing'); }
@@ -51,6 +52,7 @@ if(!isset($cols['request_key']))$pdo->exec('ALTER TABLE orders ADD COLUMN reques
 if(!isset($cols['request_hash']))$pdo->exec('ALTER TABLE orders ADD COLUMN request_hash CHAR(64) NULL');
 $pdo->exec("CREATE TABLE IF NOT EXISTS order_items (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,order_id BIGINT UNSIGNED NOT NULL,product_id BIGINT UNSIGNED NULL,title VARCHAR(500) NOT NULL,price_rub INT NOT NULL,quantity INT NOT NULL DEFAULT 1,line_total_rub INT NOT NULL,CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,INDEX idx_order (order_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS service_requests (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,request_number VARCHAR(40) NOT NULL UNIQUE,name VARCHAR(200) NOT NULL,phone VARCHAR(40) NOT NULL,service_type VARCHAR(100) NOT NULL,bike VARCHAR(300) NOT NULL,problem TEXT NOT NULL,status VARCHAR(30) NOT NULL DEFAULT 'new',request_key CHAR(64) NOT NULL UNIQUE,request_hash CHAR(64) NOT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,INDEX idx_service_status(status)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+ensure_customer_vehicle_schema($pdo);
 $pdo->exec("CREATE TABLE IF NOT EXISTS audit_log (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,admin_user_id INT UNSIGNED NULL,action VARCHAR(100) NOT NULL,entity_type VARCHAR(50) NULL,entity_id VARCHAR(100) NULL,payload LONGTEXT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,INDEX idx_created (created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS auth_rate_limits (scope VARCHAR(40) NOT NULL,subject_hash CHAR(64) NOT NULL,attempts SMALLINT UNSIGNED NOT NULL DEFAULT 0,window_started_at DATETIME NOT NULL,blocked_until DATETIME NULL,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY(scope,subject_hash),INDEX idx_blocked_until(blocked_until)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 ensure_order_columns($pdo);
