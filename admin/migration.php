@@ -12,8 +12,8 @@ body{background:#f5f5f3;color:#202124;font-family:system-ui,-apple-system,"Segoe
 .wrap{width:min(980px,calc(100% - 28px));margin:24px auto 70px}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px}.card{background:#fff;border:1px solid #e3e3df;border-radius:18px;padding:20px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:6px}.field input,.field select{width:100%;padding:12px;border:1px solid #ccd0d3;border-radius:10px;font:inherit}.wide{grid-column:1/-1}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800;cursor:pointer;background:#f2c94c;color:#111}.btn.secondary{background:#e9e9e5}.btn.danger{background:#bd3a31;color:#fff}.muted{color:#747a80}.ok{color:#19763b}.bad{color:#a92b20}.status{display:grid;gap:8px}.job{border-top:1px solid #eee;padding:12px 0}.job:first-child{border-top:0}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eee;font-size:12px;font-weight:800}@media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}
 </style>
 <script src="migration.js?v=1" defer></script>
-</head>
-<body>
+<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style></head>
+<body class="motion-page motion-admin">
 <main class="wrap">
 <div class="topline"><div><h1>Перенос ProfiSport</h1><p class="muted">Копирование файлов и базы на новый PHP/MySQL-хостинг.</p></div><a href="index.php">← Админка</a></div>
 <section class="card">

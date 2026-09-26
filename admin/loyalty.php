@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Центр лояльности — ПрофиСпорт</title>
   <link rel="stylesheet" href="loyalty-calculator.css?v=3">
-</head>
-<body>
+<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style></head>
+<body class="motion-page motion-admin">
 <header><div class="top"><div class="brand">Профи<span>Спорт</span></div><a class="back" href="index.php">← Админка</a></div></header>
 <main>
   <div class="pageHead"><div><h1>Центр лояльности</h1><p>Единственное место для категорийных скидок, персональных скидок и бонусных правил.</p></div><a class="customersLink" href="customers.php">Карточки клиентов →</a></div>

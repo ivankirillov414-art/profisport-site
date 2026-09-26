@@ -16,8 +16,8 @@ h1{margin:0 0 8px}.muted{color:var(--muted)}.grid{display:grid;grid-template-col
 button{border:0;border-radius:11px;padding:11px 15px;font:inherit;font-weight:800;background:var(--y);cursor:pointer}.ok{color:var(--green)}.bad{color:var(--red)}.list{display:grid;gap:8px;margin-top:12px}.row{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#fafaf8}
 @media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
-</head>
-<body>
+<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style></head>
+<body class="motion-page motion-admin">
 <header class="top"><div class="topin"><div class="brand">Профи<i>Спорт</i></div><a class="back" href="index.php">← Админка</a></div></header>
 <main>
 <section class="card notice">

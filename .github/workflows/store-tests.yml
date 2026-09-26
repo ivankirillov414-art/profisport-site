@@ -45,6 +45,9 @@ jobs:
           php -v
           find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check app.js
+          node --check motion.js
+          node tests/motion-regression.js
+          node tests/sport-energy-regression.js
           node --check catalog-loader.js
           node --check catalog-live-paged.js
           node --check checkout.js

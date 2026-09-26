@@ -1,0 +1,118 @@
+/* Shared motion language. Content remains visible without JavaScript. */
+:root {
+  --motion-fast: 140ms;
+  --motion-ui: 200ms;
+  --motion-reveal: 360ms;
+  --motion-scene: 480ms;
+  --motion-ease: cubic-bezier(.2,.7,.2,1);
+  --motion-distance: 14px;
+  --motion-lift: -3px;
+  --motion-scale: 1.025;
+  --motion-press: .98;
+  --motion-stagger: 45ms;
+}
+@keyframes ps-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes ps-reveal { from { opacity: 0; translate: 0 var(--motion-distance) } to { opacity: 1; translate: 0 0 } }
+@keyframes ps-scale { from { opacity: 0; scale: .98 } to { opacity: 1; scale: 1 } }
+@keyframes ps-slide { from { opacity: 0; translate: var(--motion-distance) 0 } to { opacity: 1; translate: 0 0 } }
+@keyframes ps-hero { from { translate: 0 8px } to { translate: 0 0 } }
+@keyframes ps-frost { from { opacity: 0; translate: -12px 0 } to { opacity: .5; translate: 0 0 } }
+
+/* No click interception, navigation delay, or router replacement. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: ps-fade var(--motion-ui) ease reverse both }
+  ::view-transition-new(root) { animation: ps-fade var(--motion-ui) ease both }
+  /* Also covers browsers with same-document support but no MPA transitions. */
+  .motion-page:not(.motion-admin) > main:not(.storefrontHome) { animation: ps-fade var(--motion-ui) ease }
+  .motion-pending { opacity: 0 }
+  .motion-enter { animation: ps-reveal var(--motion-reveal) var(--motion-ease) var(--motion-delay, 0ms) both }
+  .motion-enter.fade-in { animation-name: ps-fade }
+  .motion-enter.scale-in { animation-name: ps-scale }
+  .motion-enter.slide-in { animation-name: ps-slide }
+  .motion-enter:focus-within { animation: none; opacity: 1 }
+  .stagger > :nth-child(2) { --motion-delay: var(--motion-stagger) }
+  .stagger > :nth-child(3) { --motion-delay: calc(var(--motion-stagger) * 2) }
+  .stagger > :nth-child(n+4) { --motion-delay: calc(var(--motion-stagger) * 3) }
+  .footerSection:nth-of-type(2) { --motion-delay: var(--motion-stagger) }
+  .footerSection:nth-of-type(3) { --motion-delay: calc(var(--motion-stagger) * 2) }
+  /* Only the first eight cards animate, with no observer per product. */
+  #products > .product:not(.productSkeleton):nth-child(-n+8) { animation: ps-fade var(--motion-ui) var(--motion-ease) }
+  .productSkeleton .photo { background: linear-gradient(110deg,#f0f1f2,#e6e9ec,#f0f1f2) }
+  .heroSlide.is-active .heroCopy { animation: ps-hero var(--motion-scene) var(--motion-ease) }
+  .heroSlide.storageSlide.is-active::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(ellipse at 98% 0%,#e8f7ff99,transparent 48%);
+    animation: ps-frost 650ms var(--motion-ease) both;
+  }
+  .motion-page dialog[open]:not(.drawer), .motion-page .cookieConsent:not([hidden]) {
+    animation: ps-fade var(--motion-ui) var(--motion-ease);
+  }
+  .motion-page dialog[open]::backdrop { animation: ps-fade var(--motion-fast) ease }
+  .motion-admin [role="status"]:not(:empty), .motion-admin [role="tabpanel"]:not([hidden]) {
+    animation: ps-fade var(--motion-fast) ease;
+  }
+}
+
+/* Individual translate/scale leave existing component transforms intact. */
+.motion-page .products .product, .motion-page #categoryTiles .categoryTile,
+.motion-page .photoHubCard, .motion-page .shopM2Card {
+  transition: translate var(--motion-ui) var(--motion-ease), box-shadow var(--motion-ui) ease, border-color var(--motion-fast) ease;
+}
+.motion-page .productImg, .motion-page .categoryArtwork {
+  transition: scale var(--motion-reveal) var(--motion-ease);
+}
+.motion-page button:not(.heroArrow), .motion-page a.primary, .motion-page [role="tab"] {
+  transition: scale var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease;
+}
+.motion-page button:enabled:active, .motion-page a.primary:active { scale: var(--motion-press) }
+.motion-page :is(a,button,input,select,textarea,[role="tab"]):focus-visible {
+  outline: 2px solid #947000; outline-offset: 3px;
+}
+.motion-page > nav > a, .motion-page .hubHeader nav > a {
+  text-decoration-color: transparent; text-underline-offset: 6px; text-decoration-thickness: 2px;
+  transition: text-decoration-color var(--motion-fast) ease, color var(--motion-fast) ease;
+}
+.motion-page > nav > a:is(:hover,:focus-visible,[aria-current]),
+.motion-page .hubHeader nav > a:is(:hover,:focus-visible,[aria-current]) {
+  text-decoration-line: underline; text-decoration-color: #d7ad22;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .motion-page .products .product:not(.productSkeleton):hover,
+  .motion-page #categoryTiles .categoryTile:hover, .motion-page .photoHubCard:hover, .motion-page .shopM2Card:hover {
+    translate: 0 var(--motion-lift); box-shadow: 0 9px 22px rgb(32 35 32 / 10%); border-color: #d9b627;
+  }
+  .motion-page .product:hover .productImg, .motion-page .categoryTile:hover .categoryArtwork { scale: var(--motion-scale) }
+}
+@media (max-width: 850px) { :root { --motion-distance: 8px; --motion-reveal: 280ms; --motion-stagger: 30ms } }
+
+/* Account page keeps the same Sport Energy language without another page-level stylesheet. */
+.profileDashboardTitle h1 {
+  font-family: Impact,'Arial Narrow',Arial,sans-serif;
+  font-style: italic;
+  text-transform: uppercase;
+}
+.profileDashboardHero {
+  color: #fff;
+  border-color: transparent !important;
+  background: linear-gradient(135deg,#111820,#24323d) !important;
+  box-shadow: 0 22px 54px rgb(15 24 32 / 18%);
+}
+.profileDashboardHero::after { background: #d8ff18 !important; opacity: .12 }
+.profileDashboardHero .profileEyebrow,
+.profileDashboardHero .profileContactLine { color: #c9d2d8 }
+.profileAvatar { color: #111820 !important; background: #d8ff18 !important }
+.profileQuickCard:hover { border-color: #c7f000 !important }
+
+/* Also overrides legacy smooth scrolling and component animations. */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  html { scroll-behavior: auto !important }
+  .motion-page, .motion-page *, .motion-page *::before, .motion-page *::after {
+    animation: none !important; transition: none !important; scroll-behavior: auto !important;
+  }
+  .motion-page .motion-pending, .motion-page .motion-enter { opacity: 1 !important; translate: none !important; scale: none !important }
+  .motion-page button:active, .motion-page a.primary:active { scale: none !important }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important }
+}
+@media print { .motion-pending, .motion-enter { opacity: 1 !important; animation: none !important; translate: none !important } }
