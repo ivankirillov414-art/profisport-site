@@ -39,8 +39,9 @@ assert.match(profile,/function renderCustomerLoyalty/,'customer profile must ren
 
 assert.match(adminApi,/action==='activate'/,'owner API must support explicit activation');
 assert.match(adminApi,/action==='deactivate'/,'owner API must support explicit deactivation');
-assert.match(adminJs,/setProgram\('activate'\)/,'calculator must wire the activation button');
-assert.match(adminJs,/setProgram\('deactivate'\)/,'calculator must wire the deactivation button');
+assert.match(adminJs,/action:'publish'/,'central loyalty editor must publish through one action');
+assert.match(adminJs,/current_password:password/,'central loyalty publish must require the current admin password');
+assert.doesNotMatch(adminJs,/setProgram\('activate'\)|setProgram\('deactivate'\)/,'secondary activation UI path must stay removed');
 
 new Function(checkoutJs);
 const inline=[...profile.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);

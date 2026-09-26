@@ -36,6 +36,7 @@ assert.match(orders,/loyalty_handle_order_status_change/,'order status must call
 assert.match(reviews,/loyalty_award_review/,'review moderation must call loyalty hook');
 assert.doesNotMatch(reviews,/bonus_balance=bonus_balance\+/,'review moderation must not write balances directly');
 assert.match(customerAdmin,/loyalty_manual_adjustment/,'admin adjustments must use ledger');
+assert.match(customerAdmin,/loyalty_set_customer_discount/,'admin customer card must use central personal discount domain');
 assert.doesNotMatch(customerAdmin,/UPDATE customers SET bonus_balance=\?/,'customer admin must not write balance directly');
 assert.match(create,/category_path FROM products/,'checkout must snapshot product category');
 assert.match(create,/'category_path'=>\$x\['category_path'\]/,'order item must persist category snapshot');
@@ -46,6 +47,6 @@ assert.match(engine,/function loyalty_reserve_order_redemption/,'loyalty engine 
 assert.match(engine,/function loyalty_consume_fifo/,'loyalty engine must consume points FIFO');
 assert.match(engine,/function loyalty_expire_customer/,'loyalty engine must expire unused points');
 assert.match(engine,/function loyalty_refund_order_redemption/,'loyalty engine must refund cancelled order redemptions');
-assert.match(loyaltyPage,/Калькулятор бонусной системы/,'loyalty admin calculator page must exist');
+assert.match(loyaltyPage,/Центр лояльности/,'central loyalty admin page must exist');
 
 console.log('Loyalty engine foundation regression checks passed.');
