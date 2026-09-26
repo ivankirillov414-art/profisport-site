@@ -13,8 +13,8 @@ assert.match(profile,/autocomplete="username"/,'identifier must use username aut
 assert.match(profile,/Проверьте email\/телефон и пароль/,'login error must mention both supported identifiers');
 
 assert.match(api,/\$in\['login'\]\?\?\$in\['email'\]/,'API must keep legacy email payload compatibility');
-assert.match(api,/customer_phone\\(\\$rawLogin\\)/,'API must normalize phone login with the same phone helper');
-assert.match(api,/WHERE phone=\\?.*password_hash IS NOT NULL.*LIMIT 2/,'phone lookup must detect ambiguous legacy duplicates');
+assert.match(api,/customer_phone\(\$rawLogin\)/,'API must normalize phone login with the same phone helper');
+assert.match(api,/WHERE phone=\?.*password_hash IS NOT NULL.*LIMIT 2/,'phone lookup must detect ambiguous legacy duplicates');
 assert.match(api,/count\(\$matches\)===1/,'phone login must never choose between duplicate phone accounts');
 assert.match(api,/auth_rate_check\(\$pdo,'customer_login',\$identity\)/,'rate limiting must use normalized login identity');
 
