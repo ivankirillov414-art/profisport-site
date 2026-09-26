@@ -29,7 +29,7 @@
 .activeOrderFact span{display:block;margin-bottom:4px;color:#7a7e82;font-size:11px}.activeOrderFact b{display:block;font-size:15px;overflow-wrap:anywhere}
 .activeOrderOpen{min-height:46px;box-shadow:none}
 
-.profileQuickGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 20px}
+.profileQuickGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 20px}
 .profileQuickCard{position:relative;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;align-items:center;gap:3px 11px;min-width:0;padding:17px;border:1px solid #e3e3df;border-radius:17px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 8px 22px #22252a0a;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
 .profileQuickCard:hover,.profileQuickCard:focus-visible{transform:translateY(-2px);border-color:#d9bd45;box-shadow:0 12px 28px #22252a12}
 .profileQuickIcon{grid-row:1/3;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#f5f3eb}
@@ -170,4 +170,33 @@
 }
 @media(max-width:430px){
   .profileHeroActions{grid-template-columns:1fr}.profileEditGrid{grid-template-columns:1fr}.profileWideField{grid-column:auto}.profileEditActions{display:grid}.profileEditActions button{width:100%}
+}
+
+
+/* Customer cabinet — vehicles and service */
+.vehicleServiceSection{scroll-margin-top:18px}
+.customerVehicles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.vehicleCard{display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;padding:14px;border:1px solid #e4e1d9;border-radius:17px;background:#faf9f5}
+.vehicleImage{width:112px;height:112px;display:grid;place-items:center;overflow:hidden;border-radius:13px;background:#fff;border:1px solid #ece9e1}.vehicleImage img{width:100%;height:100%;object-fit:contain}.vehicleImagePlaceholder{padding:10px;text-align:center;color:#8b8d8f;font-size:11px}
+.vehicleBody{display:grid;align-content:start;gap:7px;min-width:0}.vehicleTop{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.vehicleType{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#6f7478}
+.vehicleTitle{font-size:16px;font-weight:950;line-height:1.25;color:#25292d;text-decoration:none;overflow-wrap:anywhere}.vehicleTitle:hover{text-decoration:underline}
+.vehicleMeta{display:flex;gap:5px 12px;flex-wrap:wrap;color:#73787d;font-size:11px}
+.vehicleServiceState,.serviceStatusChip{display:inline-flex;width:max-content;max-width:100%;padding:5px 8px;border-radius:999px;background:#fff3b8;color:#665000;font-size:10px;font-weight:900}
+.vehicleServiceState.idle{background:#eceeea;color:#68706a}.vehicleServiceState[data-status="diagnostics"],.serviceStatusChip[data-status="diagnostics"]{background:#e8f2ff;color:#245d9d}.vehicleServiceState[data-status="repair"],.serviceStatusChip[data-status="repair"]{background:#eee8ff;color:#5a3c9b}.vehicleServiceState[data-status="ready"],.serviceStatusChip[data-status="ready"]{background:#e7f7ea;color:#216f37}.serviceStatusChip[data-status="completed"]{background:#e7f7ea;color:#216f37}.serviceStatusChip[data-status="cancelled"]{background:#f5e7e4;color:#96392f}
+.vehicleActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}.vehicleActions button,.vehicleActions a{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:8px 11px;border-radius:10px;font-weight:850;text-decoration:none}.vehicleActions a{border:1px solid #d9d7cf;background:#fff;color:#30353a}.vehicleActions button{box-shadow:none}
+.vehicleEmpty,.serviceEmpty{grid-column:1/-1;padding:18px;border:1px dashed #ddd8ce;border-radius:14px;background:#faf9f5;text-align:center}.vehicleEmpty p,.serviceEmpty p{margin:6px 0 13px;color:#747a80}
+.vehicleServiceComposer{margin:15px 0;padding:16px;border:1px solid #e2d58d;border-radius:16px;background:#fffdf3;scroll-margin-top:18px}.vehicleServiceComposerHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}.vehicleServiceComposerHead h4{margin:3px 0 0;font-size:19px}.vehicleServiceComposer form{display:grid;gap:12px}.vehicleServiceComposer label{display:grid;gap:6px;font-weight:800}.vehicleServiceComposer textarea{resize:vertical;min-height:120px}.vehicleServiceComposerActions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.vehicleServiceComposerActions span{color:#666d72;font-size:13px}
+.serviceHistoryHead{margin-top:20px;padding-top:18px;border-top:1px solid #ebe8e0}.customerServiceRequests{display:grid;gap:10px}.customerServiceCard{padding:15px;border:1px solid #e4e1d9;border-radius:15px;background:#faf9f5;scroll-margin-top:18px}.customerServiceHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.customerServiceHead h4{margin:3px 0 0;font-size:17px}.customerServiceMeta{display:flex;gap:8px 16px;flex-wrap:wrap;margin-top:8px;color:#747a80;font-size:12px}.customerServiceCard>p{margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.serviceTimeline{margin-top:10px;padding:12px;border-radius:12px;background:#fff;border:1px solid #ece9e1}.serviceTimelineRow{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr);gap:8px;padding:2px 0 11px}.serviceTimelineRow:not(:last-child):before{content:"";position:absolute;left:6px;top:13px;bottom:-1px;width:2px;background:#ddd9ce}.serviceTimelineRow>span{position:relative;z-index:1;width:14px;height:14px;border:4px solid #fff;border-radius:50%;background:#b9b6ad;box-shadow:0 0 0 1px #d8d4ca}.serviceTimelineRow.current>span{background:#f2c94c;box-shadow:0 0 0 1px #d9b735}.serviceTimelineRow b{display:block;font-size:12px}.serviceTimelineRow small{display:block;color:#777d82;font-size:11px;margin-top:2px}
+
+@media(max-width:900px){
+  .profileQuickGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .customerVehicles{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .profileQuickGrid{grid-template-columns:1fr}
+  .vehicleCard{grid-template-columns:88px minmax(0,1fr)}.vehicleImage{width:88px;height:88px}
+}
+@media(max-width:430px){
+  .vehicleCard{grid-template-columns:68px minmax(0,1fr);padding:11px}.vehicleImage{width:68px;height:68px}.vehicleServiceComposerHead,.customerServiceHead{display:grid}.vehicleServiceComposerHead button{width:100%}.vehicleServiceComposerActions{display:grid}.vehicleServiceComposerActions button{width:100%}
 }
