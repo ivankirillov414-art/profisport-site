@@ -309,6 +309,36 @@ jobs:
           fi
           echo 'InfinityFree FTP contents match the repository.'
 
+      - name: Apply verified vehicle spec registry
+        shell: bash
+        env:
+          PROFISPORT_DB_PASSWORD: ${{ secrets.DB_PASSWORD || secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          TOKEN="$(printf '%s' "profisport-migration-tick-v1:${PROFISPORT_DB_PASSWORD}" | sha256sum | awk '{print $1}')"
+          CODE="$(curl -sS --retry 3 --retry-delay 3 --max-time 65             -A 'Mozilla/5.0 ProfiSport-Post-Deploy/1.0'             -H 'Accept: application/json'             -H "X-Migration-Token: $TOKEN"             -X POST 'https://ferryffggg.infinityfreeapp.com/api/migration-tick.php'             -o /tmp/post-deploy-maintenance.body -w '%{http_code}')"
+          export CODE
+          python3 - <<'PY'
+          import json, os, pathlib
+          code=int(os.environ.get('CODE') or 0)
+          body=pathlib.Path('/tmp/post-deploy-maintenance.body').read_text(encoding='utf-8',errors='replace')
+          try:
+              payload=json.loads(body)
+          except json.JSONDecodeError:
+              payload=None
+          if isinstance(payload,dict):
+              assert payload.get('ok') is True, payload
+              vehicle=payload.get('vehicle_specs') or {}
+              assert vehicle.get('version'), payload
+              print('vehicle spec maintenance:', vehicle)
+              raise SystemExit(0)
+          lower=body.lower()
+          if any(x in lower for x in ('<html','<!doctype','aes.js','javascript is required')):
+              print(f'InfinityFree browser challenge intercepted post-deploy maintenance tick (HTTP {code}); scheduled/same-origin fallback remains active.')
+              raise SystemExit(0)
+          raise SystemExit(f'Unexpected maintenance response HTTP {code}: {body[:1000]}')
+          PY
+
       - name: Smoke-check public InfinityFree endpoint
         shell: bash
         run: |
