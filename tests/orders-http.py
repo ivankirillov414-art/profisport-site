@@ -119,7 +119,7 @@ assert stats['customers']==1 and stats['new_service']==0
 assert call('api/loyalty-admin.php')[0]==401
 status,loyalty_status,_=call('api/loyalty-admin.php',cookie=cookie);assert status==200
 assert loyalty_status['program']['enabled'] is False and loyalty_status['program']['configured'] is False
-assert loyalty_status['can_edit'] is True and any(x['name']=='Sport' for x in loyalty_status['category_options'])
+assert loyalty_status['can_edit'] is True and any(x['path']=='Sport / Balls' for x in loyalty_status['category_options'])
 draft={'earn_enabled':True,'redeem_enabled':True,'expiration_enabled':True,'review_bonus_enabled':True,'category_exclusions_enabled':True,'earn_percent_bp':500,'max_redeem_percent_bp':3000,'point_value_kopeks':100,'expiration_days':365,'min_order_rub':1000,'review_bonus':50,'excluded_category_prefixes':['Sport']}
 assert call('api/loyalty-admin.php',{'action':'save_draft','config':draft},cookie)[0]==403
 status,saved,_=call('api/loyalty-admin.php',{'action':'save_draft','config':draft},cookie,csrf);assert status==200
