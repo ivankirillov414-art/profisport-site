@@ -33,112 +33,7 @@ function productText(p){return plain([p.name,p.brand,p.model,p.cat,p.rawCat,p.de
 
 const accessoryStems=['чехол','сумк','багажник','крыл','фонар','звонок','замок','покрыш','камер','насос','держател','креплен','корзин','зеркал','седл','сиден','педал','грипс','трос','цеп','кассет','звезд','переключ','тормоз','обод','вилк','рам','втулк','спиц','поднож','подстав','крепеж','адаптер','палк','ботин','маск','очк','перчат','защит','колес','подшип','ось','амортиз','ремкомплект','запчаст'];
 const typeTerms={
-  bicycle:['электровелосипед','велосипед'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборд'], skates:['коньк'], rollers:['роликов','ролик'], skateboard:['скейтборд'], longboard:['лонгборд'], sled:['санк'], snow_scooter:['снегокат'], tubing:['тюбинг'], helmet:['шлем'], backpack:['рюкзак'], tent:['палатк'], sleeping_bag:['спальник','спальный мешок'], trampoline:['батут'], treadmill:['беговая дорожк'], exercise_bike:['велотренажер'], elliptical:['эллипс','эллиптическ'], dumbbell:['гантел'], barbell:['штанг'], kettlebell:['гиря','гири','гирь'], racket:['ракетк'], ball:['мяч'], hockey_stick:['клюшк'], pool:['бассейн'], sup:['сап','sup'], kayak:['каяк'], boat:['лодк']
-};
-function containsAccessory(s){return accessoryStems.some(st=>s.includes(st))}
-function intentFor(raw){
-  const qv=canonicalQuery(raw);
-  if(!qv)return'';
-  const pairs=[['bicycle',['велосипед','электровелосипед']],['scooter',['самокат','электросамокат']],['skis',['лыж']],['snowboard',['сноуборд']],['skates',['коньк']],['rollers',['ролик']],['skateboard',['скейтборд']],['longboard',['лонгборд']],['sled',['санк']],['snow_scooter',['снегокат']],['tubing',['тюбинг']],['helmet',['шлем']],['backpack',['рюкзак']],['tent',['палатк']],['sleeping_bag',['спальник','спальный мешок']],['trampoline',['батут']],['treadmill',['беговая дорожк']],['exercise_bike',['велотренажер']],['elliptical',['эллипс','эллиптическ']],['dumbbell',['гантел']],['barbell',['штанг']],['kettlebell',['гиря','гири','гирь']],['racket',['ракетк']],['ball',['мяч']],['hockey_stick',['клюшк']],['pool',['бассейн']],['sup',['сап','sup']],['kayak',['каяк']],['boat',['лодк']]];
-  for(const [id,terms] of pairs){
-    if(terms.some(t=>qv.startsWith(t))){
-      if(!['helmet','backpack'].includes(id)&&containsAccessory(qv))return'';
-      return id;
-    }
-  }
-  return'';
-}
-function isPrimaryProduct(p,intent){
-  if(!intent)return true;
-  if(p.productType)return p.productType===intent;
-  const n=plain(p.name||''),terms=typeTerms[intent]||[];
-  let pos=Infinity;
-  for(const t of terms){const i=n.indexOf(t);if(i>=0)pos=Math.min(pos,i)}
-  if(!Number.isFinite(pos))return false;
-  const before=n.slice(0,pos);
-  if(containsAccessory(before)||/(?:^|\s)для\s*$/.test(before))return false;
-  return pos<=48;
-}
-function relevanceScore(p,qv,intent){
-  const c=canonicalQuery(qv),n=plain(p.name||''),brand=plain(p.brand||''),model=plain(p.model||''),cat=plain(p.cat||''),path=plain(p.pathText||'');
-  let score=0;
-  if(intent&&isPrimaryProduct(p,intent))score+=1200;
-  if(n===c)score+=1000;else if(n.startsWith(c))score+=650;else if(n.includes(c))score+=420;
-  if(brand===c||model===c)score+=500;else if(brand.startsWith(c)||model.startsWith(c))score+=280;
-  if(cat.includes(c))score+=120;if(path.includes(c))score+=80;
-  return score;
-}
-function bestQuery(raw){
-  const vars=queryVariants(raw);if(!vars.length)return'';
-  for(const qv of vars){const intent=intentFor(qv);if(products.some(p=>(!intent||isPrimaryProduct(p,intent))&&productText(p).includes(qv)))return qv}
-  return vars[0];
-}
-
-const productsEl=$('#products'),catalogStatus=$('#catalogStatus'),category=$('#category'),brandFilter=$('#brandFilter'),saleOnly=$('#saleOnly'),minPrice=$('#minPrice'),maxPrice=$('#maxPrice'),sort=$('#sort');
-const dynamicFilters=$('#dynamicFilters'),facet1=$('#facet1'),facet2=$('#facet2');
-const q=$('#q'),mobileQ=$('#mobileQ'),pageInfo=$('#pageInfo'),prevPage=$('#prevPage'),nextPage=$('#nextPage');
-const cartEl=$('#cart'),cartItems=$('#cartItems'),count=$('#count'),total=$('#total');
-
-const FACET_SCHEMAS={
-  bicycle:[['wheel','Диаметр колёс'],['frame','Размер рамы']],
-  skiing:[['length','Ростовка']],
-  snowboard:[['length','Ростовка']],
-  skates:[['size','Размер']],
-  rollers:[['size','Размер']]
-};
-const INTENT_DEPARTMENT={bicycle:'bicycle',scooter:'scooter',skis:'skiing',snowboard:'snowboard',skates:'skates',rollers:'rollers',skateboard:'boards',longboard:'boards',sled:'winter',snow_scooter:'winter',tubing:'winter',treadmill:'fitness',exercise_bike:'fitness',elliptical:'fitness',dumbbell:'fitness',barbell:'fitness',kettlebell:'fitness',racket:'team',ball:'team',hockey_stick:'team',tent:'tourism',sleeping_bag:'tourism',backpack:'tourism',pool:'water',sup:'water',kayak:'water',boat:'water'};
-function sortFacetValues(values){return values.sort((a,b)=>{const na=parseFloat(a),nb=parseFloat(b);return Number.isFinite(na)&&Number.isFinite(nb)?na-nb:String(a).localeCompare(String(b),'ru')})}
-function contextDepartment(raw,intent){return category?.value||INTENT_DEPARTMENT[intent||intentFor(raw)]||''}
-function contextProducts(raw,intent){const dep=contextDepartment(raw,intent);let list=dep?products.filter(p=>catalogMatchesDepartment(p,dep)):products;if(intent)list=list.filter(p=>isPrimaryProduct(p,intent));if(selectedSubcategory)list=list.filter(p=>(p.rawCat||p.cat)===selectedSubcategory);return list}
-function fillFacetSelect(sel,def,list){
-  if(!sel)return;
-  if(!def){sel.hidden=true;sel.dataset.key='';sel.innerHTML='';return}
-  const [key,label]=def,prev=sel.dataset.key===key?sel.value:'';
-  const values=sortFacetValues([...new Set(list.map(p=>p.facets?.[key]).filter(Boolean))]);
-  sel.dataset.key=key;sel.innerHTML=`<option value="">${esc(label)}: все</option>`+values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');sel.hidden=!values.length;
-  if(prev&&values.includes(prev))sel.value=prev;
-}
-function refreshBrandOptions(list){
-  if(!brandFilter)return;const prev=brandFilter.value;
-  const values=[...new Set(list.map(p=>String(p.brand||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
-  brandFilter.innerHTML='<option value="">Все бренды</option>'+values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  if(prev&&values.includes(prev))brandFilter.value=prev;
-}
-function configureContextFilters(raw='',intent=''){
-  const dep=contextDepartment(raw,intent),list=contextProducts(raw,intent),schema=FACET_SCHEMAS[dep]||[];
-  refreshBrandOptions(list);
-  fillFacetSelect(facet1,schema[0],list);fillFacetSelect(facet2,schema[1],list);
-  if(dynamicFilters)dynamicFilters.hidden=![facet1,facet2].some(x=>x&&!x.hidden);
-  if(typeof configureExtraFilters==='function')configureExtraFilters(list,dep);
-  if(restoredFacetValues){
-    const [a,b]=restoredFacetValues;if(a&&facet1?.querySelector(`option[value="${CSS.escape(a)}"]`))facet1.value=a;if(b&&facet2?.querySelector(`option[value="${CSS.escape(b)}"]`))facet2.value=b;restoredFacetValues=null;
-  }
-}
-
-function imageCandidates(p){
-  const raw=[p.image,...(Array.isArray(p.images)?p.images:[])].filter(Boolean);
-  return [...new Set(raw.flatMap(src=>{src=String(src);const out=[src];if(src.startsWith('/import/'))out.push('api/product-image.php?p='+encodeURIComponent(src.slice(8)));if(src.startsWith('import/'))out.push('api/product-image.php?p='+encodeURIComponent(src.slice(7)));return out}))];
-}
-function bindProductImages(){
-  $$('img.productImg').forEach(img=>{img.onerror=()=>{let a=[];try{a=JSON.parse(decodeURIComponent(img.dataset.fallbacks||'%5B%5D'))}catch(e){}const next=a.shift();if(next){img.dataset.fallbacks=encodeURIComponent(JSON.stringify(a));img.src=next;return}const ph=document.createElement('div');ph.className='imagePlaceholder';ph.textContent='Фото уточняется';img.replaceWith(ph)}});
-}
-function favoriteMarkup(id){const active=favorites.has(String(id));return `<button type="button" class="productFavorite${active?' active':''}" data-favorite-id="${esc(encodeURIComponent(id))}" aria-label="В избранное">${active?'♥':'♡'}</button>`}
-function productHighlights(p){
-  const values=[];
-  const labels={wheel:'Колёса',frame:'Рама',length:'Ростовка',size:'Размер'};
-  for(const [k,v] of Object.entries(p.facets||{}))if(v)values.push(`${labels[k]||k}: ${v}`);
-  for(const [k,v] of catalogSpecEntries(p.specs||{})){
-    if(values.length>=4)break;
-    if(!v||typeof v==='object'||!/тормоз|скорост|вилка|материал|переключател|вес|мощност|емкость|напряжен/i.test(k))continue;
-    const line=`${k}: ${v}`;if(line.length<=140)values.push(line);
-  }
-  return values.slice(0,4);
-}
-function highlightMarkup(p){const values=productHighlights(p);return values.length?`<ul class="productFacts">${values.map(v=>`<li>${esc(v)}</li>`).join('')}</ul>`:''}
-function openQuickView(id){
-  const p=products.find(p=>String(p.id)===String(id));if(!p)return;
-  const dialog=$('#quickView'),imgs=imageCandidates(p),first=imgs.shift();
-  $('#quickContent').innerHTML=`<div class="quickLayout"><div class="quickPhoto">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" alt="${esc(p.name)}">`:'<p>Фото уточняется</p>'}</div><div><small>${esc(p.cat)}</small><h2 id="quickTitle">${esc(p.name)}</h2>${highlightMarkup(p)}<span class="stock ${p.stockCode==='out'?'out':''}">${esc(catalogStockLabel(p.stockCode))}</span><div class="price">${rub(p.price)}</div><button type="button" id="quickAdd" ${p.stockCode==='out'?'disabled':''}>В корзину</button><a class="quickDetail" href="product.html?id=${encodeURIComponent(p.id)}">Характеристики и отзывы</a></div></div>`;
+  bicycle:['электровелосипед','велосипед'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборБ�тики и отзывы</a></div></div>`;
   bindProductImages();$('#quickAdd').onclick=()=>{dialog.close();add(p.id)};dialog.showModal();syncBodyLock();
 }
 const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});
@@ -332,7 +227,7 @@ function buildBrandShortcuts(){
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 function buildCategoryTiles(){
   const available=Object.entries(CATALOG_SECTIONS).filter(([key])=>products.some(p=>catalogMatchesDepartment(p,key)));
-  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"></a>`).join('');
+  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('');
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){

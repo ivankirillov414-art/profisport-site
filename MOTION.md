@@ -6,6 +6,21 @@ The stylesheet is linked after page styles. Public pages use `motion-page`; admi
 pages additionally use `motion-admin` and opt out of cross-document transitions.
 Admin pages do not load the observer script.
 
+## Sport Energy visual layer
+
+`sport-energy.css` carries the public storefront direction from the approved
+concept: graphite surfaces, neon-lime actions, condensed italic headings,
+diagonal speed marks and stronger image-led cards. The visible brand remains
+the Russian `ПрофиСпорт` wordmark already used by the store; the stylesheet
+switches its existing SVG to the white variant on the dark header.
+
+The homepage uses the existing local cyclist, workshop, winter and storage
+imagery. It adds a compact energy ribbon and four proof points, gives categories
+an editorial grid, and restyles the catalog, picker, service and map sections.
+Product detail, checkout, profile and the shop/service/workshop/buyer hubs share
+the same palette and controls. No remote font, image, library or runtime request
+was added.
+
 ## Behavior
 
 - Tokens: 140/200/360/480 ms; cubic-bezier(.2,.7,.2,1); 14 px distance,
@@ -44,23 +59,23 @@ printing and BFCache restoration do not leave content hidden.
 - 32 Node regression scripts pass, including the new behavioral test covering
   first paint, one-shot reveal, missing/failing observer, live reduced motion,
   anchors, keyboard focus and BFCache. Syntax and whitespace checks pass.
-- Mobile regression expectations now include the intentional fourth stylesheet.
-- Browser preview: homepage and product detail at mobile widths (346/390 px),
-  shop at 1440 px; no horizontal overflow in measured views.
+- Mobile regression expectations now include the intentional fifth stylesheet.
+- Browser preview: homepage and product detail at 390 px, plus both pages at
+  1440 px; no horizontal overflow in measured views. The Russian white logo,
+  hero, proof strip, category, catalog and product purchase panel were inspected.
 - A local fixture API supplied 1,000 products: 24 cards per page, URL page 2
   begins at product 25. No fixture files or synthetic products are deployed.
-- The preview browser has reduced motion enabled: computed product/page
-  animation is `none` and no sections remain pending. Normal-motion observer
-  behavior is covered by the Node test; full visual timing needs a browser with
-  motion enabled.
+- Reduced motion behavior is covered by the behavioral regression test,
+  including a live preference change. Normal-motion layouts were visually
+  inspected in the browser.
 - Existing tests cover catalog loading, taxonomy, product loading, mobile layout,
   hero slides, cookie consent, customer/admin surfaces and loyalty integration.
 
 ## Limits
 
-No Lighthouse score or before/after Core Web Vitals claim: a standalone browser
-could not be launched in this environment. New assets total about 9 KB before
-compression; performance still needs measurement on a deployed preview/device.
+No Lighthouse score or before/after Core Web Vitals claim. The three new shared
+motion/theme files total about 33 KB before compression and reuse existing local
+images; performance still needs measurement on a deployed preview/device.
 PHP/MySQL and authenticated admin/bonus transactions are not available locally;
 the repository's fresh/legacy CI suite is the server verification gate. Map
 embedding/external map availability and a full click-through checkout were not
