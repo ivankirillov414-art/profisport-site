@@ -255,6 +255,63 @@
         button.disabled=false;button.textContent='Отправить на модерацию';
       }
     }
+    const serviceStatusLabels={new:'Новая',contacted:'Связались',accepted:'Принята',diagnostics:'Диагностика',repair:'В ремонте',ready:'Готова к выдаче',completed:'Выдана',cancelled:'Отменена'};
+    let vehicleState=[],serviceState=[];
+    function vehicleTypeLabel(type){return type==='scooter'?'Самокат':'Велосипед'}
+    function vehicleImageMarkup(v){return v.image?'<img src="'+esc(v.image)+'" alt="" loading="lazy" decoding="async">':'<span class="vehicleImagePlaceholder">Фото техники</span>'}
+    function latestVehicleService(vehicleId){
+      return serviceState.find(function(r){return String(r.vehicle_id)===String(vehicleId)&&!['completed','cancelled'].includes(String(r.status||''))})||null;
+    }
+    function vehicleCardMarkup(v){
+      const current=latestVehicleService(v.id);
+      const status=current?'<span class="vehicleServiceState" data-status="'+esc(current.status)+'">'+esc(serviceStatusLabels[current.status]||current.status)+'</span>':'<span class="vehicleServiceState idle">Сервис не требуется</span>';
+      const product=v.product_id?'<a class="vehicleTitle" href="product.html?id='+encodeURIComponent(v.product_id)+'">'+esc(v.title)+'</a>':'<span class="vehicleTitle">'+esc(v.title)+'</span>';
+      return '<article class="vehicleCard" data-vehicle-card="'+Number(v.id)+'"><div class="vehicleImage">'+vehicleImageMarkup(v)+'</div><div class="vehicleBody"><div class="vehicleTop"><span class="vehicleType">'+esc(vehicleTypeLabel(v.vehicle_type))+'</span>'+status+'</div>'+product+'<div class="vehicleMeta"><span>Покупка: '+esc(formatDate(v.purchase_date)||'—')+'</span><span>Заказ '+esc(v.order_number||'—')+'</span>'+(Number(v.unit_index)>1?'<span>Экземпляр '+Number(v.unit_index)+'</span>':'')+'</div><div class="vehicleActions"><button type="button" data-service-vehicle="'+Number(v.id)+'">'+(current?'Новое обращение':'Записать в сервис')+'</button>'+(current?'<a href="#service-'+Number(current.id)+'">Текущий ремонт</a>':'')+'</div></div></article>';
+    }
+    function serviceHistoryMarkup(r){
+      const rows=Array.isArray(r.history)?r.history:[];
+      return rows.map(function(h,index){return '<div class="serviceTimelineRow'+(index===rows.length-1?' current':'')+'"><span></span><div><b>'+esc(serviceStatusLabels[h.status]||h.status)+'</b><small>'+esc(formatDateTime(h.created_at))+'</small></div></div>'}).join('');
+    }
+    function serviceRequestMarkup(r){
+      return '<article class="customerServiceCard" id="service-'+Number(r.id)+'"><div class="customerServiceHead"><div><span class="profileSectionKicker">'+esc(r.request_number)+'</span><h4>'+esc(r.vehicle_title||r.bike||'Техника')+'</h4></div><span class="serviceStatusChip" data-status="'+esc(r.status)+'">'+esc(serviceStatusLabels[r.status]||r.status)+'</span></div><div class="customerServiceMeta"><span>'+esc(r.service_type)+'</span><span>'+esc(formatDate(r.created_at))+'</span></div><p>'+esc(r.problem)+'</p><div class="serviceTimeline">'+serviceHistoryMarkup(r)+'</div></article>';
+    }
+    function renderVehiclesService(j){
+      vehicleState=Array.isArray(j.vehicles)?j.vehicles:[];
+      serviceState=Array.isArray(j.service_requests)?j.service_requests:[];
+      const active=serviceState.filter(function(r){return !['completed','cancelled'].includes(String(r.status||''))}).length;
+      $('#vehiclesCount').textContent=vehicleState.length;
+      $('#serviceQuickText').textContent=active?'Активный сервис: '+active:'Покупки и сервис';
+      $('#vehiclesSummary').textContent=vehicleState.length?'Техники в кабинете: '+vehicleState.length:'Покупки, которые можно обслуживать';
+      $('#serviceSummary').textContent=serviceState.length?(active?'Активных: '+active+' · Всего: '+serviceState.length:'Обращений: '+serviceState.length):'История обращений';
+      $('#customerVehicles').innerHTML=vehicleState.length?vehicleState.map(vehicleCardMarkup).join(''):'<div class="vehicleEmpty"><b>Техника появится здесь после завершённой покупки.</b><p>Велосипеды и самокаты из завершённых заказов добавляются автоматически.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
+      $('#customerServiceRequests').innerHTML=serviceState.length?serviceState.map(serviceRequestMarkup).join(''):'<div class="serviceEmpty"><b>Обращений в сервис пока нет.</b><p>Выберите технику выше, чтобы создать первую заявку.</p></div>';
+      document.querySelectorAll('[data-service-vehicle]').forEach(function(button){button.onclick=function(){const vehicle=vehicleState.find(function(v){return String(v.id)===String(button.dataset.serviceVehicle)});if(vehicle)openVehicleService(vehicle)}});
+      document.querySelectorAll('.vehicleImage img').forEach(function(img){img.onerror=function(){const ph=document.createElement('span');ph.className='vehicleImagePlaceholder';ph.textContent='Фото техники';img.replaceWith(ph)}});
+    }
+    function newServiceRequestKey(){
+      const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);return Array.from(bytes,function(b){return b.toString(16).padStart(2,'0')}).join('');
+    }
+    function openVehicleService(vehicle){
+      const box=$('#serviceComposer');box.classList.remove('hidden');
+      box.innerHTML='<div class="vehicleServiceComposerHead"><div><span class="profileSectionKicker">Новая заявка</span><h4>'+esc(vehicle.title)+'</h4></div><button type="button" class="secondary" id="closeVehicleService">Закрыть</button></div><form id="vehicleServiceForm" data-vehicle-id="'+Number(vehicle.id)+'" data-request-key="'+newServiceRequestKey()+'"><label>Что нужно сделать<select name="service_type" required><option value="Диагностика">Диагностика</option><option value="Тормоза">Тормоза</option><option value="Передачи и цепь">Передачи и цепь</option><option value="Колёса и покрышки">Колёса и покрышки</option><option value="Техническое обслуживание">Техническое обслуживание</option><option value="Сборка и настройка">Сборка и настройка</option><option value="Другое">Другое</option></select></label><label>Опишите проблему<textarea name="problem" minlength="5" maxlength="4000" rows="5" required placeholder="Что произошло, когда появилось, какие симптомы?"></textarea></label><div class="vehicleServiceComposerActions"><button type="submit">Отправить заявку</button><span id="vehicleServiceMessage" aria-live="polite"></span></div></form>';
+      $('#closeVehicleService').onclick=function(){box.classList.add('hidden');box.innerHTML=''};
+      $('#vehicleServiceForm').onsubmit=submitVehicleService;
+      box.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+    async function submitVehicleService(e){
+      e.preventDefault();const form=e.currentTarget,button=form.querySelector('button[type="submit"]'),message=$('#vehicleServiceMessage');
+      const data=Object.fromEntries(new FormData(form));data.vehicle_id=Number(form.dataset.vehicleId);data.request_key=form.dataset.requestKey;
+      button.disabled=true;button.textContent='Отправляем…';message.textContent='';
+      try{
+        const result=await api('service_submit',{method:'POST',body:JSON.stringify(data)});
+        message.textContent='Заявка '+result.request_number+' создана.';
+        await refresh(false);
+        document.querySelector('#vehicles-service').scrollIntoView({behavior:'smooth',block:'start'});
+      }catch(err){
+        message.textContent=err.message==='vehicle_not_found'?'Техника больше не доступна в кабинете.':err.message==='rate_limited'?'Слишком много заявок. Попробуйте позже.':'Не удалось создать заявку.';
+        button.disabled=false;button.textContent='Отправить заявку';
+      }
+    }
     function favoritePriceMarkup(p){
       const price=Number(p.price_rub||0),old=Number(p.old_price_rub||0);
       if(price<=0)return '<span class="favoritePriceUnknown">Цена уточняется</span>';
@@ -342,6 +399,7 @@
       $('#ordersCount').textContent=orders.length;
       $('#favoritesCount').textContent=favoriteIds.length;
       $('#reviewsCount').textContent=reviewsCount;
+      renderVehiclesService(j);
 
       const active=orders.find(o=>!['completed','cancelled'].includes(String(o.status||'')));
       const activeBox=$('#activeOrder'),activeStatus=$('#activeOrderStatus');
