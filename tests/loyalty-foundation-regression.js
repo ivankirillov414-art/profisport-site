@@ -16,6 +16,11 @@ const customers=read('admin/customers.php');
 const loyaltyPage=read('admin/loyalty.php');
 
 assert.match(engine,/enabled'=>false/,'loyalty must default to disabled');
+assert.match(engine,/category_exclusions_enabled'=>false/,'category_exclusions_enabled must default to disabled');
+assert.match(engine,/review_bonus_enabled'=>false/,'review_bonus_enabled must default to disabled');
+assert.match(engine,/expiration_enabled'=>false/,'expiration_enabled must default to disabled');
+assert.match(engine,/redeem_enabled'=>false/,'redeem_enabled must default to disabled');
+assert.match(engine,/earn_enabled'=>false/,'earn_enabled must default to disabled');
 assert.match(engine,/earn_percent_bp'=>null/,'earn percent must remain unset');
 assert.match(engine,/max_redeem_percent_bp'=>null/,'redeem percent must remain unset');
 assert.match(engine,/point_value_kopeks'=>null/,'point value must remain unset');
@@ -37,6 +42,6 @@ assert.match(create,/'category_path'=>\$x\['category_path'\]/,'order item must p
 assert.match(validation,/'category_path'=>\(string\)/,'order calculation must carry category');
 assert.match(admin,/href="loyalty\.php"/,'admin dashboard must link loyalty status');
 assert.match(customers,/Автоматическая бонусная программа сейчас выключена/,'customer admin must label program as disabled');
-assert.match(loyaltyPage,/Программа/,'loyalty admin status page must exist');
+assert.match(loyaltyPage,/Калькулятор бонусной системы/,'loyalty admin calculator page must exist');
 
 console.log('Loyalty engine foundation regression checks passed.');
