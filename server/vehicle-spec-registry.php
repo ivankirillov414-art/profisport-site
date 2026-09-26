@@ -5,6 +5,8 @@ const VEHICLE_SPEC_ASPECT_2025='https://aspect-bikes.ru/upload/media/aspect-cata
 const VEHICLE_SPEC_ASPECT_OASIS_2026='https://aspect-bikes.ru/catalog/aspect-oasis-275/';
 const VEHICLE_SPEC_ASPECT_OASIS_PRO_2026='https://www.aspect-bikes.ru/catalog/aspect-oasis-pro-275/';
 const VEHICLE_SPEC_SHIMANO_MT200='https://bike.shimano.com/en-SG/products/components/pdp.P-BR-MT200.html';
+const VEHICLE_SPEC_HAGEN_39_2025='https://hagen.bike/threenine';
+const VEHICLE_SPEC_HAGEN_311_2025='https://hagen.bike/mtbthreeelevenblack';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -123,6 +125,28 @@ function vehicle_spec_registry_2026_oasis(bool $pro): array {
     ],vehicle_spec_registry_common_controls($source,'Code-802 31.8×720','Code-302A 60 мм','Code-8510 27.2×350','Code-K355','Code H1 100/135 32H','Code D21'));
 }
 
+function vehicle_spec_registry_hagen_2025(string $model): array {
+    $is311=$model==='3.11';$source=$is311?VEHICLE_SPEC_HAGEN_311_2025:VEHICLE_SPEC_HAGEN_39_2025;
+    $components=[
+        vehicle_spec_registry_component('fork','fork','Вилка',$is311?'D3 AIR, 100-120mm, 30mm, rebound':'D3 MLO 30mm, 100-120mm',$source,null),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель',$is311?'RD-U6000 CUES 11':'RD-U4000 CUES 9',$source,'Shimano'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка',$is311?'SL-U6000 CUES 11 R':'SL-U4000 CUES 9 R',$source,'Shimano'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','HD MT-200 180/160mm',$source,'Shimano'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','HD MT-200 180/160mm',$source,'Shimano'),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета',$is311?'HR11 11-46T':'HR9 11-42T',$source,'Sunshine'),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','DH-901F/R 32H, sealed bearings',$source,null),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Alloy 31.8, 720/740mm, 5° sweep, 10mm rise',$source,null),
+        vehicle_spec_registry_component('cranks','cranks','Система',$is311?'RMZ 32T 170/175mm integrated axle':'CY-10 NW 32T 170/175mm',$source,'Prowheel'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Kenda 1259 2.25',$source,'Kenda'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Kenda 1259 2.25',$source,'Kenda'),
+        vehicle_spec_registry_component('pedals','pedals','Педали','B572 DU sealed bearing',$source,null),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','Alloy 31.6×350/400, 2-bolt',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','MTB, 100% PU, anatomical',$source,null),
+        vehicle_spec_registry_component('rims','wheels','Обода','DP-27 27mm, double wall, F/V 48mm',$source,null),
+    ];
+    return array_merge($components,vehicle_spec_registry_mt200_pads());
+}
+
 function vehicle_spec_registry_profiles(): array {
     $profiles=[];
     foreach(['27.5','29'] as $wheel){
@@ -134,6 +158,10 @@ function vehicle_spec_registry_profiles(): array {
     $profiles[]=['key'=>'aspect-aura-2025-27.5','brand'=>'Aspect','model'=>'Aura','year'=>2025,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_2025,'components'=>vehicle_spec_registry_2025_aura()];
     $profiles[]=['key'=>'aspect-oasis-2026-27.5','brand'=>'Aspect','model'=>'Oasis','year'=>2026,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_OASIS_2026,'components'=>vehicle_spec_registry_2026_oasis(false)];
     $profiles[]=['key'=>'aspect-oasis-pro-2026-27.5','brand'=>'Aspect','model'=>'Oasis Pro','year'=>2026,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_OASIS_PRO_2026,'components'=>vehicle_spec_registry_2026_oasis(true)];
+    foreach(['27.5','29'] as $wheel){
+        $profiles[]=['key'=>'hagen-3.9-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.9','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_39_2025,'components'=>vehicle_spec_registry_hagen_2025('3.9')];
+        $profiles[]=['key'=>'hagen-3.11-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.11','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_311_2025,'components'=>vehicle_spec_registry_hagen_2025('3.11')];
+    }
     return $profiles;
 }
 
