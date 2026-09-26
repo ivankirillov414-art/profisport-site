@@ -279,10 +279,11 @@ function vehicle_maintenance_alerts_for_customer(PDO $pdo,int $customerId,bool $
     if($customerId<1)return [];
     $statuses=$includeAcknowledged?"('open','acknowledged')":"('open')";
     $s=$pdo->prepare("SELECT a.id,a.vehicle_id,a.component_id,a.severity,a.wear_percent,a.title,a.message,a.status,a.first_seen_at,a.last_seen_at,a.acknowledged_at,
-        v.title vehicle_title,c.label component_label,c.compatible_product_id
+        v.title vehicle_title,c.label component_label,c.compatible_product_id,p.name compatible_product_name,p.price_rub compatible_product_price,p.stock_qty compatible_product_stock,p.is_active compatible_product_active
         FROM vehicle_maintenance_alerts a
         JOIN customer_vehicles v ON v.id=a.vehicle_id
         JOIN vehicle_components c ON c.id=a.component_id
+        LEFT JOIN products p ON p.id=c.compatible_product_id
         WHERE a.customer_id=? AND a.status IN $statuses AND v.is_active=1 AND c.is_active=1
         ORDER BY FIELD(a.severity,'due','soon'),a.last_seen_at DESC,a.id DESC");
     $s->execute([$customerId]);$rows=$s->fetchAll();
@@ -290,6 +291,11 @@ function vehicle_maintenance_alerts_for_customer(PDO $pdo,int $customerId,bool $
         $row['id']=(int)$row['id'];$row['vehicle_id']=(int)$row['vehicle_id'];$row['component_id']=(int)$row['component_id'];
         $row['wear_percent']=$row['wear_percent']!==null?(float)$row['wear_percent']:null;
         $row['compatible_product_id']=$row['compatible_product_id']!==null?(int)$row['compatible_product_id']:null;
+        $row['compatible_product']=$row['compatible_product_id']!==null?[
+            'id'=>$row['compatible_product_id'],'name'=>$row['compatible_product_name']??null,'price_rub'=>$row['compatible_product_price']!==null?(float)$row['compatible_product_price']:null,
+            'available'=>(int)($row['compatible_product_active']??0)===1&&(int)($row['compatible_product_stock']??0)>0&&(float)($row['compatible_product_price']??0)>0
+        ]:null;
+        unset($row['compatible_product_name'],$row['compatible_product_price'],$row['compatible_product_stock'],$row['compatible_product_active']);
     }unset($row);return $rows;
 }
 
