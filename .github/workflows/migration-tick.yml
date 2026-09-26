@@ -8,6 +8,7 @@ on:
       - '.github/workflows/migration-tick.yml'
       - 'api/migration-tick.php'
       - 'server/migration.php'
+      - 'server/vehicle-spec-registry.php'
       - 'tests/migration-readiness.js'
   schedule:
     - cron: '*/5 * * * *'
