@@ -112,8 +112,46 @@ try{
     $weakProduct->execute();vehicle_passport_auto_link_compatible_products($pdo,$vehicleId);$weakRow=component_row($pdo,(int)$weak['id']);
     vp_check($weakRow['compatible_product_id']===null,'model without a strong alphanumeric identifier must not auto-link');
 
+    $multiProduct=$pdo->prepare("INSERT INTO products(title,name,brand,model,sku,price_rub,price,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES('Цепь KMC Z99','Цепь KMC Z99','KMC','Z99','KMC-Z99',1500,1500,5,'in_stock','in_stock',1,'Велокомплектующие / Цепи',NULL,'[]')");
+    $multiProduct->execute();$multiProductId=(int)$pdo->lastInsertId();
+    $v2=$pdo->prepare("INSERT INTO customer_vehicles(customer_id,product_id,title,vehicle_type,order_number,purchase_date,is_active) VALUES(?,NULL,'Second Demo bicycle','bicycle','PASS-2',NOW(),1)");
+    $v2->execute([$customerId]);$vehicleId2=(int)$pdo->lastInsertId();
+    $chain1=vehicle_passport_save_component($pdo,$vehicleId,[
+        'component_key'=>'chain_purchase_test','hotspot_key'=>'chain','label'=>'Цепь покупки 1','manufacturer'=>'KMC','model'=>'Z99','compatible_product_id'=>$multiProductId,'source_type'=>'service','source_verified'=>true,'wear_mode'=>'time','baseline_life_value'=>100,'baseline_life_unit'=>'days','installed_at'=>(new DateTimeImmutable('-90 days'))->format('Y-m-d H:i:s')
+    ],1);
+    $chain2=vehicle_passport_save_component($pdo,$vehicleId2,[
+        'component_key'=>'chain_purchase_test','hotspot_key'=>'chain','label'=>'Цепь покупки 2','manufacturer'=>'KMC','model'=>'Z99','compatible_product_id'=>$multiProductId,'source_type'=>'service','source_verified'=>true,'wear_mode'=>'time','baseline_life_value'=>100,'baseline_life_unit'=>'days','installed_at'=>(new DateTimeImmutable('-90 days'))->format('Y-m-d H:i:s')
+    ],1);
+
+    insert_order_row($pdo,'orders',[
+        'customer_id'=>$customerId,'order_number'=>'REPL-TEST-1','customer_name'=>'Passport test','phone'=>'+79990000008','email'=>'passport-test@example.test',
+        'delivery_method'=>'pickup','pickup_store'=>'Проспект Победы, 79','address'=>null,'comment'=>null,'status'=>'completed',
+        'subtotal_rub'=>3000,'discount_rub'=>0,'total_rub'=>3000,'payable_rub'=>3000,'bonus_spent'=>0,'bonus_earned'=>0,
+        'request_key'=>str_repeat('a',64),'request_hash'=>str_repeat('b',64)
+    ]);$replacementOrderId=(int)$pdo->lastInsertId();
+    insert_order_row($pdo,'order_items',[
+        'order_id'=>$replacementOrderId,'product_id'=>$multiProductId,'title'=>'Цепь KMC Z99','base_price_rub'=>1500,'price_rub'=>1500,'discount_percent_bp'=>0,'discount_rub'=>0,
+        'quantity'=>2,'base_line_total_rub'=>3000,'line_total_rub'=>3000,'category_path'=>'Велокомплектующие / Цепи'
+    ]);
+    $synced=vehicle_passport_sync_replacement_purchases($pdo,$replacementOrderId);
+    vp_check($synced===1,'ambiguous compatible purchase must create one pending purchase record');
+    $pending=vehicle_replacement_pending_for_customer($pdo,$customerId);
+    $purchase=array_values(array_filter($pending,fn($x)=>(int)$x['product_id']===$multiProductId))[0]??null;
+    vp_check($purchase!==null&&(int)$purchase['remaining_qty']===2&&count($purchase['candidates'])===2,'ambiguous purchase must expose both candidate bicycles without guessing');
+
+    $firstAssign=vehicle_replacement_assign_customer($pdo,$customerId,(int)$purchase['id'],(int)$chain1['id']);
+    vp_check($firstAssign['remaining_qty']===1,'first explicit assignment must consume one purchased unit');
+    $pending=vehicle_replacement_pending_for_customer($pdo,$customerId);
+    $purchase=array_values(array_filter($pending,fn($x)=>(int)$x['product_id']===$multiProductId))[0]??null;
+    vp_check($purchase!==null&&(int)$purchase['remaining_qty']===1,'purchase must remain pending while quantity remains');
+
+    $secondAssign=vehicle_replacement_assign_customer($pdo,$customerId,(int)$purchase['id'],(int)$chain2['id']);
+    vp_check($secondAssign['remaining_qty']===0,'second explicit assignment must consume final purchased unit');
+    $pending=vehicle_replacement_pending_for_customer($pdo,$customerId);
+    vp_check(count(array_filter($pending,fn($x)=>(int)$x['product_id']===$multiProductId))===0,'fully assigned purchase must disappear from customer queue');
+
     $pdo->rollBack();
-    echo "PASS: vehicle passport truth, adaptive wear, alerts and strict unique compatible-product linking\n";
+    echo "PASS: vehicle passport truth, adaptive wear, alerts, compatible parts and explicit ambiguous-purchase assignment\n";
 }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 
 function next_component(array $rows,string $key): ?array { foreach($rows as $row)if(($row['component_key']??'')===$key)return $row;return null; }

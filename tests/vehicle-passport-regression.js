@@ -27,7 +27,8 @@ assert.match(domain,/\$samples===1=>0\.10/,'first personal cycle must have low w
 assert.match(domain,/\$samples===2=>0\.50/,'second personal cycle must materially personalize forecast');
 assert.match(domain,/default=>0\.90/,'mature personal history must dominate baseline without fully discarding it');
 assert.match(domain,/include_learning/,'events must be optionally excluded from learning');
-assert.match(domain,/count\(\$rows\)!==1/,'compatible-part purchase must not be assigned when several vehicles match');
+assert.match(domain,/count\(\$rows\)>1/,'compatible-part purchase with several vehicles must enter the explicit assignment queue');
+assert.match(domain,/vehicle_replacement_purchases/,'ambiguous compatible purchases must persist until the customer chooses');
 assert.match(domain,/replacement_purchase/,'compatible purchases must remain pending until installation is confirmed');
 assert.match(domain,/mode==='measurement'/,'real measurements must have a dedicated wear path');
 

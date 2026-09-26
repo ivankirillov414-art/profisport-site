@@ -19,6 +19,8 @@ try {
         'vehicle_component_events'=>['id','component_id','event_type','event_at','include_learning'],
         'vehicle_spec_research_queue'=>['id','product_id','title','match_key','status'],
         'vehicle_maintenance_alerts'=>['id','customer_id','vehicle_id','component_id','severity','status'],
+        'vehicle_replacement_purchases'=>['id','customer_id','order_id','order_item_id','product_id','quantity','status'],
+        'vehicle_replacement_assignments'=>['id','purchase_id','component_id','assigned_at'],
     ];
     foreach($required as $table=>$columns){
         $present=table_columns($pdo,$table);
