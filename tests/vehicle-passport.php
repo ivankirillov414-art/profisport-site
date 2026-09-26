@@ -63,6 +63,12 @@ try{
     $ack=array_values(array_filter($alerts,fn($x)=>(int)$x['component_id']===$alertId))[0]??null;
     vp_check($ack!==null&&$ack['status']==='acknowledged','acknowledged alert must remain visible until technical resolution');
 
+    $pdo->prepare('UPDATE vehicle_components SET baseline_life_value=85 WHERE id=?')->execute([$alertId]);
+    vehicle_passport_payload($pdo,$vehicleId,false);
+    $alerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
+    $escalated=array_values(array_filter($alerts,fn($x)=>(int)$x['component_id']===$alertId))[0]??null;
+    vp_check($escalated!==null&&$escalated['severity']==='due'&&$escalated['status']==='open','severity escalation must reopen an acknowledged alert');
+
     vehicle_passport_record_event($pdo,$alertId,['event_type'=>'replaced','event_at'=>date('Y-m-d H:i:s'),'include_learning'=>true],1);
     $passport=vehicle_passport_payload($pdo,$vehicleId,false);
     $alerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
