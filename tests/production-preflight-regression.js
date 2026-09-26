@@ -26,9 +26,10 @@ assert.doesNotMatch(h500,/<script\b/i,'error pages must stay static');
 for(const table of ['products','customers','orders','loyalty_transactions','customer_vehicles','service_requests','service_request_status_history']){
   assert.ok(health.includes("'"+table+"'"),'public health must verify '+table);
 }
-assert.match(health,/'schema' => true/,'healthy response must certify schema readiness');
+assert.match(health,/'schema'\s*=>\s*true/,'healthy response must certify schema readiness');
 assert.match(health,/503/,'unhealthy response must use service-unavailable status');
-assert.doesNotMatch(health,/getMessage\(\).*json_response/s,'public health must not expose exception messages');
+assert.match(health,/try \{\s*require __DIR__\.\'\/\.\.\/server\/bootstrap\.php\'/,'health must catch bootstrap failures instead of dying before JSON response');
+assert.doesNotMatch(health,/getMessage\(\)/,'public health must not expose exception messages');
 for(const table of ['loyalty_transactions','customer_vehicles','service_request_status_history']) assert.ok(adminHealth.includes("'"+table+"'"),'admin health missing '+table);
 
 assert.match(gitignore,/server\/config\.php/,'private server config must remain ignored');
