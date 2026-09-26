@@ -160,6 +160,7 @@ function loyalty_manual_adjustment(PDO $pdo,int $customerId,int $requestedAmount
         $current=(int)$current;$target=max(0,$current+$requestedAmount);$actual=$target-$current;
         if($actual===0){if($owns)$pdo->commit();return ['transaction_id'=>null,'amount'=>0,'balance'=>$current,'duplicate'=>false];}
         $result=loyalty_post($pdo,$customerId,$actual,'manual','admin',null,null,$note?:'Ручная корректировка',null,$adminUserId,['requested_amount'=>$requestedAmount]);
+        if($actual<0)loyalty_reconcile_customer_lots($pdo,$customerId);
         if($owns)$pdo->commit();return $result;
     }catch(Throwable $e){if($owns&&$pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
@@ -319,16 +320,29 @@ function loyalty_reserve_order_redemption(PDO $pdo,int $customerId,int $orderId,
 function loyalty_refund_order_redemption(PDO $pdo,int $orderId,?int $adminUserId=null): array {
     $q=$pdo->prepare("SELECT * FROM loyalty_transactions WHERE order_id=? AND kind='redeem_reserve' AND source_type='order' ORDER BY id DESC LIMIT 1");$q->execute([$orderId]);$reserve=$q->fetch();
     if(!$reserve)return ['refunded'=>0,'reason'=>'no_redemption'];
-    $customerId=(int)$reserve['customer_id'];$points=abs((int)$reserve['amount']);
-    $dup=$pdo->prepare("SELECT id,amount FROM loyalty_transactions WHERE customer_id=? AND kind='redeem_refund' AND source_type='order_refund' AND source_id=? LIMIT 1");$dup->execute([$customerId,(string)$orderId]);$existing=$dup->fetch();
-    if($existing)return ['refunded'=>(int)$existing['amount'],'reason'=>'duplicate'];
-    $balance=loyalty_available_balance($pdo,$customerId);$cfg=loyalty_config($pdo);$expires=loyalty_expiry_date($cfg);
-    $result=loyalty_post($pdo,$customerId,$points,'redeem_refund','order_refund',(string)$orderId,$orderId,'Возврат бонусов после отмены заказа',$expires,$adminUserId,['reserve_transaction_id'=>(int)$reserve['id']]);
+    $customerId=(int)$reserve['customer_id'];$points=abs((int)$reserve['amount']);$meta=loyalty_decode_metadata($reserve['metadata']??null);
+    $alreadyQ=$pdo->prepare("SELECT COALESCE(SUM(amount),0) FROM loyalty_transactions WHERE customer_id=? AND order_id=? AND kind='redeem_refund'");
+    $alreadyQ->execute([$customerId,$orderId]);$already=max(0,(int)$alreadyQ->fetchColumn());
+    if($already>=$points)return ['refunded'=>0,'reason'=>'duplicate','balance'=>loyalty_available_balance($pdo,$customerId)];
+    $left=$points-$already;$refunded=0;$allocations=is_array($meta['allocations']??null)?$meta['allocations']:[];
+    foreach($allocations as $allocation){
+        if($left<=0)break;
+        $creditId=(int)($allocation['transaction_id']??0);$amount=min($left,max(0,(int)($allocation['amount']??0)));if($amount<1)continue;
+        $expires=isset($allocation['expires_at'])&&is_string($allocation['expires_at'])&&$allocation['expires_at']!==''?$allocation['expires_at']:null;
+        $result=loyalty_post($pdo,$customerId,$amount,'redeem_refund','order_refund',$orderId.':'.$creditId,$orderId,'Возврат бонусов после отмены заказа',$expires,$adminUserId,['reserve_transaction_id'=>(int)$reserve['id'],'credit_transaction_id'=>$creditId,'restored_expiry'=>true]);
+        if(!$result['duplicate']){$refunded+=(int)$result['amount'];$left-=(int)$result['amount'];}
+        else $left=max(0,$left-$amount);
+    }
+    if($left>0){
+        $cfg=loyalty_config($pdo);
+        $result=loyalty_post($pdo,$customerId,$left,'redeem_refund','order_refund',$orderId.':fallback',$orderId,'Возврат бонусов после отмены заказа',loyalty_expiry_date($cfg),$adminUserId,['reserve_transaction_id'=>(int)$reserve['id'],'legacy_fallback'=>true]);
+        if(!$result['duplicate'])$refunded+=(int)$result['amount'];
+    }
+    if(loyalty_program_enabled($pdo))loyalty_expire_customer($pdo,$customerId);
     $order=$pdo->prepare('SELECT total_rub FROM orders WHERE id=? LIMIT 1');$order->execute([$orderId]);$total=(float)$order->fetchColumn();
     $pdo->prepare('UPDATE orders SET bonus_spent=0,payable_rub=? WHERE id=?')->execute([$total,$orderId]);
-    return ['refunded'=>$result['amount'],'reason'=>'refunded','balance'=>$result['balance']];
+    return ['refunded'=>$refunded,'reason'=>$refunded>0?'refunded':'duplicate','balance'=>loyalty_available_balance($pdo,$customerId)];
 }
-
 function loyalty_award_review(PDO $pdo,int $reviewId,int $customerId): array {
     $status=loyalty_program_status($pdo);$cfg=$status['config'];
     if(!$status['enabled'])return ['awarded'=>0,'reason'=>$status['configured']?'program_disabled':'program_unconfigured'];
