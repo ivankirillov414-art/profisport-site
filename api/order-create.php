@@ -4,7 +4,7 @@ require __DIR__.'/../server/bootstrap.php';
 require __DIR__.'/../server/order-validation.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-function order_result(array $row): never {json_response(['ok'=>true,'order_number'=>$row['order_number'],'total_rub'=>(int)$row['total_rub'],'bonus_spent'=>(int)($row['bonus_spent']??0),'payable_rub'=>(float)($row['payable_rub']??$row['total_rub'])]);}
+function order_result(array $row): never {json_response(['ok'=>true,'order_number'=>$row['order_number'],'subtotal_rub'=>(float)($row['subtotal_rub']??$row['total_rub']),'discount_rub'=>(float)($row['discount_rub']??0),'total_rub'=>(float)$row['total_rub'],'bonus_spent'=>(int)($row['bonus_spent']??0),'payable_rub'=>(float)($row['payable_rub']??$row['total_rub'])]);}
 function customer_id_from_session(): ?int {
   if(session_status()===PHP_SESSION_ACTIVE)session_write_close();
   ini_set('session.use_strict_mode','1');
@@ -16,7 +16,7 @@ try{
   if($_SERVER['REQUEST_METHOD']!=='POST')json_response(['ok'=>false,'error'=>'method_not_allowed'],405);
   $in=validate_order(input_json());
   $hash=hash('sha256',json_encode($in,JSON_UNESCAPED_UNICODE));
-  $find=$pdo->prepare('SELECT order_number,total_rub,bonus_spent,payable_rub,request_hash FROM orders WHERE request_key=?');
+  $find=$pdo->prepare('SELECT order_number,subtotal_rub,discount_rub,total_rub,bonus_spent,payable_rub,request_hash FROM orders WHERE request_key=?');
   $find->execute([$in['request_key']]);$existing=$find->fetch();
   if($existing){if(!hash_equals((string)$existing['request_hash'],$hash))json_response(['ok'=>false,'error'=>'request_conflict'],409);order_result($existing);}
   auth_rate_check($pdo,'order_create','',10,3600);auth_rate_failure($pdo,'order_create','',10,3600,3600);
@@ -26,26 +26,28 @@ try{
   $groups=$in['groups'];$marks=implode(',',array_fill(0,count($groups),'?'));
   $s=$pdo->prepare("SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active,category_path FROM products WHERE id IN ($marks) ORDER BY id FOR UPDATE");
   $s->execute(array_keys($groups));$calculated=order_lines($s->fetchAll(),$groups);
+  $priced=loyalty_discount_order_items($pdo,$calculated,$customerId);
   // This is a request for manager confirmation; stock remains owned by the 1C import.
   $number='PS-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
   insert_order_row($pdo,'orders',[
     'customer_id'=>$customerId,'order_number'=>$number,'customer_name'=>$in['name'],'phone'=>$in['phone'],
     'email'=>$in['email']?:null,'delivery_method'=>$in['delivery'],'pickup_store'=>$in['pickup_store']?:null,'address'=>$in['address']?:null,
-    'comment'=>$in['comment']?:null,'status'=>'new','total_rub'=>$calculated['total'],'payable_rub'=>$calculated['total'],'bonus_spent'=>0,'bonus_earned'=>0,
+    'comment'=>$in['comment']?:null,'status'=>'new','subtotal_rub'=>$priced['subtotal'],'discount_rub'=>$priced['discount'],'total_rub'=>$priced['total'],'payable_rub'=>$priced['total'],'bonus_spent'=>0,'bonus_earned'=>0,
     'request_key'=>$in['request_key'],'request_hash'=>$hash,
   ]);
   $orderId=(int)$pdo->lastInsertId();
-  foreach($calculated['items'] as $x)insert_order_row($pdo,'order_items',[
-    'order_id'=>$orderId,'product_id'=>$x['id'],'title'=>$x['title'],'price_rub'=>$x['price'],
-    'quantity'=>$x['qty'],'line_total_rub'=>$x['line'],'category_path'=>$x['category_path'],
+  foreach($priced['items'] as $x)insert_order_row($pdo,'order_items',[
+    'order_id'=>$orderId,'product_id'=>$x['id'],'title'=>$x['title'],'base_price_rub'=>$x['base_price'],'price_rub'=>$x['price'],
+    'discount_percent_bp'=>$x['discount_percent_bp'],'discount_rub'=>$x['discount_rub'],
+    'quantity'=>$x['qty'],'base_line_total_rub'=>$x['base_line'],'line_total_rub'=>$x['line'],'category_path'=>$x['category_path'],
   ]);
-  $redemption=['points'=>0,'payable_rub'=>$calculated['total']];
+  $redemption=['points'=>0,'payable_rub'=>$priced['total']];
   if((int)$in['bonus_spend']>0){
     if(!$customerId)throw new DomainException('loyalty_login_required');
-    $redemption=loyalty_reserve_order_redemption($pdo,$customerId,$orderId,(int)$calculated['total'],(int)$in['bonus_spend']);
+    $redemption=loyalty_reserve_order_redemption($pdo,$customerId,$orderId,(int)$priced['total'],(int)$in['bonus_spend']);
   }
   record_order_status($pdo,$orderId,'new',null,'checkout');
-  $pdo->commit();order_result(['order_number'=>$number,'total_rub'=>$calculated['total'],'bonus_spent'=>$redemption['points'],'payable_rub'=>$redemption['payable_rub']]);
+  $pdo->commit();order_result(['order_number'=>$number,'subtotal_rub'=>$priced['subtotal'],'discount_rub'=>$priced['discount'],'total_rub'=>$priced['total'],'bonus_spent'=>$redemption['points'],'payable_rub'=>$redemption['payable_rub']]);
 }catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>$e->getMessage()],422);
 }catch(DomainException $e){if($pdo->inTransaction())$pdo->rollBack();json_response(['ok'=>false,'error'=>$e->getMessage()],409);
 }catch(Throwable $e){
