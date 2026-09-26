@@ -99,16 +99,17 @@ function customer_vehicle_sync_order(PDO $pdo,int $orderId): int {
     if((string)$order['status']!=='completed'){
         $s=$pdo->prepare('UPDATE customer_vehicles SET is_active=0 WHERE source_order_id=?');$s->execute([$orderId]);return 0;
     }
-    $items=$pdo->prepare('SELECT oi.id order_item_id,oi.product_id,oi.title,oi.quantity,oi.category_path,p.main_image,p.images FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=? ORDER BY oi.id');
+    $items=$pdo->prepare('SELECT oi.id order_item_id,oi.product_id,oi.title,oi.quantity,oi.category_path,p.main_image,p.images,p.specs FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=? ORDER BY oi.id');
     $items->execute([$orderId]);$count=0;
-    $insert=$pdo->prepare("INSERT INTO customer_vehicles(customer_id,source_order_id,source_order_item_id,unit_index,product_id,title,vehicle_type,category_path,image_url,order_number,purchase_date,is_active)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,1)
-        ON DUPLICATE KEY UPDATE customer_id=VALUES(customer_id),product_id=VALUES(product_id),title=VALUES(title),vehicle_type=VALUES(vehicle_type),category_path=VALUES(category_path),image_url=VALUES(image_url),order_number=VALUES(order_number),purchase_date=VALUES(purchase_date),is_active=1");
+    $insert=$pdo->prepare("INSERT INTO customer_vehicles(customer_id,source_order_id,source_order_item_id,unit_index,product_id,title,vehicle_type,category_path,image_url,order_number,purchase_date,spec_snapshot,is_active)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,1)
+        ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id),customer_id=VALUES(customer_id),product_id=VALUES(product_id),title=VALUES(title),vehicle_type=VALUES(vehicle_type),category_path=VALUES(category_path),image_url=VALUES(image_url),order_number=VALUES(order_number),purchase_date=VALUES(purchase_date),spec_snapshot=COALESCE(spec_snapshot,VALUES(spec_snapshot)),is_active=1");
     foreach($items->fetchAll() as $item){
         $type=customer_vehicle_type((string)$item['title'],(string)($item['category_path']??''));if($type===null)continue;
         $image=customer_vehicle_image($item);$qty=max(1,min(20,(int)$item['quantity']));
         for($unit=1;$unit<=$qty;$unit++){
-            $insert->execute([(int)$order['customer_id'],$orderId,(int)$item['order_item_id'],$unit,$item['product_id']!==null?(int)$item['product_id']:null,(string)$item['title'],$type,(string)($item['category_path']??''),$image,(string)$order['order_number'],(string)$order['created_at']]);$count++;
+            $insert->execute([(int)$order['customer_id'],$orderId,(int)$item['order_item_id'],$unit,$item['product_id']!==null?(int)$item['product_id']:null,(string)$item['title'],$type,(string)($item['category_path']??''),$image,(string)$order['order_number'],(string)$order['created_at'],(string)($item['specs']??'')?:null]);
+            $vehicleId=(int)$pdo->lastInsertId();if($vehicleId>0&&function_exists('vehicle_passport_seed_vehicle'))vehicle_passport_seed_vehicle($pdo,$vehicleId);$count++;
         }
     }
     return $count;
@@ -123,9 +124,9 @@ function customer_vehicle_sync_customer(PDO $pdo,int $customerId): int {
 
 function customer_vehicle_rows(PDO $pdo,int $customerId): array {
     customer_vehicle_sync_customer($pdo,$customerId);
-    $s=$pdo->prepare('SELECT v.id,v.product_id,v.title,v.vehicle_type,v.category_path,v.image_url,v.order_number,v.purchase_date,v.unit_index,v.created_at,p.main_image,p.images FROM customer_vehicles v LEFT JOIN products p ON p.id=v.product_id WHERE v.customer_id=? AND v.is_active=1 ORDER BY COALESCE(v.purchase_date,v.created_at) DESC,v.id DESC');
+    $s=$pdo->prepare('SELECT v.id,v.product_id,v.title,v.vehicle_type,v.category_path,v.image_url,v.order_number,v.purchase_date,v.unit_index,v.serial_number,v.odometer_km,v.odometer_updated_at,v.created_at,p.main_image,p.images FROM customer_vehicles v LEFT JOIN products p ON p.id=v.product_id WHERE v.customer_id=? AND v.is_active=1 ORDER BY COALESCE(v.purchase_date,v.created_at) DESC,v.id DESC');
     $s->execute([$customerId]);$rows=$s->fetchAll();
-    foreach($rows as &$row){$row['id']=(int)$row['id'];$row['product_id']=$row['product_id']!==null?(int)$row['product_id']:null;$row['unit_index']=(int)$row['unit_index'];$row['image']=customer_vehicle_image($row);unset($row['main_image'],$row['images'],$row['image_url']);}unset($row);
+    foreach($rows as &$row){$row['id']=(int)$row['id'];$row['product_id']=$row['product_id']!==null?(int)$row['product_id']:null;$row['unit_index']=(int)$row['unit_index'];$row['odometer_km']=$row['odometer_km']!==null?(float)$row['odometer_km']:null;$row['image']=customer_vehicle_image($row);if(function_exists('vehicle_passport_payload'))$row['passport']=vehicle_passport_payload($pdo,(int)$row['id'],false);unset($row['main_image'],$row['images'],$row['image_url']);}unset($row);
     return $rows;
 }
 

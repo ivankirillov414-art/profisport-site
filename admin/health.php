@@ -12,6 +12,8 @@ $required=[
  'service_request_status_history'=>['id','service_request_id','status','created_at'],
  'customer_vehicles'=>['id','customer_id','source_order_id','title','vehicle_type','is_active'],
  'loyalty_transactions'=>['id','customer_id','amount','kind','status','remaining_amount','expires_at'],
+ 'vehicle_components'=>['id','vehicle_id','component_key','source_type','wear_mode','source_verified_at'],
+ 'vehicle_component_events'=>['id','component_id','event_type','event_at','include_learning'],
 ];
 foreach($required as $table=>$columns){
  try{$present=table_columns($pdo,$table);$missing=array_diff($columns,array_keys($present));$checks['Таблица '.$table]=$missing?'Не хватает полей: '.implode(', ',$missing):'OK';

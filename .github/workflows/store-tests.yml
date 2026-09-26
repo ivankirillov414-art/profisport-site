@@ -82,6 +82,7 @@ jobs:
           node tests/profile-block5-cookie-regression.js
           node tests/profile-phone-login-regression.js
           node tests/profile-vehicles-service-regression.js
+          node tests/vehicle-passport-regression.js
           node tests/admin-customer-card-regression.js
           node tests/customer-phone-login-regression.js
           node tests/loyalty-foundation-regression.js
@@ -110,6 +111,7 @@ jobs:
           php tests/seed.php
           php tests/loyalty-discounts.php
           php tests/loyalty-live.php
+          php tests/vehicle-passport.php
           php -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID"' EXIT
