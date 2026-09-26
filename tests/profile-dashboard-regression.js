@@ -8,14 +8,15 @@ const html=read('profile.html');
 const css=read('profile-dashboard.css');
 const api=read('api/customer.php');
 
-for(const id of ['customerPhone','activeOrder','activeOrderStatus','ordersCount','favoritesCount','reviewsCount','reviewsSummary']){
+for(const id of ['customerPhone','activeOrder','activeOrderStatus','ordersCount','loyaltyBalance','favoritesCount','reviewsCount','reviewsSummary','loyaltyDashboard']){
   assert.match(html,new RegExp('id="'+id+'"'),'profile dashboard must contain #'+id);
 }
 assert.match(html,/href="#orders"/,'orders quick card must point to orders');
 assert.match(html,/href="#favorites-section"/,'favorites quick card must point to favorites');
 assert.match(html,/href="#reviews"/,'reviews quick card must point to reviews');
 assert.match(html,/Активных заказов сейчас нет/,'dashboard must have active-order empty state');
-assert.doesNotMatch(html,/Бонусный баланс|История бонусов|id="bonus"|id="loyalty"/,'bonus program must stay hidden on dashboard');
+assert.match(html,/id="loyalty"/,'loyalty section must be visible in the customer dashboard');
+assert.match(html,/function renderCustomerLoyalty/,'dashboard must render live loyalty data');
 assert.match(api,/reviews_count/,'customer payload must expose review count');
 assert.match(api,/SELECT COUNT\(\*\) FROM product_reviews WHERE customer_id=\?/,'review count must be scoped to current customer');
 assert.match(css,/profileQuickGrid/,'dashboard styles must include quick cards');

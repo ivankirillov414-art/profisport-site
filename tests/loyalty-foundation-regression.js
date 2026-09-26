@@ -41,7 +41,11 @@ assert.match(create,/category_path FROM products/,'checkout must snapshot produc
 assert.match(create,/'category_path'=>\$x\['category_path'\]/,'order item must persist category snapshot');
 assert.match(validation,/'category_path'=>\(string\)/,'order calculation must carry category');
 assert.match(admin,/href="loyalty\.php"/,'admin dashboard must link loyalty status');
-assert.match(customers,/Автоматическая бонусная программа сейчас выключена/,'customer admin must label program as disabled');
+assert.match(customers,/Бонусная программа включена/,'customer admin must show live loyalty state');
+assert.match(engine,/function loyalty_reserve_order_redemption/,'loyalty engine must reserve checkout redemption');
+assert.match(engine,/function loyalty_consume_fifo/,'loyalty engine must consume points FIFO');
+assert.match(engine,/function loyalty_expire_customer/,'loyalty engine must expire unused points');
+assert.match(engine,/function loyalty_refund_order_redemption/,'loyalty engine must refund cancelled order redemptions');
 assert.match(loyaltyPage,/Калькулятор бонусной системы/,'loyalty admin calculator page must exist');
 
 console.log('Loyalty engine foundation regression checks passed.');

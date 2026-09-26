@@ -119,13 +119,15 @@ function customer_review_eligible(PDO $pdo,int $customerId): array {
   return $items;
 }
 function customer_payload(PDO $pdo,array $u): array {
-  $f=$pdo->prepare('SELECT product_id FROM customer_favorites WHERE customer_id=? ORDER BY created_at DESC');$f->execute([(int)$u['id']]);
-  $history=$pdo->prepare('SELECT amount,kind,note,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 20');$history->execute([(int)$u['id']]);
-  $orders=$pdo->prepare('SELECT order_number,status,total_rub,delivery_method,pickup_store,address,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 50');$orders->execute([(int)$u['id']]);
+  $customerId=(int)$u['id'];$program=loyalty_program_status($pdo);
+  if($program['enabled']){$u['bonus_balance']=loyalty_available_balance($pdo,$customerId);$program=loyalty_program_status($pdo);}
+  $f=$pdo->prepare('SELECT product_id FROM customer_favorites WHERE customer_id=? ORDER BY created_at DESC');$f->execute([$customerId]);
+  $history=$pdo->prepare('SELECT id,amount,kind,note,expires_at,status,created_at FROM loyalty_transactions WHERE customer_id=? ORDER BY id DESC LIMIT 30');$history->execute([$customerId]);
+  $orders=$pdo->prepare('SELECT order_number,status,total_rub,payable_rub,bonus_spent,bonus_earned,delivery_method,pickup_store,address,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 50');$orders->execute([$customerId]);
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
   $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
-  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'loyalty_program'=>loyalty_program_status($pdo),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,(int)$u['id']),'review_eligible'=>customer_review_eligible($pdo,(int)$u['id']),'vehicles'=>customer_vehicle_rows($pdo,(int)$u['id']),'service_requests'=>customer_service_rows($pdo,(int)$u['id']),'csrf'=>customer_csrf()];
+  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>customer_vehicle_rows($pdo,$customerId),'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
@@ -242,7 +244,7 @@ try{
   }
   if($action==='order'&&$_SERVER['REQUEST_METHOD']==='GET'){
     $u=customer_require($pdo);$number=trim((string)($_GET['number']??''));if($number==='')json_response(['ok'=>false,'error'=>'bad_order'],422);
-    $s=$pdo->prepare('SELECT id,order_number,status,total_rub,delivery_method,pickup_store,address,comment,created_at,updated_at FROM orders WHERE customer_id=? AND order_number=? LIMIT 1');$s->execute([(int)$u['id'],$number]);$order=$s->fetch();if(!$order)json_response(['ok'=>false,'error'=>'not_found'],404);
+    $s=$pdo->prepare('SELECT id,order_number,status,total_rub,payable_rub,bonus_spent,bonus_earned,delivery_method,pickup_store,address,comment,created_at,updated_at FROM orders WHERE customer_id=? AND order_number=? LIMIT 1');$s->execute([(int)$u['id'],$number]);$order=$s->fetch();if(!$order)json_response(['ok'=>false,'error'=>'not_found'],404);
     $items=$pdo->prepare('SELECT oi.product_id,oi.title,oi.price_rub,oi.quantity,oi.line_total_rub,p.main_image,p.images,p.is_active,p.stock_qty,p.stock_status,p.availability,p.price_rub AS current_price_rub FROM order_items oi LEFT JOIN products p ON p.id=oi.product_id WHERE oi.order_id=? ORDER BY oi.id');$items->execute([(int)$order['id']]);$itemRows=$items->fetchAll();
     foreach($itemRows as &$item){
       $item['image']=customer_order_image($item);

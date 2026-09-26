@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s);
-let csrf='',savedConfig=null,categoryOptions=[],canEdit=false;
+let csrf='',savedConfig=null,categoryOptions=[],canEdit=false,programLive=false,canActivate=false;
 const state={excluded:new Set()};
 const fmt=n=>Number(n||0).toLocaleString('ru-RU');
 const money=n=>fmt(Math.round(Number(n)||0))+' ₽';
@@ -121,12 +121,17 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 async function load(){
   const r=await fetch('../api/loyalty-admin.php',{cache:'no-store'}),j=await r.json();
   if(!r.ok||!j.ok)throw new Error(j.error||'load_failed');
-  csrf=j.csrf||'';canEdit=!!j.can_edit;categoryOptions=Array.isArray(j.category_options)?j.category_options:[];savedConfig=j.program?.config||{};
-  $('#programState').classList.toggle('live',!!j.program?.enabled);
-  $('#programState').innerHTML='<div><b>Программа '+(j.program?.enabled?'включена':'выключена')+'</b><p>'+(j.live_activation_available?'Боевой запуск доступен.':'Сейчас это безопасный конструктор: настройки сохраняются, но клиентские начисления и списания не запускаются.')+'</p></div><span class="statePill">'+(j.program?.configured?'Конфигурация собрана':'Черновик')+'</span>';
+  csrf=j.csrf||'';canEdit=!!j.can_edit;programLive=!!j.program?.enabled;canActivate=!!j.can_activate;categoryOptions=Array.isArray(j.category_options)?j.category_options:[];savedConfig=j.program?.config||{};
+  $('#programState').classList.toggle('live',programLive);
+  $('#programState').innerHTML='<div><b>Программа '+(programLive?'включена':'выключена')+'</b><p>'+(programLive?'Начисления, списания, возвраты и сгорание работают по сохранённым правилам.':'Настройки безопасны: боевой режим включается только отдельной кнопкой владельца.')+'</p></div><span class="statePill">'+(j.program?.configured?'Конфигурация собрана':'Черновик')+'</span>';
   $('#stats').innerHTML='<div class="stat"><span>Служебный баланс клиентов</span><b>'+fmt(j.stats?.customer_balance)+'</b></div><div class="stat"><span>Клиентов с балансом</span><b>'+fmt(j.stats?.customers_with_balance)+'</b></div><div class="stat"><span>Операций в ledger</span><b>'+fmt(j.stats?.transactions)+'</b></div>';
   applyConfig(savedConfig);
-  $('#saveDraft').disabled=!canEdit;$('#resetDraft').disabled=false;
+  $('#saveDraft').disabled=!canEdit||programLive;$('#resetDraft').disabled=programLive;
+  $('#activateProgram').hidden=programLive;$('#deactivateProgram').hidden=!programLive;
+  $('#activateProgram').disabled=!canEdit||!canActivate;$('#deactivateProgram').disabled=!canEdit;
+  const activation=$('#activationPanel');activation.classList.toggle('liveNow',programLive);activation.classList.toggle('liveReady',!programLive&&canActivate);
+  activation.querySelector('b').textContent=programLive?'Бонусная программа работает':'Боевой запуск управляется вручную';
+  activation.querySelector('p').textContent=programLive?'Чтобы изменить правила, сначала выключите программу. Уже зарезервированные бонусы при отмене заказа всё равно будут возвращены.':'Сохраните параметры, проверьте расчёт и включите программу отдельной кнопкой. Ничего не запускается автоматически.';
   if(!canEdit)$('#saveMsg').textContent='Редактирование доступно только владельцу.';
 }
 async function saveDraft(){
@@ -136,7 +141,18 @@ async function saveDraft(){
     if(!r.ok||!j.ok)throw new Error(j.error||'save_failed');
     csrf=j.csrf||csrf;savedConfig=j.program.config;applyConfig(savedConfig);msg.className='saveMsg ok';msg.textContent='Черновик сохранён. Программа остаётся выключенной.';
   }catch(e){msg.className='saveMsg err';msg.textContent='Не удалось сохранить: '+String(e.message||e)}
-  finally{btn.disabled=!canEdit}
+  finally{btn.disabled=!canEdit||programLive}
+}
+async function setProgram(action){
+  const btn=action==='activate'?$('#activateProgram'):$('#deactivateProgram'),msg=$('#saveMsg');
+  const question=action==='activate'?'Включить бонусную программу? После подтверждения начисления, списания и сгорание начнут работать по сохранённым правилам.':'Выключить бонусную программу? Уже зарезервированные бонусы при отмене заказов продолжат корректно возвращаться.';
+  if(!window.confirm(question))return;
+  btn.disabled=true;msg.className='saveMsg';msg.textContent=action==='activate'?'Включаю программу…':'Выключаю программу…';
+  try{
+    const r=await fetch('../api/loyalty-admin.php',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({action})}),j=await r.json();
+    if(!r.ok||!j.ok)throw new Error(j.error||'state_change_failed');
+    csrf=j.csrf||csrf;msg.className='saveMsg ok';msg.textContent=action==='activate'?'Программа включена.':'Программа выключена.';await load();
+  }catch(e){msg.className='saveMsg err';msg.textContent=e.message==='loyalty_not_configured'?'Сначала заполните и сохраните корректную конфигурацию.':'Не удалось изменить состояние программы.';btn.disabled=false}
 }
 function init(){
   [['earnPercentRange','earnPercentNumber',100],['redeemPercentRange','redeemPercentNumber',100],['pointValueRange','pointValueNumber',100],['expirationDaysRange','expirationDaysNumber',1],['minOrderRange','minOrderNumber',1],['reviewBonusRange','reviewBonusNumber',1]].forEach(x=>syncPair(...x));
@@ -145,6 +161,8 @@ function init(){
   $('#categorySearch').addEventListener('input',renderCategories);
   $('#addCustomCategory').addEventListener('click',()=>{const input=$('#customCategory'),v=input.value.trim();if(v){state.excluded.add(v.slice(0,250));input.value='';renderCategories();update()}});
   $('#saveDraft').addEventListener('click',saveDraft);
+  $('#activateProgram').addEventListener('click',()=>setProgram('activate'));
+  $('#deactivateProgram').addEventListener('click',()=>setProgram('deactivate'));
   $('#resetDraft').addEventListener('click',()=>{applyConfig(savedConfig);const msg=$('#saveMsg');msg.className='saveMsg';msg.textContent='Возвращён последний сохранённый черновик.'});
   load().catch(()=>{$('#programState').innerHTML='<div><b>Не удалось загрузить калькулятор</b><p>Обновите страницу и попробуйте снова.</p></div>'});
 }

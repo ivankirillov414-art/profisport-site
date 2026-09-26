@@ -31,6 +31,10 @@ function validate_order(array $in): array {
         $out['groups'][(int)$id]=($out['groups'][(int)$id]??0)+1;
     }
     ksort($out['groups']);
+    $bonus=$in['bonus_spend']??0;
+    if((!is_int($bonus)&&!is_string($bonus))||!preg_match('/^[0-9]{1,7}$/',(string)$bonus))throw new InvalidArgumentException('invalid_bonus_spend');
+    $out['bonus_spend']=(int)$bonus;
+    if($out['bonus_spend']<0||$out['bonus_spend']>1000000)throw new InvalidArgumentException('invalid_bonus_spend');
     $out['request_key']=$in['request_key']??'';
     if(!is_string($out['request_key'])||!preg_match('/^[a-f0-9]{64}$/',$out['request_key']))throw new InvalidArgumentException('invalid_request_key');
     return $out;

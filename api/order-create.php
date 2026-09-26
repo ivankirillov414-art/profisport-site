@@ -4,7 +4,7 @@ require __DIR__.'/../server/bootstrap.php';
 require __DIR__.'/../server/order-validation.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-function order_result(array $row): never {json_response(['ok'=>true,'order_number'=>$row['order_number'],'total_rub'=>(int)$row['total_rub']]);}
+function order_result(array $row): never {json_response(['ok'=>true,'order_number'=>$row['order_number'],'total_rub'=>(int)$row['total_rub'],'bonus_spent'=>(int)($row['bonus_spent']??0),'payable_rub'=>(float)($row['payable_rub']??$row['total_rub'])]);}
 function customer_id_from_session(): ?int {
   if(session_status()===PHP_SESSION_ACTIVE)session_write_close();
   ini_set('session.use_strict_mode','1');
@@ -16,7 +16,7 @@ try{
   if($_SERVER['REQUEST_METHOD']!=='POST')json_response(['ok'=>false,'error'=>'method_not_allowed'],405);
   $in=validate_order(input_json());
   $hash=hash('sha256',json_encode($in,JSON_UNESCAPED_UNICODE));
-  $find=$pdo->prepare('SELECT order_number,total_rub,request_hash FROM orders WHERE request_key=?');
+  $find=$pdo->prepare('SELECT order_number,total_rub,bonus_spent,payable_rub,request_hash FROM orders WHERE request_key=?');
   $find->execute([$in['request_key']]);$existing=$find->fetch();
   if($existing){if(!hash_equals((string)$existing['request_hash'],$hash))json_response(['ok'=>false,'error'=>'request_conflict'],409);order_result($existing);}
   auth_rate_check($pdo,'order_create','',10,3600);auth_rate_failure($pdo,'order_create','',10,3600,3600);
@@ -39,8 +39,13 @@ try{
     'order_id'=>$orderId,'product_id'=>$x['id'],'title'=>$x['title'],'price_rub'=>$x['price'],
     'quantity'=>$x['qty'],'line_total_rub'=>$x['line'],'category_path'=>$x['category_path'],
   ]);
+  $redemption=['points'=>0,'payable_rub'=>$calculated['total']];
+  if((int)$in['bonus_spend']>0){
+    if(!$customerId)throw new DomainException('loyalty_login_required');
+    $redemption=loyalty_reserve_order_redemption($pdo,$customerId,$orderId,(int)$calculated['total'],(int)$in['bonus_spend']);
+  }
   record_order_status($pdo,$orderId,'new',null,'checkout');
-  $pdo->commit();order_result(['order_number'=>$number,'total_rub'=>$calculated['total']]);
+  $pdo->commit();order_result(['order_number'=>$number,'total_rub'=>$calculated['total'],'bonus_spent'=>$redemption['points'],'payable_rub'=>$redemption['payable_rub']]);
 }catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>$e->getMessage()],422);
 }catch(DomainException $e){if($pdo->inTransaction())$pdo->rollBack();json_response(['ok'=>false,'error'=>$e->getMessage()],409);
 }catch(Throwable $e){
