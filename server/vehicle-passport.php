@@ -84,6 +84,10 @@ function ensure_vehicle_passport_schema(PDO $pdo): void {
     $eventCols=table_columns($pdo,'vehicle_component_events');
     $eventDefs=['source_order_id'=>'BIGINT UNSIGNED NULL','source_product_id'=>'BIGINT UNSIGNED NULL'];
     foreach($eventDefs as $name=>$def)if(!isset($eventCols[$name]))$pdo->exec("ALTER TABLE vehicle_component_events ADD COLUMN `$name` $def");
+    try{
+        $idx=[];foreach($pdo->query('SHOW INDEX FROM vehicle_component_events') as $row)$idx[(string)$row['Key_name']]=true;
+        if(!isset($idx['idx_component_purchase_event']))$pdo->exec('CREATE UNIQUE INDEX idx_component_purchase_event ON vehicle_component_events(component_id,event_type,source_order_id,source_product_id)');
+    }catch(Throwable $e){error_log('vehicle_passport_event_index_migration_failed: '.$e->getMessage());}
 }
 
 function vehicle_passport_component_templates(): array {
