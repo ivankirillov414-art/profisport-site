@@ -63,6 +63,7 @@ jobs:
           node tests/customer-phone-login-regression.js
           node tests/profile-vehicles-service-regression.js
           node tests/vehicle-passport-regression.js
+          node tests/vehicle-maintenance-alerts-regression.js
           node tests/vehicle-spec-registry-regression.js
           node tests/admin-customer-card-regression.js
           node tests/loyalty-foundation-regression.js
@@ -329,8 +330,11 @@ jobs:
           if isinstance(payload,dict):
               assert payload.get('ok') is True, payload
               vehicle=payload.get('vehicle_specs') or {}
+              maintenance=payload.get('maintenance') or {}
               assert vehicle.get('version'), payload
+              assert maintenance.get('date'), payload
               print('vehicle spec maintenance:', vehicle)
+              print('vehicle wear maintenance:', maintenance)
               raise SystemExit(0)
           lower=body.lower()
           if any(x in lower for x in ('<html','<!doctype','aes.js','javascript is required')):
