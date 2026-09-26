@@ -8,7 +8,10 @@ $required=[
  'orders'=>['id','customer_id','order_number','customer_name','phone','email','delivery_method','address','comment','status','total_rub','request_key','request_hash','created_at'],
  'order_items'=>['id','order_id','product_id','title','price_rub','quantity','line_total_rub'],
  'products'=>['id','name','price_rub','stock_qty','is_active'],
- 'service_requests'=>['id','request_number','name','phone','status','request_key'],
+ 'service_requests'=>['id','request_number','customer_id','vehicle_id','name','phone','status','request_key'],
+ 'service_request_status_history'=>['id','service_request_id','status','created_at'],
+ 'customer_vehicles'=>['id','customer_id','source_order_id','title','vehicle_type','is_active'],
+ 'loyalty_transactions'=>['id','customer_id','amount','kind','status','remaining_amount','expires_at'],
 ];
 foreach($required as $table=>$columns){
  try{$present=table_columns($pdo,$table);$missing=array_diff($columns,array_keys($present));$checks['Таблица '.$table]=$missing?'Не хватает полей: '.implode(', ',$missing):'OK';

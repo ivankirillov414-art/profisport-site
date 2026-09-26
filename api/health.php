@@ -1,23 +1,42 @@
 <?php
 declare(strict_types=1);
-require __DIR__.'/../server/bootstrap.php';
 
+header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+
 try {
+    require __DIR__.'/../server/bootstrap.php';
     $pdo->query('SELECT 1')->fetchColumn();
-    $active = (int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1')->fetchColumn();
-    json_response([
-        'ok' => true,
-        'database' => true,
-        'catalog_active' => $active,
-        'service' => 'profisport-store',
-        'time' => gmdate('c'),
-    ]);
+    $required=[
+        'products'=>['id','name','price_rub','stock_qty','is_active'],
+        'customers'=>['id','email','phone','bonus_balance'],
+        'orders'=>['id','customer_id','total_rub','payable_rub','bonus_spent','bonus_earned'],
+        'loyalty_transactions'=>['id','customer_id','amount','status','remaining_amount'],
+        'customer_vehicles'=>['id','customer_id','is_active'],
+        'service_requests'=>['id','customer_id','vehicle_id','status'],
+        'service_request_status_history'=>['id','service_request_id','status'],
+    ];
+    foreach($required as $table=>$columns){
+        $present=table_columns($pdo,$table);
+        foreach($columns as $column)if(!isset($present[$column]))throw new RuntimeException('schema_not_ready');
+    }
+    $active=(int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1')->fetchColumn();
+    http_response_code(200);
+    echo json_encode([
+        'ok'=>true,
+        'database'=>true,
+        'schema'=>true,
+        'catalog_active'=>$active,
+        'service'=>'profisport-store',
+        'time'=>gmdate('c'),
+    ],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
     error_log($e->__toString());
-    json_response([
-        'ok' => false,
-        'database' => false,
-        'service' => 'profisport-store',
-    ], 503);
+    http_response_code(503);
+    echo json_encode([
+        'ok'=>false,
+        'database'=>false,
+        'schema'=>false,
+        'service'=>'profisport-store',
+    ],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
 }
