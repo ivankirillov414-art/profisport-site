@@ -16,11 +16,12 @@ assert.match(bootstrap,/ensure_vehicle_spec_registry_schema\(\$pdo\)/,'registry 
 for(const fn of ['vehicle_spec_registry_profiles','vehicle_spec_registry_match','vehicle_spec_registry_scan_catalog','vehicle_spec_registry_apply_vehicle','vehicle_spec_registry_apply_all','vehicle_spec_registry_queue']){
   assert.match(registry,new RegExp('function '+fn+'\\b'),'registry missing '+fn);
 }
-for(const key of ['aspect-nickel-pro-2025-','aspect-nickel-elite-2025-','aspect-cobalt-pro-2025-','aspect-aura-2025-27.5','aspect-oasis-2026-27.5','aspect-oasis-pro-2026-27.5','hagen-3.9-2025-','hagen-3.11-2025-']){
+for(const key of ['aspect-nickel-pro-2025-','aspect-nickel-elite-2025-','aspect-cobalt-pro-2025-','aspect-aura-2025-27.5','aspect-oasis-2026-27.5','aspect-oasis-pro-2026-27.5','hagen-3.9-2025-','hagen-3.11-2025-','welt-rocket-3.0-hd-2026-']){
   assert.ok(registry.includes(key),'verified profile family missing '+key);
 }
 assert.match(registry,/HAGEN_39_2025/,'registry must include the official Hagen 3.9 source');
 assert.match(registry,/HAGEN_311_2025/,'registry must include the official Hagen 3.11 source');
+assert.match(registry,/WELT_ROCKET_30_HD_2026/,'registry must include the official Welt Rocket 3.0 HD source');
 assert.match(registry,/B05S-RX Resin/,'MT200 profile must include Shimano-confirmed B05S-RX pads');
 assert.match(registry,/bike\.shimano\.com/,'pad model must carry Shimano source');
 assert.doesNotMatch(registry,/baseline_life_value.*B05S|B05S[\s\S]{0,200}baseline_life_value/,'registry must not invent a pad lifetime');
