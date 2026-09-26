@@ -85,12 +85,15 @@ p1['price_rub']=200;p1['old_price_rub']=300;p1['stock_qty']=2;p1['is_active']=1
 assert call('api/product-admin.php',p1,cookie,csrf)[0]==200
 assert call('api/customer.php?action=me')[1]['customer'] is None
 print('PASS: authenticated checkout, pickup store, photo, exact status history and safe repeat-order preview')
-for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php']:
+for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php','loyalty.php']:
     with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
         assert r.geturl().endswith('/admin/login.php'),page
 print('PASS: protected admin pages redirect unauthenticated visitors')
 stats=call('server/api.php?action=stats',cookie=cookie)[1]
 assert stats['customers']==1 and stats['new_service']==0
+assert call('api/loyalty-admin.php')[0]==401
+status,loyalty_status,_=call('api/loyalty-admin.php',cookie=cookie);assert status==200
+assert loyalty_status['program']['enabled'] is False and loyalty_status['program']['configured'] is False
 for page in ['categories.php','stats.php']:
     req=urllib.request.Request(BASE+'admin/'+page,headers={'Cookie':cookie})
     with urllib.request.urlopen(req,timeout=15) as r: assert r.status==200 and r.geturl().endswith(page)
@@ -142,14 +145,24 @@ fixed={**review,'rating':4,'text':'Updated verified purchase review after modera
 status,resubmitted,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert status==200 and resubmitted['resubmitted'] is True and resubmitted['review_id']==review_id
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id and pending[0]['rating']==4
 approval={'review_id':review_id,'action':'approve','bonus':50}
-assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
+status,approved,_=call('api/review-moderation.php',approval,cookie,csrf);assert status==200
+assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_unconfigured'
 assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
 status,approved_duplicate,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert (status,approved_duplicate['error'])==(409,'duplicate_review')
 public_review=call('api/customer.php?action=reviews&product_id=1')[1]
 assert public_review['count']==1 and public_review['items'][0]['verified_purchase'] is True
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
 assert account['review_details'][0]['status']=='approved' and account['review_details'][0]['rating']==4
-assert account['customer']['bonus_balance']==50 and len(account['loyalty'])==1
+assert account['customer']['bonus_balance']==0 and len(account['loyalty'])==0
+assert account['loyalty_program']['enabled'] is False and account['loyalty_program']['configured'] is False
+manual={'customer_id':account['customer']['id'],'amount':40,'note':'Test ledger adjustment'}
+assert call('api/customer-admin.php',manual,cookie)[0]==403
+status,adjusted,_=call('api/customer-admin.php',manual,cookie,csrf);assert status==200 and adjusted['bonus_balance']==40 and adjusted['actual_amount']==40
+account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account['customer']['bonus_balance']==40 and len(account['loyalty'])==1 and account['loyalty'][0]['kind']=='manual'
+status,adjusted,_=call('api/customer-admin.php',{**manual,'amount':-40,'note':'Reset test ledger'},cookie,csrf);assert status==200 and adjusted['bonus_balance']==0
+account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
+assert account['customer']['bonus_balance']==0 and len(account['loyalty'])==2
 profile={'name':'Updated','last_name':'Buyer','email':'buyer@example.test','phone':'+79991112233','birth_date':'1990-02-03','preferred_store':'Проспект Победы, 79','current_password':''}
 status,updated,_=call('api/customer.php?action=profile_update',profile,customer_cookie,customer_csrf);assert status==200
 assert updated['customer']['name']=='Updated' and updated['customer']['phone']=='+79991112233' and updated['customer']['birth_date']=='1990-02-03' and updated['customer']['preferred_store']=='Проспект Победы, 79'
@@ -163,5 +176,5 @@ assert call('api/customer.php?action=logout',{},customer_cookie,customer_csrf)[0
 assert call('api/customer.php?action=me',cookie=customer_cookie)[1]['customer'] is None
 assert call('api/customer.php?action=login',{'email':'buyer@example.test','password':'test-only-password'})[0]==401
 status,logged,h=call('api/customer.php?action=login',{'email':'updated-buyer@example.test','password':'test-only-password'})
-assert status==200 and logged['customer']['bonus_balance']==50 and logged['customer']['preferred_store']=='Проспект Победы, 79'
-print('PASS: account login/logout, favorites, reviews, secure profile editing, preferred store and email change')
+assert status==200 and logged['customer']['bonus_balance']==0 and logged['customer']['preferred_store']=='Проспект Победы, 79'
+print('PASS: account, reviews, disabled automatic loyalty, ledger corrections, profile editing and email change')
