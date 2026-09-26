@@ -19,7 +19,10 @@ const VEHICLE_SPEC_STARK_VIVA_273_HD_2025='https://stark.ru/bikes/velosipedy/gor
 const VEHICLE_SPEC_STARK_VIVA_275_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-5-hd-2025/';
 const VEHICLE_SPEC_WELT_STORM_26_MD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/gornye/Welt_Storm_26?optionId=1201';
 const VEHICLE_SPEC_WELT_ICON_20_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/gornye/icon2_2026?optionId=1149';
-const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch3';
+const VEHICLE_SPEC_WELT_BRAVE_10_20_VB_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/brave1vb_2026?optionId=1040';
+const VEHICLE_SPEC_WELT_BRAVE_10_24_MD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/brave1md24_2026?optionId=1060';
+const VEHICLE_SPEC_WELT_BRAVE_20_24_HD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/brave2hd24_2026?optionId=1064';
+const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch4';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -217,6 +220,64 @@ function vehicle_spec_registry_welt_icon_20_2026(string $wheel): array {
     ],vehicle_spec_registry_mt200_pads());
 }
 
+function vehicle_spec_registry_welt_brave_10_20_vb_2026(): array {
+    $source=VEHICLE_SPEC_WELT_BRAVE_10_20_VB_2026;
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','2ROXX 440 Alloy, 60mm, Preload, Tapered Crown, MLO, Soft spring',$source,'2ROXX'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy, double wall',$source,null),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','LGR-A201',$source,null),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','CST 3030 20x2.125',$source,'CST'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','CST 3030 20x2.125',$source,'CST'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Tourney TY-300',$source,'Shimano'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','TS38-7',$source,'Microshift'),
+        vehicle_spec_registry_component('cranks','cranks','Система','TL097 Alloy 130mm*32T',$source,null),
+        vehicle_spec_registry_component('cassette','drivetrain','Трещотка','FW 14-28T, ED Black',$source,null),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','YX-C22 V-Brake',$source,null),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','YX-C22 V-Brake',$source,null),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Alloy, 31.8×560mm, 6° Backsweep',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','WL-8182, Teens Morphology',$source,null),
+    ];
+}
+
+function vehicle_spec_registry_welt_brave_10_24_md_2026(): array {
+    $source=VEHICLE_SPEC_WELT_BRAVE_10_24_MD_2026;
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','2ROXX Alloy, MLO, Preload, 80mm, Soft spring',$source,'2ROXX'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy, double wall',$source,null),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','LGR-A208 F/R',$source,null),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Kenda Booster K1227 24x2.2',$source,'Kenda'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Kenda Booster K1227 24x2.2',$source,'Kenda'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Tourney TY-300',$source,'Shimano'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','TS38-7',$source,'Microshift'),
+        vehicle_spec_registry_component('cranks','cranks','Система','TL097 Alloy 140mm*32T',$source,null),
+        vehicle_spec_registry_component('cassette','drivetrain','Трещотка','FW 14-28T, ED Black',$source,null),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','DSC310 Mechanical Disc',$source,'Repute'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','DSC310 Mechanical Disc',$source,'Repute'),
+        vehicle_spec_registry_component('brake_rotors','front_brake','Тормозные диски','160/160 mm',$source,'Repute'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','JTA-8720 Alloy, 31.8×60mm',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','WL-8182, Teens Morphology',$source,null),
+    ];
+}
+
+function vehicle_spec_registry_welt_brave_20_24_hd_2026(): array {
+    $source=VEHICLE_SPEC_WELT_BRAVE_20_24_HD_2026;
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','2ROXX Alloy, MLO, Preload, 80mm, Soft spring',$source,'2ROXX'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy, double wall',$source,null),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','LGR-A208 F/R',$source,null),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Kenda Booster K1228 24x2.2',$source,'Kenda'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Kenda Booster K1228 24x2.2',$source,'Kenda'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Altus RD-M310, 8sp',$source,'Shimano'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','Altus SL-M315, 8sp',$source,'Shimano'),
+        vehicle_spec_registry_component('cranks','cranks','Система','TL097 Alloy 140mm*32T',$source,null),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','HG200-8 12-32T',$source,'Shimano'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','TKD176 Hydraulic Disc',$source,'Tektro'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','TKD176 Hydraulic Disc',$source,'Tektro'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','JTA-8720 Alloy, 31.8×60mm',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','WL-8182, Teens Morphology',$source,null),
+    ];
+}
+
 function vehicle_spec_registry_stark_router_2024(string $model): array {
     $is4=str_contains($model,'.4');$wheel=str_starts_with($model,'29')?'29':'27.5';
     $source=match($model){
@@ -327,6 +388,9 @@ function vehicle_spec_registry_profiles(): array {
         $profiles[]=['key'=>'welt-icon-2.0-2026-'.$wheel,'brand'=>'Welt','model'=>'Icon 2.0','year'=>2026,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_WELT_ICON_20_2026,'components'=>vehicle_spec_registry_welt_icon_20_2026($wheel)];
     }
     $profiles[]=['key'=>'welt-storm-26-md-2026-26','brand'=>'Welt','model'=>'Storm 26 MD','year'=>2026,'wheel'=>'26','source_url'=>VEHICLE_SPEC_WELT_STORM_26_MD_2026,'components'=>vehicle_spec_registry_welt_storm_26_md_2026()];
+    $profiles[]=['key'=>'welt-brave-1.0-20-vb-2026-20','brand'=>'Welt','model'=>'Brave 1.0 20 VB','year'=>2026,'wheel'=>'20','wheel_in_model'=>true,'source_url'=>VEHICLE_SPEC_WELT_BRAVE_10_20_VB_2026,'components'=>vehicle_spec_registry_welt_brave_10_20_vb_2026()];
+    $profiles[]=['key'=>'welt-brave-1.0-24-md-2026-24','brand'=>'Welt','model'=>'Brave 1.0 24 MD','year'=>2026,'wheel'=>'24','wheel_in_model'=>true,'source_url'=>VEHICLE_SPEC_WELT_BRAVE_10_24_MD_2026,'components'=>vehicle_spec_registry_welt_brave_10_24_md_2026()];
+    $profiles[]=['key'=>'welt-brave-2.0-24-hd-2026-24','brand'=>'Welt','model'=>'Brave 2.0 24 HD','year'=>2026,'wheel'=>'24','wheel_in_model'=>true,'source_url'=>VEHICLE_SPEC_WELT_BRAVE_20_24_HD_2026,'components'=>vehicle_spec_registry_welt_brave_20_24_hd_2026()];
     foreach(['27.3','29.3','27.4','29.4'] as $model){
         $wheel=str_starts_with($model,'29')?'29':'27.5';
         $source=match($model){'27.3'=>VEHICLE_SPEC_STARK_ROUTER_273_2024,'29.3'=>VEHICLE_SPEC_STARK_ROUTER_293_2024,'27.4'=>VEHICLE_SPEC_STARK_ROUTER_274_2024,'29.4'=>VEHICLE_SPEC_STARK_ROUTER_294_2024};
