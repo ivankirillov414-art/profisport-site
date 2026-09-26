@@ -40,7 +40,7 @@ assert.equal(exists('server/config.php'),false,'production credentials must not 
 assert.match(deploy,/preflight:/,'deployment must have a dedicated preflight job');
 assert.match(deploy,/schema: \[fresh, legacy\]/,'deploy preflight must cover fresh and legacy schemas');
 assert.match(deploy,/deploy:\s*\n\s*needs: preflight/,'FTP deployment must wait for preflight');
-for(const check of ['profile-phone-login-regression.js','customer-phone-login-regression.js','admin-customer-card-regression.js','vehicle-passport-regression.js','vehicle-maintenance-alerts-regression.js','vehicle-spec-registry-regression.js','loyalty-live-regression.js','production-preflight-regression.js','tests/loyalty-live.php','tests/vehicle-passport.php','tests/vehicle-spec-registry.php','tests/phone-login-http.py']){
+for(const check of ['profile-phone-login-regression.js','customer-phone-login-regression.js','admin-customer-card-regression.js','vehicle-passport-regression.js','vehicle-maintenance-alerts-regression.js','vehicle-compatible-parts-regression.js','vehicle-spec-registry-regression.js','loyalty-live-regression.js','production-preflight-regression.js','tests/loyalty-live.php','tests/vehicle-passport.php','tests/vehicle-spec-registry.php','tests/phone-login-http.py']){
   assert.ok(deploy.includes(check),'deploy gate missing '+check);
 }
 for(const deployed of ['404.html','500.html','admin/customer.php','admin/vehicle.php','admin/vehicle-specs.php','api/vehicle-passport-admin.php','api/vehicle-spec-admin.php','server/vehicle-passport.php','server/vehicle-spec-registry.php']) assert.ok(deploy.includes(deployed),'FTP verification missing '+deployed);
