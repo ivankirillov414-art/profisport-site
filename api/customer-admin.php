@@ -53,14 +53,27 @@ function customer_detail(PDO $pdo,int $id): ?array {
     'service_requests'=>customer_service_rows($pdo,$id),
     'audit'=>$audit->fetchAll(),
     'loyalty_program'=>loyalty_program_status($pdo),
+    'customer_discount'=>loyalty_customer_discount($pdo,$id),
+    'discount_groups'=>loyalty_config($pdo)['discount_groups']??[],
   ];
 }
 
 try{
   $admin=require_admin();
   if($_SERVER['REQUEST_METHOD']==='POST'){
-    csrf_check();$in=input_json();$id=(int)($in['customer_id']??0);$amount=(int)($in['amount']??0);$note=trim((string)($in['note']??'Ручная корректировка'));
-    if($id<1||$amount===0||abs($amount)>1000000)out(['ok'=>false,'error'=>'bad_input'],422);
+    csrf_check();$in=input_json();$action=(string)($in['action']??'bonus_adjust');$id=(int)($in['customer_id']??0);
+    if($id<1)out(['ok'=>false,'error'=>'bad_input'],422);
+    if($action==='set_discount'){
+      if(($admin['role']??'')!=='owner')out(['ok'=>false,'error'=>'forbidden'],403);
+      $enabled=($in['enabled']??false)===true;$percentBp=(int)($in['percent_bp']??0);
+      $groupKey=isset($in['group_key'])?(string)$in['group_key']:null;$note=isset($in['note'])?(string)$in['note']:null;
+      $discount=loyalty_set_customer_discount($pdo,$id,$enabled,$percentBp,$groupKey,$note,(int)$admin['id']);
+      audit($pdo,'customer_discount_set','customer',(string)$id,['enabled'=>$discount['enabled'],'percent_bp'=>$discount['percent_bp'],'group_key'=>$discount['group_key']]);
+      out(['ok'=>true,'customer_discount'=>$discount]);
+    }
+    if($action!=='bonus_adjust')out(['ok'=>false,'error'=>'bad_action'],422);
+    $amount=(int)($in['amount']??0);$note=trim((string)($in['note']??'Ручная корректировка'));
+    if($amount===0||abs($amount)>1000000)out(['ok'=>false,'error'=>'bad_input'],422);
     $result=loyalty_manual_adjustment($pdo,$id,$amount,$note?:'Ручная корректировка',(int)($admin['id']??0));
     audit($pdo,'customer_bonus_adjust','customer',(string)$id,['amount'=>$result['amount'],'note'=>$note,'program_enabled'=>loyalty_program_enabled($pdo)]);
     out(['ok'=>true,'bonus_balance'=>$result['balance'],'actual_amount'=>$result['amount'],'loyalty'=>loyalty_program_status($pdo)]);
