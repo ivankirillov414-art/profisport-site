@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Личный кабинет — ПрофиСпорт</title>
   <link rel="stylesheet" href="storefront-v2.css?v=34">
-  <link rel="stylesheet" href="profile-dashboard.css?v=5">
+  <link rel="stylesheet" href="profile-dashboard.css?v=6">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
@@ -45,6 +45,10 @@
           <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>
           <b>Заказы</b><strong id="ordersCount">0</strong><small>История и статусы</small>
         </a>
+        <a class="profileQuickCard" href="#vehicles-service">
+          <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/><path d="M7 17l4-8h4l2 8M9 13h6M11 9 9 6"/></svg></span>
+          <b>Моя техника</b><strong id="vehiclesCount">0</strong><small id="serviceQuickText">Покупки и сервис</small>
+        </a>
         <a class="profileQuickCard" href="#favorites-section">
           <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.2-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.8-7 10-7 10z"/></svg></span>
           <b>Избранное</b><strong id="favoritesCount">0</strong><small>Сохранённые товары</small>
@@ -54,6 +58,14 @@
           <b>Отзывы</b><strong id="reviewsCount">0</strong><small>Ваши отзывы о товарах</small>
         </a>
       </nav>
+
+      <section id="vehicles-service" class="profileCard profileSecondaryCard vehicleServiceSection">
+        <div class="profileSectionIntro"><h3>Моя техника</h3><span id="vehiclesSummary">Покупки, которые можно обслуживать</span></div>
+        <div id="customerVehicles" class="customerVehicles"></div>
+        <div id="serviceComposer" class="vehicleServiceComposer hidden"></div>
+        <div class="profileSectionIntro serviceHistoryHead"><h3>Сервис</h3><span id="serviceSummary">История обращений</span></div>
+        <div id="customerServiceRequests" class="customerServiceRequests"></div>
+      </section>
 
       <section id="orders" class="profileCard profileSecondaryCard">
         <div class="profileSectionIntro"><h3>Мои заказы</h3><span>Все покупки аккаунта</span></div>
