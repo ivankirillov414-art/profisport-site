@@ -16,12 +16,15 @@ assert.match(bootstrap,/ensure_vehicle_spec_registry_schema\(\$pdo\)/,'registry 
 for(const fn of ['vehicle_spec_registry_profiles','vehicle_spec_registry_match','vehicle_spec_registry_scan_catalog','vehicle_spec_registry_apply_vehicle','vehicle_spec_registry_apply_all','vehicle_spec_registry_queue']){
   assert.match(registry,new RegExp('function '+fn+'\\b'),'registry missing '+fn);
 }
-for(const key of ['aspect-nickel-pro-2025-','aspect-nickel-elite-2025-','aspect-cobalt-pro-2025-','aspect-aura-2025-27.5','aspect-oasis-2026-27.5','aspect-oasis-pro-2026-27.5','hagen-3.9-2025-','hagen-3.11-2025-','welt-rocket-3.0-hd-2026-','stark-router-','stark-viva-','stark-router-','stark-viva-']){
+for(const key of ['aspect-nickel-pro-2025-','aspect-nickel-elite-2025-','aspect-cobalt-pro-2025-','aspect-aura-2025-27.5','aspect-oasis-2026-27.5','aspect-oasis-pro-2026-27.5','hagen-3.9-2025-','hagen-3.11-2025-','welt-rocket-3.0-hd-2026-','welt-icon-2.0-2026-','welt-storm-26-md-2026-26','stark-router-','stark-viva-','stark-router-','stark-viva-']){
   assert.ok(registry.includes(key),'verified profile family missing '+key);
 }
 assert.match(registry,/HAGEN_39_2025/,'registry must include the official Hagen 3.9 source');
 assert.match(registry,/HAGEN_311_2025/,'registry must include the official Hagen 3.11 source');
 assert.match(registry,/WELT_ROCKET_30_HD_2026/,'registry must include the official Welt Rocket 3.0 HD source');
+assert.match(registry,/WELT_STORM_26_MD_2026/,'registry must include the official Welt Storm 26 MD 2026 source');
+assert.match(registry,/WELT_ICON_20_2026/,'registry must include the official Welt Icon 2.0 2026 source');
+assert.match(registry,/VEHICLE_SPEC_REGISTRY_VERSION/,'registry components must store the exact registry release version');
 assert.match(registry,/STARK_ROUTER_293_2025/,'registry must include official STARK Router 29.3 HD 2025 source');
 assert.match(registry,/STARK_VIVA_275_HD_2025/,'registry must include official STARK Viva 27.5 HD 2025 source');
 assert.match(registry,/wheel_in_model/,'models that encode wheel size in the official model name must be supported explicitly');
