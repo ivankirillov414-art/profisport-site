@@ -170,7 +170,10 @@
 
   <div class="actionsBar">
     <span id="saveMsg" class="saveMsg">Изменения пока не сохранены.</span>
-    <button id="saveDraft" type="button">Сохранить черновик программы</button>
+    <div class="actionButtons">
+      <button id="resetDraft" class="secondaryAction" type="button" disabled>Вернуть сохранённый вариант</button>
+      <button id="saveDraft" type="button" disabled>Сохранить черновик программы</button>
+    </div>
   </div>
 </main>
 <script src="loyalty-calculator.js?v=1"></script>
