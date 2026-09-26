@@ -321,7 +321,9 @@
       const model=[c.manufacturer,c.model].filter(Boolean).join(' ');
       const source=c.source_url?'<a href="'+esc(c.source_url)+'" target="_blank" rel="noopener">'+esc(passportSource(c))+'</a>':'<span>'+esc(passportSource(c))+'</span>';
       const replacement=c.compatible_product_id?'<a class="vehiclePassportAction" href="product.html?id='+encodeURIComponent(c.compatible_product_id)+'">Подобрать замену</a>':'';
-      return '<article class="vehiclePassportComponent" data-passport-component="'+Number(c.id)+'" data-state="'+esc(c.wear?.state||'unknown')+'"><div><b>'+esc(c.label)+'</b><strong>'+esc(model||'Точная модель не подтверждена')+'</strong><small>'+source+'</small></div><div class="vehicleWearInfo"><span>'+esc(passportWearLabel(c.wear))+'</span><small>'+esc(passportRemaining(c.wear))+'</small><small>'+(Number(c.wear?.personal_samples||0)?'Персональных циклов: '+Number(c.wear.personal_samples):'Персональной истории пока нет')+'</small></div>'+replacement+'</article>';
+      const purchased=c.pending_replacement_purchase?'<button class="vehiclePassportAction confirmReplacement" type="button" data-confirm-replacement="'+Number(c.id)+'">Я уже установил купленную деталь</button>':'';
+      const purchaseNote=c.pending_replacement_purchase?'<div class="vehicleReplacementNotice">Недавно куплен совместимый расходник. Ресурс не сброшен, пока замена не подтверждена.</div>':'';
+      return '<article class="vehiclePassportComponent" data-passport-component="'+Number(c.id)+'" data-state="'+esc(c.wear?.state||'unknown')+'"><div><b>'+esc(c.label)+'</b><strong>'+esc(model||'Точная модель не подтверждена')+'</strong><small>'+source+'</small></div><div class="vehicleWearInfo"><span>'+esc(passportWearLabel(c.wear))+'</span><small>'+esc(passportRemaining(c.wear))+'</small><small>'+(Number(c.wear?.personal_samples||0)?'Персональных циклов: '+Number(c.wear.personal_samples):'Персональной истории пока нет')+'</small></div>'+purchaseNote+replacement+purchased+'</article>';
     }
     function openVehiclePassport(vehicle){
       const box=$('#vehiclePassport'),passport=vehicle.passport;if(!passport){box.classList.remove('hidden');box.innerHTML='<div class="vehiclePassportEmpty">Паспорт техники пока недоступен.</div>';return}
@@ -337,6 +339,12 @@
         const card=box.querySelector('[data-passport-component="'+match.id+'"]');if(card){box.querySelectorAll('.vehiclePassportComponent').forEach(x=>x.classList.remove('active'));card.classList.add('active');card.scrollIntoView({behavior:'smooth',block:'nearest'})}
       });
       box.querySelectorAll('[data-service-vehicle]').forEach(button=>button.onclick=()=>openVehicleService(vehicle));
+      box.querySelectorAll('[data-confirm-replacement]').forEach(button=>button.onclick=async()=>{
+        if(!confirm('Подтвердить, что купленная деталь уже установлена? С этого момента ресурс будет считаться заново.'))return;
+        button.disabled=true;button.textContent='Сохраняю…';
+        try{await api('confirm_component_replacement',{method:'POST',body:JSON.stringify({component_id:Number(button.dataset.confirmReplacement)})});await refresh(false);const updated=vehicleState.find(v=>String(v.id)===String(vehicle.id));if(updated)openVehiclePassport(updated)}
+        catch(e){button.disabled=false;button.textContent='Не удалось подтвердить'}
+      });
       box.scrollIntoView({behavior:'smooth',block:'start'});
     }
     function serviceHistoryMarkup(r){
