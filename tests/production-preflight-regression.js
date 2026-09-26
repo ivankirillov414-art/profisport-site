@@ -44,5 +44,7 @@ for(const check of ['profile-phone-login-regression.js','customer-phone-login-re
 for(const deployed of ['404.html','500.html','admin/customer.php']) assert.ok(deploy.includes(deployed),'FTP verification missing '+deployed);
 assert.ok(deploy.includes("ErrorDocument 404 /404.html"),'FTP verification must inspect 404 routing');
 assert.ok(deploy.includes("ErrorDocument 500 /500.html"),'FTP verification must inspect 500 routing');
+assert.ok(deploy.includes('Smoke-check public health and 404'),'deploy must probe the public health endpoint and branded 404');
+assert.ok(deploy.includes("payload.get('schema') is True"),'live health smoke must require schema readiness');
 
 console.log('Production preflight, error handling, health and deployment gate checks passed.');
