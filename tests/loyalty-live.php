@@ -19,9 +19,10 @@ try{
 
     $s=$pdo->prepare("INSERT INTO customers(name,email,phone,password_hash,bonus_balance) VALUES('Loyalty test','loyalty-live@example.test','+79990000001',NULL,0)");
     $s->execute();$customerId=(int)$pdo->lastInsertId();
-    $future=(new DateTimeImmutable('+30 days'))->format('Y-m-d H:i:s');
-    $c1=loyalty_post($pdo,$customerId,50,'test_credit','test','credit-1',null,'Первый пакет',$future);
-    $c2=loyalty_post($pdo,$customerId,30,'test_credit','test','credit-2',null,'Второй пакет',$future);
+    $future1=(new DateTimeImmutable('+10 days'))->format('Y-m-d H:i:s');
+    $future2=(new DateTimeImmutable('+20 days'))->format('Y-m-d H:i:s');
+    $c1=loyalty_post($pdo,$customerId,50,'test_credit','test','credit-1',null,'Первый пакет',$future1);
+    $c2=loyalty_post($pdo,$customerId,30,'test_credit','test','credit-2',null,'Второй пакет',$future2);
     live_check($c1['balance']===50&&$c2['balance']===80,'credits must update balance');
 
     insert_order_row($pdo,'orders',[
@@ -40,6 +41,10 @@ try{
 
     $refund=loyalty_refund_order_redemption($pdo,$orderId,1);
     live_check($refund['refunded']===60&&$refund['balance']===80,'cancel refund must restore reserved points');
+    $q=$pdo->prepare("SELECT amount,expires_at FROM loyalty_transactions WHERE customer_id=? AND kind='redeem_refund' ORDER BY id");$q->execute([$customerId]);$refundLots=$q->fetchAll();
+    live_check(count($refundLots)===2,'refund must restore the consumed FIFO lots separately');
+    live_check((int)$refundLots[0]['amount']===50&&(string)$refundLots[0]['expires_at']===$future1,'first refunded lot must keep its original expiry');
+    live_check((int)$refundLots[1]['amount']===10&&(string)$refundLots[1]['expires_at']===$future2,'second refunded lot must keep its original expiry');
     $o=$pdo->prepare('SELECT bonus_spent,payable_rub FROM orders WHERE id=?');$o->execute([$orderId]);$order=$o->fetch();
     live_check((int)$order['bonus_spent']===0&&abs((float)$order['payable_rub']-100.0)<0.001,'refund must reset order payable values');
 
