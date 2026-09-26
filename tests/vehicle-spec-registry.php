@@ -30,6 +30,8 @@ try{
         ['Велосипед Welt Brave 1.0 20 VB Calm Green (2026)','welt-brave-1.0-20-vb-2026-20'],
         ['Велосипед Welt Brave 1.0 24 MD Bizarre Green (2026)','welt-brave-1.0-24-md-2026-24'],
         ['Велосипед Welt Brave 2.0 24 HD Deep Purple (2026)','welt-brave-2.0-24-hd-2026-24'],
+        ['Велосипед 20 Aspect Air Зеленый (2026)','aspect-air-20-2026-20'],
+        ['Велосипед 20 Aspect Aura Фиолетовый (2026)','aspect-aura-20-2026-20'],
         ['Велосипед Stark Router 27.3 HD (2024), красный','stark-router-27.3-hd-2024'],
         ['Велосипед STARK Router 29.3 HD 2024','stark-router-29.3-hd-2024'],
         ['Велосипед Stark Router 27.4 HD (2024)','stark-router-27.4-hd-2024'],
@@ -48,7 +50,12 @@ try{
     vsr_check(vehicle_spec_registry_match('Велосипед 26 Aspect Nickel Pro (2025), Зеленый')===null,'unsupported wheel size must not match');
     vsr_check(vehicle_spec_registry_match('Велосипед Stark Router 29.4 HD (2025)')===null,'STARK profile with wrong year must not match');
     vsr_check(vehicle_spec_registry_match('Велосипед Stark Viva 27.2 HD (2024)')===null,'STARK Viva profile with wrong year must not match');
-    vsr_check(count(vehicle_spec_registry_profiles())===32,'verified registry must contain thirty-two exact profiles after WELT youth batch');
+    vsr_check(vehicle_spec_registry_match('Велосипед 20 Aspect Air Зеленый (2025)')===null,'Aspect AIR 20 wrong year must not match');
+    vsr_check(vehicle_spec_registry_match('Велосипед 24 Aspect Air Зеленый (2026)')===null,'Aspect AIR wrong wheel size must not match');
+    $moovixConflict=vehicle_spec_registry_conflict_match('Велосипед Welt Moovix 1.0 MD 24 Shiny Orange (2026)');
+    vsr_check($moovixConflict!==null&&$moovixConflict['key']==='conflict-welt-moovix-1.0-md-24-2026','known Moovix source disagreement must be classified as conflict');
+    vsr_check(vehicle_spec_registry_match('Велосипед Welt Moovix 1.0 MD 24 Shiny Orange (2026)')===null,'conflicted Moovix must not receive an automatic verified profile');
+    vsr_check(count(vehicle_spec_registry_profiles())===34,'verified registry must contain thirty-four exact profiles after Aspect kids batch');
 
     $product=$pdo->prepare("INSERT INTO products(title,name,brand,model,price_rub,price,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES(?,?,?,?,120000,120000,2,'in_stock','in_stock',1,'Велосипеды / Горные',NULL,'[]')");
     $title='Велосипед 29 Aspect Nickel Pro (2025), Зеленый';
@@ -98,6 +105,21 @@ try{
     vsr_check(vsr_component($pdo,$braveVehicleId,'front_brake_pads')===null,'TKD176 pads must stay unconfirmed without separate compatibility evidence');
     vsr_check(vsr_component($pdo,$braveVehicleId,'cassette')['model']==='HG200-8 12-32T','Brave 2.0 must use the official Russian specifications block');
 
+    $airTitle='Велосипед 20 Aspect Air Зеленый (2026)';
+    $product->execute([$airTitle,$airTitle,'Aspect','Air']);$airProductId=(int)$pdo->lastInsertId();
+    $vehicle->execute([$customerId,$airProductId,$airTitle]);$airVehicleId=(int)$pdo->lastInsertId();
+    $air=vehicle_spec_registry_apply_vehicle($pdo,$airVehicleId);
+    vsr_check($air['matched']===true&&$air['profile']==='aspect-air-20-2026-20','Aspect AIR 20 2026 profile must apply');
+    vsr_check(vsr_component($pdo,$airVehicleId,'front_tire')['model']==='Chaoyang H-5129 20x2.0','Aspect AIR 20 official tire must be stored');
+    vsr_check(vsr_component($pdo,$airVehicleId,'front_brake')['model']==='V-brake','Aspect AIR 20 must keep official V-brake fact');
+
+    $auraTitle='Велосипед 20 Aspect Aura Фиолетовый (2026)';
+    $product->execute([$auraTitle,$auraTitle,'Aspect','Aura']);$auraProductId=(int)$pdo->lastInsertId();
+    $vehicle->execute([$customerId,$auraProductId,$auraTitle]);$auraVehicleId=(int)$pdo->lastInsertId();
+    $aura=vehicle_spec_registry_apply_vehicle($pdo,$auraVehicleId);
+    vsr_check($aura['matched']===true&&$aura['profile']==='aspect-aura-20-2026-20','Aspect AURA 20 2026 profile must apply');
+    vsr_check(vsr_component($pdo,$auraVehicleId,'front_tire')===null&&vsr_component($pdo,$auraVehicleId,'rear_tire')===null,'ambiguous AURA tire rows must not be imported automatically');
+
     $starkTitle='Велосипед Stark Router 29.4 HD (2024)';
     $product->execute([$starkTitle,$starkTitle,'Stark','Router 29.4 HD']);$starkProductId=(int)$pdo->lastInsertId();
     $vehicle->execute([$customerId,$starkProductId,$starkTitle]);$starkVehicleId=(int)$pdo->lastInsertId();
@@ -123,9 +145,19 @@ try{
 
     $unknownTitle='Велосипед 29 Unknown Research Bike (2026)';
     $product->execute([$unknownTitle,$unknownTitle,'Unknown','Research Bike']);$unknownId=(int)$pdo->lastInsertId();
+    $moovixTitle='Велосипед Welt Moovix 1.0 MD 24 Shiny Orange (2026)';
+    $product->execute([$moovixTitle,$moovixTitle,'Welt','Moovix 1.0 MD 24']);$moovixId=(int)$pdo->lastInsertId();
+    $vehicle->execute([$customerId,$moovixId,$moovixTitle]);$moovixVehicleId=(int)$pdo->lastInsertId();
+    $moovixApply=vehicle_spec_registry_apply_vehicle($pdo,$moovixVehicleId);
+    vsr_check($moovixApply['matched']===false,'conflicted Moovix must never auto-apply official components');
     $scan=vehicle_spec_registry_scan_catalog($pdo,5000);
+    vsr_check(($scan['conflicts']??0)>=1,'catalog scan must count source conflicts separately');
     $queue=vehicle_spec_registry_queue($pdo,'unmatched',1000);
     vsr_check(count(array_filter($queue,fn($x)=>(int)$x['product_id']===$unknownId))===1,'unverified bicycle must remain in research queue');
+    $conflicts=vehicle_spec_registry_queue($pdo,'conflict',1000);
+    $moovixRows=array_values(array_filter($conflicts,fn($x)=>(int)$x['product_id']===$moovixId));
+    vsr_check(count($moovixRows)===1&&str_contains((string)$moovixRows[0]['note'],'расходятся'),'known source disagreement must stay in conflict queue with an explanation');
+    vsr_check(str_contains((string)$moovixRows[0]['reference_url'],'welt-bikes.com'),'conflict queue must retain the official comparison source');
 
     $pdo->prepare('DELETE FROM site_settings WHERE setting_key=?')->execute(['vehicle_spec_registry_applied_version']);
     $sync=vehicle_spec_registry_sync_once($pdo);

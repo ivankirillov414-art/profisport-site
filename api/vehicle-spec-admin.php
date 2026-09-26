@@ -12,10 +12,12 @@ function vehicle_spec_admin_summary(PDO $pdo): array {
         'catalog_bicycles'=>$scan['total'],
         'catalog_matched'=>$scan['matched'],
         'catalog_unmatched'=>$scan['unmatched'],
+        'catalog_conflicts'=>$scan['conflicts']??0,
         'customer_bicycles'=>$vehiclesTotal,
         'customer_bicycles_verified'=>$vehiclesVerified,
         'customer_bicycles_unverified'=>max(0,$vehiclesTotal-$vehiclesVerified),
         'matched'=>vehicle_spec_registry_queue($pdo,'matched',300),
+        'conflicts'=>vehicle_spec_registry_queue($pdo,'conflict',300),
         'unmatched'=>vehicle_spec_registry_queue($pdo,'unmatched',300),
     ];
 }
@@ -27,13 +29,13 @@ try{
     csrf_check();$in=input_json();$action=(string)($in['action']??'');
     if($action==='rescan'){
         $scan=vehicle_spec_registry_scan_catalog($pdo,5000);
-        audit($pdo,'vehicle_spec_registry_scan','vehicle_spec_registry','catalog',['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched']]);
+        audit($pdo,'vehicle_spec_registry_scan','vehicle_spec_registry','catalog',['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched'],'conflicts'=>$scan['conflicts']??0]);
         out(['ok'=>true,'scan'=>$scan,'summary'=>vehicle_spec_admin_summary($pdo)]);
     }
     if($action==='apply_registry'){
         $scan=vehicle_spec_registry_scan_catalog($pdo,5000);
         $applied=vehicle_spec_registry_apply_all($pdo,10000);
-        audit($pdo,'vehicle_spec_registry_apply','vehicle_spec_registry','catalog',['scan'=>['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched']], 'applied'=>$applied]);
+        audit($pdo,'vehicle_spec_registry_apply','vehicle_spec_registry','catalog',['scan'=>['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched'],'conflicts'=>$scan['conflicts']??0], 'applied'=>$applied]);
         out(['ok'=>true,'scan'=>$scan,'applied'=>$applied,'summary'=>vehicle_spec_admin_summary($pdo)]);
     }
     out(['ok'=>false,'error'=>'bad_action'],422);

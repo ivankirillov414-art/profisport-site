@@ -22,7 +22,10 @@ const VEHICLE_SPEC_WELT_ICON_20_2026='https://www.welt-bikes.com/ru/ru/vse-velos
 const VEHICLE_SPEC_WELT_BRAVE_10_20_VB_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/brave1vb_2026?optionId=1040';
 const VEHICLE_SPEC_WELT_BRAVE_10_24_MD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/brave1md24_2026?optionId=1060';
 const VEHICLE_SPEC_WELT_BRAVE_20_24_HD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/brave2hd24_2026?optionId=1064';
-const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch4';
+const VEHICLE_SPEC_ASPECT_AIR_20_2026='https://www.aspect-bikes.ru/catalog/aspect-air-20/';
+const VEHICLE_SPEC_ASPECT_AURA_20_2026='https://www.aspect-bikes.ru/catalog/aspect-aura-20/';
+const VEHICLE_SPEC_WELT_MOOVIX_10_MD_24_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/podrostkovye-velosipedy/movix1md24_2026?optionId=1070';
+const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch5';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -370,6 +373,55 @@ function vehicle_spec_registry_stark_viva_2025(string $model): array {
     return $components;
 }
 
+function vehicle_spec_registry_aspect_air_20_2026(): array {
+    $source=VEHICLE_SPEC_ASPECT_AIR_20_2026;$note='Официальная карточка модели; официальный каталог Aspect относит AIR 20 к KIDS 2026';
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','RIGID ALLOY FORK',$source,null,$note),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Tourney RD-TY200D',$source,'Shimano',$note),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','RevoShift SL-RV400-6R',$source,'Shimano',$note),
+        vehicle_spec_registry_component('cranks','cranks','Система','Steel 32T 127mm',$source,null,$note),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','TZ500-6 14-28T',$source,'Shimano',$note),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','V-brake',$source,null,$note),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','V-brake',$source,null,$note),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Code Kids 20, 31.8×580mm, rise 30mm, backsweep 9°',$source,'Code',$note),
+        vehicle_spec_registry_component('stem','cockpit','Вынос','Code-008, 50mm, 7°',$source,'Code',$note),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','Code 609 27.2×250mm Alloy',$source,'Code',$note),
+        vehicle_spec_registry_component('saddle','saddle','Седло','Code-4058',$source,'Code',$note),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','Industrial bearings, alloy body 100/130mm 28H, QR',$source,null,$note),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy Double Wall',$source,null,$note),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Chaoyang H-5129 20x2.0',$source,'Chaoyang',$note),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Chaoyang H-5129 20x2.0',$source,'Chaoyang',$note),
+    ];
+}
+
+function vehicle_spec_registry_aspect_aura_20_2026(): array {
+    $source=VEHICLE_SPEC_ASPECT_AURA_20_2026;$note='Официальная карточка модели; официальный каталог Aspect относит AURA 20 к KIDS 2026. Покрышки не занесены автоматически из-за двух противоречивых строк размеров в источнике.';
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','RIGID ALLOY FORK',$source,null,$note),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Tourney RD-TY200D',$source,'Shimano',$note),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','RevoShift SL-RV400-6R',$source,'Shimano',$note),
+        vehicle_spec_registry_component('cranks','cranks','Система','Steel 32T 127mm',$source,null,$note),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','TZ500-6 14-28T',$source,'Shimano',$note),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','V-brake',$source,null,$note),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','V-brake',$source,null,$note),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Code Kids 20, 31.8×580mm, rise 30mm, backsweep 9°',$source,'Code',$note),
+        vehicle_spec_registry_component('stem','cockpit','Вынос','Code-008, 50mm, 7°',$source,'Code',$note),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','Code 609 27.2×250mm Alloy',$source,'Code',$note),
+        vehicle_spec_registry_component('saddle','saddle','Седло','Code-4058',$source,'Code',$note),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','Industrial bearings, alloy body 100/130mm 28H, QR',$source,null,$note),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy Double Wall',$source,null,$note),
+    ];
+}
+
+function vehicle_spec_registry_conflicts(): array {
+    return [[
+        'key'=>'conflict-welt-moovix-1.0-md-24-2026',
+        'brand'=>'Welt','model'=>'Moovix 1.0 MD 24','year'=>2026,'wheel'=>'24','wheel_in_model'=>true,
+        'reference_url'=>VEHICLE_SPEC_WELT_MOOVIX_10_MD_24_2026,
+        'note'=>'Карточка ProfiSport 2026 и текущая официальная спецификация WELT расходятся по трансмиссии, покрышкам, тормозам и системе. Автозаполнение заблокировано до проверки фактической комплектации конкретной партии.',
+    ]];
+}
+
 function vehicle_spec_registry_profiles(): array {
     $profiles=[];
     foreach(['27.5','29'] as $wheel){
@@ -381,6 +433,8 @@ function vehicle_spec_registry_profiles(): array {
     $profiles[]=['key'=>'aspect-aura-2025-27.5','brand'=>'Aspect','model'=>'Aura','year'=>2025,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_2025,'components'=>vehicle_spec_registry_2025_aura()];
     $profiles[]=['key'=>'aspect-oasis-2026-27.5','brand'=>'Aspect','model'=>'Oasis','year'=>2026,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_OASIS_2026,'components'=>vehicle_spec_registry_2026_oasis(false)];
     $profiles[]=['key'=>'aspect-oasis-pro-2026-27.5','brand'=>'Aspect','model'=>'Oasis Pro','year'=>2026,'wheel'=>'27.5','source_url'=>VEHICLE_SPEC_ASPECT_OASIS_PRO_2026,'components'=>vehicle_spec_registry_2026_oasis(true)];
+    $profiles[]=['key'=>'aspect-air-20-2026-20','brand'=>'Aspect','model'=>'Air','year'=>2026,'wheel'=>'20','source_url'=>VEHICLE_SPEC_ASPECT_AIR_20_2026,'components'=>vehicle_spec_registry_aspect_air_20_2026()];
+    $profiles[]=['key'=>'aspect-aura-20-2026-20','brand'=>'Aspect','model'=>'Aura','year'=>2026,'wheel'=>'20','source_url'=>VEHICLE_SPEC_ASPECT_AURA_20_2026,'components'=>vehicle_spec_registry_aspect_aura_20_2026()];
     foreach(['27.5','29'] as $wheel){
         $profiles[]=['key'=>'hagen-3.9-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.9','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_39_2025,'components'=>vehicle_spec_registry_hagen_2025('3.9')];
         $profiles[]=['key'=>'hagen-3.11-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.11','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_311_2025,'components'=>vehicle_spec_registry_hagen_2025('3.11')];
@@ -430,6 +484,19 @@ function vehicle_spec_registry_match(string $title): ?array {
     return $best;
 }
 
+function vehicle_spec_registry_conflict_match(string $title): ?array {
+    $n=vehicle_spec_registry_normalize_title($title);$matches=[];
+    foreach(vehicle_spec_registry_conflicts() as $rule){
+        $brand=vehicle_spec_registry_normalize_title((string)$rule['brand']);$model=vehicle_spec_registry_normalize_title((string)$rule['model']);
+        $year=(string)$rule['year'];$wheel=(string)$rule['wheel'];
+        if(!str_contains($n,$brand.' '.$model))continue;
+        if(!preg_match('/(?:^| )'.preg_quote($year,'/').'(?: |$)/u',$n))continue;
+        if(!($rule['wheel_in_model']??false)&&!preg_match('/(?:^| )'.preg_quote($wheel,'/').'(?: |$)/u',$n))continue;
+        $matches[]=$rule;
+    }
+    return count($matches)===1?$matches[0]:null;
+}
+
 function vehicle_spec_registry_profile_keys(): array {
     return array_column(vehicle_spec_registry_profiles(),'key');
 }
@@ -451,29 +518,35 @@ function ensure_vehicle_spec_registry_schema(PDO $pdo): void {
         model VARCHAR(255) NULL,
         match_key VARCHAR(120) NULL,
         status VARCHAR(30) NOT NULL DEFAULT 'unmatched',
+        note VARCHAR(1200) NULL,
+        reference_url VARCHAR(1200) NULL,
         first_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         last_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY idx_vehicle_spec_research_product(product_id),
         INDEX idx_vehicle_spec_research_status(status,last_seen_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $queueCols=table_columns($pdo,'vehicle_spec_research_queue');
+    $queueDefs=['note'=>'VARCHAR(1200) NULL','reference_url'=>'VARCHAR(1200) NULL'];
+    foreach($queueDefs as $name=>$def)if(!isset($queueCols[$name]))$pdo->exec("ALTER TABLE vehicle_spec_research_queue ADD COLUMN `$name` $def");
 }
 
 function vehicle_spec_registry_scan_catalog(PDO $pdo,int $limit=1500): array {
     $limit=max(1,min(5000,$limit));
     $s=$pdo->query("SELECT id,name,brand,model,category_path,is_active,stock_qty FROM products WHERE is_active=1 AND COALESCE(stock_qty,0)>0 ORDER BY id DESC LIMIT ".$limit);
-    $upsert=$pdo->prepare("INSERT INTO vehicle_spec_research_queue(product_id,title,brand,model,match_key,status,first_seen_at,last_seen_at) VALUES(?,?,?,?,?,?,NOW(),NOW()) ON DUPLICATE KEY UPDATE title=VALUES(title),brand=VALUES(brand),model=VALUES(model),match_key=VALUES(match_key),status=VALUES(status),last_seen_at=NOW()");
-    $matched=0;$unmatched=0;$rows=[];
+    $upsert=$pdo->prepare("INSERT INTO vehicle_spec_research_queue(product_id,title,brand,model,match_key,status,note,reference_url,first_seen_at,last_seen_at) VALUES(?,?,?,?,?,?,?,?,NOW(),NOW()) ON DUPLICATE KEY UPDATE title=VALUES(title),brand=VALUES(brand),model=VALUES(model),match_key=VALUES(match_key),status=VALUES(status),note=VALUES(note),reference_url=VALUES(reference_url),last_seen_at=NOW()");
+    $matched=0;$unmatched=0;$conflicts=0;$rows=[];
     foreach($s->fetchAll() as $row){
         $type=function_exists('customer_vehicle_type')?customer_vehicle_type((string)$row['name'],(string)($row['category_path']??'')):null;
         if($type!=='bicycle')continue;
-        $profile=vehicle_spec_registry_match((string)$row['name']);$status=$profile?'matched':'unmatched';
-        $upsert->execute([(int)$row['id'],(string)$row['name'],$row['brand']!==null?(string)$row['brand']:null,$row['model']!==null?(string)$row['model']:null,$profile['key']??null,$status]);
-        $status==='matched'?$matched++:$unmatched++;
-        $rows[]=['product_id'=>(int)$row['id'],'title'=>(string)$row['name'],'brand'=>$row['brand'],'model'=>$row['model'],'status'=>$status,'profile_key'=>$profile['key']??null];
+        $profile=vehicle_spec_registry_match((string)$row['name']);$conflict=$profile?null:vehicle_spec_registry_conflict_match((string)$row['name']);
+        $status=$profile?'matched':($conflict?'conflict':'unmatched');$matchKey=$profile['key']??$conflict['key']??null;
+        $note=$conflict['note']??null;$reference=$profile['source_url']??$conflict['reference_url']??null;
+        $upsert->execute([(int)$row['id'],(string)$row['name'],$row['brand']!==null?(string)$row['brand']:null,$row['model']!==null?(string)$row['model']:null,$matchKey,$status,$note,$reference]);
+        if($status==='matched')$matched++;elseif($status==='conflict')$conflicts++;else$unmatched++;
+        $rows[]=['product_id'=>(int)$row['id'],'title'=>(string)$row['name'],'brand'=>$row['brand'],'model'=>$row['model'],'status'=>$status,'profile_key'=>$matchKey,'note'=>$note,'reference_url'=>$reference];
     }
-    return ['matched'=>$matched,'unmatched'=>$unmatched,'total'=>$matched+$unmatched,'items'=>$rows];
+    return ['matched'=>$matched,'unmatched'=>$unmatched,'conflicts'=>$conflicts,'total'=>$matched+$unmatched+$conflicts,'items'=>$rows];
 }
-
 function vehicle_spec_registry_apply_vehicle(PDO $pdo,int $vehicleId): array {
     if($vehicleId<1)return ['matched'=>false,'inserted'=>0,'updated'=>0,'profile'=>null];
     $q=$pdo->prepare("SELECT id,title,vehicle_type,purchase_date,created_at FROM customer_vehicles WHERE id=? AND is_active=1 LIMIT 1");$q->execute([$vehicleId]);$vehicle=$q->fetch();
@@ -531,11 +604,10 @@ function vehicle_spec_registry_apply_all(PDO $pdo,int $limit=5000): array {
 }
 
 function vehicle_spec_registry_queue(PDO $pdo,string $status='unmatched',int $limit=200): array {
-    $status=in_array($status,['matched','unmatched'],true)?$status:'unmatched';$limit=max(1,min(1000,$limit));
-    $s=$pdo->prepare("SELECT product_id,title,brand,model,match_key,status,first_seen_at,last_seen_at FROM vehicle_spec_research_queue WHERE status=? ORDER BY last_seen_at DESC,product_id DESC LIMIT ".$limit);
+    $status=in_array($status,['matched','unmatched','conflict'],true)?$status:'unmatched';$limit=max(1,min(1000,$limit));
+    $s=$pdo->prepare("SELECT product_id,title,brand,model,match_key,status,note,reference_url,first_seen_at,last_seen_at FROM vehicle_spec_research_queue WHERE status=? ORDER BY last_seen_at DESC,product_id DESC LIMIT ".$limit);
     $s->execute([$status]);return $s->fetchAll();
 }
-
 
 function vehicle_spec_registry_applied_version(PDO $pdo): string {
     $s=$pdo->prepare('SELECT setting_value FROM site_settings WHERE setting_key=? LIMIT 1');
@@ -554,7 +626,7 @@ function vehicle_spec_registry_sync_once(PDO $pdo): array {
         $applied=vehicle_spec_registry_apply_all($pdo,10000);
         $s=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
         $s->execute(['vehicle_spec_registry_applied_version',$version]);
-        return ['ran'=>true,'version'=>$version,'scan'=>['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched'],'total'=>$scan['total']],'applied'=>$applied];
+        return ['ran'=>true,'version'=>$version,'scan'=>['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched'],'conflicts'=>$scan['conflicts'],'total'=>$scan['total']],'applied'=>$applied];
     }finally{
         $pdo->query("SELECT RELEASE_LOCK('profisport_vehicle_spec_registry')");
     }
