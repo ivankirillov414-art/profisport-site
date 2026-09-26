@@ -146,8 +146,14 @@ function vehicle_passport_seed_vehicle(PDO $pdo,int $vehicleId): int {
     $s=$pdo->prepare('SELECT product_id,spec_snapshot,purchase_date,created_at FROM customer_vehicles WHERE id=? LIMIT 1');$s->execute([$vehicleId]);$row=$s->fetch();if(!$row)return 0;
     $installedAt=(string)($row['purchase_date']?:$row['created_at']?:'');$installedAt=$installedAt!==''?$installedAt:null;
     $snapshot=is_string($row['spec_snapshot']??null)?json_decode((string)$row['spec_snapshot'],true):null;
-    if(is_array($snapshot)&&$snapshot)return vehicle_passport_seed_specs($pdo,$vehicleId,$snapshot,'Комплектация из снимка 1С на момент покупки',$installedAt);
-    return vehicle_passport_seed_from_product($pdo,$vehicleId,$row['product_id']!==null?(int)$row['product_id']:null,$installedAt);
+    $count=is_array($snapshot)&&$snapshot
+        ?vehicle_passport_seed_specs($pdo,$vehicleId,$snapshot,'Комплектация из снимка 1С на момент покупки',$installedAt)
+        :vehicle_passport_seed_from_product($pdo,$vehicleId,$row['product_id']!==null?(int)$row['product_id']:null,$installedAt);
+    if(function_exists('vehicle_spec_registry_apply_vehicle')){
+        $official=vehicle_spec_registry_apply_vehicle($pdo,$vehicleId);
+        $count+=(int)($official['inserted']??0);
+    }
+    return $count;
 }
 
 function vehicle_passport_median(array $values): ?float {
@@ -230,7 +236,13 @@ function vehicle_passport_payload(PDO $pdo,int $vehicleId,bool $includeEvents=fa
     $s=$pdo->prepare('SELECT v.id,v.customer_id,v.product_id,v.title,v.vehicle_type,v.order_number,v.purchase_date,v.serial_number,v.odometer_km,v.odometer_updated_at,v.created_at,p.brand,p.model,p.sku FROM customer_vehicles v LEFT JOIN products p ON p.id=v.product_id WHERE v.id=? AND v.is_active=1 LIMIT 1');
     $s->execute([$vehicleId]);$vehicle=$s->fetch();if(!$vehicle)return null;
     $vehicle['id']=(int)$vehicle['id'];$vehicle['customer_id']=(int)$vehicle['customer_id'];$vehicle['product_id']=$vehicle['product_id']!==null?(int)$vehicle['product_id']:null;
-    return ['vehicle'=>$vehicle,'hotspots'=>(string)$vehicle['vehicle_type']==='bicycle'?vehicle_passport_hotspots():[],'components'=>vehicle_passport_components($pdo,$vehicleId,$includeEvents)];
+    $verifiedProfile=function_exists('vehicle_spec_registry_match')?vehicle_spec_registry_match((string)$vehicle['title']):null;
+    return [
+        'vehicle'=>$vehicle,
+        'hotspots'=>(string)$vehicle['vehicle_type']==='bicycle'?vehicle_passport_hotspots():[],
+        'components'=>vehicle_passport_components($pdo,$vehicleId,$includeEvents),
+        'verified_profile'=>$verifiedProfile?['key'=>$verifiedProfile['key'],'source_url'=>$verifiedProfile['source_url'],'verified_at'=>'2026-09-26']:null,
+    ];
 }
 
 function vehicle_passport_save_component(PDO $pdo,int $vehicleId,array $in,int $adminId): array {

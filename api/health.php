@@ -17,6 +17,7 @@ try {
         'service_request_status_history'=>['id','service_request_id','status'],
         'vehicle_components'=>['id','vehicle_id','component_key','source_type','wear_mode'],
         'vehicle_component_events'=>['id','component_id','event_type','event_at','include_learning'],
+        'vehicle_spec_research_queue'=>['id','product_id','title','match_key','status'],
     ];
     foreach($required as $table=>$columns){
         $present=table_columns($pdo,$table);
