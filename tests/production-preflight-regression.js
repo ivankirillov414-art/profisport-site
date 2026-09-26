@@ -14,6 +14,7 @@ const health=read('api/health.php');
 const adminHealth=read('admin/health.php');
 const deploy=read('.github/workflows/deploy-infinityfree.yml');
 const pages=read('.github/workflows/pages.yml');
+const backToTop=read('back-to-top.js');
 
 assert.match(ht,/ErrorDocument 404 \/404\.html/,'Apache must route missing pages to branded 404');
 assert.match(ht,/ErrorDocument 500 \/500\.html/,'Apache must route server errors to branded 500');
@@ -51,5 +52,21 @@ assert.ok(deploy.includes("payload.get('schema') is True"),'live health smoke mu
 assert.match(pages,/workflow_dispatch:/,'GitHub Pages preview must stay available manually');
 assert.doesNotMatch(pages,/\bpush\s*:/,'GitHub Pages must not auto-publish an incomplete static copy on main pushes');
 assert.match(pages,/manual static preview only/,'Pages workflow must clearly identify its non-production role');
+
+for(const [from,to] of [
+  ['shop.html#catalog','index.html#catalogProducts'],
+  ['shop.html#picker','index.html#picker'],
+  ['shop.html#account','profile.html'],
+  ['shop.html#customer','index.html?register=qr'],
+  ['workshop.html#works','service.html#serviceWorks'],
+  ['workshop.html#guide','service.html#bikeGuide'],
+  ['workshop.html#service','service.html']
+]){
+  assert.ok(backToTop.includes("['"+from+"', '"+to+"']"),'footer/direct navigation remap missing '+from+' -> '+to);
+}
+for(const selector of ['customerRegisterClose','storagePromoClose','dialogClose']) assert.ok(backToTop.includes(selector),'popup close polish missing '+selector);
+assert.ok(backToTop.includes('border-radius: 0 !important'),'popup close buttons must not be circular');
+assert.ok(backToTop.includes('background: transparent !important'),'popup close buttons must be transparent');
+assert.ok(backToTop.includes('top: -38px !important'),'popup close buttons must sit outside the modal card on desktop');
 
 console.log('Production preflight, error handling, health and deployment gate checks passed.');
