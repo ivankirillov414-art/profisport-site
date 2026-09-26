@@ -24,14 +24,14 @@ assert.match(h500,/meta name="robots" content="noindex"/,'500 page must not be i
 assert.doesNotMatch(h404,/<script\b/i,'error pages must stay static');
 assert.doesNotMatch(h500,/<script\b/i,'error pages must stay static');
 
-for(const table of ['products','customers','orders','loyalty_transactions','customer_vehicles','service_requests','service_request_status_history','vehicle_components','vehicle_component_events','vehicle_spec_research_queue']){
+for(const table of ['products','customers','orders','loyalty_transactions','customer_vehicles','service_requests','service_request_status_history','vehicle_components','vehicle_component_events','vehicle_spec_research_queue','vehicle_maintenance_alerts']){
   assert.ok(health.includes("'"+table+"'"),'public health must verify '+table);
 }
 assert.match(health,/'schema'\s*=>\s*true/,'healthy response must certify schema readiness');
 assert.match(health,/503/,'unhealthy response must use service-unavailable status');
 assert.match(health,/try \{\s*require __DIR__\.\'\/\.\.\/server\/bootstrap\.php\'/,'health must catch bootstrap failures instead of dying before JSON response');
 assert.doesNotMatch(health,/getMessage\(\)/,'public health must not expose exception messages');
-for(const table of ['loyalty_transactions','customer_vehicles','service_request_status_history','vehicle_components','vehicle_component_events','vehicle_spec_research_queue']) assert.ok(adminHealth.includes("'"+table+"'"),'admin health missing '+table);
+for(const table of ['loyalty_transactions','customer_vehicles','service_request_status_history','vehicle_components','vehicle_component_events','vehicle_spec_research_queue','vehicle_maintenance_alerts']) assert.ok(adminHealth.includes("'"+table+"'"),'admin health missing '+table);
 
 assert.match(gitignore,/server\/config\.php/,'private server config must remain ignored');
 assert.ok(serverHt.includes('config\\.php')||serverHt.includes('config.php'),'server config must be denied over HTTP');
@@ -40,7 +40,7 @@ assert.equal(exists('server/config.php'),false,'production credentials must not 
 assert.match(deploy,/preflight:/,'deployment must have a dedicated preflight job');
 assert.match(deploy,/schema: \[fresh, legacy\]/,'deploy preflight must cover fresh and legacy schemas');
 assert.match(deploy,/deploy:\s*\n\s*needs: preflight/,'FTP deployment must wait for preflight');
-for(const check of ['profile-phone-login-regression.js','customer-phone-login-regression.js','admin-customer-card-regression.js','vehicle-passport-regression.js','vehicle-spec-registry-regression.js','loyalty-live-regression.js','production-preflight-regression.js','tests/loyalty-live.php','tests/vehicle-passport.php','tests/vehicle-spec-registry.php','tests/phone-login-http.py']){
+for(const check of ['profile-phone-login-regression.js','customer-phone-login-regression.js','admin-customer-card-regression.js','vehicle-passport-regression.js','vehicle-maintenance-alerts-regression.js','vehicle-spec-registry-regression.js','loyalty-live-regression.js','production-preflight-regression.js','tests/loyalty-live.php','tests/vehicle-passport.php','tests/vehicle-spec-registry.php','tests/phone-login-http.py']){
   assert.ok(deploy.includes(check),'deploy gate missing '+check);
 }
 for(const deployed of ['404.html','500.html','admin/customer.php','admin/vehicle.php','admin/vehicle-specs.php','api/vehicle-passport-admin.php','api/vehicle-spec-admin.php','server/vehicle-passport.php','server/vehicle-spec-registry.php']) assert.ok(deploy.includes(deployed),'FTP verification missing '+deployed);
