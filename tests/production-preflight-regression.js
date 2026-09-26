@@ -72,6 +72,7 @@ assert.ok(backToTop.includes('background: transparent !important'),'popup close 
 assert.ok(backToTop.includes('top: -38px !important'),'popup close buttons must sit outside the modal card on desktop');
 
 assert.ok(serviceHtml.includes('Актуальный прайс-лист'),'service page must expose the actual price-list section');
+assert.ok(serviceHtml.includes('ПРАЙС-ЛИСТ МАСТЕРСКОЙ'),'service page must be introduced as a price list');
 assert.ok(serviceHtml.includes('servicePriceList'),'service page must contain the new price-list container');
 assert.ok(serviceHtml.includes('service-guide.js?v=8'),'service guide asset version must bump after removing cached old picker');
 for(const oldMarkup of ['serviceCatalog','workCategories','workSummary','selectedWorkCount','selectedWorkChips','Выберите интересующие работы']){
@@ -79,7 +80,6 @@ for(const oldMarkup of ['serviceCatalog','workCategories','workSummary','selecte
 }
 assert.doesNotMatch(serviceHtml,/>\s*Выбрать работу\s*</,'old select-work button text must be absent from service.html');
 assert.ok(serviceGuide.includes('servicePriceCard'),'service works must render as price-list cards');
-assert.ok(serviceGuide.includes('ПРАЙС-ЛИСТ МАСТЕРСКОЙ'),'service works must be introduced as a price list');
 assert.ok(serviceGuide.includes('Стоимость после осмотра'),'service price list must not invent unconfirmed prices');
 assert.doesNotMatch(serviceGuide,/serviceCatalog/,'old service catalog wrapper must not remain in service JS');
 assert.doesNotMatch(serviceGuide,/workCategories/,'old category column must not remain in service JS');
