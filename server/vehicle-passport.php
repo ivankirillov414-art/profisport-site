@@ -107,27 +107,34 @@ function vehicle_passport_norm(string $value): string {
     return preg_replace('/\s+/u',' ',$value)??$value;
 }
 
-function vehicle_passport_seed_from_product(PDO $pdo,int $vehicleId,?int $productId): int {
-    if($vehicleId<1||!$productId)return 0;
-    $s=$pdo->prepare('SELECT specs FROM products WHERE id=? LIMIT 1');$s->execute([$productId]);$raw=$s->fetchColumn();
-    $specs=is_string($raw)?json_decode($raw,true):null;if(!is_array($specs))return 0;
+function vehicle_passport_seed_specs(PDO $pdo,int $vehicleId,array $specs,string $sourceNote='Комплектация из карточки товара 1С'): int {
+    if($vehicleId<1||!$specs)return 0;
     $templates=vehicle_passport_component_templates();$count=0;
-    $insert=$pdo->prepare("INSERT IGNORE INTO vehicle_components(vehicle_id,component_key,hotspot_key,label,model,source_type,source_note,wear_mode) VALUES(?,?,?,?,?,'1c_spec','Комплектация из карточки товара 1С','inspection')");
+    $insert=$pdo->prepare("INSERT IGNORE INTO vehicle_components(vehicle_id,component_key,hotspot_key,label,model,source_type,source_note,wear_mode) VALUES(?,?,?,?,?,'1c_spec',?,'inspection')");
     foreach($specs as $key=>$value){
         if(is_array($value)||is_object($value))continue;
         $text=trim((string)$value);if($text==='')continue;$nk=vehicle_passport_norm((string)$key);
         foreach($templates as $componentKey=>$tpl){
             $match=false;foreach($tpl['patterns'] as $pattern)if($nk===vehicle_passport_norm($pattern)||str_contains($nk,vehicle_passport_norm($pattern))){$match=true;break;}
             if(!$match)continue;
-            $insert->execute([$vehicleId,$componentKey,$tpl['hotspot'],$tpl['label'],mb_substr($text,0,500)]);$count+=$insert->rowCount();break;
+            $insert->execute([$vehicleId,$componentKey,$tpl['hotspot'],$tpl['label'],mb_substr($text,0,500),$sourceNote]);$count+=$insert->rowCount();break;
         }
     }
     return $count;
 }
 
+function vehicle_passport_seed_from_product(PDO $pdo,int $vehicleId,?int $productId): int {
+    if($vehicleId<1||!$productId)return 0;
+    $s=$pdo->prepare('SELECT specs FROM products WHERE id=? LIMIT 1');$s->execute([$productId]);$raw=$s->fetchColumn();
+    $specs=is_string($raw)?json_decode($raw,true):null;
+    return is_array($specs)?vehicle_passport_seed_specs($pdo,$vehicleId,$specs):0;
+}
+
 function vehicle_passport_seed_vehicle(PDO $pdo,int $vehicleId): int {
-    $s=$pdo->prepare('SELECT product_id FROM customer_vehicles WHERE id=? LIMIT 1');$s->execute([$vehicleId]);$pid=$s->fetchColumn();
-    return vehicle_passport_seed_from_product($pdo,$vehicleId,$pid!==false&&$pid!==null?(int)$pid:null);
+    $s=$pdo->prepare('SELECT product_id,spec_snapshot FROM customer_vehicles WHERE id=? LIMIT 1');$s->execute([$vehicleId]);$row=$s->fetch();if(!$row)return 0;
+    $snapshot=is_string($row['spec_snapshot']??null)?json_decode((string)$row['spec_snapshot'],true):null;
+    if(is_array($snapshot)&&$snapshot)return vehicle_passport_seed_specs($pdo,$vehicleId,$snapshot,'Комплектация из снимка 1С на момент покупки');
+    return vehicle_passport_seed_from_product($pdo,$vehicleId,$row['product_id']!==null?(int)$row['product_id']:null);
 }
 
 function vehicle_passport_median(array $values): ?float {
