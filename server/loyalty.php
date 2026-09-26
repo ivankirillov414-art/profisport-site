@@ -9,6 +9,10 @@ function loyalty_default_config(): array {
         'expiration_enabled'=>false,
         'review_bonus_enabled'=>false,
         'category_exclusions_enabled'=>false,
+        'discounts_enabled'=>false,
+        'discount_stack_rule'=>'max',
+        'earn_basis'=>'after_discounts',
+        'discount_groups'=>[],
         'activation_at'=>null,
         'earn_percent_bp'=>null,
         'max_redeem_percent_bp'=>null,
@@ -52,7 +56,10 @@ function loyalty_config(PDO $pdo): array {
     $raw=$s->fetchColumn();$decoded=is_string($raw)?json_decode($raw,true):null;
     if(!is_array($decoded))return $base;
     $cfg=array_merge($base,array_intersect_key($decoded,$base));
-    foreach(['enabled','earn_enabled','redeem_enabled','expiration_enabled','review_bonus_enabled','category_exclusions_enabled'] as $key)$cfg[$key]=($cfg[$key]??false)===true;
+    foreach(['enabled','earn_enabled','redeem_enabled','expiration_enabled','review_bonus_enabled','category_exclusions_enabled','discounts_enabled'] as $key)$cfg[$key]=($cfg[$key]??false)===true;
+    $cfg['discount_stack_rule']=in_array((string)($cfg['discount_stack_rule']??''),['max','sum','personal_overrides'],true)?(string)$cfg['discount_stack_rule']:'max';
+    $cfg['earn_basis']=in_array((string)($cfg['earn_basis']??''),['after_discounts','before_discounts'],true)?(string)$cfg['earn_basis']:'after_discounts';
+    if(!is_array($cfg['discount_groups']))$cfg['discount_groups']=[];
     foreach(['earn_percent_bp','max_redeem_percent_bp','point_value_kopeks','expiration_days','min_order_rub','review_bonus'] as $key){
         if($cfg[$key]===null||$cfg[$key]==='')$cfg[$key]=null;
         elseif(is_numeric($cfg[$key]))$cfg[$key]=(int)$cfg[$key];
@@ -100,9 +107,10 @@ function loyalty_save_draft(PDO $pdo,array $input): array {
 }
 
 function loyalty_configured(array $cfg): bool {
-    $anyFeature=$cfg['earn_enabled']||$cfg['redeem_enabled']||$cfg['review_bonus_enabled'];
+    $bonusFeature=$cfg['earn_enabled']||$cfg['redeem_enabled']||$cfg['review_bonus_enabled'];
+    $anyFeature=$bonusFeature||($cfg['discounts_enabled']??false);
     if(!$anyFeature)return false;
-    if(!is_int($cfg['point_value_kopeks'])||$cfg['point_value_kopeks']<1||$cfg['point_value_kopeks']>100000)return false;
+    if($bonusFeature&&(!is_int($cfg['point_value_kopeks'])||$cfg['point_value_kopeks']<1||$cfg['point_value_kopeks']>100000))return false;
     if($cfg['earn_enabled']){
         if(!is_int($cfg['earn_percent_bp'])||$cfg['earn_percent_bp']<0||$cfg['earn_percent_bp']>5000)return false;
         if(!is_int($cfg['min_order_rub'])||$cfg['min_order_rub']<0||$cfg['min_order_rub']>10000000)return false;
