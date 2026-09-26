@@ -27,6 +27,8 @@ assert.match(domain,/\$samples===1=>0\.10/,'first personal cycle must have low w
 assert.match(domain,/\$samples===2=>0\.50/,'second personal cycle must materially personalize forecast');
 assert.match(domain,/default=>0\.90/,'mature personal history must dominate baseline without fully discarding it');
 assert.match(domain,/include_learning/,'events must be optionally excluded from learning');
+assert.match(domain,/count\(\$rows\)!==1/,'compatible-part purchase must not be assigned when several vehicles match');
+assert.match(domain,/replacement_purchase/,'compatible purchases must remain pending until installation is confirmed');
 assert.match(domain,/mode==='measurement'/,'real measurements must have a dedicated wear path');
 
 assert.match(vehicles,/spec_snapshot/,'vehicle ownership must snapshot specifications');
@@ -37,6 +39,8 @@ assert.match(customer,/vehicles'=>customer_vehicle_rows/,'customer payload must 
 assert.match(profile,/id="vehiclePassport"/,'customer profile must contain passport surface');
 assert.match(profile,/function openVehiclePassport/,'customer profile must render the interactive passport');
 assert.match(profile,/assets\/guide\/bicycle\.png/,'customer passport must reuse the approved service bicycle visual');
+assert.match(profile,/vehicle\.vehicle_type==='bicycle'/,'customer passport must not show the bicycle diagram for other vehicle types');
+assert.match(profile,/confirm_component_replacement/,'customer must explicitly confirm installation after a compatible purchase');
 assert.match(profile,/Точная модель не подтверждена/,'customer UI must expose uncertainty instead of inventing a component');
 assert.match(profile,/data-passport-hotspot/,'customer passport must support interactive hotspots');
 assert.match(css,/\.vehiclePassportHotspot/,'passport hotspots must be styled');
@@ -45,6 +49,7 @@ assert.match(css,/\.vehiclePassportComponent/,'passport component cards must be 
 assert.match(admin,/Паспорт техники/,'admin vehicle passport page must exist');
 assert.match(admin,/include_learning/,'admin must be able to exclude abnormal cycles from learning');
 assert.match(admin,/source_verified/,'admin must confirm evidence sources');
+assert.match(admin,/Общий узел/,'admin must support passports without a bicycle hotspot map');
 assert.match(adminApi,/action==='save_component'/,'admin API must save component facts');
 assert.match(adminApi,/action==='record_event'/,'admin API must record replacements and measurements');
 assert.match(customerCard,/vehicle\.php\?id=/,'customer admin card must link to vehicle passport');
