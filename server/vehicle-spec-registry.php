@@ -17,7 +17,9 @@ const VEHICLE_SPEC_STARK_VIVA_272_D_2025='https://stark.ru/bikes/velosipedy/gorn
 const VEHICLE_SPEC_STARK_VIVA_272_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-2-hd-2025/';
 const VEHICLE_SPEC_STARK_VIVA_273_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-3-hd-2025/';
 const VEHICLE_SPEC_STARK_VIVA_275_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-5-hd-2025/';
-const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch2';
+const VEHICLE_SPEC_WELT_STORM_26_MD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/gornye/Welt_Storm_26?optionId=1201';
+const VEHICLE_SPEC_WELT_ICON_20_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/gornye/icon2_2026?optionId=1149';
+const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch3';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -177,6 +179,44 @@ function vehicle_spec_registry_welt_rocket_30_hd_2026(string $wheel): array {
     ];
 }
 
+function vehicle_spec_registry_welt_storm_26_md_2026(): array {
+    $source=VEHICLE_SPEC_WELT_STORM_26_MD_2026;
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','2ROXX 981 Alloy MLO, 100mm',$source,'2ROXX'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Alloy, Double wall',$source,null),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','WZ A282 F/R, 2+2 Sealed Bearings',$source,'WZ'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Wanda W2030 26x2.25',$source,'Wanda'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Wanda W2030 26x2.25',$source,'Wanda'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Tourney TY-300',$source,'Shimano'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','Altus SL-M315, 7sp',$source,'Shimano'),
+        vehicle_spec_registry_component('cranks','cranks','Система','TL036 Alloy, 170mm/34T',$source,null),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','ATA 11-32T, 7sp',$source,'ATA'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','DX2005 Mechanical Disc',$source,null),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','DX2005 Mechanical Disc',$source,null),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','JB-6818 Alloy, 31.8×680mm, 6° Backsweep',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','VD1213-02 MTB Comfort',$source,null),
+    ];
+}
+
+function vehicle_spec_registry_welt_icon_20_2026(string $wheel): array {
+    $source=VEHICLE_SPEC_WELT_ICON_20_2026;
+    return array_merge([
+        vehicle_spec_registry_component('fork','fork','Вилка','2ROXX MD-999 Air, 120mm, 32mm alloy ED stanchions, HLO',$source,'2ROXX'),
+        vehicle_spec_registry_component('rims','wheels','Обода','R30-2C Alloy, Double wall, Tubeless ready, 30C',$source,null),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','WZ A707 F/R, M15X100/M12X142, 2+2 Sealed Bearings',$source,'WZ'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Wanda 1226 '.$wheel.'x2.25 Tanwall',$source,'Wanda'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Wanda 1226 '.$wheel.'x2.25 Tanwall',$source,'Wanda'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Cues RD-U4000, 9sp',$source,'Shimano'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','Cues SL-U4000-9R',$source,'Shimano'),
+        vehicle_spec_registry_component('cranks','cranks','Система','TL013 Alloy, Hollow Axle, 170mm/34T',$source,null),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','Sunshine CS-HR9-46L-QS, 11-46T, 9S',$source,'Sunshine'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','MT-200 Hydraulic Disc, 180/160mm',$source,'Shimano'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','MT-200 Hydraulic Disc, 180/160mm',$source,'Shimano'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','HB-12BT Alloy, 31.8×760mm, 5° Backsweep',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','VD1224 XC/Trail series',$source,null),
+    ],vehicle_spec_registry_mt200_pads());
+}
+
 function vehicle_spec_registry_stark_router_2024(string $model): array {
     $is4=str_contains($model,'.4');$wheel=str_starts_with($model,'29')?'29':'27.5';
     $source=match($model){
@@ -284,7 +324,9 @@ function vehicle_spec_registry_profiles(): array {
         $profiles[]=['key'=>'hagen-3.9-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.9','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_39_2025,'components'=>vehicle_spec_registry_hagen_2025('3.9')];
         $profiles[]=['key'=>'hagen-3.11-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.11','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_311_2025,'components'=>vehicle_spec_registry_hagen_2025('3.11')];
         $profiles[]=['key'=>'welt-rocket-3.0-hd-2026-'.$wheel,'brand'=>'Welt','model'=>'Rocket 3.0 HD','year'=>2026,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_WELT_ROCKET_30_HD_2026,'components'=>vehicle_spec_registry_welt_rocket_30_hd_2026($wheel)];
+        $profiles[]=['key'=>'welt-icon-2.0-2026-'.$wheel,'brand'=>'Welt','model'=>'Icon 2.0','year'=>2026,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_WELT_ICON_20_2026,'components'=>vehicle_spec_registry_welt_icon_20_2026($wheel)];
     }
+    $profiles[]=['key'=>'welt-storm-26-md-2026-26','brand'=>'Welt','model'=>'Storm 26 MD','year'=>2026,'wheel'=>'26','source_url'=>VEHICLE_SPEC_WELT_STORM_26_MD_2026,'components'=>vehicle_spec_registry_welt_storm_26_md_2026()];
     foreach(['27.3','29.3','27.4','29.4'] as $model){
         $wheel=str_starts_with($model,'29')?'29':'27.5';
         $source=match($model){'27.3'=>VEHICLE_SPEC_STARK_ROUTER_273_2024,'29.3'=>VEHICLE_SPEC_STARK_ROUTER_293_2024,'27.4'=>VEHICLE_SPEC_STARK_ROUTER_274_2024,'29.4'=>VEHICLE_SPEC_STARK_ROUTER_294_2024};
@@ -390,14 +432,14 @@ function vehicle_spec_registry_apply_vehicle(PDO $pdo,int $vehicleId): array {
             $update->execute([
                 (string)$component['hotspot_key'],(string)$component['label'],$component['manufacturer']??null,(string)$component['model'],
                 (string)$component['source_url'],(string)$component['source_note'],(string)$component['source_verified_at'],
-                (string)$profile['key'],'2026-09-26',(int)$existing['id']
+                (string)$profile['key'],VEHICLE_SPEC_REGISTRY_VERSION,(int)$existing['id']
             ]);$updated++;
             continue;
         }
         $insert->execute([
             $vehicleId,(string)$component['component_key'],(string)$component['hotspot_key'],(string)$component['label'],$component['manufacturer']??null,(string)$component['model'],
             'official',(string)$component['source_url'],(string)$component['source_note'],(string)$component['source_verified_at'],
-            (string)$profile['key'],'2026-09-26','inspection',$installedAt
+            (string)$profile['key'],VEHICLE_SPEC_REGISTRY_VERSION,'inspection',$installedAt
         ]);
         $id=(int)$pdo->lastInsertId();if($id>0&&$installedAt)$event->execute([$id,$installedAt]);$inserted++;
     }
