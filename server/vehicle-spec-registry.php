@@ -17,6 +17,7 @@ const VEHICLE_SPEC_STARK_VIVA_272_D_2025='https://stark.ru/bikes/velosipedy/gorn
 const VEHICLE_SPEC_STARK_VIVA_272_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-2-hd-2025/';
 const VEHICLE_SPEC_STARK_VIVA_273_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-3-hd-2025/';
 const VEHICLE_SPEC_STARK_VIVA_275_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-5-hd-2025/';
+const VEHICLE_SPEC_REGISTRY_VERSION='2026-09-26-batch2';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -427,4 +428,28 @@ function vehicle_spec_registry_queue(PDO $pdo,string $status='unmatched',int $li
     $status=in_array($status,['matched','unmatched'],true)?$status:'unmatched';$limit=max(1,min(1000,$limit));
     $s=$pdo->prepare("SELECT product_id,title,brand,model,match_key,status,first_seen_at,last_seen_at FROM vehicle_spec_research_queue WHERE status=? ORDER BY last_seen_at DESC,product_id DESC LIMIT ".$limit);
     $s->execute([$status]);return $s->fetchAll();
+}
+
+
+function vehicle_spec_registry_applied_version(PDO $pdo): string {
+    $s=$pdo->prepare('SELECT setting_value FROM site_settings WHERE setting_key=? LIMIT 1');
+    $s->execute(['vehicle_spec_registry_applied_version']);$value=$s->fetchColumn();
+    return is_string($value)?$value:'';
+}
+
+function vehicle_spec_registry_sync_once(PDO $pdo): array {
+    $version=VEHICLE_SPEC_REGISTRY_VERSION;
+    if(vehicle_spec_registry_applied_version($pdo)===$version)return ['ran'=>false,'version'=>$version,'reason'=>'current'];
+    $lock=(int)$pdo->query("SELECT GET_LOCK('profisport_vehicle_spec_registry',0)")->fetchColumn();
+    if($lock!==1)return ['ran'=>false,'version'=>$version,'reason'=>'busy'];
+    try{
+        if(vehicle_spec_registry_applied_version($pdo)===$version)return ['ran'=>false,'version'=>$version,'reason'=>'current'];
+        $scan=vehicle_spec_registry_scan_catalog($pdo,5000);
+        $applied=vehicle_spec_registry_apply_all($pdo,10000);
+        $s=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
+        $s->execute(['vehicle_spec_registry_applied_version',$version]);
+        return ['ran'=>true,'version'=>$version,'scan'=>['matched'=>$scan['matched'],'unmatched'=>$scan['unmatched'],'total'=>$scan['total']],'applied'=>$applied];
+    }finally{
+        $pdo->query("SELECT RELEASE_LOCK('profisport_vehicle_spec_registry')");
+    }
 }
