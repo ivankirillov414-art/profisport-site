@@ -63,6 +63,7 @@ jobs:
           node --check admin/import-run.js
           node --check admin/import-apply.js
           node --check admin/migration.js
+          node --check admin/loyalty-calculator.js
           node tests/product-loader-regression.js
           node tests/cart-quantity-regression.js
           node tests/product-gallery-regression.js
@@ -80,6 +81,7 @@ jobs:
           node tests/profile-reviews-regression.js
           node tests/profile-block5-cookie-regression.js
           node tests/loyalty-foundation-regression.js
+          node tests/loyalty-calculator-regression.js
           php tests/loyalty-math.php
       - name: Verify order and catalog schema invariants
         run: |
