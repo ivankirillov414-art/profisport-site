@@ -11,7 +11,88 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        schema: [fresh, legacy]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-password
+          MYSQL_DATABASE: profisport_test
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptest-only-password" --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Validate application and regressions
+        run: |
+          php -v
+          find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
+          node --check app.js
+          node --check catalog-loader.js
+          node --check catalog-live-paged.js
+          node --check checkout.js
+          node --check admin/orders.js
+          node --check admin/products.js
+          node --check admin/service.js
+          node --check admin/loyalty-calculator.js
+          node --check service.js
+          node --check service-guide.js
+          node --check product-kant.js
+          node tests/product-loader-regression.js
+          node tests/cart-quantity-regression.js
+          node tests/product-gallery-regression.js
+          node tests/mobile-layout-regression.js
+          node tests/catalog-taxonomy-regression.js
+          node tests/catalog-live-source-regression.js
+          node tests/current-export-regression.js
+          node tests/migration-readiness.js
+          node tests/photo-source-ownership.js
+          node tests/catalog-startup-regression.js
+          node tests/security-regression.js
+          node tests/profile-dashboard-regression.js
+          node tests/profile-orders-regression.js
+          node tests/profile-favorites-regression.js
+          node tests/profile-reviews-regression.js
+          node tests/profile-block5-cookie-regression.js
+          node tests/profile-phone-login-regression.js
+          node tests/customer-phone-login-regression.js
+          node tests/profile-vehicles-service-regression.js
+          node tests/admin-customer-card-regression.js
+          node tests/loyalty-foundation-regression.js
+          node tests/loyalty-calculator-regression.js
+          node tests/loyalty-live-regression.js
+          node tests/production-preflight-regression.js
+          php tests/order-validation.php
+          php tests/loyalty-math.php
+          php tests/catalog-quality.php
+          php tests/source-photo-diagnostic.php
+          php tests/source-photo-reconcile.php
+      - name: Verify runtime on disposable database
+        run: |
+          cat > server/config.php <<'PHP'
+          <?php return ['db_host'=>'127.0.0.1','db_name'=>'profisport_test','db_user'=>'root','db_pass'=>'test-only-password','import_token'=>'test'];
+          PHP
+          if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-orders.php; fi
+          php tests/seed.php
+          php tests/loyalty-live.php
+          php -S 127.0.0.1:8080 > /tmp/profisport-preflight.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          for attempt in 1 2 3 4 5; do
+            curl -s http://127.0.0.1:8080/ > /dev/null && break
+            sleep 1
+          done
+          python3 tests/orders-http.py
+          python3 tests/phone-login-http.py
+          if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-order-writes.php; fi
+
   deploy:
+    needs: preflight
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,9 +130,14 @@ jobs:
           node tests/profile-favorites-regression.js
           node tests/profile-reviews-regression.js
           node tests/profile-block5-cookie-regression.js
+          node tests/profile-phone-login-regression.js
+          node tests/customer-phone-login-regression.js
           node tests/profile-vehicles-service-regression.js
+          node tests/admin-customer-card-regression.js
           node tests/loyalty-foundation-regression.js
           node tests/loyalty-calculator-regression.js
+          node tests/loyalty-live-regression.js
+          node tests/production-preflight-regression.js
           php tests/loyalty-math.php
           php tests/catalog-quality.php
           php tests/source-photo-diagnostic.php
@@ -154,7 +240,7 @@ jobs:
           PY
           }
 
-          for file in hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html profile-dashboard.css cookie-consent.css cookie-consent.js service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/orders.php api/order-create.php api/review-moderation.php api/loyalty-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php api/migration.php api/migration-tick.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/migration.php server/loyalty.php server/customer-vehicles.php server/order-schema.php server/order-validation.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/migration.js admin/migration.php admin/reconcile.js admin/app.js admin/orders.js admin/orders.php admin/reviews.php admin/loyalty.php admin/loyalty-calculator.js admin/loyalty-calculator.css admin/service.js admin/service.php admin/index.php admin/customers.php admin/customer-qr.php; do
+          for file in 404.html 500.html hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html profile-dashboard.css cookie-consent.css cookie-consent.js service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/orders.php api/order-create.php api/review-moderation.php api/loyalty-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php api/migration.php api/migration-tick.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/migration.php server/loyalty.php server/customer-vehicles.php server/order-schema.php server/order-validation.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/migration.js admin/migration.php admin/reconcile.js admin/app.js admin/orders.js admin/orders.php admin/reviews.php admin/loyalty.php admin/loyalty-calculator.js admin/loyalty-calculator.css admin/service.js admin/service.php admin/index.php admin/customers.php admin/customer.php admin/customer-qr.php; do
             mkdir -p "$(dirname "/tmp/profisport-remote/$file")"
             echo "Downloading deployed $file for byte-for-byte verification"
             curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 \
@@ -196,6 +282,11 @@ jobs:
           grep -Fq "catalog_sanitize_specs" /tmp/profisport-remote/api/catalog.php
           grep -Fq "catalog_resolve_brand" /tmp/profisport-remote/api/catalog.php
           grep -Fq "brands_inferred" /tmp/profisport-remote/api/catalog.php
+          grep -Fq 'ErrorDocument 404 /404.html' /tmp/profisport-remote/.htaccess
+          grep -Fq 'ErrorDocument 500 /500.html' /tmp/profisport-remote/.htaccess
+          grep -Fq 'Ошибка 404' /tmp/profisport-remote/404.html
+          grep -Fq 'Ошибка 500' /tmp/profisport-remote/500.html
+          grep -Fq 'История действий' /tmp/profisport-remote/admin/customer.php
           if grep -Eq 'mobile-layout-fix|mobile-viewport-lock|storefront-kant|theme-clean-v1' /tmp/profisport-remote/index.html; then
             echo 'Obsolete layout assets are present in deployed index.html' >&2
             exit 1
