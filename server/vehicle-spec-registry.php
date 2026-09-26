@@ -8,6 +8,15 @@ const VEHICLE_SPEC_SHIMANO_MT200='https://bike.shimano.com/en-SG/products/compon
 const VEHICLE_SPEC_HAGEN_39_2025='https://hagen.bike/threenine';
 const VEHICLE_SPEC_HAGEN_311_2025='https://hagen.bike/mtbthreeelevenblack';
 const VEHICLE_SPEC_WELT_ROCKET_30_HD_2026='https://www.welt-bikes.com/ru/ru/vse-velosipedy/gornye/Welt_Rocket_3.0_HD_26';
+const VEHICLE_SPEC_STARK_ROUTER_273_2024='https://stark.ru/bikes/velosipedy/gornye/kross-kantri/router/router-27-3-hd-2024/';
+const VEHICLE_SPEC_STARK_ROUTER_293_2024='https://stark.ru/bikes/velosipedy/gornye/kross-kantri/router/router-29-3-hd-2024/';
+const VEHICLE_SPEC_STARK_ROUTER_274_2024='https://stark.ru/bikes/velosipedy/gornye/kross-kantri/router/router-27-4-hd-2024/';
+const VEHICLE_SPEC_STARK_ROUTER_294_2024='https://stark.ru/bikes/velosipedy/gornye/kross-kantri/router/router-29-4-hd-2024/';
+const VEHICLE_SPEC_STARK_ROUTER_293_2025='https://stark.ru/bikes/velosipedy/gornye/kross-kantri/router/router-29-3-hd-2025/';
+const VEHICLE_SPEC_STARK_VIVA_272_D_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-2-d-2025/';
+const VEHICLE_SPEC_STARK_VIVA_272_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-2-hd-2025/';
+const VEHICLE_SPEC_STARK_VIVA_273_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-3-hd-2025/';
+const VEHICLE_SPEC_STARK_VIVA_275_HD_2025='https://stark.ru/bikes/velosipedy/gornye/trekking/viva/viva-27-5-hd-2025/';
 
 function vehicle_spec_registry_component(
     string $key,string $hotspot,string $label,string $model,string $sourceUrl,
@@ -167,6 +176,98 @@ function vehicle_spec_registry_welt_rocket_30_hd_2026(string $wheel): array {
     ];
 }
 
+function vehicle_spec_registry_stark_router_2024(string $model): array {
+    $is4=str_contains($model,'.4');$wheel=str_starts_with($model,'29')?'29':'27.5';
+    $source=match($model){
+        '27.3'=>VEHICLE_SPEC_STARK_ROUTER_273_2024,
+        '29.3'=>VEHICLE_SPEC_STARK_ROUTER_293_2024,
+        '27.4'=>VEHICLE_SPEC_STARK_ROUTER_274_2024,
+        '29.4'=>VEHICLE_SPEC_STARK_ROUTER_294_2024,
+        default=>throw new InvalidArgumentException('unknown_stark_router_2024'),
+    };
+    $components=[
+        vehicle_spec_registry_component('fork','fork','Вилка',$is4?'Grinz ES-456 HLO, 100 mm':'Grinz ES-451 HLO, 100 mm',$source,'Grinz'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Jieshun JH-802L, alloy, 31.8×720 mm',$source,'Jieshun'),
+        vehicle_spec_registry_component('stem','cockpit','Вынос','Jieshun JX-008, alloy, 31.8×80 mm',$source,'Jieshun'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Qijian DA-18, double wall',$source,'Qijian'),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','Solon DH902R/902F, 2 sealed bearings',$source,'Solon'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','CST C-1563 '.$wheel.'x2.25',$source,'CST'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','CST C-1563 '.$wheel.'x2.25',$source,'CST'),
+        vehicle_spec_registry_component('cranks','cranks','Система',$is4?'Prowheel Zephyr FD04S '.($model==='29.4'?'32T':'34T'):'Prowheel MA-AC49 22/32/42T',$source,'Prowheel'),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета',$is4?'Shimano CUES CS-LG300-9 11-41T':'Sunshine CS-HR8-36, 8sp',$source,$is4?'Shimano':'Sunshine'),
+        vehicle_spec_registry_component('chain','chain','Цепь',$is4?'KMC Z9':'KMC Z8',$source,'KMC'),
+        vehicle_spec_registry_component('bottom_bracket','cranks','Каретка','Neco B-910 cartridge',$source,'Neco'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетки',$is4?'Shimano CUES SL-U4000, 9sp':'Shimano Altus SL-M315, 3×8',$source,'Shimano'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель',$is4?'Shimano CUES RD-U4000-GS':'Shimano Altus RD-M310',$source,'Shimano'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','Tektro HD-M275 hydraulic disc',$source,'Tektro'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','Tektro HD-M275 hydraulic disc',$source,'Tektro'),
+        vehicle_spec_registry_component('brake_rotors','front_brake','Тормозные диски','180/160 mm',$source,'Tektro'),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','31.6×350 mm',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','Zeus #1040',$source,'Zeus'),
+        vehicle_spec_registry_component('pedals','pedals','Педали','Feimin FP-803ZU',$source,'Feimin'),
+    ];
+    if(!$is4)$components[]=vehicle_spec_registry_component('front_derailleur','drivetrain','Передний переключатель','Shimano Tourney TY500',$source,'Shimano');
+    return $components;
+}
+
+function vehicle_spec_registry_stark_router_293_2025(): array {
+    $source=VEHICLE_SPEC_STARK_ROUTER_293_2025;
+    return [
+        vehicle_spec_registry_component('fork','fork','Вилка','Grinz Hortus SL, 100 mm',$source,'Grinz'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Jieshun JH-802L, alloy, 31.8×720 mm',$source,'Jieshun'),
+        vehicle_spec_registry_component('stem','cockpit','Вынос','Jieshun JX-008, alloy, 31.8×80 mm',$source,'Jieshun'),
+        vehicle_spec_registry_component('rims','wheels','Обода','Qijian DA-18, double wall',$source,'Qijian'),
+        vehicle_spec_registry_component('hubs','hubs','Втулки','Solon DH902R/DH902F, 2 sealed bearings',$source,'Solon'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка','Chaoyang Phantom Dry H-5234 29x2.2',$source,'Chaoyang'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка','Chaoyang Phantom Dry H-5234 29x2.2',$source,'Chaoyang'),
+        vehicle_spec_registry_component('cranks','cranks','Система','Prowheel Zephyr FD04S 34T',$source,'Prowheel'),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета','Sunshine MTB-CS-HR9-36, 9sp',$source,'Sunshine'),
+        vehicle_spec_registry_component('chain','chain','Цепь','KMC Z9',$source,'KMC'),
+        vehicle_spec_registry_component('bottom_bracket','cranks','Каретка','Neco B-910 cartridge',$source,'Neco'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка','Microshift SL-M759, 9sp',$source,'Microshift'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель','Shimano Altus RD-M2000',$source,'Shimano'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз','Tektro HD-M275 hydraulic disc',$source,'Tektro'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз','Tektro HD-M275 hydraulic disc',$source,'Tektro'),
+        vehicle_spec_registry_component('brake_rotors','front_brake','Тормозные диски','180/160 mm',$source,'Tektro'),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','31.6×350 mm',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','Zeus #1040',$source,'Zeus'),
+        vehicle_spec_registry_component('pedals','pedals','Педали','Feimin FP-803 ZU',$source,'Feimin'),
+    ];
+}
+
+function vehicle_spec_registry_stark_viva_2025(string $model): array {
+    $source=match($model){
+        '27.2 D'=>VEHICLE_SPEC_STARK_VIVA_272_D_2025,
+        '27.2 HD'=>VEHICLE_SPEC_STARK_VIVA_272_HD_2025,
+        '27.3 HD'=>VEHICLE_SPEC_STARK_VIVA_273_HD_2025,
+        '27.5 HD'=>VEHICLE_SPEC_STARK_VIVA_275_HD_2025,
+        default=>throw new InvalidArgumentException('unknown_stark_viva_2025'),
+    };
+    $is275=$model==='27.5 HD';$is273=$model==='27.3 HD';$isD=$model==='27.2 D';
+    $components=[
+        vehicle_spec_registry_component('fork','fork','Вилка',$is275?'Grinz Nemus S+, air/oil, 100 mm':($is273?'Grinz Hortus SL, 100 mm':'Grinz Hortus S, 100 mm'),$source,'Grinz'),
+        vehicle_spec_registry_component('handlebar','cockpit','Руль','Jieshun JH-802L, alloy, 31.8×700 mm',$source,'Jieshun'),
+        vehicle_spec_registry_component('stem','cockpit','Вынос','Jieshun JX-008, alloy, 31.8×60 mm',$source,'Jieshun'),
+        vehicle_spec_registry_component('rims','wheels','Обода',$is275?'Citron DR-25A, double wall':'Qijian DA-18, double wall',$source,$is275?'Citron':'Qijian'),
+        vehicle_spec_registry_component('hubs','hubs','Втулки',$is275?'Solon DH536SR/DH536SF, 4 sealed bearings':'Solon DH902R/DH902F, 2 sealed bearings',$source,'Solon'),
+        vehicle_spec_registry_component('front_tire','front_tire','Передняя покрышка',($is273||$is275?'Chaoyang Falcon 5185 27.5x1.95':'Seoyun SY-B030 27.5x2.1'),$source,$is273||$is275?'Chaoyang':'Seoyun'),
+        vehicle_spec_registry_component('rear_tire','rear_tire','Задняя покрышка',($is273||$is275?'Chaoyang Falcon 5185 27.5x1.95':'Seoyun SY-B030 27.5x2.1'),$source,$is273||$is275?'Chaoyang':'Seoyun'),
+        vehicle_spec_registry_component('cranks','cranks','Система',$is275?'Jiancun X6M-713L-4C 32T':'Prowheel Zephyr FD04S '.($is273?'34T':'32T'),$source,$is275?'Jiancun':'Prowheel'),
+        vehicle_spec_registry_component('cassette','drivetrain','Кассета',$is275?'Microshift CH103A 11-42T':($is273?'Sunshine MTB-CS-HR9-36':'Sunshine CS-HR8-36'),$source,$is275?'Microshift':'Sunshine'),
+        vehicle_spec_registry_component('chain','chain','Цепь',$is275?'KMC X10':($is273?'KMC Z9':'KMC Z8'),$source,'KMC'),
+        vehicle_spec_registry_component('bottom_bracket','cranks','Каретка',$is275?'Prowheel cartridge':'Neco B-910 cartridge',$source,$is275?'Prowheel':'Neco'),
+        vehicle_spec_registry_component('shifter','cockpit','Манетка',$is275?'Microshift SL-850R-10':($is273?'Microshift SL-M759':'Shimano Altus SL-M315'),$source,$is275||$is273?'Microshift':'Shimano'),
+        vehicle_spec_registry_component('rear_derailleur','drivetrain','Задний переключатель',$is275?'Microshift RD-665M':($is273?'Shimano Altus RD-M2000':'Shimano Tourney RD-TX800'),$source,$is275?'Microshift':'Shimano'),
+        vehicle_spec_registry_component('front_brake','front_brake','Передний тормоз',$isD?'Repute DSC910 mechanical disc':'Tektro HD-M275 hydraulic disc',$source,$isD?'Repute':'Tektro'),
+        vehicle_spec_registry_component('rear_brake','rear_brake','Задний тормоз',$isD?'Repute DSC910 mechanical disc':'Tektro HD-M275 hydraulic disc',$source,$isD?'Repute':'Tektro'),
+        vehicle_spec_registry_component('brake_rotors','front_brake','Тормозные диски',$isD?'180/160 mm':'160/160 mm',$source,$isD?'Repute':'Tektro'),
+        vehicle_spec_registry_component('seatpost','saddle','Подседельный штырь','31.6×350 mm',$source,null),
+        vehicle_spec_registry_component('saddle','saddle','Седло','Zeus #1009',$source,'Zeus'),
+        vehicle_spec_registry_component('pedals','pedals','Педали','Feimin FP-873 ZU',$source,'Feimin'),
+    ];
+    return $components;
+}
+
 function vehicle_spec_registry_profiles(): array {
     $profiles=[];
     foreach(['27.5','29'] as $wheel){
@@ -182,6 +283,16 @@ function vehicle_spec_registry_profiles(): array {
         $profiles[]=['key'=>'hagen-3.9-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.9','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_39_2025,'components'=>vehicle_spec_registry_hagen_2025('3.9')];
         $profiles[]=['key'=>'hagen-3.11-2025-'.$wheel,'brand'=>'Hagen','model'=>'3.11','year'=>2025,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_HAGEN_311_2025,'components'=>vehicle_spec_registry_hagen_2025('3.11')];
         $profiles[]=['key'=>'welt-rocket-3.0-hd-2026-'.$wheel,'brand'=>'Welt','model'=>'Rocket 3.0 HD','year'=>2026,'wheel'=>$wheel,'source_url'=>VEHICLE_SPEC_WELT_ROCKET_30_HD_2026,'components'=>vehicle_spec_registry_welt_rocket_30_hd_2026($wheel)];
+    }
+    foreach(['27.3','29.3','27.4','29.4'] as $model){
+        $wheel=str_starts_with($model,'29')?'29':'27.5';
+        $source=match($model){'27.3'=>VEHICLE_SPEC_STARK_ROUTER_273_2024,'29.3'=>VEHICLE_SPEC_STARK_ROUTER_293_2024,'27.4'=>VEHICLE_SPEC_STARK_ROUTER_274_2024,'29.4'=>VEHICLE_SPEC_STARK_ROUTER_294_2024};
+        $profiles[]=['key'=>'stark-router-'.$model.'-hd-2024','brand'=>'Stark','model'=>'Router '.$model.' HD','year'=>2024,'wheel'=>$wheel,'wheel_in_model'=>true,'source_url'=>$source,'components'=>vehicle_spec_registry_stark_router_2024($model)];
+    }
+    $profiles[]=['key'=>'stark-router-29.3-hd-2025','brand'=>'Stark','model'=>'Router 29.3 HD','year'=>2025,'wheel'=>'29','wheel_in_model'=>true,'source_url'=>VEHICLE_SPEC_STARK_ROUTER_293_2025,'components'=>vehicle_spec_registry_stark_router_293_2025()];
+    foreach(['27.2 D','27.2 HD','27.3 HD','27.5 HD'] as $model){
+        $source=match($model){'27.2 D'=>VEHICLE_SPEC_STARK_VIVA_272_D_2025,'27.2 HD'=>VEHICLE_SPEC_STARK_VIVA_272_HD_2025,'27.3 HD'=>VEHICLE_SPEC_STARK_VIVA_273_HD_2025,'27.5 HD'=>VEHICLE_SPEC_STARK_VIVA_275_HD_2025};
+        $profiles[]=['key'=>'stark-viva-'.strtolower(str_replace([' ','.'],['-','-'],$model)).'-2025','brand'=>'Stark','model'=>'Viva '.$model,'year'=>2025,'wheel'=>'27.5','wheel_in_model'=>true,'source_url'=>$source,'components'=>vehicle_spec_registry_stark_viva_2025($model)];
     }
     return $profiles;
 }
@@ -202,7 +313,7 @@ function vehicle_spec_registry_match(string $title): ?array {
         $year=(string)$profile['year'];$wheel=(string)$profile['wheel'];
         if(!str_contains($n,$brand.' '.$model))continue;
         if(!preg_match('/(?:^| )'.preg_quote($year,'/').'(?: |$)/u',$n))continue;
-        if(!preg_match('/(?:^| )'.preg_quote($wheel,'/').'(?: |$)/u',$n))continue;
+        if(!($profile['wheel_in_model']??false)&&!preg_match('/(?:^| )'.preg_quote($wheel,'/').'(?: |$)/u',$n))continue;
         $matches[]=$profile;
     }
     if(!$matches)return null;
