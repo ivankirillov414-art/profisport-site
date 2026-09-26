@@ -20,6 +20,10 @@ try{
         ['Велосипед 27,5 Hagen 3.9, 2025, штормовой синий, металлик','hagen-3.9-2025-27.5'],
         ['Велосипед 27,5 Hagen 3.11, 2025, черный металлик, полумат','hagen-3.11-2025-27.5'],
         ['Велосипед 27,5 Welt Rocket 3.0 HD Punk Khaki (2026)','welt-rocket-3.0-hd-2026-27.5'],
+        ['Велосипед Stark Router 29.3 HD (2025)','stark-router-29.3-hd-2025'],
+        ['Велосипед Stark Router 27.4 HD (2024)','stark-router-27.4-hd-2024'],
+        ['Велосипед Stark Viva 27.5 HD (2025)','stark-viva-27-5-hd-2025'],
+        ['Велосипед Stark Viva 27.2 D (2025)','stark-viva-27-2-d-2025'],
         ['Велосипед Stark Router 27.3 HD (2024), красный','stark-router-27.3-hd-2024'],
         ['Велосипед STARK Router 29.3 HD 2024','stark-router-29.3-hd-2024'],
         ['Велосипед Stark Router 27.4 HD (2024)','stark-router-27.4-hd-2024'],
@@ -58,6 +62,14 @@ try{
     vsr_check($frontPads['wear_mode']==='inspection'&&$frontPads['baseline_life_value']===null,'pad lifetime must remain unknown rather than invented');
     vsr_check($frontPads['source_type']==='official'&&$frontPads['source_profile_key']==='aspect-nickel-pro-2025-29','official profile provenance must be stored');
     vsr_check(str_contains((string)$frontPads['source_url'],'shimano.com'),'pad compatibility source must be Shimano');
+
+    $starkTitle='Велосипед Stark Router 29.3 HD (2025)';
+    $product->execute([$starkTitle,$starkTitle,'Stark','Router 29.3 HD']);$starkProductId=(int)$pdo->lastInsertId();
+    $vehicle->execute([$customerId,$starkProductId,$starkTitle]);$starkVehicleId=(int)$pdo->lastInsertId();
+    $starkResult=vehicle_spec_registry_apply_vehicle($pdo,$starkVehicleId);
+    vsr_check($starkResult['matched']===true&&$starkResult['profile']==='stark-router-29.3-hd-2025','exact STARK 2025 profile must apply');
+    vsr_check(vsr_component($pdo,$starkVehicleId,'front_brake')['model']==='Tektro HD-M275 hydraulic disc','STARK official M275 brake must be stored');
+    vsr_check(vsr_component($pdo,$starkVehicleId,'front_brake_pads')===null,'Tektro M275 pads must remain unconfirmed without a primary compatibility source');
 
     $starkTitle='Велосипед Stark Router 29.4 HD (2024)';
     $product->execute([$starkTitle,$starkTitle,'Stark','Router 29.4 HD']);$starkProductId=(int)$pdo->lastInsertId();
