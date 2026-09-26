@@ -145,8 +145,11 @@ try{
     $purchase=array_values(array_filter($pending,fn($x)=>(int)$x['product_id']===$multiProductId))[0]??null;
     vp_check($purchase!==null&&(int)$purchase['remaining_qty']===1,'purchase must remain pending while quantity remains');
 
-    $secondAssign=vehicle_replacement_assign_customer($pdo,$customerId,(int)$purchase['id'],(int)$chain2['id']);
+    $secondAssign=vehicle_replacement_assign_customer($pdo,$customerId,(int)$purchase['id'],(int)$chain2['id'],1);
     vp_check($secondAssign['remaining_qty']===0,'second explicit assignment must consume final purchased unit');
+    $adminEvent=$pdo->prepare("SELECT admin_user_id,note FROM vehicle_component_events WHERE component_id=? AND event_type='replaced' AND source_order_id=? AND source_product_id=? ORDER BY id DESC LIMIT 1");
+    $adminEvent->execute([(int)$chain2['id'],$replacementOrderId,$multiProductId]);$adminEventRow=$adminEvent->fetch();
+    vp_check($adminEventRow!==false&&(int)$adminEventRow['admin_user_id']===1&&str_contains((string)$adminEventRow['note'],'администратором'),'admin assignment must preserve administrator identity in replacement history');
     $pending=vehicle_replacement_pending_for_customer($pdo,$customerId);
     vp_check(count(array_filter($pending,fn($x)=>(int)$x['product_id']===$multiProductId))===0,'fully assigned purchase must disappear from customer queue');
 

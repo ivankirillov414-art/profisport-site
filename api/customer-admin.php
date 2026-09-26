@@ -51,6 +51,7 @@ function customer_detail(PDO $pdo,int $id): ?array {
     'loyalty'=>$loyalty->fetchAll(),
     'vehicles'=>customer_vehicle_rows($pdo,$id),
     'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,$id,true),
+    'replacement_purchases'=>vehicle_replacement_pending_for_customer($pdo,$id),
     'service_requests'=>customer_service_rows($pdo,$id),
     'audit'=>$audit->fetchAll(),
     'loyalty_program'=>loyalty_program_status($pdo),
@@ -64,6 +65,13 @@ try{
   if($_SERVER['REQUEST_METHOD']==='POST'){
     csrf_check();$in=input_json();$action=(string)($in['action']??'bonus_adjust');$id=(int)($in['customer_id']??0);
     if($id<1)out(['ok'=>false,'error'=>'bad_input'],422);
+    if($action==='assign_replacement_purchase'){
+      $purchaseId=(int)($in['purchase_id']??0);$componentId=(int)($in['component_id']??0);
+      if($purchaseId<1||$componentId<1)out(['ok'=>false,'error'=>'bad_assignment'],422);
+      $result=vehicle_replacement_assign_customer($pdo,$id,$purchaseId,$componentId,(int)($admin['id']??0));
+      audit($pdo,'admin_replacement_purchase_assign','customer',(string)$id,['purchase_id'=>$purchaseId,'component_id'=>$componentId,'event_id'=>$result['event_id']]);
+      out(['ok'=>true,'result'=>$result,'replacement_purchases'=>vehicle_replacement_pending_for_customer($pdo,$id),'vehicles'=>customer_vehicle_rows($pdo,$id),'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,$id,true)]);
+    }
     if($action==='set_discount'){
       if(($admin['role']??'')!=='owner')out(['ok'=>false,'error'=>'forbidden'],403);
       $enabled=($in['enabled']??false)===true;$percentBp=(int)($in['percent_bp']??0);
