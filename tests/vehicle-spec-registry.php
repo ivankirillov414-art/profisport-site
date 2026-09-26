@@ -19,6 +19,7 @@ try{
         ['Велосипед 27,5 Aspect Oasis Pro (2026), Серый','aspect-oasis-pro-2026-27.5'],
         ['Велосипед 27,5 Hagen 3.9, 2025, штормовой синий, металлик','hagen-3.9-2025-27.5'],
         ['Велосипед 27,5 Hagen 3.11, 2025, черный металлик, полумат','hagen-3.11-2025-27.5'],
+        ['Велосипед 27,5 Welt Rocket 3.0 HD Punk Khaki (2026)','welt-rocket-3.0-hd-2026-27.5'],
     ];
     foreach($cases as [$title,$key]){
         $profile=vehicle_spec_registry_match($title);
@@ -26,7 +27,7 @@ try{
     }
     vsr_check(vehicle_spec_registry_match('Велосипед 29 Aspect Nickel Pro (2026), Зеленый')===null,'wrong model year must not match');
     vsr_check(vehicle_spec_registry_match('Велосипед 26 Aspect Nickel Pro (2025), Зеленый')===null,'unsupported wheel size must not match');
-    vsr_check(count(vehicle_spec_registry_profiles())===15,'verified registry batch must contain fifteen exact profiles');
+    vsr_check(count(vehicle_spec_registry_profiles())===17,'verified registry batch must contain seventeen exact profiles');
 
     $product=$pdo->prepare("INSERT INTO products(title,name,brand,model,price_rub,price,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES(?,?,?,?,120000,120000,2,'in_stock','in_stock',1,'Велосипеды / Горные',NULL,'[]')");
     $title='Велосипед 29 Aspect Nickel Pro (2025), Зеленый';
