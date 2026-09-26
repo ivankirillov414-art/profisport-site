@@ -261,7 +261,7 @@ function vehicle_maintenance_refresh(PDO $pdo,array $vehicle,array $components):
     if($vehicleId<1||$customerId<1)return [];
     $upsert=$pdo->prepare("INSERT INTO vehicle_maintenance_alerts(customer_id,vehicle_id,component_id,alert_key,severity,wear_percent,title,message,status,first_seen_at,last_seen_at,acknowledged_at,resolved_at)
         VALUES(?,?,?,'wear',?,?,?,?, 'open',NOW(),NOW(),NULL,NULL)
-        ON DUPLICATE KEY UPDATE customer_id=VALUES(customer_id),vehicle_id=VALUES(vehicle_id),severity=VALUES(severity),wear_percent=VALUES(wear_percent),title=VALUES(title),message=VALUES(message),status=IF(status='resolved','open',status),last_seen_at=NOW(),resolved_at=NULL");
+        ON DUPLICATE KEY UPDATE customer_id=VALUES(customer_id),vehicle_id=VALUES(vehicle_id),status=IF(status='resolved' OR severity<>VALUES(severity),'open',status),severity=VALUES(severity),wear_percent=VALUES(wear_percent),title=VALUES(title),message=VALUES(message),last_seen_at=NOW(),acknowledged_at=IF(status='open',NULL,acknowledged_at),resolved_at=NULL");
     $resolve=$pdo->prepare("UPDATE vehicle_maintenance_alerts SET status='resolved',resolved_at=NOW(),last_seen_at=NOW() WHERE component_id=? AND alert_key='wear' AND status<>'resolved'");
     $activeIds=[];
     foreach($components as $component){
