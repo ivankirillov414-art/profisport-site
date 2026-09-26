@@ -125,7 +125,7 @@ function customer_payload(PDO $pdo,array $u): array {
   $orderRows=$orders->fetchAll();foreach($orderRows as &$order)$order['total_rub']=(float)$order['total_rub'];unset($order);
   $reviews=$pdo->prepare('SELECT COUNT(*) FROM product_reviews WHERE customer_id=?');$reviews->execute([(int)$u['id']]);$reviewsCount=(int)$reviews->fetchColumn();
   $favoriteIds=array_map('strval',array_column($f->fetchAll(),'product_id'));
-  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,(int)$u['id']),'review_eligible'=>customer_review_eligible($pdo,(int)$u['id']),'csrf'=>customer_csrf()];
+  return ['ok'=>true,'customer'=>$u,'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,(int)$u['id']),'loyalty'=>$history->fetchAll(),'loyalty_program'=>loyalty_program_status($pdo),'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,(int)$u['id']),'review_eligible'=>customer_review_eligible($pdo,(int)$u['id']),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');
