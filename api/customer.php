@@ -203,7 +203,7 @@ try{
     $name=trim((string)$u['name'].' '.(string)($u['last_name']??''));$phone=customer_phone((string)$u['phone']);if($phone==='')json_response(['ok'=>false,'error'=>'phone_required'],422);
     $hash=hash('sha256',json_encode(['customer_id'=>$customerId,'vehicle_id'=>$vehicleId,'service_type'=>$serviceType,'problem'=>$problem],JSON_UNESCAPED_UNICODE));
     $number='SV-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
-    $s=$pdo->prepare("INSERT INTO service_requests(customer_id,vehicle_id,source,request_number,name,phone,service_type,bike,problem,status,request_key,request_hash) VALUES(?,?,'customer',?,?,?,?,?,'new',?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
+    $s=$pdo->prepare("INSERT INTO service_requests(customer_id,vehicle_id,source,request_number,name,phone,service_type,bike,problem,status,request_key,request_hash) VALUES(?,?,'customer',?,?,?,?,?,?,'new',?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)");
     $s->execute([$customerId,$vehicleId,$number,$name,$phone,$serviceType,(string)$vehicle['title'],$problem,$key,$hash]);$requestId=(int)$pdo->lastInsertId();
     $q=$pdo->prepare('SELECT id,request_number,request_hash FROM service_requests WHERE request_key=? LIMIT 1');$q->execute([$key]);$row=$q->fetch();
     if(!$row||!hash_equals((string)$row['request_hash'],$hash))json_response(['ok'=>false,'error'=>'request_conflict'],409);
