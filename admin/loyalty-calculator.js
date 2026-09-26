@@ -145,6 +145,8 @@ async function saveDraft(){
 }
 async function setProgram(action){
   const btn=action==='activate'?$('#activateProgram'):$('#deactivateProgram'),msg=$('#saveMsg');
+  const question=action==='activate'?'Включить бонусную программу? После подтверждения начисления, списания и сгорание начнут работать по сохранённым правилам.':'Выключить бонусную программу? Уже зарезервированные бонусы при отмене заказов продолжат корректно возвращаться.';
+  if(!window.confirm(question))return;
   btn.disabled=true;msg.className='saveMsg';msg.textContent=action==='activate'?'Включаю программу…':'Выключаю программу…';
   try{
     const r=await fetch('../api/loyalty-admin.php',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({action})}),j=await r.json();
