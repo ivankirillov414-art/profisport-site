@@ -94,6 +94,25 @@
   const init = () => {
     const hero = document.querySelector?.('#heroSlider');
     if (hero) {
+      if (!document.getElementById('psHeroReducedMotionStyle')) {
+        const style = document.createElement('style');
+        style.id = 'psHeroReducedMotionStyle';
+        style.textContent = `
+@keyframes ps-hero-reduced-ride-in{from{opacity:.66;transform:translate3d(86px,0,0) scale(1.045)}to{opacity:1;transform:none}}
+@keyframes ps-hero-reduced-ride-out{to{opacity:0;transform:translate3d(-52px,0,0) scale(.99)}}
+@keyframes ps-hero-reduced-copy{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+ .motion-page #heroSlider .heroSlide.is-leaving{display:grid!important;animation:energy-quiet-in 440ms ease-out reverse both!important}
+ .motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:ps-hero-reduced-ride-out 440ms ease-out both!important}
+ .motion-page #heroSlider .heroSlide.is-active .heroPhoto{animation:ps-hero-reduced-ride-in 820ms cubic-bezier(.2,.7,.2,1) 80ms both!important}
+ .motion-page #heroSlider .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:ps-hero-reduced-copy 420ms ease-out both!important}
+ .motion-page #heroSlider .heroSlide.is-active .heroCopy small{animation-delay:260ms!important}
+ .motion-page #heroSlider .heroSlide.is-active .heroCopy h1{animation-delay:340ms!important}
+ .motion-page #heroSlider .heroSlide.is-active .heroCopy p{animation-delay:420ms!important}
+ .motion-page #heroSlider .heroSlide.is-active .heroCopy a{animation-delay:500ms!important}
+}`;
+        document.head.append(style);
+      }
       const slides = [...hero.querySelectorAll('.heroSlide')];
       let active = slides.find(slide => slide.getAttribute('aria-hidden') === 'false' || slide.classList.contains('is-active')) || slides[0];
       let exitTimer = 0;
