@@ -1,0 +1,51 @@
+name: Deploy ProfiSport motion hotfix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-motion-hotfix.yml'
+      - 'index.html'
+      - 'catalog-loader.js'
+      - 'psf-final-motion.css'
+      - 'psf-final-motion.js'
+  workflow_dispatch:
+
+concurrency:
+  group: profisport-motion-hotfix
+  cancel-in-progress: true
+
+jobs:
+  deploy-motion-hotfix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Validate motion hotfix files
+        run: |
+          set -euo pipefail
+          node --check psf-final-motion.js
+          grep -Fq 'psf-final-motion.css?v=1' index.html
+          grep -Fq 'psf-final-motion.js?v=1' index.html
+          grep -Fq 'Ролики и скейты' index.html
+          grep -Fq 'Ролики и скейты' catalog-loader.js
+          grep -Fq 'psfBikeRideIn' psf-final-motion.css
+          grep -Fq 'psf-enter' psf-final-motion.js
+
+      - name: Upload motion hotfix files to InfinityFree
+        shell: bash
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          FTP_ROOT='ftp://ftpupload.net:21/htdocs'
+          AUTH="if0_42771076:${FTP_PASSWORD}"
+          mkdir -p /tmp/profisport-hotfix
+          for file in index.html catalog-loader.js psf-final-motion.css psf-final-motion.js; do
+            echo "Uploading $file"
+            curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 --user "$AUTH" -T "$file" "$FTP_ROOT/$file;type=i"
+            curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 --user "$AUTH" "$FTP_ROOT/$file;type=i" -o "/tmp/profisport-hotfix/$file"
+            cmp -s "$file" "/tmp/profisport-hotfix/$file" || { echo "Verification failed: $file" >&2; exit 1; }
+          done
+          echo 'Motion hotfix files are deployed and verified over FTP.'
