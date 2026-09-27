@@ -93,6 +93,27 @@
   };
   const init = () => {
     const hero = document.querySelector?.('#heroSlider');
+    if (hero) {
+      const slides = [...hero.querySelectorAll('.heroSlide')];
+      let active = slides.find(slide => slide.getAttribute('aria-hidden') === 'false' || slide.classList.contains('is-active')) || slides[0];
+      let exitTimer = 0;
+      const syncHeroExit = () => {
+        if (!preference.matches || !slides.length) return;
+        const next = slides.find(slide => slide.getAttribute('aria-hidden') === 'false' || slide.classList.contains('is-active')) || active;
+        if (!next || next === active) return;
+        const previous = active;
+        active = next;
+        clearTimeout(exitTimer);
+        previous.classList.add('is-leaving');
+        exitTimer = setTimeout(() => previous.classList.remove('is-leaving'), 440);
+      };
+      const slideObserver = new MutationObserver(syncHeroExit);
+      slides.forEach(slide => slideObserver.observe(slide, { attributes: true, attributeFilter: ['class', 'aria-hidden'] }));
+      preference.addEventListener('change', () => {
+        slides.forEach(slide => slide.classList.remove('is-leaving'));
+        active = slides.find(slide => slide.getAttribute('aria-hidden') === 'false' || slide.classList.contains('is-active')) || slides[0];
+      });
+    }
     if (hero && matchMedia('(hover: hover) and (pointer: fine)').matches) {
       let frame = 0, pointer;
       hero.addEventListener('pointermove', event => {
