@@ -24,7 +24,7 @@ function runtime({cached,hold=false}={}){
  const cached=runtime({cached:{savedAt:now,items:[{id:7}]}});assert.equal((await cached.context.window.loadRealCatalog())[0].id,7);assert.equal(cached.calls.length,0);
  const stale=runtime({cached:{savedAt:now-120001,items:[{id:7}]}});assert.equal((await stale.context.window.loadRealCatalog()).length,1025);assert(stale.calls.length>0);
  const noCache=runtime();delete noCache.context.indexedDB;assert.equal((await noCache.context.window.loadRealCatalog()).length,1025);
- for(const category of ['bicycle','scooter','skiing','cycling','fitness','tourism'])assert(html.includes(`data-department="${category}"`),'Categories must exist before JavaScript finishes loading');
+ for(const category of ['bicycle','skiing','cycling','accessories','fitness','tourism'])assert(html.includes(`data-department="${category}"`),'Categories must exist before JavaScript finishes loading');
  assert(!html.includes('Загрузка категорий…'));
  assert(app.includes('if(!catalogComplete)'), 'Early filters must wait for complete results');
  console.log('Catalog startup: first 24 rows before remaining pages, complete IDs, fresh/expired/unavailable cache, immediate categories passed.');

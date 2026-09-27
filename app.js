@@ -144,7 +144,8 @@ function openQuickView(id){
 const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});
 function compareProductCards(a,b){
   const departmentOrder=p=>Number(p.departmentOrder)||CATALOG_DEPARTMENTS[p.department]?.order||999;
-  return departmentOrder(a)-departmentOrder(b)
+  return Number(Boolean(primaryProductType(b.name)))-Number(Boolean(primaryProductType(a.name)))
+    ||departmentOrder(a)-departmentOrder(b)
     ||cardCollator.compare(a.productType||'',b.productType||'')
     ||cardCollator.compare(a.rawCat||a.cat||'',b.rawCat||b.cat||'')
     ||Number(Boolean(b.image))-Number(Boolean(a.image))
@@ -159,6 +160,7 @@ function render(list=view){
   productsEl.dataset.catalogReady='1';
   productsEl.innerHTML=show.map(p=>{const imgs=imageCandidates(p),first=imgs.shift(),discount=p.oldPrice&&p.oldPrice>p.price?Math.round((1-p.price/p.oldPrice)*100):0;return `<article class="product">${favoriteMarkup(p.id)}<a class="productCardLink" href="product.html?id=${encodeURIComponent(p.id)}"><div class="photo">${first?`<img class="productImg" src="${esc(first)}" data-fallbacks="${esc(encodeURIComponent(JSON.stringify(imgs)))}" loading="lazy" decoding="async" width="320" height="240" alt="${esc(p.name)}">`:'<div class="imagePlaceholder">Фото уточняется</div>'}</div><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3></a><div class="productSummary">${highlightMarkup(p)}</div><button type="button" class="quickViewButton" data-quick-id="${esc(encodeURIComponent(p.id))}" aria-label="Быстрый просмотр: ${esc(p.name)}">Быстрый просмотр</button><div class="productPurchase"><span class="stock ${p.stockCode==='out'?'out':''}">${esc(catalogStockLabel(p.stockCode))}</span><div class="productPriceMeta">${p.oldPrice?`<del>${rub(p.oldPrice)}</del>`:''}${discount?`<span class="productDiscount">−${discount}%</span>`:''}</div><div class="price">${rub(p.price)}</div><button class="addBtn" data-id="${esc(encodeURIComponent(p.id))}" ${p.stockCode==='out'?'disabled':''}>${p.stockCode==='out'?'Нет в наличии':'В корзину'}</button></div></article>`}).join('')||(catalogComplete?'<p>Ничего не найдено.</p>':'<p>Загружаем товары для выбранных фильтров…</p>');
   bindProductImages();
+  if(window.profisportMotion?.catalog)window.profisportMotion.catalog(productsEl);
   $$('.quickViewButton').forEach(b=>b.onclick=()=>openQuickView(decodeURIComponent(b.dataset.quickId)));
   $$('.addBtn:not([disabled])').forEach(b=>b.onclick=()=>add(decodeURIComponent(b.dataset.id)));
   $$('.productFavorite').forEach(b=>b.onclick=()=>toggleFavorite(decodeURIComponent(b.dataset.favoriteId),b));
@@ -200,7 +202,7 @@ function apply(resetPage=true,sync=true){
 }
 window.apply=apply;
 
-function add(id){cart.push(id);saveCart();toggleCart(true)}
+function add(id){cart.push(id);saveCart();window.profisportMotion?.added?.();toggleCart(true)}
 function saveCart(){localStorage.setItem('ps-cart',JSON.stringify(cart));count.textContent=cart.length;renderCart()}
 function renderCart(){const groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let sum=0,unresolved=false;cartItems.innerHTML=[...groups].map(([id,qty])=>{const p=products.find(x=>String(x.id)===id);if(!p){unresolved=true;return `<div class="cartrow"><span>Загружаем товар… × ${qty}</span></div>`}sum+=p.price*qty;return `<div class="cartrow"><span>${esc(p.name)}<br><b>${rub(p.price)}</b></span><div class="cartQty"><button onclick="changeQty('${encodeURIComponent(id)}',-1)">−</button><b>${qty}</b><button onclick="changeQty('${encodeURIComponent(id)}',1)">+</button></div></div>`}).join('')||'<p>Корзина пока пуста</p>';total.textContent=unresolved?'Уточняется при оформлении':rub(sum)}
 function changeQty(encoded,delta){const id=decodeURIComponent(encoded);if(delta>0)cart.push(id);else{const i=cart.findIndex(x=>String(x)===id);if(i>=0)cart.splice(i,1)}saveCart()}
@@ -331,8 +333,9 @@ function buildBrandShortcuts(){
 }
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 function buildCategoryTiles(){
-  const available=Object.entries(CATALOG_SECTIONS).filter(([key])=>products.some(p=>catalogMatchesDepartment(p,key)));
-  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"></a>`).join('');
+  const keys=['bicycle','cycling','accessories','skiing','fitness','tourism'];
+  const available=keys.map(key=>[key,CATALOG_SECTIONS[key]]).filter(([,section])=>section);
+  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/hero/classic-workshop-wide-v5.webp" alt="" loading="lazy"><b class="tileArrow" aria-hidden="true">↗</b></a>';
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){
@@ -371,14 +374,20 @@ $$('[data-budget]').forEach(b=>b.onclick=()=>{minPrice.value='';maxPrice.value=b
 function setupHero(){
   const slider=$('#heroSlider'),track=slider?.querySelector('.heroTrack'),slides=$$('.heroSlide'),dots=$$('#heroSlider .dots button');if(!slider||!track||!slides.length)return;
   const mobile=matchMedia('(max-width:850px)'),reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
-  let current=0,timer,hovered=false,gesture=null,suppressClick=false;
+  let current=0,timer,hovered=false,gesture=null,suppressClick=false,exitTimer;
+  const position=$('#heroCurrent');
   const pause=()=>clearInterval(timer);
   const resume=()=>{
     pause();
-    if(!mobile.matches&&!reducedMotion.matches&&!hovered&&!gesture&&!document.hidden&&!slider.contains(document.activeElement))timer=setInterval(()=>setSlide(current+1),5000);
+    if(!reducedMotion.matches&&!hovered&&!gesture&&!document.hidden&&!slider.contains(document.activeElement))timer=setInterval(()=>setSlide(current+1),5000);
   };
   const setSlide=n=>{
-    current=(n+slides.length)%slides.length;
+    const previous=current;current=(n+slides.length)%slides.length;
+    clearTimeout(exitTimer);slides.forEach(s=>s.classList.remove('is-leaving'));
+    if(previous!==current&&!reducedMotion.matches){slides[previous].classList.add('is-leaving');exitTimer=setTimeout(()=>slides.forEach(s=>s.classList.remove('is-leaving')),650)}
+    if(position)position.textContent=String(current+1).padStart(2,'0');
+    const nextImage=slides[(current+1)%slides.length].querySelector?.('img');
+    if(nextImage)nextImage.loading='eager';
     slides.forEach((s,i)=>{s.classList.toggle('is-active',i===current);s.inert=i!==current;s.setAttribute('aria-hidden',String(i!==current))});
     dots.forEach((d,i)=>{d.classList.toggle('active',i===current);d.setAttribute('aria-pressed',String(i===current))});
     // All breakpoints use one active slide; translating a collapsed track skips slides.
@@ -386,8 +395,8 @@ function setupHero(){
     resume();
   };
   dots.forEach((d,i)=>d.onclick=()=>setSlide(i));
-  slider.querySelector('.heroPrev').onclick=()=>setSlide(current-1);
-  slider.querySelector('.heroNext').onclick=()=>setSlide(current+1);
+  slider.querySelector('.heroPrev')&&(slider.querySelector('.heroPrev').onclick=()=>setSlide(current-1));
+  slider.querySelector('.heroNext').onclick=()=>{if(!suppressClick)setSlide(current+1)};
   slider.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovered=true;pause()}});
   slider.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovered=false;resume()}});
   slider.addEventListener('focusin',pause);
@@ -396,7 +405,7 @@ function setupHero(){
     if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();setSlide(current+(e.key==='ArrowLeft'?-1:1))}
   });
   slider.addEventListener('pointerdown',e=>{
-    if(e.button!==0||e.isPrimary===false||e.target.closest('a,button,input,select,textarea'))return;
+    if(e.button!==0||e.isPrimary===false||e.target.closest('a,button:not(.heroAdvance),input,select,textarea'))return;
     gesture={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dragging:false};suppressClick=false;pause();
   });
   slider.addEventListener('pointermove',e=>{
@@ -510,7 +519,7 @@ populateCategoryOptions();
 const initialBrand=new URLSearchParams(location.search).get('brand');
 if(initialBrand)brandFilter.add(new Option(initialBrand,initialBrand));
 restoreState();count.textContent=cart.length;renderCart();
-$$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
+$$('[data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();closeMega();toggleMenu(false);selectDepartment(a.dataset.department)});
 (async()=>{
   try{
     catalogStatus.textContent='Загрузка каталога…';
@@ -522,3 +531,4 @@ $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault
     populateFilters();restoreState();configureContextFilters(q.value,intentFor(q.value));apply(false,false);saveCart();buildMega();buildCategoryTiles();buildBrandShortcuts();loadCustomerState();
   }catch(e){catalogStatus.textContent='Каталог временно недоступен';if(!products.length||hasPendingFilters())productsEl.innerHTML='<p>Не удалось загрузить каталог. Попробуйте обновить страницу.</p>';console.error(e)}
 })();
+

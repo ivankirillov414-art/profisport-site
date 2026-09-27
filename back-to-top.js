@@ -14,7 +14,7 @@
   const update = () => { button.hidden = window.scrollY < 240; };
   button.addEventListener('click', () => {
     // Explicitly override the site's smooth anchor scrolling.
-    window.scrollTo({ top: 0, left: window.scrollX, behavior: 'instant' });
+    window.scrollTo({ top: 0, left: window.scrollX, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     update();
   });
   window.addEventListener('scroll', update, { passive: true });
