@@ -43,7 +43,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 #heroSlider .heroCopy{animation:none!important}
 .storefrontHome .heroLayout .heroCopy p,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{font-size:15px;color:#d0d7dc;line-height:1.65;max-width:350px;margin:0 0 24px}
 .heroCopy .primary{display:inline-flex;align-items:center;gap:20px;min-height:48px;padding:13px 20px;font-size:14px}
-.motion-page .heroAdvance{position:absolute;z-index:4;inset:0 0 0 60%;width:40%;height:100%;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;cursor:e-resize;color:transparent}
+.motion-page .heroAdvance{position:absolute;z-index:4;inset:0 0 0 60%;width:40%;height:100%;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;cursor:default;color:transparent}
 .heroAdvance:focus-visible{outline:2px solid var(--energy);outline-offset:-8px}
 .heroAdvance::before,.heroAdvance::after{content:none!important;display:none!important}
 .heroPosition{position:absolute;z-index:5;bottom:24px;right:28px;color:#e9edf0;font-size:11px;letter-spacing:.1em;pointer-events:none}
@@ -159,7 +159,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
  #heroSlider .heroSlide .heroCopy h1{font-size:34px!important}
  .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{width:100%!important;max-width:none!important;padding:270px 24px 32px!important;align-self:start}
  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-size:34px!important;margin:14px 0 12px}.storefrontHome .heroLayout .heroCopy p{font-size:14px!important;margin-bottom:18px}.heroCopy small{font-size:9px!important}.heroCopy .primary{width:auto;max-width:100%;font-size:13px;min-height:46px}
- .motion-page .heroAdvance{inset:0 0 auto 50%;width:50%;height:255px}.heroPosition{right:20px;bottom:auto;top:228px;font-size:10px}
+ .motion-page .heroAdvance{inset:0 0 auto 50%;width:50%;height:255px}
  .energyProof{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}.energyProof>div{padding:16px;border-bottom:1px solid #e7ebee}.energyProof>div:nth-child(2n){border-right:0}.energyProof>div:nth-last-child(-n+2){border-bottom:0}.energyProof b{font-size:14px}.energyProof span{font-size:11px}
  #categoryTiles.categoryTiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#categoryTiles .categoryTile{padding:16px;min-height:230px}#categoryTiles .categoryTile h3{font-size:17px}#categoryTiles .categoryTile span{font-size:11px}#categoryTiles .categoryArtwork,#categoryTiles .categoryTile:first-child .categoryArtwork{height:110px;margin-top:16px}#categoryTiles .tileArrow{right:12px;bottom:12px;width:28px;height:28px}
  #catalogProducts{padding:18px 12px;border-radius:14px}.sectionHead{flex-wrap:wrap}.storefrontHome .sectionAction{font-size:12px}.filterPanelIntro{padding:18px}.filterPanelIntro h3{font-size:19px}.filterPanelIntro p{font-size:12px}#filterControls .filterSection{padding:16px}.products{gap:10px}.products .product{padding:10px;border-radius:10px}.products .product h3{font-size:13px;height:4.35em}.products .productPurchase .price{font-size:20px}.products .productSummary{height:38px}.products .quickViewButton{font-size:11px;padding:8px 4px}
