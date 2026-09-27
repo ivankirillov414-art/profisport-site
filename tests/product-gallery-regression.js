@@ -8,3 +8,14 @@ if(!js.includes("placeholder.textContent='Фото уточняется'"))fail(
 const galleryVersion=html.match(/product-kant\.js\?v=(\d+)["'&]/);
 if(!galleryVersion||Number(galleryVersion[1])<3)fail('product gallery must use cache version 3 or newer');
 if(!process.exitCode)console.log('Product gallery regression checks passed.');
+const assert=require('node:assert/strict'),vm=require('node:vm');
+const context={catalogSpecEntries:s=>Object.entries(s),primaryProductType:()=> 'bicycle'};
+vm.runInNewContext(js.slice(js.indexOf('function displayProductSpecs('),js.indexOf('function galleryHtml(')),context);
+const name='Велосипед 28 FORMAT 5341 (700C 8 ск. рост. 580 мм)';
+const rows=context.displayProductSpecs({name,cat:'Гибриды',sku:'SKU',specs:{}});
+assert(rows.some(([k,v])=>k==='Колёса (в названии)'&&v==='28″'));
+assert(rows.some(([k,v])=>k==='Скорости (в названии)'&&v==='8'));
+assert(rows.some(([k,v])=>k==='Ростовка (в названии)'&&v==='580 мм'));
+const explicit=context.displayProductSpecs({name,specs:{'Диаметр колёс':'29','Число скоростей':'9','Размер рамы':'L'}});
+assert(!explicit.some(([k])=>k.includes('(в названии)')),'Explicit structured specs win over title-derived fallback');
+assert(!context.displayProductSpecs({name:'Велосипед без параметров',specs:{}}).some(([k])=>k.includes('(в названии)')),'Never invent missing parameters');
