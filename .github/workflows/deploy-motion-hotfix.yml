@@ -33,19 +33,23 @@ jobs:
           grep -Fq 'psfBikeRideIn' psf-final-motion.css
           grep -Fq 'psf-enter' psf-final-motion.js
 
-      - name: Upload motion hotfix files to InfinityFree
-        shell: bash
-        env:
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      - name: Stage only motion hotfix files
         run: |
           set -euo pipefail
-          FTP_ROOT='ftp://ftpupload.net:21/htdocs'
-          AUTH="if0_42771076:${FTP_PASSWORD}"
-          mkdir -p /tmp/profisport-hotfix
-          for file in index.html catalog-loader.js psf-final-motion.css psf-final-motion.js; do
-            echo "Uploading $file"
-            curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 --user "$AUTH" -T "$file" "$FTP_ROOT/$file;type=i"
-            curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 --user "$AUTH" "$FTP_ROOT/$file;type=i" -o "/tmp/profisport-hotfix/$file"
-            cmp -s "$file" "/tmp/profisport-hotfix/$file" || { echo "Verification failed: $file" >&2; exit 1; }
-          done
-          echo 'Motion hotfix files are deployed and verified over FTP.'
+          mkdir -p hotfix-upload
+          cp index.html catalog-loader.js psf-final-motion.css psf-final-motion.js hotfix-upload/
+
+      - name: Deploy staged hotfix files to InfinityFree
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287
+        with:
+          server: ftpupload.net
+          username: if0_42771076
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          security: strict
+          local-dir: ./hotfix-upload/
+          server-dir: /htdocs/
+          state-name: .psf-motion-hotfix-sync-state.json
+          dangerous-clean-slate: false
+          log-level: standard
