@@ -15,7 +15,7 @@
     {cls:'routeSlide',scene:'mountains',bg:'assets/hero/classic-mountains-v1.webp',bgW:2048,bgH:768,label:'ВЕЛОСИПЕДЫ · МАРШРУТЫ',title:'Больше спорта<br><em>в твоей жизни</em>',desc:'Подберите велосипед для города, грунта и горных маршрутов без случайных компромиссов.',href:'#catalogProducts',cta:'Выбрать велосипед',department:'bicycle'},
     {cls:'serviceSlide',scene:'workshop',bg:'assets/hero/classic-workshop-wide-v5.webp',bgW:2172,bgH:724,label:'МАСТЕРСКАЯ ПРОФИСПОРТ',title:'Вернём байк<br><em>в движение</em>',desc:'Диагностика, точная настройка и обслуживание перед новым сезоном и дальними поездками.',href:'service.html',cta:'Записаться в сервис'}
   ];
-  const bikeObject='assets/categories/bicycle-illustration-v1.png';
+  const bikeObject='assets/hero/classic-mountains-v1.webp';
   const esc=value=>String(value??'').replace(/[&<>"']/g,match=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[match]));
   const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
 
@@ -45,7 +45,7 @@
   function slideMarkup(slide){
     const loading=slide.priority?'fetchpriority="high"':'loading="lazy"';
     const dep=slide.department?` data-department="${esc(slide.department)}"`:'';
-    return `<article class="heroSlide ${esc(slide.cls)}" data-scene="${esc(slide.scene)}"><div class="heroBackdrop"><img src="${esc(slide.bg)}" width="${slide.bgW}" height="${slide.bgH}" alt="" ${loading} decoding="async"></div><div class="heroCopy"><small>${esc(slide.label)}</small><h1>${slide.title}</h1><p>${esc(slide.desc)}</p><a class="primary" href="${esc(slide.href)}"${dep}>${esc(slide.cta)}</a></div><div class="heroPhoto heroObject"><img class="heroVisual" src="${bikeObject}" width="480" height="320" alt="" ${loading} decoding="async"></div></article>`;
+    return `<article class="heroSlide ${esc(slide.cls)}" data-scene="${esc(slide.scene)}"><div class="heroBackdrop"><img src="${esc(slide.bg)}" width="${slide.bgW}" height="${slide.bgH}" alt="" ${loading} decoding="async"></div><div class="heroCopy"><small>${esc(slide.label)}</small><h1>${slide.title}</h1><p>${esc(slide.desc)}</p><a class="primary" href="${esc(slide.href)}"${dep}>${esc(slide.cta)}</a></div><div class="heroPhoto heroObject"><img class="heroVisual" src="${bikeObject}" width="2048" height="768" alt="" ${loading} decoding="async"></div></article>`;
   }
 
   function upgradeHeroScene(){
