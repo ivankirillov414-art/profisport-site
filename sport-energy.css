@@ -82,6 +82,9 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 #filterControls :is(input,select):focus{outline:2px solid #c7f00066;outline-offset:1px;border-color:#82952e}
 #filterControls .filterField>span,#categoryShortcuts>label{font-size:12px;color:#5c6a75;font-weight:500;margin-bottom:7px}
 #filterActions{display:flex;gap:10px;align-self:end}#filterActions button{min-height:46px;padding:10px 24px;border-radius:8px;font-size:14px}
+#filterControls .riderFit{border:1px solid #dfe6e9;border-radius:0;background:#eef3f5;padding:18px 24px;margin:0}
+#filterControls .riderFit p{font-size:12px;color:#5d717e;line-height:1.5}
+#riderFitButton{background:#fff;color:#334753;border:1px solid #cbd7df;border-radius:8px;font-size:13px;box-shadow:none}
 .motion-page #resetFilters,.motion-page .quickViewButton{background:#fff;color:#3e4a54;border:1px solid #d2dce3;box-shadow:none}
 .filterChips{margin:16px 0}.filterChips button{font-size:12px;background:#edf1f3;color:#33424e;box-shadow:none}
 .products{gap:18px;align-items:stretch;min-height:240px}

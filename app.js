@@ -144,7 +144,12 @@ function openQuickView(id){
 const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});
 function compareProductCards(a,b){
   const departmentOrder=p=>Number(p.departmentOrder)||CATALOG_DEPARTMENTS[p.department]?.order||999;
-  return Number(Boolean(primaryProductType(b.name)))-Number(Boolean(primaryProductType(a.name)))
+  const primaryRank=p=>primaryProductType(p.name)==='bicycle'?2:Number(Boolean(primaryProductType(p.name)));
+  const adultBike=p=>primaryProductType(p.name)==='bicycle'&&/(?:^|\s)(?:26|27[.,]5|28|29)(?:\s|["″])/.test(p.name);
+  const bikeOrder=a.department==='bicycle'&&b.department==='bicycle'
+    ? Number(Boolean(b.image))-Number(Boolean(a.image))||Number(adultBike(b))-Number(adultBike(a))||Number(b.stockCode==='in')-Number(a.stockCode==='in') : 0;
+  return primaryRank(b)-primaryRank(a)
+    ||bikeOrder
     ||departmentOrder(a)-departmentOrder(b)
     ||cardCollator.compare(a.productType||'',b.productType||'')
     ||cardCollator.compare(a.rawCat||a.cat||'',b.rawCat||b.cat||'')
