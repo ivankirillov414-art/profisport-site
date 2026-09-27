@@ -1,0 +1,153 @@
+/* Final ProfiSport hero/category fix: visible ride-in motion, clean hero without stripes. */
+:root{
+  --psf-hero-ease:cubic-bezier(.14,.86,.16,1);
+  --psf-soft-ease:cubic-bezier(.2,.7,.2,1);
+}
+
+.motion-page #heroSlider .heroSlide::after,
+.motion-page #heroSlider .heroSlide.is-active::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  opacity:0!important;
+}
+
+.motion-page #heroSlider .heroAdvance{
+  cursor:pointer!important;
+  background:transparent!important;
+}
+
+.motion-page #heroSlider .heroAdvance::before,
+.motion-page #heroSlider .heroAdvance::after,
+.motion-page #heroSlider .heroPrev,
+.motion-page #heroSlider .heroDots,
+.motion-page #heroSlider .heroPosition,
+.motion-page #heroSlider [class*="heroPosition"],
+.motion-page #heroSlider [class*="heroDot"]{
+  display:none!important;
+  content:none!important;
+}
+
+.motion-page #heroSlider .heroSlide{
+  overflow:hidden;
+  transform:translateZ(0);
+}
+
+.motion-page #heroSlider .heroSlide::before{
+  transform:scale(1.015);
+  transform-origin:58% 50%;
+  will-change:transform,opacity;
+}
+
+.motion-page #heroSlider .heroPhoto{
+  transform-origin:68% 62%;
+  will-change:transform,opacity,filter;
+  backface-visibility:hidden;
+}
+
+.motion-page #heroSlider .heroCopy{
+  z-index:5!important;
+}
+
+.motion-page #heroSlider .heroCopy > :is(small,h1,p,a){
+  opacity:1;
+  transform:none;
+  will-change:transform,opacity;
+}
+
+@keyframes psfHeroBgIn{
+  0%{opacity:.34;transform:scale(1.08) translate3d(18px,0,0)}
+  100%{opacity:.64;transform:scale(1.015) translate3d(0,0,0)}
+}
+
+@keyframes psfBikeRideIn{
+  0%{opacity:0;transform:translate3d(260px,28px,0) scale(1.2) rotate(.7deg);filter:blur(3px) saturate(.95)}
+  42%{opacity:1;filter:blur(0) saturate(1.08)}
+  72%{transform:translate3d(-10px,-2px,0) scale(1.015) rotate(-.18deg)}
+  100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(1.04)}
+}
+
+@keyframes psfBikeRideOut{
+  0%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  100%{opacity:0;transform:translate3d(-150px,-8px,0) scale(.96) rotate(-.45deg);filter:blur(2px)}
+}
+
+@keyframes psfCopyLiftIn{
+  0%{opacity:0;transform:translate3d(-8px,28px,0)}
+  100%{opacity:1;transform:translate3d(0,0,0)}
+}
+
+@keyframes psfHeroIdle{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  100%{transform:translate3d(-12px,-5px,0) scale(1.018)}
+}
+
+.motion-page #heroSlider .heroSlide.psf-enter::before,
+.motion-page #heroSlider .heroSlide.is-entering::before{
+  animation:psfHeroBgIn 760ms var(--psf-soft-ease) both!important;
+}
+
+.motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
+.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{
+  animation:psfBikeRideIn 1180ms var(--psf-hero-ease) 80ms both!important;
+}
+
+.motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,
+.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{
+  animation:psfBikeRideOut 620ms cubic-bezier(.35,0,.2,1) both!important;
+}
+
+.motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),
+.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){
+  animation:psfCopyLiftIn 560ms var(--psf-soft-ease) both!important;
+}
+
+.motion-page #heroSlider .heroSlide.psf-enter .heroCopy small,
+.motion-page #heroSlider .heroSlide.is-entering .heroCopy small{animation-delay:300ms!important}
+.motion-page #heroSlider .heroSlide.psf-enter .heroCopy h1,
+.motion-page #heroSlider .heroSlide.is-entering .heroCopy h1{animation-delay:400ms!important}
+.motion-page #heroSlider .heroSlide.psf-enter .heroCopy p,
+.motion-page #heroSlider .heroSlide.is-entering .heroCopy p{animation-delay:510ms!important}
+.motion-page #heroSlider .heroSlide.psf-enter .heroCopy a,
+.motion-page #heroSlider .heroSlide.is-entering .heroCopy a{animation-delay:620ms!important}
+
+.motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{
+  animation:psfHeroIdle 6.8s ease-in-out infinite alternate!important;
+}
+
+.motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering) .heroCopy > :is(small,h1,p,a){
+  opacity:1!important;
+  transform:none!important;
+}
+
+.motion-page #categoryTiles .categoryTile{
+  transition:transform 240ms var(--psf-soft-ease),box-shadow 240ms var(--psf-soft-ease),border-color 240ms var(--psf-soft-ease)!important;
+}
+.motion-page #categoryTiles .categoryTile:hover,
+.motion-page #categoryTiles .categoryTile:focus-visible{
+  transform:translate3d(0,-5px,0)!important;
+}
+.motion-page #categoryTiles .categoryTile .categoryArtwork{
+  transition:transform 520ms var(--psf-soft-ease),filter 240ms ease!important;
+}
+.motion-page #categoryTiles .categoryTile:hover .categoryArtwork,
+.motion-page #categoryTiles .categoryTile:focus-visible .categoryArtwork{
+  transform:scale(1.055)!important;
+}
+.motion-page #categoryTiles .tileArrow{
+  transition:transform 220ms var(--psf-soft-ease),background 220ms ease,color 220ms ease!important;
+}
+.motion-page #categoryTiles .categoryTile:hover .tileArrow,
+.motion-page #categoryTiles .categoryTile:focus-visible .tileArrow{
+  transform:translate3d(3px,-3px,0)!important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
+  .motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psfBikeRideIn 520ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,
+  .motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psfBikeRideOut 260ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),
+  .motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psfCopyLiftIn 240ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:none!important}
+}
