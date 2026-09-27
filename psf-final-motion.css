@@ -477,3 +477,26 @@
   .motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 240ms ease-out both!important;}
   .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:none!important;}
 }
+
+/* Existing asset hero object: hide product white studio background without extra files. */
+.motion-page #heroSlider .heroVisual[src*="bicycle-illustration-v1"]{
+  mix-blend-mode:multiply!important;
+  filter:contrast(1.18) saturate(1.34) brightness(1.08)!important;
+}
+.motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]){
+  left:46%!important;
+  right:-4%!important;
+  top:12%!important;
+  bottom:5%!important;
+  align-items:center!important;
+  filter:drop-shadow(-28px 28px 36px rgba(0,0,0,.48))!important;
+}
+.motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]) .heroVisual{
+  width:min(54vw,690px)!important;
+  max-height:78%!important;
+}
+@media(max-width:900px){
+  .motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]){left:-2%!important;right:-10%!important;top:36px!important;height:280px!important;}
+  .motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]) .heroVisual{width:min(104vw,620px)!important;max-height:270px!important;}
+}
+
