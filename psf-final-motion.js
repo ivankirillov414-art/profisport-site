@@ -35,6 +35,51 @@
     });
   }
 
+  function installFinalHeroMotionStyle(){
+    const legacy=document.getElementById('psHeroReducedMotionStyle');
+    if(legacy)legacy.remove();
+    let style=document.getElementById('psfFinalHeroMotionRuntimeStyle');
+    if(!style){
+      style=document.createElement('style');
+      style.id='psfFinalHeroMotionRuntimeStyle';
+    }
+    style.textContent=`
+@keyframes psf-force-bike-in{0%{opacity:0;transform:translate3d(340px,34px,0) scale(1.22) rotate(.8deg);filter:blur(3px) saturate(.92)}38%{opacity:1;filter:blur(0) saturate(1.08)}72%{transform:translate3d(-14px,-3px,0) scale(1.018) rotate(-.18deg)}100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(1.04)}}
+@keyframes psf-force-bike-out{0%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{opacity:0;transform:translate3d(-190px,-10px,0) scale(.955) rotate(-.5deg);filter:blur(2px)}}
+@keyframes psf-force-copy-in{0%{opacity:0;transform:translate3d(-10px,26px,0)}100%{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes psf-force-bg-in{0%{opacity:.3;transform:scale(1.07) translate3d(22px,0,0)}100%{opacity:.64;transform:scale(1.015) translate3d(0,0,0)}}
+.motion-page #heroSlider .heroSlide::after,.motion-page #heroSlider .heroSlide.is-active::after{content:none!important;display:none!important;opacity:0!important;background:none!important;animation:none!important}
+.motion-page #heroSlider .heroSlide.psf-enter::before,.motion-page #heroSlider .heroSlide.is-entering::before{animation:psf-force-bg-in 760ms cubic-bezier(.2,.7,.2,1) both!important}
+.motion-page #heroSlider .heroSlide.psf-enter.is-active .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering.is-active .heroPhoto{animation:psf-force-bike-in 1080ms cubic-bezier(.14,.86,.16,1) 60ms both!important;will-change:transform,opacity,filter!important}
+.motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-force-bike-out 620ms cubic-bezier(.35,0,.2,1) both!important;will-change:transform,opacity,filter!important}
+.motion-page #heroSlider .heroSlide.psf-enter.is-active .heroCopy>:is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering.is-active .heroCopy>:is(small,h1,p,a){animation:psf-force-copy-in 560ms cubic-bezier(.2,.7,.2,1) both!important;opacity:1!important}
+.motion-page #heroSlider .heroSlide.psf-enter.is-active .heroCopy small,.motion-page #heroSlider .heroSlide.is-entering.is-active .heroCopy small{animation-delay:260ms!important}
+.motion-page #heroSlider .heroSlide.psf-enter.is-active .heroCopy h1,.motion-page #heroSlider .heroSlide.is-entering.is-active .heroCopy h1{animation-delay:360ms!important}
+.motion-page #heroSlider .heroSlide.psf-enter.is-active .heroCopy p,.motion-page #heroSlider .heroSlide.is-entering.is-active .heroCopy p{animation-delay:470ms!important}
+.motion-page #heroSlider .heroSlide.psf-enter.is-active .heroCopy a,.motion-page #heroSlider .heroSlide.is-entering.is-active .heroCopy a{animation-delay:580ms!important}
+@media(prefers-reduced-motion:reduce){
+ .motion-page #heroSlider .heroSlide.psf-enter.is-active .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering.is-active .heroPhoto{animation:psf-force-bike-in 980ms cubic-bezier(.2,.7,.2,1) 40ms both!important}
+ .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-force-bike-out 520ms ease-out both!important}
+ .motion-page #heroSlider .heroSlide.psf-enter.is-active .heroCopy>:is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering.is-active .heroCopy>:is(small,h1,p,a){animation:psf-force-copy-in 460ms ease-out both!important}
+}
+`;
+    document.head.appendChild(style);
+  }
+
+  function protectFinalHeroMotionStyle(){
+    let scheduled=false;
+    const ensure=()=>{
+      if(scheduled)return;
+      scheduled=true;
+      requestAnimationFrame(()=>{
+        scheduled=false;
+        installFinalHeroMotionStyle();
+      });
+    };
+    installFinalHeroMotionStyle();
+    new MutationObserver(ensure).observe(document.head,{childList:true,subtree:false});
+    [100,500,1200,2400].forEach(delay=>setTimeout(installFinalHeroMotionStyle,delay));
+  }
   function setupHeroMotion(){
     const slider=document.getElementById('heroSlider');
     if(!slider)return;
@@ -78,6 +123,7 @@
   }
 
   ready(()=>{
+    protectFinalHeroMotionStyle();
     setupHeroMotion();
     restoreRideCategory();
     patchMenuCopy();
