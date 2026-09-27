@@ -1,5 +1,5 @@
 /* One public sport-tech layer; the administration keeps its functional UI. */
-:root{--energy: #ffc928;--energy-strong:#e8a914;--energy-amber:#ed9b16;--energy-dark:#13191e;--energy-panel:#20282f;--energy-soft:#eef1f3;--energy-shadow:0 18px 48px #11182014;--y:var(--energy)}
+:root{--energy: #ffc928;--energy-strong:#e8a914;--energy-dark:#13191e;--energy-panel:#20282f;--energy-soft:#eef1f3;--energy-shadow:0 18px 48px #11182014;--y:var(--energy)}
 body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;color:#20282f;background:#f5f6f7;--profisport-brand-logo:url('assets/brand/profisport-logo.svg')}
 .motion-page :is(h1,h2,h3){font-family:inherit;font-style:normal;letter-spacing:-.025em;font-weight:650;text-transform:none;line-height:1.2}
 .motion-page:not(.motion-admin) :is(p,label,small,input,select,textarea,.price,.priceNow,.stock,h1,h2,h3,h4){font-family:'Segoe UI',Arial,sans-serif!important}
@@ -43,7 +43,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 #heroSlider .heroCopy{animation:none!important}
 .storefrontHome .heroLayout .heroCopy p,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{font-size:15px;color:#d0d7dc;line-height:1.65;max-width:350px;margin:0 0 24px}
 .heroCopy .primary{display:inline-flex;align-items:center;gap:20px;min-height:48px;padding:13px 20px;font-size:14px}
-.motion-page .heroAdvance{position:absolute;z-index:4;inset:0 0 0 60%;width:40%;height:100%;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;cursor:default;color:transparent}
+.motion-page .heroAdvance{position:absolute;z-index:4;inset:0 0 0 60%;width:40%;height:100%;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;cursor:e-resize;color:transparent}
 .heroAdvance:focus-visible{outline:2px solid var(--energy);outline-offset:-8px}
 .heroAdvance::before,.heroAdvance::after{content:none!important;display:none!important}
 .heroPosition{position:absolute;z-index:5;bottom:24px;right:28px;color:#e9edf0;font-size:11px;letter-spacing:.1em;pointer-events:none}
@@ -159,7 +159,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
  #heroSlider .heroSlide .heroCopy h1{font-size:34px!important}
  .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{width:100%!important;max-width:none!important;padding:270px 24px 32px!important;align-self:start}
  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-size:34px!important;margin:14px 0 12px}.storefrontHome .heroLayout .heroCopy p{font-size:14px!important;margin-bottom:18px}.heroCopy small{font-size:9px!important}.heroCopy .primary{width:auto;max-width:100%;font-size:13px;min-height:46px}
- .motion-page .heroAdvance{inset:0 0 auto 50%;width:50%;height:255px}
+ .motion-page .heroAdvance{inset:0 0 auto 50%;width:50%;height:255px}.heroPosition{right:20px;bottom:auto;top:228px;font-size:10px}
  .energyProof{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px}.energyProof>div{padding:16px;border-bottom:1px solid #e7ebee}.energyProof>div:nth-child(2n){border-right:0}.energyProof>div:nth-last-child(-n+2){border-bottom:0}.energyProof b{font-size:14px}.energyProof span{font-size:11px}
  #categoryTiles.categoryTiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#categoryTiles .categoryTile{padding:16px;min-height:230px}#categoryTiles .categoryTile h3{font-size:17px}#categoryTiles .categoryTile span{font-size:11px}#categoryTiles .categoryArtwork,#categoryTiles .categoryTile:first-child .categoryArtwork{height:110px;margin-top:16px}#categoryTiles .tileArrow{right:12px;bottom:12px;width:28px;height:28px}
  #catalogProducts{padding:18px 12px;border-radius:14px}.sectionHead{flex-wrap:wrap}.storefrontHome .sectionAction{font-size:12px}.filterPanelIntro{padding:18px}.filterPanelIntro h3{font-size:19px}.filterPanelIntro p{font-size:12px}#filterControls .filterSection{padding:16px}.products{gap:10px}.products .product{padding:10px;border-radius:10px}.products .product h3{font-size:13px;height:4.35em}.products .productPurchase .price{font-size:20px}.products .productSummary{height:38px}.products .quickViewButton{font-size:11px;padding:8px 4px}
@@ -171,11 +171,88 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 }
 @keyframes energy-quiet-in{from{opacity:.6}to{opacity:1}}
 @media(prefers-reduced-motion: reduce){.heroSlide,.heroCopy>*,.heroPhoto,.heroVisual,.categoryArtwork,.tileArrow,.photo-changing,.psAddedToast{animation:none!important;transform:none!important;translate:none!important;transition:none!important}.galleryMain img{animation:none!important;transition:none!important}.heroSlide.is-leaving{display:none!important}.backToTop:hover{transform:none}
- .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 500ms ease-out!important}
- .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy>:is(small,h1,p,a){animation:energy-quiet-in 350ms ease-out both!important}
- .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy h1{animation-delay:80ms!important}
- .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy p{animation-delay:140ms!important}
- .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy a{animation-delay:200ms!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 180ms ease-out!important}
  .motion-page .photo-changing,.motion-page .psAddedToast{animation:energy-quiet-in 120ms ease-out!important}
  .motion-page :is(button,.primary,.storeOption,.categoryTile){transition:background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out!important}
+}
+
+/* Sport-tech hero refresh: the first screen is the visible motion focus. */
+:root{--energy: #ffc928;--energy-strong:#e8a914;--energy-amber:#ed9b16;--hero-ink:#0d141a;--hero-line:#ffb31a;--y:var(--energy)}
+.motion-page :is(.logo span,.hubLogo span,.top>b span,footer b span){color:var(--energy)}
+.motion-page .primary,.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button){background:linear-gradient(135deg,#ffd13b,#ed9b16);color:#111820;border-color:#d88a0d;box-shadow:0 10px 24px #1118201f}
+.motion-page .primary:hover,.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick):hover{background:linear-gradient(135deg,#ffe083,#f0a11a)}
+.storefrontHome .heroLayout .hero{min-height:520px;border-radius:22px;background:#0f171e;box-shadow:0 26px 72px #0710183b}
+.storefrontHome .heroLayout .hero::before{content:'';display:block;position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 76% 26%,#ffc92836,transparent 28%),linear-gradient(135deg,#101a22 0%,#151f27 48%,#070c11 100%);opacity:1}
+.storefrontHome .heroLayout .heroTrack{min-height:520px}
+.storefrontHome .heroLayout .heroTrack>.heroSlide{min-height:520px;background:#0f171e!important}
+#heroSlider .heroSlide::before{content:'';position:absolute;inset:0;z-index:0;background-position:center right;background-size:cover;opacity:.56;filter:saturate(.95) contrast(1.05)}
+#heroSlider .bikeSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-mountains-v1.webp')}
+#heroSlider .winterSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-nordic-v1.jpg')}
+#heroSlider .serviceSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-workshop-wide-v5.webp')}
+#heroSlider .storageSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/winter-storage-v10.webp')}
+#heroSlider .heroSlide::after{content:''!important;display:block!important;position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(116deg,transparent 0 65%,#ffc928 65% 66.2%,transparent 66.2% 100%),linear-gradient(116deg,transparent 0 72%,#ed9b16b8 72% 74%,transparent 74% 100%),linear-gradient(116deg,transparent 0 80%,#ffc92880 80% 81%,transparent 81% 100%);opacity:.9}
+.storefrontHome .heroLayout .heroPhoto,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{inset:0 -7% 0 39%!important;z-index:1;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);filter:drop-shadow(-24px 22px 36px #0008)}
+#heroSlider .heroSlide .heroPhoto::after{background:linear-gradient(90deg,#0f171e 0%,transparent 26%,transparent 100%)!important}
+.heroVisual{object-position:center right;scale:1.08;transform:translate3d(var(--hero-x,0px),var(--hero-y,0px),0) scale(1.08);filter:saturate(1.08) contrast(1.06)}
+.storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{z-index:4;width:51%!important;max-width:590px!important;padding:58px 56px!important}
+.storefrontHome .heroLayout .heroCopy small{color:#ffd665!important;font-weight:700;letter-spacing:.08em}
+#heroSlider .heroSlide .heroCopy h1{font-size:clamp(38px,4.6vw,62px)!important;line-height:1.03!important;letter-spacing:0!important;font-weight:800!important;text-transform:uppercase!important;text-shadow:0 14px 34px #0007}
+#heroSlider .heroSlide .heroCopy h1 em{color:#ffc928!important}
+#heroSlider .heroSlide .heroCopy p{max-width:430px;color:#e3e8ed!important;font-size:16px!important}
+.heroCopy .primary{min-height:52px;padding:15px 24px;border-radius:9px;text-transform:none}
+.motion-page .heroAdvance{cursor:default}
+.heroPosition{display:none!important}
+.energyProof{border-radius:14px;border-color:#dfe6eb;box-shadow:0 14px 38px #1118200c}
+.energyProof b::before{content:'⚡';margin-right:8px;color:var(--energy-amber);font-size:15px}
+#categoryTiles .categoryTile{border-radius:12px;background:linear-gradient(180deg,#fff,#f7f9fb)!important}
+#categoryTiles .categoryTile::before{content:'';position:absolute;inset:auto 0 0 0;height:4px;background:linear-gradient(90deg,#ffc928,#ed9b16);opacity:0;transition:opacity 220ms ease}
+#categoryTiles .categoryTile:is(:hover,:focus-visible)::before{opacity:1}
+#categoryTiles .categoryTile:is(:hover,:focus-visible){border-color:#dba42b;box-shadow:0 18px 42px #11182014}
+#categoryTiles .categoryTile .categoryArtwork{filter:saturate(.75) contrast(1.04)}
+#categoryTiles .tileArrow{background:#111820;color:#ffc928}
+.products .product{border-radius:12px}
+.products .product:hover{border-color:#dba42b;box-shadow:0 18px 44px #11182010}
+.products .productFavorite.active,.productShell .favDetail.active{color:#ffc928}
+.productShell .galleryMain::before{content:'drag / zoom';position:absolute;z-index:2;left:16px;top:14px;padding:7px 10px;border-radius:999px;background:#111820;color:#ffc928;font:700 10px/1 'Segoe UI',Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.galleryHint{color:#5c6d78}
+.galleryZoom{background:#111820;color:#ffc928;border-color:#111820}
+@keyframes energy-bg-in{from{opacity:0;scale:1.035}to{opacity:.56;scale:1}}
+@keyframes energy-ride-in{0%{opacity:0;transform:translate3d(170px,16px,0) scale(1.16)}55%{opacity:1}100%{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes energy-ride-out{to{opacity:0;transform:translate3d(-95px,-4px,0) scale(.98)}}
+@keyframes energy-ride-in-soft{from{opacity:.72;transform:translate3d(28px,0,0) scale(1.025)}to{opacity:1;transform:none}}
+@keyframes energy-copy-strong{from{opacity:0;transform:translate3d(0,20px,0)}to{opacity:1;transform:none}}
+@keyframes energy-streaks{from{opacity:0;transform:translate3d(58px,0,0)}to{opacity:.9;transform:none}}
+@media(prefers-reduced-motion:no-preference){
+ #heroSlider .heroSlide.is-active::before{animation:energy-bg-in 520ms ease-out both}
+ #heroSlider .heroSlide.is-active::after{animation:energy-streaks 760ms cubic-bezier(.2,.7,.2,1) 170ms both}
+ #heroSlider .heroSlide.is-active .heroPhoto{animation:energy-ride-in 980ms cubic-bezier(.16,.84,.18,1) 160ms both}
+ #heroSlider .heroSlide.is-leaving .heroPhoto{animation:energy-ride-out 620ms cubic-bezier(.35,0,.2,1) both}
+ #heroSlider .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:energy-copy-strong 620ms cubic-bezier(.2,.7,.2,1) both}
+ #heroSlider .heroSlide.is-active .heroCopy small{animation-delay:520ms}
+ #heroSlider .heroSlide.is-active .heroCopy h1{animation-delay:650ms}
+ #heroSlider .heroSlide.is-active .heroCopy p{animation-delay:760ms}
+ #heroSlider .heroSlide.is-active .heroCopy a{animation-delay:880ms}
+ #heroSlider .heroSlide.is-leaving{animation:energy-scene-out 650ms cubic-bezier(.35,0,.2,1) both}
+ .heroVisual{transition:transform 520ms cubic-bezier(.2,.7,.2,1)}
+}
+@media(max-width:700px){
+ .storefrontHome .heroLayout .hero,.storefrontHome .heroLayout .heroTrack,.storefrontHome .heroLayout .heroTrack>.heroSlide{min-height:610px}
+ .storefrontHome .heroLayout .heroPhoto,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{inset:0 -12% auto -6%!important;width:auto!important;height:315px!important;clip-path:none}
+ #heroSlider .heroSlide::before{background-position:center top}
+ #heroSlider .heroSlide::after{background:linear-gradient(116deg,transparent 0 72%,#ffc928 72% 74%,transparent 74% 100%)}
+ .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{padding:305px 22px 30px!important;width:100%!important}
+ #heroSlider .heroSlide .heroCopy h1{font-size:34px!important;line-height:1.08!important}
+ #heroSlider .heroSlide .heroCopy p{font-size:14px!important}
+ .motion-page .heroAdvance{inset:0;width:100%;height:315px}
+}
+@media(prefers-reduced-motion:reduce){
+ #heroSlider .heroSlide.is-active::before{opacity:.56}
+ #heroSlider .heroSlide::after{opacity:.72}
+ #heroSlider .heroSlide.is-active .heroPhoto{opacity:1;animation:energy-ride-in-soft 520ms ease-out 80ms both!important}
+ #heroSlider .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:energy-quiet-in 280ms ease-out both!important}
+ #heroSlider .heroSlide.is-active .heroCopy h1{animation-delay:80ms!important}
+ #heroSlider .heroSlide.is-active .heroCopy p{animation-delay:140ms!important}
+ #heroSlider .heroSlide.is-active .heroCopy a{animation-delay:200ms!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 300ms ease-out!important}
+ .productShell .galleryMain img{transform:perspective(900px) translate(var(--view-x,0px),var(--view-y,0px)) rotateY(0deg) scale(var(--view-scale,1))!important}
 }
