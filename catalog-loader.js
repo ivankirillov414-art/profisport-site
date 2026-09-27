@@ -33,7 +33,7 @@ const CATALOG_DEPARTMENTS={
 // Home sections collect every department; detail departments remain available in filters.
 const CATALOG_SECTIONS={
   bicycle:{label:'Велосипеды',note:'Город, прогулки и бездорожье',icon:'bicycle',departments:['bicycle']},
-  scooter:{label:'Самокаты, ролики и скейты',note:'Катание, трюки и комплектующие',icon:'scooter',departments:['scooter','rollers','boards']},
+  scooter:{label:'Ролики и скейты',note:'Катание, трюки и комплектующие',icon:'scooter',departments:['scooter','rollers','boards']},
   skiing:{label:'Зимний спорт',note:'Лыжи, сноуборды, коньки и хоккей',icon:'skiing',departments:['skiing','snowboard','skates','winter','hockey']},
   cycling:{label:'Запчасти',note:'Детали для ремонта и обслуживания',icon:'cycling',departments:['cycling']},
   accessories:{label:'Аксессуары',note:'Оснащение, защита и экипировка',icon:'tourism',departments:['accessories','clothing']},
@@ -60,7 +60,7 @@ function isCyclingPulleyName(n){
   )
 }
 function primaryProductType(name){
-  const n=textNorm(name).replace(/^[\"' -]+/,'');
+  const n=textNorm(name).replace(/^["' -]+/,'');
   if(isSupReference(n)&&(/^(?:sup|са[пб](?:[- ]?борд|[- ]))/.test(n)||/^(?:надувная )?доска/.test(n)))return'sup';
   if(startsAny(n,['беговел']))return'balance_bike';
   if(startsAny(n,['ролик для пресса','ролики для пресса']))return'ab_wheel';
@@ -142,7 +142,7 @@ function departmentFor(name,path){
   const partCategories=new Set(['адаптеры','вилки и амортизация','втулки','выносы','грипсы','детали для вилки','запчасти для рам','звезды','калиперы','камеры','каретки','колеса','манетки','обода','педали','переключатели','подседельные штыри','подшипники','рамы','рога','рулевые колонки','рули','седла','спицы','тормоза гидравлические','тормоза v-brake','тормозные колодки','тормозные ротора диски','тормозные ручки','тросики рубашки','хомуты эксцентрики','цепи','шатуны','покрышки','кассеты','трещотки']);
   const pathKeys=parts.map(x=>textNorm(x).replace(/[^a-zа-я0-9 -]/g,'').trim());
   if(pathKeys.some(x=>partCategories.has(x)))return match('cycling');
-  if(/(?:диск\\.? торм|дисков.*тормоз|адаптер калипера|тормоза postmount)/.test(n))return match('cycling','name');
+  if(/(?:диск\.? торм|дисков.*тормоз|адаптер калипера|тормоза postmount)/.test(n))return match('cycling','name');
   if(/^(?:покрышка|камера|подшипник|каретка|педали|шатуны|цепь|спицы)(?: |$)/.test(n))return match('cycling','name');
   if(/жилеты.*нарукавники|надувные лодоч|надувная мебель/.test(p))return match('water');
   if(/велосум|велобагаж|велозам|велокомпьют|фляг|насос|фонар|звонок|зеркал|крылья|багажник|корзин|велокрес|велочех|шлем|инструмент|стенд|смазк/.test(p+' '+n))return match('accessories');
