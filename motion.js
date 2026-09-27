@@ -1,6 +1,69 @@
 (() => {
   'use strict';
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
+  // Hooks run only for visible, bounded UI. No per-product observers or RAF loop.
+  window.profisportMotion = {
+    catalog(container) {
+      if (preference.matches) return;
+      [...container.children].slice(0, 8).forEach((card, index) => {
+        if (!card.animate || card.classList.contains('productSkeleton')) return;
+        card.animate([{ opacity: .55, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
+          { duration: 280, delay: index * 25, easing: 'cubic-bezier(.2,.7,.2,1)' });
+      });
+    },
+    added() {
+      document.querySelector('.psAddedToast')?.remove();
+      const toast = document.createElement('div');
+      toast.className = 'psAddedToast'; toast.setAttribute('role', 'status');
+      toast.innerHTML = '<b aria-hidden="true">✓</b> Товар добавлен в корзину';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2200);
+    },
+    gallery(image) {
+      const stage = image.closest('.galleryMain');
+      if (!stage || stage.querySelector('.galleryHint')) return;
+      image.draggable = false;
+      const hint = document.createElement('div'); hint.className = 'galleryHint';
+      hint.textContent = 'Интерактивное фото · увеличьте и перемещайте. Это не съёмка 360°.';
+      const zoom = document.createElement('button'); zoom.type = 'button'; zoom.className = 'galleryZoom';
+      zoom.textContent = 'Увеличить фото'; zoom.setAttribute('aria-pressed', 'false');
+      stage.append(hint, zoom);
+      let enlarged = false, drag = null, frame = 0, point;
+      const reset = () => {
+        cancelAnimationFrame(frame); frame = 0; drag = null;
+        image.style.removeProperty('--view-x'); image.style.removeProperty('--view-y');
+        image.style.removeProperty('--view-tilt');
+        image.style.setProperty('--view-scale', enlarged && !preference.matches ? '1.45' : '1');
+      };
+      zoom.onclick = () => { enlarged = !enlarged; zoom.textContent = enlarged ? 'Вернуть размер' : 'Увеличить фото';
+        zoom.setAttribute('aria-pressed', String(enlarged)); reset();
+        // Reduced motion still permits useful zoom; remove movement, not functionality.
+        if (preference.matches) image.style.transform = enlarged ? 'scale(1.45)' : 'none';
+      };
+      image.addEventListener('pointerdown', event => {
+        if (!enlarged || preference.matches || event.button !== 0) return;
+        drag = event.pointerId; image.setPointerCapture(drag);
+      });
+      image.addEventListener('pointermove', event => {
+        if (preference.matches || (event.pointerType !== 'mouse' && drag !== event.pointerId)) return;
+        point = { x: event.clientX, y: event.clientY };
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0; const rect = stage.getBoundingClientRect();
+          const x = Math.max(-.5, Math.min(.5, (point.x - rect.left) / rect.width - .5));
+          const y = Math.max(-.5, Math.min(.5, (point.y - rect.top) / rect.height - .5));
+          image.style.setProperty('--view-x', x * (enlarged ? -100 : 10) + 'px');
+          image.style.setProperty('--view-y', y * (enlarged ? -65 : 6) + 'px');
+          image.style.setProperty('--view-tilt', enlarged ? '0deg' : x * 4 + 'deg');
+        });
+      });
+      const release = event => { if (image.hasPointerCapture(event.pointerId)) image.releasePointerCapture(event.pointerId); drag = null; };
+      image.addEventListener('pointerup', release); image.addEventListener('pointercancel', release);
+      image.addEventListener('pointerleave', () => { if (!drag) reset(); });
+      image.addEventListener('load', reset);
+      preference.addEventListener('change', () => { image.style.removeProperty('transform'); reset(); });
+    }
+  };
   const pending = new Set();
   let observer;
   const reveal = (element, animate = true) => {
@@ -30,6 +93,22 @@
     });
   };
   const init = () => {
+    const hero = document.querySelector?.('#heroSlider');
+    if (hero && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      let frame = 0, pointer;
+      hero.addEventListener('pointermove', event => {
+        if (preference.matches || event.pointerType !== 'mouse') return;
+        pointer = { x: event.clientX, y: event.clientY };
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0; const rect = hero.getBoundingClientRect();
+          hero.style.setProperty('--hero-x', ((pointer.x - rect.left) / rect.width - .5) * 10 + 'px');
+          hero.style.setProperty('--hero-y', ((pointer.y - rect.top) / rect.height - .5) * 6 + 'px');
+        });
+      });
+      const reset = () => { cancelAnimationFrame(frame); frame = 0; hero.style.removeProperty('--hero-x'); hero.style.removeProperty('--hero-y'); };
+      hero.addEventListener('pointerleave', reset); preference.addEventListener('change', reset);
+    }
     if (preference.matches || !('IntersectionObserver' in window)) return;
     try {
       observer = new IntersectionObserver(entries => {

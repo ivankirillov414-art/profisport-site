@@ -115,6 +115,7 @@ equal(filtered("selectedSubcategory='SUP-борды'"),'1','SUP subcategory reac
 equal(filtered("selectedSubcategory='';minPrice.value='2500';sort.value='priceAsc'"),'4,3,1','price filters and sorting work inside a broad section');
 equal(filtered("minPrice.value='';sort.value='popular';q.value='сапборды'"),'1','SUP search finds boards through Russian plural alias');
 equal(filtered("q.value='';mobileQ.value='';category.value='cycling'"),'5','bike parts exclude SUP equipment');
+vm.runInContext("products.push({id:6,name:'Велосипед FORMAT 1412',department:'bicycle',productType:'bicycle',price:42000,specs:{}})",context);
+equal(filtered("category.value='bicycle'"),'6','Bicycle entry excludes hubs and other cycling parts');
 
 if(!process.exitCode)console.log('Catalog taxonomy and normalization regression checks passed.');
-

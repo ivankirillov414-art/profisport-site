@@ -61,3 +61,12 @@ for (const options of [{ reduced: true }, { missing: true }, { failure: true }])
   assert(t.elements.every(e => e.classes.size === 0), 'Back/forward cache restores visible content');
 }
 console.log('Motion behavior: first paint, one-shot reveal, observer fallback, live reduced motion, anchors, focus and BFCache passed.');
+// A thousand-row source still animates at most eight rendered cards.
+for(const reduced of [false,true]){
+ const t=setup({reduced});let animations=0;
+ const context={document:{readyState:'loading',addEventListener(){}},window:{addEventListener(){}},matchMedia:()=>({matches:reduced,addEventListener(){}})};
+ vm.runInNewContext(source,context);
+ const cards=Array.from({length:1000},()=>({classList:{contains:()=>false},animate(){animations++}}));
+ context.window.profisportMotion.catalog({children:cards});
+ assert.equal(animations,reduced?0:8,'Catalog animation work must remain bounded');
+}
