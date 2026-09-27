@@ -1,162 +1,8 @@
-/* Final ProfiSport hero/category fix: visible ride-in motion, clean hero without stripes. */
-:root{
-  --psf-hero-ease:cubic-bezier(.14,.86,.16,1);
-  --psf-soft-ease:cubic-bezier(.2,.7,.2,1);
-}
-
-.motion-page #heroSlider .heroSlide::after,
-.motion-page #heroSlider .heroSlide.is-active::after{
-  content:none!important;
-  display:none!important;
-  background:none!important;
-  opacity:0!important;
-}
-
-.motion-page #heroSlider .heroAdvance{
-  cursor:pointer!important;
-  background:transparent!important;
-}
-
-.motion-page #heroSlider .heroAdvance::before,
-.motion-page #heroSlider .heroAdvance::after,
-.motion-page #heroSlider .heroPrev,
-.motion-page #heroSlider .heroDots,
-.motion-page #heroSlider .heroPosition,
-.motion-page #heroSlider [class*="heroPosition"],
-.motion-page #heroSlider [class*="heroDot"]{
-  display:none!important;
-  content:none!important;
-}
-
-.motion-page #heroSlider .heroSlide{
-  overflow:hidden;
-  transform:translateZ(0);
-}
-
-.motion-page #heroSlider .heroSlide::before{
-  transform:scale(1.015);
-  transform-origin:58% 50%;
-  will-change:transform,opacity;
-}
-
-.motion-page #heroSlider .heroPhoto{
-  transform-origin:68% 62%;
-  will-change:transform,opacity,filter;
-  backface-visibility:hidden;
-}
-
-.motion-page #heroSlider .heroCopy{
-  z-index:5!important;
-}
-
-.motion-page #heroSlider .heroCopy > :is(small,h1,p,a){
-  opacity:1;
-  transform:none;
-  will-change:transform,opacity;
-}
-
-@keyframes psfHeroBgIn{
-  0%{opacity:.34;transform:scale(1.08) translate3d(18px,0,0)}
-  100%{opacity:.64;transform:scale(1.015) translate3d(0,0,0)}
-}
-
-@keyframes psfBikeRideIn{
-  0%{opacity:0;transform:translate3d(260px,28px,0) scale(1.2) rotate(.7deg);filter:blur(3px) saturate(.95)}
-  42%{opacity:1;filter:blur(0) saturate(1.08)}
-  72%{transform:translate3d(-10px,-2px,0) scale(1.015) rotate(-.18deg)}
-  100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(1.04)}
-}
-
-@keyframes psfBikeRideOut{
-  0%{opacity:1;transform:translate3d(0,0,0) scale(1)}
-  100%{opacity:0;transform:translate3d(-150px,-8px,0) scale(.96) rotate(-.45deg);filter:blur(2px)}
-}
-
-@keyframes psfCopyLiftIn{
-  0%{opacity:0;transform:translate3d(-8px,28px,0)}
-  100%{opacity:1;transform:translate3d(0,0,0)}
-}
-
-@keyframes psfHeroIdle{
-  0%{transform:translate3d(0,0,0) scale(1)}
-  100%{transform:translate3d(-12px,-5px,0) scale(1.018)}
-}
-
-.motion-page #heroSlider .heroSlide.psf-enter::before,
-.motion-page #heroSlider .heroSlide.is-entering::before{
-  animation:psfHeroBgIn 760ms var(--psf-soft-ease) both!important;
-}
-
-.motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
-.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{
-  animation:psfBikeRideIn 1180ms var(--psf-hero-ease) 80ms both!important;
-}
-
-.motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,
-.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{
-  animation:psfBikeRideOut 620ms cubic-bezier(.35,0,.2,1) both!important;
-}
-
-.motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),
-.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){
-  animation:psfCopyLiftIn 560ms var(--psf-soft-ease) both!important;
-}
-
-.motion-page #heroSlider .heroSlide.psf-enter .heroCopy small,
-.motion-page #heroSlider .heroSlide.is-entering .heroCopy small{animation-delay:300ms!important}
-.motion-page #heroSlider .heroSlide.psf-enter .heroCopy h1,
-.motion-page #heroSlider .heroSlide.is-entering .heroCopy h1{animation-delay:400ms!important}
-.motion-page #heroSlider .heroSlide.psf-enter .heroCopy p,
-.motion-page #heroSlider .heroSlide.is-entering .heroCopy p{animation-delay:510ms!important}
-.motion-page #heroSlider .heroSlide.psf-enter .heroCopy a,
-.motion-page #heroSlider .heroSlide.is-entering .heroCopy a{animation-delay:620ms!important}
-
-.motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{
-  animation:psfHeroIdle 6.8s ease-in-out infinite alternate!important;
-}
-
-.motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering) .heroCopy > :is(small,h1,p,a){
-  opacity:1!important;
-  transform:none!important;
-}
-
-.motion-page #categoryTiles .categoryTile{
-  transition:transform 240ms var(--psf-soft-ease),box-shadow 240ms var(--psf-soft-ease),border-color 240ms var(--psf-soft-ease)!important;
-}
-.motion-page #categoryTiles .categoryTile:hover,
-.motion-page #categoryTiles .categoryTile:focus-visible{
-  transform:translate3d(0,-5px,0)!important;
-}
-.motion-page #categoryTiles .categoryTile .categoryArtwork{
-  transition:transform 520ms var(--psf-soft-ease),filter 240ms ease!important;
-}
-.motion-page #categoryTiles .categoryTile:hover .categoryArtwork,
-.motion-page #categoryTiles .categoryTile:focus-visible .categoryArtwork{
-  transform:scale(1.055)!important;
-}
-.motion-page #categoryTiles .tileArrow{
-  transition:transform 220ms var(--psf-soft-ease),background 220ms ease,color 220ms ease!important;
-}
-.motion-page #categoryTiles .categoryTile:hover .tileArrow,
-.motion-page #categoryTiles .categoryTile:focus-visible .tileArrow{
-  transform:translate3d(3px,-3px,0)!important;
-}
-
-@media (prefers-reduced-motion: reduce){
-  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
-  .motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psfBikeRideIn 520ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,
-  .motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psfBikeRideOut 260ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),
-  .motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psfCopyLiftIn 240ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:none!important}
-}
-/* Scrolltide-grade ProfiSport hero scene v3 */
+/* ProfiSport final motion layer: Scrolltide-style hero, amber sport-tech accents. */
 :root{
   --psf-amber:#f6a91a;
   --psf-yellow:#ffd340;
   --psf-graphite:#0d141a;
-  --psf-panel:#131b22;
   --psf-scene-ease:cubic-bezier(.16,.84,.18,1);
   --psf-copy-ease:cubic-bezier(.2,.7,.2,1);
 }
@@ -164,10 +10,15 @@
 .motion-page .primary::after,
 .motion-page button::after,
 .motion-page .sectionAction::after,
-.motion-page #categoryTiles .tileArrow{
-  content:none!important;
-  display:none!important;
-}
+.motion-page #categoryTiles .tileArrow,
+.motion-page #heroSlider .heroPrev,
+.motion-page #heroSlider .heroDots,
+.motion-page #heroSlider .dots,
+.motion-page #heroSlider .heroPosition,
+.motion-page #heroSlider [class*="heroPosition"],
+.motion-page #heroSlider [class*="heroDot"],
+.motion-page #heroSlider .heroAdvance::before,
+.motion-page #heroSlider .heroAdvance::after{display:none!important;content:none!important}
 .motion-page .primary,
 .motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button){
   background:linear-gradient(135deg,var(--psf-yellow),var(--psf-amber))!important;
@@ -176,15 +27,10 @@
   box-shadow:0 14px 34px rgba(13,20,26,.22)!important;
 }
 .motion-page .primary:hover,
-.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button):hover{
-  background:linear-gradient(135deg,#ffe27a,#f1a11b)!important;
-  transform:translateY(-1px);
-}
+.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button):hover{background:linear-gradient(135deg,#ffe27a,#f1a11b)!important;transform:translateY(-1px)}
 .motion-page .primary:active,
-.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button):active{
-  transform:translateY(0) scale(.985);
-}
-.motion-page .heroLayout{position:relative;margin-bottom:56px!important;}
+.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button):active{transform:translateY(0) scale(.985)}
+.motion-page .heroLayout{position:relative!important;margin-bottom:56px!important}
 .motion-page #heroSlider.psfSceneHero,
 .motion-page #heroSlider{
   position:relative!important;
@@ -200,30 +46,16 @@
 .motion-page #heroSlider::before{
   content:''!important;
   position:absolute!important;
-  inset:-1px!important;
+  inset:0!important;
   z-index:1!important;
   pointer-events:none!important;
   background:
-    radial-gradient(circle at 78% 14%,rgba(255,211,64,.34),transparent 25%),
-    radial-gradient(circle at 70% 76%,rgba(246,169,26,.18),transparent 30%),
-    linear-gradient(90deg,rgba(13,20,26,.98) 0%,rgba(13,20,26,.9) 31%,rgba(13,20,26,.28) 58%,rgba(13,20,26,.05) 100%)!important;
+    radial-gradient(circle at 78% 14%,rgba(255,211,64,.32),transparent 25%),
+    radial-gradient(circle at 73% 82%,rgba(246,169,26,.16),transparent 31%),
+    linear-gradient(90deg,rgba(13,20,26,.98) 0%,rgba(13,20,26,.9) 34%,rgba(13,20,26,.38) 58%,rgba(13,20,26,.06) 100%)!important;
 }
-.motion-page #heroSlider::after{
-  content:''!important;
-  position:absolute!important;
-  inset:auto 0 0 0!important;
-  z-index:4!important;
-  height:1px!important;
-  background:linear-gradient(90deg,transparent,rgba(255,211,64,.7),transparent)!important;
-  opacity:.9!important;
-  pointer-events:none!important;
-}
-.motion-page #heroSlider .heroTrack{
-  position:relative!important;
-  min-height:560px!important;
-  display:block!important;
-  transform:none!important;
-}
+.motion-page #heroSlider::after{content:''!important;position:absolute!important;inset:auto 0 0 0!important;z-index:4!important;height:1px!important;background:linear-gradient(90deg,transparent,rgba(255,211,64,.55),transparent)!important;pointer-events:none!important}
+.motion-page #heroSlider .heroTrack{position:relative!important;min-height:560px!important;display:block!important;transform:none!important}
 .motion-page #heroSlider .heroSlide{
   position:absolute!important;
   inset:0!important;
@@ -237,51 +69,30 @@
   overflow:hidden!important;
   transform:translateZ(0)!important;
 }
-.motion-page #heroSlider .heroSlide.is-active{
-  position:relative!important;
-  z-index:3!important;
-  opacity:1!important;
-  pointer-events:auto!important;
-}
+.motion-page #heroSlider .heroSlide.is-active{position:relative!important;z-index:3!important;opacity:1!important;pointer-events:auto!important}
 .motion-page #heroSlider .heroSlide.is-leaving,
-.motion-page #heroSlider .heroSlide.psf-leave{
-  position:absolute!important;
-  z-index:2!important;
-  opacity:1!important;
-  pointer-events:none!important;
-}
+.motion-page #heroSlider .heroSlide.psf-leave{position:absolute!important;z-index:2!important;opacity:1!important;pointer-events:none!important}
 .motion-page #heroSlider .heroSlide::before,
 .motion-page #heroSlider .heroSlide::after,
-.motion-page #heroSlider .heroPhoto::after{
-  content:none!important;
-  display:none!important;
-  background:none!important;
-  opacity:0!important;
-}
-.motion-page #heroSlider .heroBackdrop{
-  position:absolute!important;
-  inset:0!important;
-  z-index:0!important;
-  overflow:hidden!important;
-  background:#0d141a!important;
-}
+.motion-page #heroSlider .heroPhoto::before,
+.motion-page #heroSlider .heroPhoto::after{display:none!important;content:none!important;background:none!important;opacity:0!important}
+.motion-page #heroSlider .heroBackdrop{position:absolute!important;inset:0!important;z-index:0!important;overflow:hidden!important;background:#0d141a!important}
 .motion-page #heroSlider .heroBackdrop img{
   width:100%!important;
   height:100%!important;
   object-fit:cover!important;
-  object-position:center right!important;
-  transform:translate3d(calc(var(--hero-x,0px) * .55),calc(var(--hero-y,0px) * .45 + var(--psf-scroll-y,0px)),0) scale(1.075)!important;
-  filter:saturate(1.04) contrast(1.08) brightness(.82)!important;
+  object-position:left center!important;
+  transform:translate3d(calc(var(--hero-x,0px) * .35),calc(var(--hero-y,0px) * .28 + var(--psf-scroll-y,0px)),0) scale(1.18)!important;
+  filter:saturate(1.02) contrast(1.12) brightness(.64)!important;
   will-change:transform,opacity,filter!important;
 }
+.motion-page #heroSlider .serviceSlide .heroBackdrop img{object-position:center right!important;filter:saturate(1.02) contrast(1.05) brightness(.68)!important}
 .motion-page #heroSlider .heroCopy{
   position:relative!important;
   z-index:5!important;
   grid-column:1!important;
   align-self:center!important;
-  width:auto!important;
   max-width:590px!important;
-  min-height:0!important;
   padding:62px 0 62px 58px!important;
   margin:0!important;
   background:transparent!important;
@@ -289,160 +100,74 @@
   box-shadow:none!important;
   pointer-events:none!important;
 }
-.motion-page #heroSlider .heroCopy>*{pointer-events:auto!important;}
-.motion-page #heroSlider .heroCopy small{
-  display:block!important;
-  max-width:410px!important;
-  color:#ffd45b!important;
-  font:800 11px/1.5 'Segoe UI',Arial,sans-serif!important;
-  letter-spacing:.16em!important;
-  text-transform:uppercase!important;
-  text-shadow:0 12px 30px rgba(0,0,0,.45)!important;
-}
-.motion-page #heroSlider .heroCopy h1{
-  color:#fff!important;
-  font-family:'Segoe UI',Arial,sans-serif!important;
-  font-weight:850!important;
-  font-size:clamp(42px,5.25vw,72px)!important;
-  line-height:.98!important;
-  letter-spacing:-.045em!important;
-  text-transform:uppercase!important;
-  margin:18px 0 20px!important;
-  text-shadow:0 18px 46px rgba(0,0,0,.52)!important;
-}
-.motion-page #heroSlider .heroCopy h1 em{
-  color:var(--psf-yellow)!important;
-  font-style:normal!important;
-}
-.motion-page #heroSlider .heroCopy p{
-  max-width:438px!important;
-  margin:0 0 28px!important;
-  color:#dce4ea!important;
-  font:500 16px/1.68 'Segoe UI',Arial,sans-serif!important;
-  text-shadow:0 12px 32px rgba(0,0,0,.44)!important;
-}
-.motion-page #heroSlider .heroCopy .primary{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  min-height:54px!important;
-  padding:15px 25px!important;
-  border-radius:12px!important;
-  font:800 14px/1 'Segoe UI',Arial,sans-serif!important;
-  text-decoration:none!important;
-}
+.motion-page #heroSlider .heroCopy>*{pointer-events:auto!important}
+.motion-page #heroSlider .heroCopy small{display:block!important;max-width:410px!important;color:#ffd45b!important;font:800 11px/1.5 'Segoe UI',Arial,sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;text-shadow:0 12px 30px rgba(0,0,0,.45)!important}
+.motion-page #heroSlider .heroCopy h1{color:#fff!important;font-family:'Segoe UI',Arial,sans-serif!important;font-weight:850!important;font-size:clamp(42px,5.25vw,72px)!important;line-height:.98!important;letter-spacing:-.045em!important;text-transform:uppercase!important;margin:18px 0 20px!important;text-shadow:0 18px 46px rgba(0,0,0,.52)!important}
+.motion-page #heroSlider .heroCopy h1 em{color:var(--psf-yellow)!important;font-style:normal!important}
+.motion-page #heroSlider .heroCopy p{max-width:438px!important;margin:0 0 28px!important;color:#dce4ea!important;font:500 16px/1.68 'Segoe UI',Arial,sans-serif!important;text-shadow:0 12px 32px rgba(0,0,0,.44)!important}
+.motion-page #heroSlider .heroCopy .primary{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:54px!important;padding:15px 25px!important;border-radius:12px!important;font:800 14px/1 'Segoe UI',Arial,sans-serif!important;text-decoration:none!important}
 .motion-page #heroSlider .heroPhoto,
 .motion-page #heroSlider .heroObject,
 .motion-page #heroSlider .heroSlide.serviceSlide .heroPhoto{
   position:absolute!important;
   z-index:3!important;
-  left:42%!important;
-  right:-9%!important;
-  top:6%!important;
-  bottom:-6%!important;
+  left:44%!important;
+  right:-6%!important;
+  top:0!important;
+  bottom:0!important;
   width:auto!important;
   height:auto!important;
   min-height:0!important;
   display:flex!important;
-  align-items:flex-end!important;
-  justify-content:center!important;
-  overflow:visible!important;
+  align-items:stretch!important;
+  justify-content:flex-end!important;
+  overflow:hidden!important;
   background:transparent!important;
   clip-path:none!important;
-  filter:drop-shadow(-34px 28px 42px rgba(0,0,0,.46))!important;
+  filter:drop-shadow(-34px 30px 44px rgba(0,0,0,.38))!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.16) 9%,#000 26%,#000 100%)!important;
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.16) 9%,#000 26%,#000 100%)!important;
   will-change:transform,opacity,filter!important;
   pointer-events:none!important;
 }
-.motion-page #heroSlider .heroVisual{
+.motion-page #heroSlider .heroVisual,
+.motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="classic-mountains-v1"]) .heroVisual{
   display:block!important;
-  width:min(63vw,760px)!important;
+  width:100%!important;
+  height:100%!important;
   max-width:none!important;
-  height:auto!important;
-  max-height:94%!important;
-  object-fit:contain!important;
-  object-position:center!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:right center!important;
   padding:0!important;
   margin:0!important;
-  transform:translate3d(calc(var(--hero-x,0px) * -.34),calc(var(--hero-y,0px) * -.22),0) scale(1)!important;
-  scale:1!important;
-  filter:saturate(1.08) contrast(1.08)!important;
+  transform:translate3d(calc(var(--hero-x,0px) * -.22),calc(var(--hero-y,0px) * -.16),0) scale(1.02)!important;
+  filter:saturate(1.08) contrast(1.13) brightness(.92)!important;
   mix-blend-mode:normal!important;
   opacity:1!important;
   will-change:transform,opacity,filter!important;
 }
-.motion-page #heroSlider .serviceSlide .heroBackdrop img{object-position:center right!important;filter:saturate(1.02) contrast(1.04) brightness(.72)!important;}
-.motion-page #heroSlider .serviceSlide .heroPhoto{right:-11%!important;top:7%!important;}
-.motion-page #heroSlider .heroAdvance{
-  position:absolute!important;
-  z-index:8!important;
-  inset:0 0 0 58%!important;
-  width:42%!important;
-  height:100%!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  color:transparent!important;
-  cursor:pointer!important;
-  border-radius:0!important;
-}
-.motion-page #heroSlider .heroAdvance::before,
-.motion-page #heroSlider .heroAdvance::after,
-.motion-page #heroSlider .heroPrev,
-.motion-page #heroSlider .heroDots,
-.motion-page #heroSlider .heroPosition,
-.motion-page #heroSlider [class*="heroPosition"],
-.motion-page #heroSlider [class*="heroDot"],
-.motion-page #heroSlider .dots{
-  display:none!important;
-  content:none!important;
-}
-.motion-page .energyProof{
-  position:relative!important;
-  z-index:9!important;
-  margin:16px 0 0!important;
-  border-radius:16px!important;
-  border:1px solid #e0e5e8!important;
-  box-shadow:0 16px 44px rgba(17,24,32,.10)!important;
-}
-.motion-page #categoryTiles .categoryTile{
-  transition:transform 240ms var(--psf-copy-ease),box-shadow 240ms var(--psf-copy-ease),border-color 240ms var(--psf-copy-ease)!important;
-}
+.motion-page #heroSlider .heroAdvance{position:absolute!important;z-index:8!important;inset:0 0 0 58%!important;width:42%!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;color:transparent!important;cursor:pointer!important;border-radius:0!important}
+.motion-page .energyProof{position:relative!important;z-index:9!important;margin:16px 0 0!important;border-radius:16px!important;border:1px solid #e0e5e8!important;box-shadow:0 16px 44px rgba(17,24,32,.10)!important}
+.motion-page #categoryTiles .categoryTile{transition:transform 240ms var(--psf-copy-ease),box-shadow 240ms var(--psf-copy-ease),border-color 240ms var(--psf-copy-ease)!important}
 .motion-page #categoryTiles .categoryTile:hover,
-.motion-page #categoryTiles .categoryTile:focus-visible{
-  transform:translate3d(0,-5px,0)!important;
-  border-color:#d99a16!important;
-  box-shadow:0 18px 42px rgba(17,24,32,.14)!important;
-}
-.motion-page #categoryTiles .categoryArtwork{
-  filter:saturate(.85) contrast(1.04)!important;
-  transition:transform 520ms var(--psf-copy-ease),filter 240ms ease!important;
-}
+.motion-page #categoryTiles .categoryTile:focus-visible{transform:translate3d(0,-5px,0)!important;border-color:#d99a16!important;box-shadow:0 18px 42px rgba(17,24,32,.14)!important}
+.motion-page #categoryTiles .categoryArtwork{filter:saturate(.85) contrast(1.04)!important;transition:transform 520ms var(--psf-copy-ease),filter 240ms ease!important}
 .motion-page #categoryTiles .categoryTile:hover .categoryArtwork,
-.motion-page #categoryTiles .categoryTile:focus-visible .categoryArtwork{
-  transform:scale(1.045)!important;
-  filter:saturate(1.02) contrast(1.05)!important;
-}
-@keyframes psf-scene-bg-in{0%{opacity:0;transform:translate3d(32px,0,0) scale(1.12);filter:blur(2px) saturate(.92) brightness(.72)}100%{opacity:1;transform:translate3d(0,0,0) scale(1.075);filter:blur(0) saturate(1.04) brightness(.82)}}
-@keyframes psf-scene-bike-in{0%{opacity:0;transform:translate3d(38vw,34px,0) scale(1.16) rotate(.9deg);filter:blur(3px) saturate(.9)}42%{opacity:1;filter:blur(0) saturate(1.12)}74%{transform:translate3d(-18px,-4px,0) scale(1.018) rotate(-.18deg)}100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(1.06)}}
+.motion-page #categoryTiles .categoryTile:focus-visible .categoryArtwork{transform:scale(1.045)!important;filter:saturate(1.02) contrast(1.05)!important}
+@keyframes psf-scene-bg-in{0%{opacity:0;transform:translate3d(32px,0,0) scale(1.22);filter:blur(2px) saturate(.92) brightness(.58)}100%{opacity:1;transform:translate3d(0,0,0) scale(1.18);filter:blur(0) saturate(1.02) brightness(.64)}}
+@keyframes psf-scene-bike-in{0%{opacity:0;transform:translate3d(38vw,34px,0) scale(1.12) rotate(.9deg);filter:blur(3px) saturate(.9)}42%{opacity:1;filter:blur(0) saturate(1.12)}74%{transform:translate3d(-18px,-4px,0) scale(1.015) rotate(-.18deg)}100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(1.06)}}
 @keyframes psf-scene-bike-out{0%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}100%{opacity:0;transform:translate3d(-22vw,-10px,0) scale(.96) rotate(-.6deg);filter:blur(2px)}}
 @keyframes psf-scene-copy-in{0%{opacity:0;transform:translate3d(-16px,28px,0);filter:blur(1px)}100%{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}}
 @keyframes psf-scene-idle{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-10px,-5px,0) scale(1.018)}}
 .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,
-.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{
-  animation:psf-scene-bg-in 820ms var(--psf-copy-ease) both!important;
-}
+.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 820ms var(--psf-copy-ease) both!important}
 .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
-.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{
-  animation:psf-scene-bike-in 1180ms var(--psf-scene-ease) 80ms both!important;
-}
+.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 1180ms var(--psf-scene-ease) 80ms both!important}
 .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,
-.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{
-  animation:psf-scene-bike-out 660ms cubic-bezier(.35,0,.2,1) both!important;
-}
+.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 660ms cubic-bezier(.35,0,.2,1) both!important}
 .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),
-.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){
-  animation:psf-scene-copy-in 620ms var(--psf-copy-ease) both!important;
-}
+.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 620ms var(--psf-copy-ease) both!important}
 .motion-page #heroSlider .heroSlide.psf-enter .heroCopy small,
 .motion-page #heroSlider .heroSlide.is-entering .heroCopy small{animation-delay:300ms!important}
 .motion-page #heroSlider .heroSlide.psf-enter .heroCopy h1,
@@ -451,52 +176,24 @@
 .motion-page #heroSlider .heroSlide.is-entering .heroCopy p{animation-delay:560ms!important}
 .motion-page #heroSlider .heroSlide.psf-enter .heroCopy a,
 .motion-page #heroSlider .heroSlide.is-entering .heroCopy a{animation-delay:700ms!important}
-.motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{
-  animation:psf-scene-idle 7s ease-in-out infinite alternate!important;
-}
+.motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:psf-scene-idle 7s ease-in-out infinite alternate!important}
 @media(max-width:900px){
-  .motion-page #heroSlider.psfSceneHero,.motion-page #heroSlider,.motion-page #heroSlider .heroTrack,.motion-page #heroSlider .heroSlide{min-height:620px!important;border-radius:18px!important;}
-  .motion-page #heroSlider .heroSlide{grid-template-columns:1fr!important;}
-  .motion-page #heroSlider::before{background:linear-gradient(0deg,rgba(13,20,26,.98) 0%,rgba(13,20,26,.9) 42%,rgba(13,20,26,.12) 100%),radial-gradient(circle at 72% 18%,rgba(255,211,64,.28),transparent 28%)!important;}
-  .motion-page #heroSlider .heroCopy{grid-column:1!important;align-self:end!important;width:100%!important;max-width:none!important;padding:310px 24px 30px!important;}
-  .motion-page #heroSlider .heroCopy h1{font-size:clamp(34px,10vw,46px)!important;line-height:1.03!important;}
-  .motion-page #heroSlider .heroCopy p{font-size:14px!important;max-width:92%!important;}
-  .motion-page #heroSlider .heroPhoto,.motion-page #heroSlider .heroObject,.motion-page #heroSlider .heroSlide.serviceSlide .heroPhoto{left:-8%!important;right:-14%!important;top:16px!important;bottom:auto!important;height:330px!important;align-items:center!important;}
-  .motion-page #heroSlider .heroVisual{width:min(112vw,720px)!important;max-height:320px!important;}
-  .motion-page #heroSlider .heroAdvance{inset:0!important;width:100%!important;height:330px!important;}
-  .motion-page .energyProof{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .motion-page #heroSlider.psfSceneHero,.motion-page #heroSlider,.motion-page #heroSlider .heroTrack,.motion-page #heroSlider .heroSlide{min-height:620px!important;border-radius:18px!important}
+  .motion-page #heroSlider .heroSlide{grid-template-columns:1fr!important}
+  .motion-page #heroSlider::before{background:linear-gradient(0deg,rgba(13,20,26,.98) 0%,rgba(13,20,26,.9) 42%,rgba(13,20,26,.12) 100%),radial-gradient(circle at 72% 18%,rgba(255,211,64,.28),transparent 28%)!important}
+  .motion-page #heroSlider .heroBackdrop img{object-position:42% center!important;transform:scale(1.16)!important}
+  .motion-page #heroSlider .heroCopy{grid-column:1!important;align-self:end!important;width:100%!important;max-width:none!important;padding:310px 24px 30px!important}
+  .motion-page #heroSlider .heroCopy h1{font-size:clamp(34px,10vw,46px)!important;line-height:1.03!important}
+  .motion-page #heroSlider .heroCopy p{font-size:14px!important;max-width:92%!important}
+  .motion-page #heroSlider .heroPhoto,.motion-page #heroSlider .heroObject,.motion-page #heroSlider .heroSlide.serviceSlide .heroPhoto{left:16%!important;right:-24%!important;top:0!important;bottom:auto!important;height:330px!important;align-items:stretch!important}
+  .motion-page #heroSlider .heroVisual{height:330px!important;object-position:right center!important}
+  .motion-page #heroSlider .heroAdvance{inset:0!important;width:100%!important;height:330px!important}
+  .motion-page .energyProof{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media(prefers-reduced-motion:reduce){
-  .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,
-  .motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 360ms ease-out both!important;}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
-  .motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 560ms ease-out both!important;}
-  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,
-  .motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 260ms ease-out both!important;}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),
-  .motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 240ms ease-out both!important;}
-  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:none!important;}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 360ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 560ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 260ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 240ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:none!important}
 }
-
-/* Existing asset hero object: hide product white studio background without extra files. */
-.motion-page #heroSlider .heroVisual[src*="bicycle-illustration-v1"]{
-  mix-blend-mode:multiply!important;
-  filter:contrast(1.18) saturate(1.34) brightness(1.08)!important;
-}
-.motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]){
-  left:46%!important;
-  right:-4%!important;
-  top:12%!important;
-  bottom:5%!important;
-  align-items:center!important;
-  filter:drop-shadow(-28px 28px 36px rgba(0,0,0,.48))!important;
-}
-.motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]) .heroVisual{
-  width:min(54vw,690px)!important;
-  max-height:78%!important;
-}
-@media(max-width:900px){
-  .motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]){left:-2%!important;right:-10%!important;top:36px!important;height:280px!important;}
-  .motion-page #heroSlider .heroPhoto:has(.heroVisual[src*="bicycle-illustration-v1"]) .heroVisual{width:min(104vw,620px)!important;max-height:270px!important;}
-}
-
