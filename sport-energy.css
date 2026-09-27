@@ -169,4 +169,9 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
  .productShell .productDetail,.productShell .productInfoBlocks{grid-template-columns:1fr}.productShell .galleryMain{min-height:320px;padding:20px 10px 40px}.productShell .buyCard{position:static;padding:22px}.productShell .buyCard h1{font-size:25px}.productShell .detailSection{padding:20px}.psAddedToast{font-size:13px;width:max-content;max-width:calc(100% - 40px);padding:13px 18px}
  .motion-page:not(.motion-admin) footer{padding:32px 24px 90px}
 }
-@media(prefers-reduced-motion: reduce){.heroSlide,.heroCopy>*,.heroPhoto,.heroVisual,.categoryArtwork,.tileArrow,.photo-changing,.psAddedToast{animation:none!important;transform:none!important;translate:none!important;transition:none!important}.galleryMain img{animation:none!important;transition:none!important}.heroSlide.is-leaving{display:none!important}.backToTop:hover{transform:none}}
+@keyframes energy-quiet-in{from{opacity:.6}to{opacity:1}}
+@media(prefers-reduced-motion: reduce){.heroSlide,.heroCopy>*,.heroPhoto,.heroVisual,.categoryArtwork,.tileArrow,.photo-changing,.psAddedToast{animation:none!important;transform:none!important;translate:none!important;transition:none!important}.galleryMain img{animation:none!important;transition:none!important}.heroSlide.is-leaving{display:none!important}.backToTop:hover{transform:none}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 180ms ease-out!important}
+ .motion-page .photo-changing,.motion-page .psAddedToast{animation:energy-quiet-in 120ms ease-out!important}
+ .motion-page :is(button,.primary,.storeOption,.categoryTile){transition:background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out!important}
+}

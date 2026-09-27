@@ -33,19 +33,18 @@
         cancelAnimationFrame(frame); frame = 0; drag = null;
         image.style.removeProperty('--view-x'); image.style.removeProperty('--view-y');
         image.style.removeProperty('--view-tilt');
-        image.style.setProperty('--view-scale', enlarged && !preference.matches ? '1.45' : '1');
+        image.style.setProperty('--view-scale', enlarged ? '1.45' : '1');
       };
       zoom.onclick = () => { enlarged = !enlarged; zoom.textContent = enlarged ? 'Вернуть размер' : 'Увеличить фото';
         zoom.setAttribute('aria-pressed', String(enlarged)); reset();
         // Reduced motion still permits useful zoom; remove movement, not functionality.
-        if (preference.matches) image.style.transform = enlarged ? 'scale(1.45)' : 'none';
       };
       image.addEventListener('pointerdown', event => {
-        if (!enlarged || preference.matches || event.button !== 0) return;
+        if (!enlarged || event.button !== 0) return;
         drag = event.pointerId; image.setPointerCapture(drag);
       });
       image.addEventListener('pointermove', event => {
-        if (preference.matches || (event.pointerType !== 'mouse' && drag !== event.pointerId)) return;
+        if ((preference.matches && drag !== event.pointerId) || (event.pointerType !== 'mouse' && drag !== event.pointerId)) return;
         point = { x: event.clientX, y: event.clientY };
         if (frame) return;
         frame = requestAnimationFrame(() => {
@@ -54,7 +53,7 @@
           const y = Math.max(-.5, Math.min(.5, (point.y - rect.top) / rect.height - .5));
           image.style.setProperty('--view-x', x * (enlarged ? -100 : 10) + 'px');
           image.style.setProperty('--view-y', y * (enlarged ? -65 : 6) + 'px');
-          image.style.setProperty('--view-tilt', enlarged ? '0deg' : x * 4 + 'deg');
+          image.style.setProperty('--view-tilt', enlarged || preference.matches ? '0deg' : x * 4 + 'deg');
         });
       });
       const release = event => { if (image.hasPointerCapture(event.pointerId)) image.releasePointerCapture(event.pointerId); drag = null; };
