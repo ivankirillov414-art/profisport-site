@@ -98,11 +98,11 @@
   background: linear-gradient(135deg,#111820,#24323d) !important;
   box-shadow: 0 22px 54px rgb(15 24 32 / 18%);
 }
-.profileDashboardHero::after { background: #d8ff18 !important; opacity: .12 }
+.profileDashboardHero::after { background: #ffc928 !important; opacity: .12 }
 .profileDashboardHero .profileEyebrow,
 .profileDashboardHero .profileContactLine { color: #c9d2d8 }
-.profileAvatar { color: #111820 !important; background: #d8ff18 !important }
-.profileQuickCard:hover { border-color: #c7f000 !important }
+.profileAvatar { color: #111820 !important; background: #ffc928 !important }
+.profileQuickCard:hover { border-color: #e8a914 !important }
 
 /* Also overrides legacy smooth scrolling and component animations. */
 @media (prefers-reduced-motion: reduce) {

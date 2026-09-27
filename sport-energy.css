@@ -1,5 +1,5 @@
 /* One public sport-tech layer; the administration keeps its functional UI. */
-:root{--energy: #d8ff18;--energy-strong:#c7f000;--energy-dark:#13191e;--energy-panel:#20282f;--energy-soft:#eef1f3;--energy-shadow:0 18px 48px #11182014;--y:var(--energy)}
+:root{--energy: #ffc928;--energy-strong:#e8a914;--energy-amber:#ed9b16;--energy-dark:#13191e;--energy-panel:#20282f;--energy-soft:#eef1f3;--energy-shadow:0 18px 48px #11182014;--y:var(--energy)}
 body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;color:#20282f;background:#f5f6f7;--profisport-brand-logo:url('assets/brand/profisport-logo.svg')}
 .motion-page :is(h1,h2,h3){font-family:inherit;font-style:normal;letter-spacing:-.025em;font-weight:650;text-transform:none;line-height:1.2}
 .motion-page:not(.motion-admin) :is(p,label,small,input,select,textarea,.price,.priceNow,.stock,h1,h2,h3,h4){font-family:'Segoe UI',Arial,sans-serif!important}
@@ -14,7 +14,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 .motion-page header:not(.hubHeader) input::placeholder{color:#aeb8c0}
 .motion-page :is(button,.primary,select,input,textarea),.motion-page>nav{font-family:'Segoe UI',Arial,sans-serif;font-weight:600;box-shadow:none}
 .motion-page .primary,.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick,#search button){background:var(--energy);color:#13191e;border-color:var(--energy-strong);border-radius:10px}
-.motion-page .primary:hover,.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick):hover{background:#e5ff65}
+.motion-page .primary:hover,.motion-page :is(.addBtn,#applyFilters,#detailAdd,#quickAdd,#pick):hover{background:#ffdc70}
 .motion-page button:disabled{opacity:.55;cursor:not-allowed}
 .energyRibbon{display:flex;gap:24px;justify-content:center;padding:10px 20px;background:#13191e;color:#bbc4cc;font-size:10px;letter-spacing:.14em;text-transform:uppercase;border-top:1px solid #ffffff12}
 .energyRibbon strong{color:var(--energy)}
@@ -68,7 +68,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 #categoryTiles .categoryTile:first-child .categoryArtwork{height:155px}
 #categoryTiles .serviceTile .categoryArtwork{border-radius:6px;object-fit:cover;mix-blend-mode:normal;filter:none}
 #categoryTiles .tileArrow{position:absolute;z-index:3;right:16px;bottom:16px;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#eef1f3;color:#20282f;font:20px/1 Arial}
-#categoryTiles .categoryTile:is(:hover,:focus-visible){border-color:#b3c83c;box-shadow:0 12px 28px #1118200e}
+#categoryTiles .categoryTile:is(:hover,:focus-visible){border-color:#d9a32d;box-shadow:0 12px 28px #1118200e}
 #categoryTiles .categoryTile:is(:hover,:focus-visible) .tileArrow{background:var(--energy)}
 .categorySection,.brandShowcase{margin-bottom:56px}
 #catalogProducts{padding:30px;background:#fff;border:1px solid #e0e6e9;border-radius:18px;margin-bottom:56px;scroll-margin-top:24px}
@@ -79,7 +79,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 #filterControls h4{font-size:12px;letter-spacing:.05em;font-weight:600;color:#6a7882;margin:0 0 12px;text-transform:uppercase}
 #filterControls .filterGrid{gap:12px}
 #filterControls :is(input:not([type=checkbox]),select){min-height:46px;padding:11px 14px;border:1px solid #d3dde4;background:#fff;border-radius:8px;color:#24313b;font-size:14px;box-shadow:none;min-width:0}
-#filterControls :is(input,select):focus{outline:2px solid #c7f00066;outline-offset:1px;border-color:#82952e}
+#filterControls :is(input,select):focus{outline:2px solid #e8a91466;outline-offset:1px;border-color:#a76c12}
 #filterControls .filterField>span,#categoryShortcuts>label{font-size:12px;color:#5c6a75;font-weight:500;margin-bottom:7px}
 #filterActions{display:flex;gap:10px;align-self:end}#filterActions button{min-height:46px;padding:10px 24px;border-radius:8px;font-size:14px}
 #filterControls .riderFit{border:1px solid #dfe6e9;border-radius:0;background:#eef3f5;padding:18px 24px;margin:0}
@@ -89,7 +89,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 .filterChips{margin:16px 0}.filterChips button{font-size:12px;background:#edf1f3;color:#33424e;box-shadow:none}
 .products{gap:18px;align-items:stretch;min-height:240px}
 .products .product{position:relative;display:flex;flex-direction:column;padding:16px;border:1px solid #e2e8ec;border-radius:12px;background:#fff;box-shadow:none;overflow:hidden;height:100%;min-width:0}
-.products .product::before{content:none}.products .product:hover{border-color:#b6c63f;box-shadow:0 12px 28px #1118200a}
+.products .product::before{content:none}.products .product:hover{border-color:#dba42b;box-shadow:0 12px 28px #1118200a}
 .products .photo{aspect-ratio:4/3;height:auto;background:#fff;border-radius:8px;overflow:hidden}
 .products .photo>img{object-fit:contain;width:100%;height:100%;padding:6px}
 .products .productCardLink>small{color:#76838c;font-size:11px;text-transform:none;margin-top:12px}
@@ -118,18 +118,18 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 .storeLocation .locationCard{padding:36px;background:#fff;color:#20282f;min-width:0}.locationCard::after,.locationCard::before{content:none!important}.locationCard small{font-size:10px;letter-spacing:.12em;color:#657680}.locationCard h2{font-size:30px;line-height:1.22;margin:14px 0 26px}
 .storeAddresses{padding:0;border:0}.storeAddresses legend{font-size:12px;color:#72818b;padding:0;margin-bottom:12px}
 .storeLocation .storeOption{display:flex;align-items:center;gap:12px;padding:17px;border:1px solid #dde5ea;border-radius:10px;background:#f7f9fa;margin:10px 0;color:#20282f;cursor:pointer}
-.storeOptionText b{font-size:14px;font-weight:600;line-height:1.4}.storeOptionText span{font-size:12px;color:#6b7b86;line-height:1.5}.storeOption input{accent-color:#84952a}.storeOption:has(input:checked){border-color:#aabf32;background:#f7faee;box-shadow:inset 3px 0 var(--energy)}
+.storeOptionText b{font-size:14px;font-weight:600;line-height:1.4}.storeOptionText span{font-size:12px;color:#6b7b86;line-height:1.5}.storeOption input{accent-color:#af7818}.storeOption:has(input:checked){border-color:#d9a32d;background:#fff8e8;box-shadow:inset 3px 0 var(--energy)}
 .storeLocation .routeButton{display:flex;justify-content:center;align-items:center;margin-top:20px;min-height:48px}.storeLocation .mapFallback{display:block;text-align:center;margin-top:12px;color:#5f737f;font-size:12px}.storeLocation iframe{width:100%;height:100%;min-height:480px;border:0;filter:none}
 .productShell{max-width:1180px}.productShell .breadcrumbs{text-transform:none;font-size:12px;letter-spacing:0;color:#76838d;margin-bottom:20px}.productShell .productDetail{gap:28px;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
 .productShell .galleryMain{position:relative;overflow:hidden;min-height:440px;border:1px solid #e0e7eb;border-radius:16px;box-shadow:none;background:white;touch-action:pan-y}.productShell .galleryMain img{cursor:zoom-in;transition:transform 400ms var(--motion-ease);transform:perspective(900px) translate(var(--view-x,0px),var(--view-y,0px)) rotateY(var(--view-tilt,0deg)) scale(var(--view-scale,1));user-select:none}
-.productShell .galleryThumbs button{background:#fff;border:1px solid #dfe6eb;border-radius:9px;box-shadow:none}.productShell .galleryThumbs button.active{border-color:#91a42e}
+.productShell .galleryThumbs button{background:#fff;border:1px solid #dfe6eb;border-radius:9px;box-shadow:none}.productShell .galleryThumbs button.active{border-color:#bc841c}
 .galleryHint{position:absolute;bottom:12px;left:16px;right:16px;text-align:center;color:#70808a;font-size:11px;pointer-events:none}
 .galleryZoom{position:absolute;top:14px;right:14px;border:1px solid #d9e2e8;background:#f0f4f6;color:#344753;font-size:12px;border-radius:8px;padding:9px 12px;z-index:2}
 .productShell .buyCard{padding:30px;border:1px solid #dfe6eb;border-radius:16px;box-shadow:none;top:24px}.productShell .buyCard h1{font-size:29px;line-height:1.25;font-weight:650;text-transform:none}.productShell .priceNow{font-size:36px;font-weight:650}.productShell .deliveryBox{padding:18px;background:#f4f7f8;border:1px solid #e2e8ec;border-radius:10px;line-height:1.5}.productShell .buyActions{gap:12px}.productShell .favDetail{background:#edf1f3;color:#42535f;box-shadow:none}.productShell .favDetail.active{background:#20282f;color:var(--energy)}
-.productShell .productInfoBlocks{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:28px 0}.productShell .detailSection{padding:28px;border:1px solid #e0e7eb;background:white;border-radius:14px;margin-bottom:24px}.detailSection h2{font-size:23px;margin:0 0 20px}.detailSection :is(p,td){font-size:14px;line-height:1.65}.detailSection td{padding:12px;border-bottom:1px solid #edf1f3}.detailSection td:first-child{color:#6b7c87}.detailHelp{color:#546921;font-size:13px}.productDescription{white-space:pre-line}
+.productShell .productInfoBlocks{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:28px 0}.productShell .detailSection{padding:28px;border:1px solid #e0e7eb;background:white;border-radius:14px;margin-bottom:24px}.detailSection h2{font-size:23px;margin:0 0 20px}.detailSection :is(p,td){font-size:14px;line-height:1.65}.detailSection td{padding:12px;border-bottom:1px solid #edf1f3}.detailSection td:first-child{color:#6b7c87}.detailHelp{color:#85601b;font-size:13px}.productDescription{white-space:pre-line}
 .motion-page:not(.motion-admin) footer,.motion-page:not(.motion-admin) .storeFooter{background:#13191e;color:#d2dbe1;border:0!important;padding-top:46px;padding-bottom:46px;box-shadow:none}
 .motion-page footer :is(a,p){color:#c0cbd3!important;opacity:1!important}.motion-page footer :is(b,strong,.footerSectionTitle){color:#fff!important}.motion-page footer a:hover{color:var(--energy)!important}.footerSectionNumber{color:#94a0aa!important;background:#ffffff0c!important}.storeFooter::after{content:none!important}
-.motion-page .backToTop{border-radius:50%;background:var(--energy);color:#13191e;box-shadow:0 8px 24px #11182026}.motion-page .backToTop:hover{background:#e6ff70}
+.motion-page .backToTop{border-radius:50%;background:var(--energy);color:#13191e;box-shadow:0 8px 24px #11182026}.motion-page .backToTop:hover{background:#ffdf85}
 .motion-page :is(button,.primary,nav a,.sectionAction){font-family:'Segoe UI',Arial,sans-serif!important;font-weight:600!important}
 .motion-page .mobileBottomNav .active .navBubble{background:var(--energy);color:#13191e}
 .referenceHubs .hubHeader nav a{color:#d4dde4}.referenceHubs .hubHeader nav a[aria-current]{background:var(--energy);color:#13191e}.referenceHubs :is(.hubHero,.shopIntro) h1{font-size:clamp(36px,6vw,64px);font-weight:650;text-transform:none}.referenceHubs .hubContact{background:#20282f;color:#fff}.referenceHubs .hubContact a{background:var(--energy);color:#13191e}
@@ -171,7 +171,11 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 }
 @keyframes energy-quiet-in{from{opacity:.6}to{opacity:1}}
 @media(prefers-reduced-motion: reduce){.heroSlide,.heroCopy>*,.heroPhoto,.heroVisual,.categoryArtwork,.tileArrow,.photo-changing,.psAddedToast{animation:none!important;transform:none!important;translate:none!important;transition:none!important}.galleryMain img{animation:none!important;transition:none!important}.heroSlide.is-leaving{display:none!important}.backToTop:hover{transform:none}
- .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 180ms ease-out!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 500ms ease-out!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy>:is(small,h1,p,a){animation:energy-quiet-in 350ms ease-out both!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy h1{animation-delay:80ms!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy p{animation-delay:140ms!important}
+ .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active .heroCopy a{animation-delay:200ms!important}
  .motion-page .photo-changing,.motion-page .psAddedToast{animation:energy-quiet-in 120ms ease-out!important}
  .motion-page :is(button,.primary,.storeOption,.categoryTile){transition:background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out!important}
 }

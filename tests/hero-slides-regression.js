@@ -12,7 +12,7 @@ assert(css.includes('background:transparent!important'));
 for(const asset of ['assets/hero/classic-workshop-wide-v5.webp','assets/hero/classic-workshop-mobile-v5.webp','assets/hero/winter-storage-v10.webp'])assert(fs.statSync(path.join(root,asset)).size>10000,asset+' must exist');
 console.log('Hero slides regression checks passed.');
 // Exercise the controller: transitions retain an outgoing scene, keyboard/click
-// wrap correctly, and reduced motion has neither autoplay nor an outgoing layer.
+// wrap correctly, and reduced motion uses a slower timer without spatial outgoing motion.
 const vm=require('node:vm');
 function runtime(reduced=false){
  const listeners={},timers=new Map();let seq=0;
@@ -25,12 +25,12 @@ function runtime(reduced=false){
  slider.hasPointerCapture=()=>false;
  const context={$:k=>k==='#heroSlider'?slider:k==='#heroCurrent'?position:null,$$:k=>k==='.heroSlide'?slides:[],
   matchMedia:q=>({matches:q.includes('reduce')&&reduced,addEventListener(){}}),document:{hidden:false,activeElement:null,addEventListener(){}},window:{addEventListener(k,fn){listeners[k]=fn}},
-  setInterval(fn){const id=++seq;timers.set(id,fn);return id},clearInterval(id){timers.delete(id)},setTimeout(){return ++seq},clearTimeout(){}};
+  setInterval(fn,delay){const id=++seq;timers.set(id,{fn,delay});return id},clearInterval(id){timers.delete(id)},setTimeout(){return ++seq},clearTimeout(){}};
  vm.runInNewContext(setup+';setupHero();',context);return{slider,slides,next,position,timers};
 }
 for(const reduced of [false,true]){
  const t=runtime(reduced);assert.equal(t.position.textContent,'01');
- assert.equal(t.timers.size,reduced?0:1);
+ assert.equal(t.timers.size,1);assert.equal([...t.timers.values()][0].delay,reduced?8000:5000);
  t.next.onclick();assert.equal(t.position.textContent,'02');
  assert.equal(t.slides[0].classes.has('is-leaving'),!reduced);
  assert(t.slides[0].inert);assert(!t.slides[1].inert);

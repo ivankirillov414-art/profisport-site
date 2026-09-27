@@ -379,12 +379,12 @@ $$('[data-budget]').forEach(b=>b.onclick=()=>{minPrice.value='';maxPrice.value=b
 function setupHero(){
   const slider=$('#heroSlider'),track=slider?.querySelector('.heroTrack'),slides=$$('.heroSlide'),dots=$$('#heroSlider .dots button');if(!slider||!track||!slides.length)return;
   const mobile=matchMedia('(max-width:850px)'),reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
-  let current=0,timer,hovered=false,gesture=null,suppressClick=false,exitTimer;
+  let current=0,timer,gesture=null,suppressClick=false,exitTimer;
   const position=$('#heroCurrent');
   const pause=()=>clearInterval(timer);
   const resume=()=>{
     pause();
-    if(!reducedMotion.matches&&!hovered&&!gesture&&!document.hidden&&!slider.contains(document.activeElement))timer=setInterval(()=>setSlide(current+1),5000);
+    if(!gesture&&!document.hidden&&!slider.contains(document.activeElement))timer=setInterval(()=>setSlide(current+1),reducedMotion.matches?8000:5000);
   };
   const setSlide=n=>{
     const previous=current;current=(n+slides.length)%slides.length;
@@ -402,8 +402,8 @@ function setupHero(){
   dots.forEach((d,i)=>d.onclick=()=>setSlide(i));
   slider.querySelector('.heroPrev')&&(slider.querySelector('.heroPrev').onclick=()=>setSlide(current-1));
   slider.querySelector('.heroNext').onclick=()=>{if(!suppressClick)setSlide(current+1)};
-  slider.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovered=true;pause()}});
-  slider.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovered=false;resume()}});
+  
+  
   slider.addEventListener('focusin',pause);
   slider.addEventListener('focusout',()=>setTimeout(resume,0));
   slider.addEventListener('keydown',e=>{
