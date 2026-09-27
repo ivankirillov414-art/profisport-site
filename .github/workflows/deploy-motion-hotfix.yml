@@ -26,11 +26,12 @@ jobs:
         run: |
           set -euo pipefail
           node --check psf-final-motion.js
-          grep -Fq 'psf-final-motion.css?v=1' index.html
-          grep -Fq 'psf-final-motion.js?v=1' index.html
+          grep -Fq 'psf-final-motion.css?v=2' index.html
+          grep -Fq 'psf-final-motion.js?v=2' index.html
           grep -Fq 'Ролики и скейты' index.html
           grep -Fq 'Ролики и скейты' catalog-loader.js
           grep -Fq 'psfBikeRideIn' psf-final-motion.css
+          grep -Fq 'psf-force-bike-in' psf-final-motion.js
           grep -Fq 'psf-enter' psf-final-motion.js
 
       - name: Stage only motion hotfix files
