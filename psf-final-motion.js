@@ -34,6 +34,10 @@
   .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 1220ms var(--psf-ease) 80ms both!important}
   .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 680ms cubic-bezier(.35,0,.2,1) both!important}
   .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 620ms var(--psf-copy) both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy small,.motion-page #heroSlider .heroSlide.is-entering .heroCopy small{animation-delay:300ms!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy h1,.motion-page #heroSlider .heroSlide.is-entering .heroCopy h1{animation-delay:430ms!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy p,.motion-page #heroSlider .heroSlide.is-entering .heroCopy p{animation-delay:560ms!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy a,.motion-page #heroSlider .heroSlide.is-entering .heroCopy a{animation-delay:700ms!important}
   .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:psf-scene-idle 7s ease-in-out infinite alternate!important}
 }
 `;
