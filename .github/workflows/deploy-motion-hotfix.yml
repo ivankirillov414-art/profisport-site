@@ -12,6 +12,12 @@ on:
       - 'assets/hero/classic-mountains-v1.webp'
       - 'assets/hero/profisport-motion-route-v1.webp'
       - 'assets/categories/bicycle-illustration-v1.png'
+      - 'assets/categories/parts-illustration-v1.png'
+      - 'assets/categories/accessories-illustration-v1.png'
+      - 'assets/categories/skiing-illustration-v2.png'
+      - 'assets/categories/fitness-illustration-v1.png'
+      - 'assets/categories/tourism-illustration-v2.png'
+      - 'assets/categories/scooter-illustration-v2.png'
   workflow_dispatch:
 
 concurrency:
@@ -33,15 +39,22 @@ jobs:
           grep -Eq 'psf-final-motion.js\?v=[0-9]+' index.html
           grep -Fq 'psfSceneHero' index.html
           grep -Fq 'classic-mountains-v1.webp' index.html
+          grep -Fq 'profisport-motion-route-v1.webp' index.html
           grep -Fq 'profisport-motion-route-v1.webp' psf-final-motion.js
           grep -Fq 'bicycle-illustration-v1.png' index.html
+          grep -Fq 'scooter-illustration-v2.png' index.html
           test -s assets/hero/classic-mountains-v1.webp
           test -s assets/hero/profisport-motion-route-v1.webp
           test -s assets/categories/bicycle-illustration-v1.png
+          test -s assets/categories/parts-illustration-v1.png
+          test -s assets/categories/accessories-illustration-v1.png
+          test -s assets/categories/skiing-illustration-v2.png
+          test -s assets/categories/fitness-illustration-v1.png
+          test -s assets/categories/tourism-illustration-v2.png
+          test -s assets/categories/scooter-illustration-v2.png
           grep -Fq 'Ролики и скейты' index.html
           grep -Fq 'Ролики и скейты' catalog-loader.js
           grep -Fq 'psf-scene-bike-in' psf-final-motion.css
-          grep -Fq 'psf-scene-bike-in' psf-final-motion.js
           grep -Fq 'psf-enter' psf-final-motion.js
 
       - name: Stage only motion hotfix files
@@ -52,6 +65,12 @@ jobs:
           cp assets/hero/classic-mountains-v1.webp hotfix-upload/assets/hero/
           cp assets/hero/profisport-motion-route-v1.webp hotfix-upload/assets/hero/
           cp assets/categories/bicycle-illustration-v1.png hotfix-upload/assets/categories/
+          cp assets/categories/parts-illustration-v1.png hotfix-upload/assets/categories/
+          cp assets/categories/accessories-illustration-v1.png hotfix-upload/assets/categories/
+          cp assets/categories/skiing-illustration-v2.png hotfix-upload/assets/categories/
+          cp assets/categories/fitness-illustration-v1.png hotfix-upload/assets/categories/
+          cp assets/categories/tourism-illustration-v2.png hotfix-upload/assets/categories/
+          cp assets/categories/scooter-illustration-v2.png hotfix-upload/assets/categories/
 
       - name: Deploy staged hotfix files to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287
