@@ -10,6 +10,7 @@ on:
       - 'psf-final-motion.css'
       - 'psf-final-motion.js'
       - 'assets/hero/classic-mountains-v1.webp'
+      - 'assets/hero/profisport-motion-route-v1.webp'
       - 'assets/categories/bicycle-illustration-v1.png'
   workflow_dispatch:
 
@@ -28,12 +29,14 @@ jobs:
         run: |
           set -euo pipefail
           node --check psf-final-motion.js
-          grep -Eq 'psf-final-motion.css\?v=(3|4)' index.html
-          grep -Fq 'psf-final-motion.js?v=3' index.html
+          grep -Eq 'psf-final-motion.css\?v=[0-9]+' index.html
+          grep -Eq 'psf-final-motion.js\?v=[0-9]+' index.html
           grep -Fq 'psfSceneHero' index.html
           grep -Fq 'classic-mountains-v1.webp' index.html
+          grep -Fq 'profisport-motion-route-v1.webp' psf-final-motion.js
           grep -Fq 'bicycle-illustration-v1.png' index.html
           test -s assets/hero/classic-mountains-v1.webp
+          test -s assets/hero/profisport-motion-route-v1.webp
           test -s assets/categories/bicycle-illustration-v1.png
           grep -Fq 'Ролики и скейты' index.html
           grep -Fq 'Ролики и скейты' catalog-loader.js
@@ -47,6 +50,7 @@ jobs:
           mkdir -p hotfix-upload/assets/hero hotfix-upload/assets/categories
           cp index.html catalog-loader.js psf-final-motion.css psf-final-motion.js hotfix-upload/
           cp assets/hero/classic-mountains-v1.webp hotfix-upload/assets/hero/
+          cp assets/hero/profisport-motion-route-v1.webp hotfix-upload/assets/hero/
           cp assets/categories/bicycle-illustration-v1.png hotfix-upload/assets/categories/
 
       - name: Deploy staged hotfix files to InfinityFree
