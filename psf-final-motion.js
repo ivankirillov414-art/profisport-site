@@ -29,6 +29,13 @@
 .motion-page #heroSlider .heroAdvance{cursor:pointer!important;background:transparent!important;color:transparent!important;border:0!important;box-shadow:none!important}
 .motion-page #heroSlider .heroAdvance::before,.motion-page #heroSlider .heroAdvance::after,.motion-page #heroSlider .heroPrev,.motion-page #heroSlider .heroDots,.motion-page #heroSlider .heroPosition,.motion-page #heroSlider [class*='heroPosition'],.motion-page #heroSlider [class*='heroDot'],.motion-page #heroSlider .dots{display:none!important;content:none!important}
 .motion-page .primary span[aria-hidden='true'],.motion-page .primary::after,.motion-page button::after,.motion-page #categoryTiles .tileArrow{display:none!important;content:none!important}
+@media (prefers-reduced-motion: reduce){
+  .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 820ms var(--psf-copy) both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 1220ms var(--psf-ease) 80ms both!important}
+  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 680ms cubic-bezier(.35,0,.2,1) both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 620ms var(--psf-copy) both!important}
+  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:psf-scene-idle 7s ease-in-out infinite alternate!important}
+}
 `;
     document.head.appendChild(style);
   }
@@ -65,6 +72,18 @@
       [...node.childNodes].forEach(child=>{
         if(child.nodeType===Node.TEXT_NODE)child.textContent=child.textContent.replace(/[→↗]/g,'').replace(/\s{2,}/g,' ');
       });
+    });
+  }
+
+  function patchCopyGlitches(){
+    document.querySelectorAll('#prevPage').forEach(button=>{
+      button.setAttribute('aria-label','Предыдущая страница');
+      [...button.childNodes].forEach(child=>{
+        if(child.nodeType===Node.TEXT_NODE&&child.textContent.includes('Предыдрщая'))child.textContent=child.textContent.replaceAll('Предыдрщая','Предыдущая');
+      });
+    });
+    document.querySelectorAll('option').forEach(option=>{
+      if(/Самокаты/i.test(option.textContent))option.textContent=option.textContent.replace(/Самокаты,?\s*/i,'').replace(/^\s+/,'')||'Ролики и скейты';
     });
   }
 
@@ -186,6 +205,7 @@
     setupSceneParallax();
     restoreRideCategory();
     patchMenuCopy();
+    patchCopyGlitches();
     removeButtonArrows();
     const categoryWrap=document.getElementById('categoryTiles');
     if(categoryWrap){
@@ -193,10 +213,10 @@
       new MutationObserver(()=>{
         if(scheduled)return;
         scheduled=true;
-        setTimeout(()=>{scheduled=false;restoreRideCategory();removeButtonArrows(categoryWrap);},0);
+        setTimeout(()=>{scheduled=false;restoreRideCategory();removeButtonArrows(categoryWrap);patchCopyGlitches();},0);
       }).observe(categoryWrap,{childList:true,subtree:false});
     }
-    new MutationObserver(()=>removeButtonArrows()).observe(document.body,{childList:true,subtree:true});
-    [250,900,1800,3200].forEach(delay=>setTimeout(()=>{installSceneRuntimeStyle();restoreRideCategory();patchMenuCopy();removeButtonArrows();},delay));
+    new MutationObserver(()=>{removeButtonArrows();patchCopyGlitches();}).observe(document.body,{childList:true,subtree:true});
+    [250,900,1800,3200].forEach(delay=>setTimeout(()=>{installSceneRuntimeStyle();restoreRideCategory();patchMenuCopy();patchCopyGlitches();removeButtonArrows();},delay));
   });
 })();
