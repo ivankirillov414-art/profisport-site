@@ -93,7 +93,7 @@
   };
   const init = () => {
     const hero = document.querySelector?.('#heroSlider');
-    if (hero) {
+    if (hero && !hero.classList.contains('psfSceneHero')) {
       if (!document.getElementById('psHeroReducedMotionStyle')) {
         const style = document.createElement('style');
         style.id = 'psHeroReducedMotionStyle';
@@ -133,7 +133,7 @@
         active = slides.find(slide => slide.getAttribute('aria-hidden') === 'false' || slide.classList.contains('is-active')) || slides[0];
       });
     }
-    if (hero && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    if (hero && !hero.classList.contains('psfSceneHero') && matchMedia('(hover: hover) and (pointer: fine)').matches) {
       let frame = 0, pointer;
       hero.addEventListener('pointermove', event => {
         if (preference.matches || event.pointerType !== 'mouse') return;

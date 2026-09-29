@@ -377,7 +377,10 @@ $('#quickView')?.addEventListener('click',e=>{if(e.target===$('#quickView')){con
 $$('[data-budget]').forEach(b=>b.onclick=()=>{minPrice.value='';maxPrice.value=b.dataset.budget;apply()});
 
 function setupHero(){
-  const slider=$('#heroSlider'),track=slider?.querySelector('.heroTrack'),slides=$$('.heroSlide'),dots=$$('#heroSlider .dots button');if(!slider||!track||!slides.length)return;
+  const slider=$('#heroSlider');
+  // The layered scene owns its autoplay, gestures and transition lifecycle.
+  if(slider?.classList.contains('psfSceneHero'))return;
+  const track=slider?.querySelector('.heroTrack'),slides=$$('.heroSlide'),dots=$$('#heroSlider .dots button');if(!slider||!track||!slides.length)return;
   const mobile=matchMedia('(max-width:850px)'),reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
   let current=0,timer,gesture=null,suppressClick=false,exitTimer;
   const position=$('#heroCurrent');
@@ -536,4 +539,3 @@ $$('[data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();closeMega();
     populateFilters();restoreState();configureContextFilters(q.value,intentFor(q.value));apply(false,false);saveCart();buildMega();buildCategoryTiles();buildBrandShortcuts();loadCustomerState();
   }catch(e){catalogStatus.textContent='Каталог временно недоступен';if(!products.length||hasPendingFilters())productsEl.innerHTML='<p>Не удалось загрузить каталог. Попробуйте обновить страницу.</p>';console.error(e)}
 })();
-

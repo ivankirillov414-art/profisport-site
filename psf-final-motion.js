@@ -10,66 +10,15 @@
     {key:'fitness',label:'Фитнес',note:'Тренировки и восстановление',img:'assets/categories/fitness-illustration-v1.png'},
     {key:'tourism',label:'Туризм и водный спорт',note:'Снаряжение для новых маршрутов',img:'assets/categories/tourism-illustration-v2.png'}
   ];
-  const sceneSlides=[
-    {cls:'bikeSlide',scene:'route',bg:'assets/hero/profisport-motion-route-v1.webp',bgW:1400,bgH:600,label:'ПРОФИСПОРТ · SPORT ENERGY',title:'Спорт. энергия.<br><em>Твой маршрут</em>',desc:'Велосипеды, экипировка и сервис для маршрутов, которые хочется продолжать.',href:'#catalogProducts',cta:'Перейти в каталог',priority:true},
-    {cls:'routeSlide',scene:'mountains',bg:'assets/hero/profisport-motion-route-v1.webp',bgW:1400,bgH:600,label:'ВЕЛОСИПЕДЫ · МАРШРУТЫ',title:'Больше спорта<br><em>в твоей жизни</em>',desc:'Подберите велосипед для города, грунта и горных маршрутов без случайных компромиссов.',href:'#catalogProducts',cta:'Выбрать велосипед',department:'bicycle'},
-    {cls:'serviceSlide',scene:'workshop',bg:'assets/hero/classic-workshop-wide-v5.webp',bgW:2172,bgH:724,label:'МАСТЕРСКАЯ ПРОФИСПОРТ',title:'Вернём байк<br><em>в движение</em>',desc:'Диагностика, точная настройка и обслуживание перед новым сезоном и дальними поездками.',href:'service.html',cta:'Записаться в сервис'}
-  ];
-  const bikeObject='assets/hero/classic-mountains-v1.webp';
   const esc=value=>String(value??'').replace(/[&<>']/g,match=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;'}[match]));
   const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
 
-  function installSceneRuntimeStyle(){
-    document.getElementById('psHeroReducedMotionStyle')?.remove();
-    let style=document.getElementById('psfScrolltideHeroStyle');
-    if(!style){style=document.createElement('style');style.id='psfScrolltideHeroStyle';}
-    style.textContent=`
-.motion-page #heroSlider .heroSlide::before,.motion-page #heroSlider .heroSlide::after,.motion-page #heroSlider .heroPhoto::before{content:none!important;display:none!important;background:none!important;opacity:0!important}
-.motion-page #heroSlider,.motion-page #heroSlider *{cursor:default!important}
-.motion-page #heroSlider .heroAdvance{cursor:pointer!important;background:transparent!important;color:transparent!important;border:0!important;box-shadow:none!important}
-.motion-page #heroSlider .heroAdvance::before,.motion-page #heroSlider .heroAdvance::after,.motion-page #heroSlider .heroPrev,.motion-page #heroSlider .heroDots,.motion-page #heroSlider .heroPosition,.motion-page #heroSlider [class*='heroPosition'],.motion-page #heroSlider [class*='heroDot'],.motion-page #heroSlider .dots{display:none!important;content:none!important}
-.motion-page .primary span[aria-hidden='true'],.motion-page .primary::after,.motion-page button::after,.motion-page #categoryTiles .tileArrow{display:none!important;content:none!important}
-@media (prefers-reduced-motion: reduce){
-  .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 820ms var(--psf-copy) both!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 1220ms var(--psf-ease) 80ms both!important}
-  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 680ms cubic-bezier(.35,0,.2,1) both!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 620ms var(--psf-copy) both!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy small,.motion-page #heroSlider .heroSlide.is-entering .heroCopy small{animation-delay:300ms!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy h1,.motion-page #heroSlider .heroSlide.is-entering .heroCopy h1{animation-delay:430ms!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy p,.motion-page #heroSlider .heroSlide.is-entering .heroCopy p{animation-delay:560ms!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy a,.motion-page #heroSlider .heroSlide.is-entering .heroCopy a{animation-delay:700ms!important}
-  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:psf-scene-idle 7s ease-in-out infinite alternate!important}
-}
-`;
-    document.head.appendChild(style);
-  }
-
-  function slideMarkup(slide){
-    const loading=slide.priority?'fetchpriority=\'high\'':'loading=\'lazy\'';
-    const dep=slide.department?` data-department='${esc(slide.department)}'`:'';
-    return `<article class='heroSlide ${esc(slide.cls)}' data-scene='${esc(slide.scene)}'><div class='heroBackdrop'><img src='${esc(slide.bg)}' width='${slide.bgW}' height='${slide.bgH}' alt='' ${loading} decoding='async'></div><div class='heroCopy'><small>${esc(slide.label)}</small><h1>${slide.title}</h1><p>${esc(slide.desc)}</p><a class='primary' href='${esc(slide.href)}'${dep}>${esc(slide.cta)}</a></div><div class='heroPhoto heroObject'><img class='heroVisual' src='${bikeObject}' width='2048' height='768' alt='' ${loading} decoding='async'></div></article>`;
-  }
-
   function upgradeHeroScene(){
     const slider=document.getElementById('heroSlider');
-    const track=slider?.querySelector('.heroTrack');
-    if(!slider||!track)return;
+    if(!slider)return;
     slider.classList.add('psfSceneHero');
-    const needsRebuild=track.dataset.psfSceneVersion!=='v5'||!track.querySelector(".heroBackdrop img[src*='profisport-motion-route-v1']")||track.querySelector('.storageSlide');
-    if(needsRebuild){
-      track.innerHTML=sceneSlides.map(slideMarkup).join('');
-      track.dataset.psfSceneVersion='v5';
-    }
-    const slides=[...track.querySelectorAll('.heroSlide')];
-    if(!slides.some(slide=>slide.classList.contains('is-active')))slides[0]?.classList.add('is-active');
-    slides.forEach((slide,index)=>{
-      slide.inert=!slide.classList.contains('is-active');
-      slide.setAttribute('aria-hidden',String(!slide.classList.contains('is-active')));
-      slide.dataset.psfIndex=String(index);
-    });
     slider.querySelectorAll('.heroPosition,.heroDots,.dots,.heroPrev').forEach(node=>node.remove());
   }
-
   function removeButtonArrows(root=document){
     root.querySelectorAll(".primary span[aria-hidden='true'],button span[aria-hidden='true']").forEach(node=>node.remove());
     root.querySelectorAll('.primary,button').forEach(node=>{
@@ -115,62 +64,104 @@
 
   function setupSceneMotion(){
     const slider=document.getElementById('heroSlider');
-    if(!slider)return;
-    let slides=[...slider.querySelectorAll('.heroSlide')];
+    if(!slider||slider.dataset.sceneController)return;
+    const slides=[...slider.querySelectorAll('.heroSlide')];
     if(!slides.length)return;
-    let active=slides.find(slide=>slide.classList.contains('is-active'))||slides[0];
-    let lastChange=0;
-    let exitTimer=0;
-    const currentIndex=()=>Math.max(0,slides.findIndex(slide=>slide.classList.contains('is-active')));
-    const clean=slide=>slide&&slide.classList.remove('psf-enter','psf-leave');
-    const replay=(next,prev)=>{
-      if(!next)return;
-      lastChange=Date.now();
-      slides.forEach(slide=>slide.classList.remove('psf-enter'));
-      if(prev&&prev!==next){
-        prev.classList.remove('psf-leave');
-        void prev.offsetWidth;
-        prev.classList.add('psf-leave');
-        clearTimeout(exitTimer);
-        exitTimer=window.setTimeout(()=>clean(prev),760);
+    slider.dataset.sceneController='single';
+    document.getElementById('psHeroReducedMotionStyle')?.remove();
+    document.getElementById('psfScrolltideHeroStyle')?.remove();
+    let current=0, busy=false, autoplay=0, finishTimer=0, gesture=null, suppressClick=false;
+    const schedule=()=>{
+      clearTimeout(autoplay);
+      if(!document.hidden&&!slider.querySelector(':focus-visible')&&!gesture){
+        autoplay=window.setTimeout(()=>setSlide(current+1),7200);
       }
-      next.classList.remove('psf-enter');
-      void next.offsetWidth;
-      next.classList.add('psf-enter');
-      window.setTimeout(()=>clean(next),1450);
-      active=next;
     };
-    const setActive=index=>{
-      slides=[...slider.querySelectorAll('.heroSlide')];
-      const normalized=(index+slides.length)%slides.length;
-      const prev=slides.find(slide=>slide.classList.contains('is-active'))||active;
+    const setSlide=(index,initial=false)=>{
+      if(busy&&!initial)return;
+      const next=(index+slides.length)%slides.length;
+      if(next===current&&!initial){schedule();return;}
+      clearTimeout(autoplay);
+      clearTimeout(finishTimer);
+      const previous=initial?null:slides[current];
       slides.forEach((slide,i)=>{
-        const on=i===normalized;
-        slide.classList.toggle('is-active',on);
-        slide.inert=!on;
-        slide.setAttribute('aria-hidden',String(!on));
+        slide.classList.remove('psf-enter','psf-leave','is-entering','is-leaving');
+        slide.classList.toggle('is-active',i===next);
+        slide.inert=i!==next;
+        slide.setAttribute('aria-hidden',String(i!==next));
       });
-      replay(slides[normalized],prev);
+      current=next;
+      if(previous)previous.classList.add('psf-leave');
+      slides[next].classList.add('psf-enter');
+      const upcoming=slides[(next+1)%slides.length];
+      upcoming.querySelectorAll('img').forEach(image=>image.loading='eager');
+      busy=true;
+      finishTimer=window.setTimeout(()=>{
+        slides.forEach(slide=>slide.classList.remove('psf-enter','psf-leave'));
+        busy=false;
+        schedule();
+      },1480);
     };
-    new MutationObserver(()=>{
-      const next=slides.find(slide=>slide.classList.contains('is-active'))||slides[0];
-      if(next!==active)replay(next,active);
-    }).observe(slider,{subtree:true,attributes:true,attributeFilter:['class']});
-    requestAnimationFrame(()=>replay(active,null));
-    const advance=()=>setActive(currentIndex()+1);
-    const button=slider.querySelector('.heroAdvance,.heroNext');
-    if(button){
-      button.addEventListener('click',()=>{
-        const before=currentIndex();
-        window.setTimeout(()=>{if(currentIndex()===before)advance();},70);
-      });
-    }
-    window.setInterval(()=>{
-      if(document.hidden)return;
-      if(Date.now()-lastChange>6200)advance();
-    },1300);
+    slider.querySelector('.heroAdvance,.heroNext')?.addEventListener('click',()=>{
+      if(!suppressClick)setSlide(current+1);
+    });
+    slider.addEventListener('keydown',event=>{
+      if(!['ArrowLeft','ArrowRight'].includes(event.key))return;
+      event.preventDefault();
+      setSlide(current+(event.key==='ArrowRight'?1:-1));
+    });
+    slider.addEventListener('focusin',event=>{
+      if(event.target.matches(':focus-visible'))clearTimeout(autoplay);
+    });
+    slider.addEventListener('focusout',()=>setTimeout(schedule,0));
+    document.addEventListener('visibilitychange',schedule);
+    slider.addEventListener('pointerdown',event=>{
+      if(event.button!==0||event.isPrimary===false||event.target.closest('a,input,select,textarea'))return;
+      gesture={id:event.pointerId,x:event.clientX,y:event.clientY,dx:0,dragging:false};
+      suppressClick=false;
+      clearTimeout(autoplay);
+    });
+    slider.addEventListener('pointermove',event=>{
+      if(!gesture||gesture.id!==event.pointerId)return;
+      const dx=event.clientX-gesture.x,dy=event.clientY-gesture.y;
+      if(!gesture.dragging){
+        if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){gesture=null;schedule();return;}
+        if(Math.abs(dx)<8)return;
+        gesture.dragging=true;
+        slider.setPointerCapture(event.pointerId);
+      }
+      gesture.dx=dx;
+      event.preventDefault();
+    });
+    const finishGesture=event=>{
+      if(!gesture||gesture.id!==event.pointerId)return;
+      const {dx,dragging}=gesture;
+      gesture=null;
+      if(slider.hasPointerCapture(event.pointerId))slider.releasePointerCapture(event.pointerId);
+      suppressClick=dragging;
+      if(event.type==='pointerup'&&dragging&&Math.abs(dx)>45)setSlide(current+(dx<0?1:-1));
+      else schedule();
+      setTimeout(()=>{suppressClick=false;},0);
+    };
+    window.addEventListener('pointerup',finishGesture);
+    window.addEventListener('pointercancel',finishGesture);
+    slider.addEventListener('click',event=>{
+      if(suppressClick){event.preventDefault();event.stopPropagation();}
+    },true);
+    // Start after the shared foreground is decoded; never animate an empty image.
+    slider.classList.add('psf-preparing');
+    slides.forEach((slide,i)=>{
+      slide.classList.toggle('is-active',i===0);
+      slide.inert=i!==0;
+      slide.setAttribute('aria-hidden',String(i!==0));
+    });
+    const images=[...slides[0].querySelectorAll('img')];
+    const decoded=Promise.all(images.map(image=>image.decode?.().catch(()=>{})));
+    Promise.race([decoded,new Promise(resolve=>setTimeout(resolve,2400))]).then(()=>{
+      slider.classList.remove('psf-preparing');
+      requestAnimationFrame(()=>setSlide(0,true));
+    });
   }
-
   function setupSceneParallax(){
     const slider=document.getElementById('heroSlider');
     if(!slider)return;
@@ -203,7 +194,6 @@
   }
 
   ready(()=>{
-    installSceneRuntimeStyle();
     upgradeHeroScene();
     setupSceneMotion();
     setupSceneParallax();
@@ -220,7 +210,5 @@
         setTimeout(()=>{scheduled=false;restoreRideCategory();removeButtonArrows(categoryWrap);patchCopyGlitches();},0);
       }).observe(categoryWrap,{childList:true,subtree:false});
     }
-    new MutationObserver(()=>{removeButtonArrows();patchCopyGlitches();}).observe(document.body,{childList:true,subtree:true});
-    [250,900,1800,3200].forEach(delay=>setTimeout(()=>{installSceneRuntimeStyle();restoreRideCategory();patchMenuCopy();patchCopyGlitches();removeButtonArrows();},delay));
   });
 })();

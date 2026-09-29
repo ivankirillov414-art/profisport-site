@@ -35,12 +35,12 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 .storefrontHome .heroLayout .heroCopy small{display:block;color:var(--energy);font-size:10px;line-height:1.6;letter-spacing:.14em;font-weight:600;max-width:350px}
 .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-family:inherit;color:white;font-style:normal;font-weight:650;font-size:clamp(32px,3.9vw,48px);line-height:1.12;letter-spacing:-.035em;text-transform:none;margin:20px 0 16px;overflow-wrap:normal}
 .heroCopy h1 em{color:var(--energy);font-style:normal}
-#heroSlider .heroSlide .heroCopy small{color:var(--energy)!important;background:none!important;font-family:'Segoe UI',Arial,sans-serif!important;letter-spacing:.12em}
-#heroSlider .heroSlide .heroCopy h1{color:#fff!important;font-family:'Segoe UI',Arial,sans-serif!important;font-weight:650!important;font-style:normal!important;font-size:clamp(32px,3.9vw,48px)!important;line-height:1.12!important;text-transform:none!important}
-#heroSlider .heroSlide .heroCopy p{color:#d0d7dc!important}
-#heroSlider .heroSlide .heroPhoto::after{content:''!important;display:block!important;background:linear-gradient(90deg,#13191e 0%,#13191ed9 10%,#13191e18 40%,transparent 65%)!important}
-#heroSlider .heroSlide .heroCopy h1 em{color:var(--energy)!important}
-#heroSlider .heroCopy{animation:none!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy small{color:var(--energy)!important;background:none!important;font-family:'Segoe UI',Arial,sans-serif!important;letter-spacing:.12em}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy h1{color:#fff!important;font-family:'Segoe UI',Arial,sans-serif!important;font-weight:650!important;font-style:normal!important;font-size:clamp(32px,3.9vw,48px)!important;line-height:1.12!important;text-transform:none!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy p{color:#d0d7dc!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroPhoto::after{content:''!important;display:block!important;background:linear-gradient(90deg,#13191e 0%,#13191ed9 10%,#13191e18 40%,transparent 65%)!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy h1 em{color:var(--energy)!important}
+#heroSlider:not(.psfSceneHero) .heroCopy{animation:none!important}
 .storefrontHome .heroLayout .heroCopy p,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy p{font-size:15px;color:#d0d7dc;line-height:1.65;max-width:350px;margin:0 0 24px}
 .heroCopy .primary{display:inline-flex;align-items:center;gap:20px;min-height:48px;padding:13px 20px;font-size:14px}
 .motion-page .heroAdvance{position:absolute;z-index:4;inset:0 0 0 60%;width:40%;height:100%;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;cursor:e-resize;color:transparent}
@@ -155,8 +155,8 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
  .storefrontHome .heroLayout .hero,.storefrontHome .heroLayout .heroTrack,.storefrontHome .heroLayout .heroTrack>.heroSlide{min-height:590px;border-radius:14px}
  .storefrontHome .heroLayout .heroPhoto,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{inset:0 0 auto!important;width:100%!important;height:295px!important;min-height:0}.heroVisual{object-position:65% center}
  .storefrontHome .heroLayout .heroPhoto::after,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto::after{background:linear-gradient(0deg,#13191e,transparent 45%)}
- #heroSlider .heroSlide .heroPhoto::after{background:linear-gradient(0deg,#13191e,transparent 45%)!important}
- #heroSlider .heroSlide .heroCopy h1{font-size:34px!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide .heroPhoto::after{background:linear-gradient(0deg,#13191e,transparent 45%)!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide .heroCopy h1{font-size:34px!important}
  .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{width:100%!important;max-width:none!important;padding:270px 24px 32px!important;align-self:start}
  .storefrontHome .heroLayout .heroCopy h1,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy h1{font-size:34px!important;margin:14px 0 12px}.storefrontHome .heroLayout .heroCopy p{font-size:14px!important;margin-bottom:18px}.heroCopy small{font-size:9px!important}.heroCopy .primary{width:auto;max-width:100%;font-size:13px;min-height:46px}
  .motion-page .heroAdvance{inset:0 0 auto 50%;width:50%;height:255px}.heroPosition{right:20px;bottom:auto;top:228px;font-size:10px}
@@ -170,7 +170,7 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
  .motion-page:not(.motion-admin) footer{padding:32px 24px 90px}
 }
 @keyframes energy-quiet-in{from{opacity:.6}to{opacity:1}}
-@media(prefers-reduced-motion: reduce){.heroSlide,.heroCopy>*,.heroPhoto,.heroVisual,.categoryArtwork,.tileArrow,.photo-changing,.psAddedToast{animation:none!important;transform:none!important;translate:none!important;transition:none!important}.galleryMain img{animation:none!important;transition:none!important}.heroSlide.is-leaving{display:none!important}.backToTop:hover{transform:none}
+@media(prefers-reduced-motion: reduce){.hero:not(.psfSceneHero) :is(.heroSlide,.heroCopy>*,.heroPhoto,.heroVisual),.categoryArtwork,.tileArrow,.photo-changing,.psAddedToast{animation:none!important;transform:none!important;translate:none!important;transition:none!important}.galleryMain img{animation:none!important;transition:none!important}.heroSlide.is-leaving{display:none!important}.backToTop:hover{transform:none}
  .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 180ms ease-out!important}
  .motion-page .photo-changing,.motion-page .psAddedToast{animation:energy-quiet-in 120ms ease-out!important}
  .motion-page :is(button,.primary,.storeOption,.categoryTile){transition:background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out!important}
@@ -185,20 +185,20 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 .storefrontHome .heroLayout .hero::before{content:'';display:block;position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 76% 26%,#ffc92836,transparent 28%),linear-gradient(135deg,#101a22 0%,#151f27 48%,#070c11 100%);opacity:1}
 .storefrontHome .heroLayout .heroTrack{min-height:520px}
 .storefrontHome .heroLayout .heroTrack>.heroSlide{min-height:520px;background:#0f171e!important}
-#heroSlider .heroSlide::before{content:'';position:absolute;inset:0;z-index:0;background-position:center right;background-size:cover;opacity:.56;filter:saturate(.95) contrast(1.05)}
-#heroSlider .bikeSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-mountains-v1.webp')}
-#heroSlider .winterSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-nordic-v1.jpg')}
-#heroSlider .serviceSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-workshop-wide-v5.webp')}
-#heroSlider .storageSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/winter-storage-v10.webp')}
-#heroSlider .heroSlide::after{content:''!important;display:block!important;position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(116deg,transparent 0 65%,#ffc928 65% 66.2%,transparent 66.2% 100%),linear-gradient(116deg,transparent 0 72%,#ed9b16b8 72% 74%,transparent 74% 100%),linear-gradient(116deg,transparent 0 80%,#ffc92880 80% 81%,transparent 81% 100%);opacity:.9}
+#heroSlider:not(.psfSceneHero) .heroSlide::before{content:'';position:absolute;inset:0;z-index:0;background-position:center right;background-size:cover;opacity:.56;filter:saturate(.95) contrast(1.05)}
+#heroSlider:not(.psfSceneHero) .bikeSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-mountains-v1.webp')}
+#heroSlider:not(.psfSceneHero) .winterSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-nordic-v1.jpg')}
+#heroSlider:not(.psfSceneHero) .serviceSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/classic-workshop-wide-v5.webp')}
+#heroSlider:not(.psfSceneHero) .storageSlide::before{background-image:linear-gradient(90deg,#0f171ef2 0%,#0f171ebf 32%,#0f171e17 68%),url('assets/hero/winter-storage-v10.webp')}
+#heroSlider:not(.psfSceneHero) .heroSlide::after{content:''!important;display:block!important;position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(116deg,transparent 0 65%,#ffc928 65% 66.2%,transparent 66.2% 100%),linear-gradient(116deg,transparent 0 72%,#ed9b16b8 72% 74%,transparent 74% 100%),linear-gradient(116deg,transparent 0 80%,#ffc92880 80% 81%,transparent 81% 100%);opacity:.9}
 .storefrontHome .heroLayout .heroPhoto,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{inset:0 -7% 0 39%!important;z-index:1;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);filter:drop-shadow(-24px 22px 36px #0008)}
-#heroSlider .heroSlide .heroPhoto::after{background:linear-gradient(90deg,#0f171e 0%,transparent 26%,transparent 100%)!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroPhoto::after{background:linear-gradient(90deg,#0f171e 0%,transparent 26%,transparent 100%)!important}
 .heroVisual{object-position:center right;scale:1.08;transform:translate3d(var(--hero-x,0px),var(--hero-y,0px),0) scale(1.08);filter:saturate(1.08) contrast(1.06)}
 .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{z-index:4;width:51%!important;max-width:590px!important;padding:58px 56px!important}
 .storefrontHome .heroLayout .heroCopy small{color:#ffd665!important;font-weight:700;letter-spacing:.08em}
-#heroSlider .heroSlide .heroCopy h1{font-size:clamp(38px,4.6vw,62px)!important;line-height:1.03!important;letter-spacing:0!important;font-weight:800!important;text-transform:uppercase!important;text-shadow:0 14px 34px #0007}
-#heroSlider .heroSlide .heroCopy h1 em{color:#ffc928!important}
-#heroSlider .heroSlide .heroCopy p{max-width:430px;color:#e3e8ed!important;font-size:16px!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy h1{font-size:clamp(38px,4.6vw,62px)!important;line-height:1.03!important;letter-spacing:0!important;font-weight:800!important;text-transform:uppercase!important;text-shadow:0 14px 34px #0007}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy h1 em{color:#ffc928!important}
+#heroSlider:not(.psfSceneHero) .heroSlide .heroCopy p{max-width:430px;color:#e3e8ed!important;font-size:16px!important}
 .heroCopy .primary{min-height:52px;padding:15px 24px;border-radius:9px;text-transform:none}
 .motion-page .heroAdvance{cursor:default}
 .heroPosition{display:none!important}
@@ -223,36 +223,36 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 @keyframes energy-copy-strong{from{opacity:0;transform:translate3d(0,20px,0)}to{opacity:1;transform:none}}
 @keyframes energy-streaks{from{opacity:0;transform:translate3d(58px,0,0)}to{opacity:.9;transform:none}}
 @media(prefers-reduced-motion:no-preference){
- #heroSlider .heroSlide.is-active::before{animation:energy-bg-in 520ms ease-out both}
- #heroSlider .heroSlide.is-active::after{animation:energy-streaks 760ms cubic-bezier(.2,.7,.2,1) 170ms both}
- #heroSlider .heroSlide.is-active .heroPhoto{animation:energy-ride-in 980ms cubic-bezier(.16,.84,.18,1) 160ms both}
- #heroSlider .heroSlide.is-leaving .heroPhoto{animation:energy-ride-out 620ms cubic-bezier(.35,0,.2,1) both}
- #heroSlider .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:energy-copy-strong 620ms cubic-bezier(.2,.7,.2,1) both}
- #heroSlider .heroSlide.is-active .heroCopy small{animation-delay:520ms}
- #heroSlider .heroSlide.is-active .heroCopy h1{animation-delay:650ms}
- #heroSlider .heroSlide.is-active .heroCopy p{animation-delay:760ms}
- #heroSlider .heroSlide.is-active .heroCopy a{animation-delay:880ms}
- #heroSlider .heroSlide.is-leaving{animation:energy-scene-out 650ms cubic-bezier(.35,0,.2,1) both}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active::before{animation:energy-bg-in 520ms ease-out both}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active::after{animation:energy-streaks 760ms cubic-bezier(.2,.7,.2,1) 170ms both}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroPhoto{animation:energy-ride-in 980ms cubic-bezier(.16,.84,.18,1) 160ms both}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-leaving .heroPhoto{animation:energy-ride-out 620ms cubic-bezier(.35,0,.2,1) both}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:energy-copy-strong 620ms cubic-bezier(.2,.7,.2,1) both}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy small{animation-delay:520ms}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy h1{animation-delay:650ms}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy p{animation-delay:760ms}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy a{animation-delay:880ms}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-leaving{animation:energy-scene-out 650ms cubic-bezier(.35,0,.2,1) both}
  .heroVisual{transition:transform 520ms cubic-bezier(.2,.7,.2,1)}
 }
 @media(max-width:700px){
  .storefrontHome .heroLayout .hero,.storefrontHome .heroLayout .heroTrack,.storefrontHome .heroLayout .heroTrack>.heroSlide{min-height:610px}
  .storefrontHome .heroLayout .heroPhoto,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroPhoto{inset:0 -12% auto -6%!important;width:auto!important;height:315px!important;clip-path:none}
- #heroSlider .heroSlide::before{background-position:center top}
- #heroSlider .heroSlide::after{background:linear-gradient(116deg,transparent 0 72%,#ffc928 72% 74%,transparent 74% 100%)}
+ #heroSlider:not(.psfSceneHero) .heroSlide::before{background-position:center top}
+ #heroSlider:not(.psfSceneHero) .heroSlide::after{background:linear-gradient(116deg,transparent 0 72%,#ffc928 72% 74%,transparent 74% 100%)}
  .storefrontHome .heroLayout .heroCopy,.storefrontHome .heroLayout .heroSlide.serviceSlide .heroCopy{padding:305px 22px 30px!important;width:100%!important}
- #heroSlider .heroSlide .heroCopy h1{font-size:34px!important;line-height:1.08!important}
- #heroSlider .heroSlide .heroCopy p{font-size:14px!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide .heroCopy h1{font-size:34px!important;line-height:1.08!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide .heroCopy p{font-size:14px!important}
  .motion-page .heroAdvance{inset:0;width:100%;height:315px}
 }
 @media(prefers-reduced-motion:reduce){
- #heroSlider .heroSlide.is-active::before{opacity:.56}
- #heroSlider .heroSlide::after{opacity:.72}
- #heroSlider .heroSlide.is-active .heroPhoto{opacity:1;animation:energy-ride-in-soft 520ms ease-out 80ms both!important}
- #heroSlider .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:energy-quiet-in 280ms ease-out both!important}
- #heroSlider .heroSlide.is-active .heroCopy h1{animation-delay:80ms!important}
- #heroSlider .heroSlide.is-active .heroCopy p{animation-delay:140ms!important}
- #heroSlider .heroSlide.is-active .heroCopy a{animation-delay:200ms!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active::before{opacity:.56}
+ #heroSlider:not(.psfSceneHero) .heroSlide::after{opacity:.72}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroPhoto{opacity:1;animation:energy-ride-in-soft 520ms ease-out 80ms both!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy> :is(small,h1,p,a){animation:energy-quiet-in 280ms ease-out both!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy h1{animation-delay:80ms!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy p{animation-delay:140ms!important}
+ #heroSlider:not(.psfSceneHero) .heroSlide.is-active .heroCopy a{animation-delay:200ms!important}
  .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 300ms ease-out!important}
  .productShell .galleryMain img{transform:perspective(900px) translate(var(--view-x,0px),var(--view-y,0px)) rotateY(0deg) scale(var(--view-scale,1))!important}
 }

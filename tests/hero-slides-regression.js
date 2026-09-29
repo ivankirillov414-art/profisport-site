@@ -10,18 +10,19 @@ assert(setup.includes("track.style.transform='none'"));
 assert(!setup.includes('translateX('),'Do not translate a track with display:none siblings');
 assert(css.includes('.heroTrack>.heroSlide.is-active{display:grid!important}'));
 assert(css.includes('background:transparent!important'));
-for(const asset of ['assets/hero/profisport-motion-route-v1.webp','assets/hero/classic-workshop-wide-v5.webp','assets/hero/classic-mountains-v1.webp'])assert(fs.statSync(path.join(root,asset)).size>10000,asset+' must exist');
+for(const asset of ['assets/hero/profisport-motion-route-v1.webp','assets/hero/workshop-background-v6.webp','assets/hero/reference-bike-amber-v2.webp'])assert(fs.statSync(path.join(root,asset)).size>10000,asset+' must exist');
 console.log('Hero slides regression checks passed.');
 // Exercise the legacy controller: transitions retain an outgoing scene,
 // keyboard/click wrap correctly, and reduced motion uses a slower timer.
 const vm=require('node:vm');
-function runtime(reduced=false){
+function runtime(reduced=false,layered=false){
  const listeners={},timers=new Map();let seq=0;
  const node=()=>({classes:new Set(),attrs:{},style:{},inert:false,
-  classList:{toggle(k,on){on?this.owner.classes.add(k):this.owner.classes.delete(k)},add(k){this.owner.classes.add(k)},remove(k){this.owner.classes.delete(k)}},
+  classList:{contains(k){return this.owner.classes.has(k)},toggle(k,on){on?this.owner.classes.add(k):this.owner.classes.delete(k)},add(k){this.owner.classes.add(k)},remove(k){this.owner.classes.delete(k)}},
   setAttribute(k,v){this.attrs[k]=v},addEventListener(k,fn){this.listeners[k]=fn},listeners:{}});
  const slides=Array.from({length:3},node);slides.forEach(s=>s.classList.owner=s);
  const next=node(),track=node(),position={textContent:''};const slider=node();slider.classList.owner=slider;
+ if(layered)slider.classes.add('psfSceneHero');
  slider.querySelector=k=>({'.heroTrack':track,'.heroNext':next}[k]||null);slider.contains=()=>false;
  slider.hasPointerCapture=()=>false;
  const context={$:k=>k==='#heroSlider'?slider:k==='#heroCurrent'?position:null,$$:k=>k==='.heroSlide'?slides:[],
@@ -29,6 +30,7 @@ function runtime(reduced=false){
   setInterval(fn,delay){const id=++seq;timers.set(id,{fn,delay});return id},clearInterval(id){timers.delete(id)},setTimeout(){return ++seq},clearTimeout(){}};
  vm.runInNewContext(setup+';setupHero();',context);return{slider,slides,next,position,timers};
 }
+assert.equal(runtime(false,true).timers.size,0,'The legacy controller must not start a second autoplay timer on the layered hero');
 for(const reduced of [false,true]){
  const t=runtime(reduced);assert.equal(t.position.textContent,'01');
  assert.equal(t.timers.size,1);assert.equal([...t.timers.values()][0].delay,reduced?8000:5000);
