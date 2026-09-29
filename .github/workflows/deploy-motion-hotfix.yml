@@ -1,4 +1,5 @@
 name: Deploy ProfiSport motion hotfix
+# trigger: route-asset-deploy-v1
 
 on:
   push:
