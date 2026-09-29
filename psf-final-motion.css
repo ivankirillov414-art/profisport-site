@@ -1,4 +1,4 @@
-/* ProfiSport final motion layer v5: dark sport-tech hero, amber accents, real scene motion. */
+/* ProfiSport final motion layer v6: dark sport-tech hero, amber accents, visible scene motion. */
 :root{
   --psf-amber:#f6a91a;
   --psf-yellow:#ffd340;
@@ -209,8 +209,11 @@
 @keyframes psf-scene-bg-in{0%{opacity:0;transform:translate3d(34px,0,0) scale(1.13);filter:blur(2px) saturate(.82) brightness(.50)}100%{opacity:1;transform:translate3d(0,0,0) scale(1.08);filter:blur(0) saturate(.96) brightness(.72)}}
 @keyframes psf-scene-bike-in{0%{opacity:0;transform:translate3d(42vw,36px,0) scale(1.16) rotate(1.1deg);filter:blur(4px) saturate(.72) brightness(.72)}38%{opacity:1;filter:blur(0) saturate(.98) brightness(.92)}72%{transform:translate3d(-22px,-5px,0) scale(1.018) rotate(-.18deg)}100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(.92) brightness(.92)}}
 @keyframes psf-scene-bike-out{0%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0) brightness(.92)}100%{opacity:0;transform:translate3d(-24vw,-10px,0) scale(.96) rotate(-.65deg);filter:blur(2px) brightness(.76)}}
+@keyframes psf-scene-bike-in-soft{0%{opacity:.22;transform:translate3d(14vw,12px,0) scale(1.045) rotate(.24deg);filter:blur(1px) saturate(.82) brightness(.82)}100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0);filter:blur(0) saturate(.92) brightness(.92)}}
+@keyframes psf-scene-bike-out-soft{0%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0) brightness(.92)}100%{opacity:.2;transform:translate3d(-6vw,-3px,0) scale(.99) rotate(-.16deg);filter:blur(.6px) brightness(.82)}}
 @keyframes psf-scene-copy-in{0%{opacity:0;transform:translate3d(-18px,28px,0);filter:blur(1px)}100%{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}}
 @keyframes psf-scene-idle{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-10px,-5px,0) scale(1.014)}}
+@keyframes psf-scene-idle-soft{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-3px,-2px,0) scale(1.004)}}
 .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,
 .motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 820ms var(--psf-copy) both!important}
 .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,
@@ -244,9 +247,9 @@
   .motion-page .energyProof{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media(prefers-reduced-motion:reduce){
-  .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 300ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in 520ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out 220ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 220ms ease-out both!important}
-  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:none!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroBackdrop img,.motion-page #heroSlider .heroSlide.is-entering .heroBackdrop img{animation:psf-scene-bg-in 380ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroPhoto,.motion-page #heroSlider .heroSlide.is-entering .heroPhoto{animation:psf-scene-bike-in-soft 680ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-leave .heroPhoto,.motion-page #heroSlider .heroSlide.is-leaving .heroPhoto{animation:psf-scene-bike-out-soft 260ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.psf-enter .heroCopy > :is(small,h1,p,a),.motion-page #heroSlider .heroSlide.is-entering .heroCopy > :is(small,h1,p,a){animation:psf-scene-copy-in 260ms ease-out both!important}
+  .motion-page #heroSlider .heroSlide.is-active:not(.psf-enter):not(.is-entering):not(.psf-leave):not(.is-leaving) .heroPhoto{animation:psf-scene-idle-soft 8s ease-in-out infinite alternate!important}
 }
