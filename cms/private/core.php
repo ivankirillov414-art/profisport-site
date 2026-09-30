@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/access.php';
 require_once __DIR__.'/components.php';
+require_once __DIR__.'/collections.php';
 // Standalone core: never imports the storefront, its session, or its data tables.
 function cms_config(): array {
     static $config;
@@ -117,6 +118,7 @@ function cms_url(string $value,bool $image=false): bool {
 }
 function cms_validate(array $input): array {
     $clean=['pages'=>[]];$manifest=cms_manifest();
+    if(array_key_exists('collections',$input))$clean['collections']=cms_collections_validate($input['collections']);
     $components=cms_components_validate($input['components']??[]);if(array_key_exists('components',$input))$clean['components']=$components;
     if(!is_array($input['pages']??null)||count($input['pages'])>100||array_diff(array_keys($manifest['pages']),array_keys($input['pages'])))throw new InvalidArgumentException('Отсутствуют страницы сайта или превышен лимит 100 страниц.');
     foreach($manifest['pages'] as $key=>$page) {

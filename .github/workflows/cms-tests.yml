@@ -38,6 +38,7 @@ jobs:
           php cms/tests/validation.php
           php cms/tests/visual-validation.php
           php cms/tests/components.php
+          php cms/tests/collections.php
       - name: Editor autosave and recovery in Chromium
         run: |
           npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1
@@ -55,6 +56,7 @@ jobs:
           php -S 127.0.0.1:8123 > /tmp/cms-server.log 2>&1 &
           python3 cms/tests/http_contract.py
           python3 cms/tests/http_roles.py
+          python3 cms/tests/collections-http.py
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/roles-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/components-browser.cjs
           php cms/tests/access-audit.php
