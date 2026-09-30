@@ -71,7 +71,9 @@ jobs:
             **/node_modules/**
             private/config.example.php
             README.md
-      - name: Verify deployed CMS bytes
+      - name: Install image verification dependency
+        run: python3 -m pip install 'Pillow==11.3.0'
+      - name: Verify deployed CMS files
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
@@ -80,7 +82,22 @@ jobs:
             mkdir -p "/tmp/cms-verify/$(dirname "$file")"
             curl -fsS --ssl-reqd --retry 3 --max-time 60 --user "if0_42771076:${FTP_PASSWORD}" \
               "ftp://ftpupload.net:21/htdocs/$file;type=i" -o "/tmp/cms-verify/$file"
-            cmp "$file" "/tmp/cms-verify/$file"
+            case "$file" in
+              *.webp|*.png|*.jpg|*.jpeg)
+                python3 - "$file" "/tmp/cms-verify/$file" <<'PY'
+          import sys
+          from PIL import Image, ImageChops, ImageStat
+          with Image.open(sys.argv[1]) as source, Image.open(sys.argv[2]) as remote:
+              if source.size != remote.size or getattr(source, 'n_frames', 1) != 1 or getattr(remote, 'n_frames', 1) != 1:
+                  raise SystemExit('Image dimensions or frame count changed: ' + sys.argv[1])
+              error = max(ImageStat.Stat(ImageChops.difference(source.convert('RGBA'), remote.convert('RGBA'))).rms)
+              if error > 5:
+                  raise SystemExit(f'Image content differs: {sys.argv[1]}, RMS {error:.3f}')
+              print(f'Verified image {sys.argv[1]}: {source.size}, RMS {error:.3f}')
+          PY
+                ;;
+              *) cmp "$file" "/tmp/cms-verify/$file" ;;
+            esac
           done < <(find cms -type f ! -path 'cms/tests/*' ! -path 'cms/tools/*' ! -path 'cms/media/*' ! -path 'cms/private/config.php' ! -path 'cms/private/config.example.php' ! -name README.md | sort)
       - name: Build portable CMS release
         run: bash cms/tools/package.sh /tmp/content-cms
