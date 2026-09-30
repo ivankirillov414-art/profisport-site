@@ -2,7 +2,7 @@
 
 Выпуск ID: 14 типов секций, поиск и категории, три композиции, сохранённые копии блоков в черновике сайта, медиатека с изоляцией списка по site_key, отмена/повтор до 60 состояний между сохранениями и проверка публикации. Исследование конкурентов и границы текущей реализации: `research.html`.
 
-Новые медиа индексируются в `ps_cms_media` при загрузке. Старые файлы не мигрируются без достоверной принадлежности сайту; используемые изображения видны из текущего черновика. Публичные URL файлов доступны посетителям, список требует входа. Новые параметры сетки/видимости относятся к новым секциям. Ширина телефона — до 640 px; медиа до 5 МБ / 8000 px. Сохранённые блоки — копии, не синхронизированные экземпляры. Автосохранения нет; Ctrl+S сохраняет явно. Смена сайта сбрасывает локальную отмену. Публикация выпускает весь черновик выбранного сайта.
+Новые медиа индексируются в `ps_cms_media` при загрузке. Старые файлы не мигрируются без достоверной принадлежности сайту; используемые изображения видны из текущего черновика. Публичные URL файлов доступны посетителям, список требует входа. Новые параметры сетки/видимости относятся к новым секциям. Ширина телефона — до 640 px; медиа до 5 МБ / 8000 px. Сохранённые блоки — копии, не синхронизированные экземпляры. Черновик сохраняется автоматически через 1,5 секунды после последней правки; Ctrl+S сохраняет явно. Автосохранение не публикует сайт, не сбрасывает отмену действий и не перерисовывает открытый макет. При ошибке сети или конфликте версий автоматические запросы останавливаются, правки остаются в открытом редакторе. После устранения ошибки сохраните вручную; конфликт нельзя обходить перезаписью чужой версии. Закрытие вкладки с несохранёнными правками вызывает предупреждение. Публичная демонстрация не сохраняется на сервере. Смена сайта сбрасывает локальную отмену. Публикация выпускает весь черновик выбранного сайта.
 
 # Контент CMS 2 — standalone visual editor
 
@@ -57,3 +57,13 @@ Back up all `ps_cms_*` tables, `media/`, private config and connector snapshots 
 `cms-tests.yml` runs PHP/JS checks, hostile recipe/URL validation, legacy compatibility, MariaDB install/save/publish/restore, site isolation and authenticated HTTP contracts. Deployment verifies transferred runtime file bytes via FTPS. A successful CI run is not proof that an owner browser login or production write was tested. Never use a production database for tests (`CMS_TEST=1` and `_test` suffix are mandatory).
 
 Build connector after edits: `cat cms/blocks.js cms/tools/adapter.js > cms/connector.js && cp cms/connector.js cms-client.js`. Snapshot development: install the pinned dev dependency in `cms/tools/`, then run `node cms/tools/build-templates.mjs` from repository root. Inspect binding/selector changes before regenerating; stored field IDs must not change.
+
+## Completion work — 2026-09-30
+
+Source recovered from `ivankirillov414-art/profisport-site`, base `ce57d44`, branch `codex/id-studio-completion`. This is an ongoing release, not a completed production delivery.
+
+Implemented: debounced draft autosave in both editors, sequential revision handling, preservation of edits made during requests, undo preservation, and pause on save errors/conflicts. Manual saves and site changes wait for active autosaves. Demo remains memory-only.
+
+Verified locally: `node cms/tests/autosave.js`, `node cms/tests/blocks.js`, JS syntax checks, and `node cms/tests/autosave-browser.cjs` with Playwright 1.62.1 / Chromium. The browser suite runs actual editor scripts against an isolated in-memory API; it is not evidence of PHP/MySQL or production verification. Playwright must be available through Node module resolution; install its Chromium browser before running the browser suite.
+
+Still required: recovery after a closed/crashed session and explicit conflict recovery; site-scoped user roles and publishing permissions; dynamic collections; synchronized global components. The existing research roadmap also describes SEO/sitemap, design controls, portability and operational verification; confirm their intended release scope against the original project discussion before claiming completion. Full database integration, browser acceptance, release packaging and deployment remain to be verified for the final release.

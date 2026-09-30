@@ -25,6 +25,8 @@ jobs:
           node --check cms/editor.js
           node --check cms/visual.js
           node --check cms/workspace.js
+          node --check cms/autosave.js
+          node cms/tests/autosave.js
           node cms/tests/blocks.js
           node --check cms-client.js
           php cms/tests/validation.php
