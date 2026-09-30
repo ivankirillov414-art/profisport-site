@@ -33,6 +33,9 @@ jobs:
           node --check cms/components-ui.js
           node --check cms/collections-ui.js
           node --check cms/collection-templates.js
+          node --check cms/collection-lists-ui.js
+          node --check cms/collections.js
+          node cms/tests/collections.js
           node cms/tests/components.js
           node cms/tests/recovery.js
           node cms/tests/blocks.js
@@ -42,6 +45,7 @@ jobs:
           php cms/tests/components.php
           php cms/tests/collections.php
           php cms/tests/collection-templates.php
+          php cms/tests/collection-lists.php
       - name: Editor autosave and recovery in Chromium
         run: |
           npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1
@@ -63,4 +67,5 @@ jobs:
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/roles-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/components-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collections-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collection-lists-browser.cjs
           php cms/tests/access-audit.php

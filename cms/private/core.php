@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/access.php';
 require_once __DIR__.'/components.php';
 require_once __DIR__.'/collections.php';
+require_once __DIR__.'/collection-lists.php';
 // Standalone core: never imports the storefront, its session, or its data tables.
 function cms_config(): array {
     static $config;
@@ -168,7 +169,7 @@ function cms_validate(array $input): array {
             if(!is_string($incoming['title']??null)||strlen(trim($incoming['title']))<1||strlen($incoming['title'])>200)throw new InvalidArgumentException('Укажите название страницы.');
             $clean['pages'][$key]=['title'=>$incoming['title'],'fields'=>[], 'blocks'=>[]];
         }
-        if(isset($incoming['layout']))$clean['pages'][$key]['layout']=cms_layout($incoming['layout'],$key,$components);
+        if(isset($incoming['layout']))$clean['pages'][$key]['layout']=cms_layout($incoming['layout'],$key,$components,$clean['collections']??[]);
     }
     if(isset($input['library'])) {
         if(!is_array($input['library'])||count($input['library'])>50)throw new InvalidArgumentException('Допускается до 50 сохранённых блоков.');
@@ -181,6 +182,7 @@ function cms_validate(array $input): array {
     if($components)cms_components_budget($clean);
     $generated=cms_collection_pages($clean['collections']??[]);
     if(array_intersect_key($clean['pages'],$generated))throw new InvalidArgumentException('Адрес страницы совпадает с адресом записи коллекции.');
+    if(!empty($clean['collections'])){ $total=0;foreach(cms_public($clean) as $publicPage){$size=strlen(cms_encode($publicPage));$total+=$size;if($size>1048576||$total>4194304)throw new InvalidArgumentException('Публичные страницы превышают 1 МБ на страницу или 4 МБ на сайт.');}}
     return $clean;
 }
 function cms_document(bool $lock=false): array {
@@ -204,7 +206,7 @@ function cms_change(string $action,int $version,array $input,string $actor,int $
     }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
 }
 
-function cms_layout(array $layout,string $page,array $components=[]): array {
+function cms_layout(array $layout,string $page,array $components=[],array $collections=[]): array {
     if(count($layout)>100)throw new InvalidArgumentException('На странице допускается до 100 блоков.');
     $templates=cms_templates();$known=array_column($templates[$page]['sections']??[],'id');$seen=[];$out=[];
     foreach($layout as $block) {
@@ -212,6 +214,7 @@ function cms_layout(array $layout,string $page,array $components=[]): array {
         $id=$block['id']??'';$type=$block['type']??'';
         if(!is_string($id)||!preg_match('/^[a-zA-Z0-9_-]{1,80}$/D',$id)||isset($seen[$id]))throw new InvalidArgumentException('Неверный или повторяющийся блок.');
         $seen[$id]=true;
+        if($type==='collection'){$out[]=cms_collection_list_validate($block,$collections);continue;}
         if($type==='global'){$out[]=cms_component_reference($block,$components);continue;}
         if($type==='existing') {
             if(!in_array($id,$known,true)||!is_bool($block['visible']??null))throw new InvalidArgumentException('Неизвестный блок сайта.');
@@ -264,7 +267,7 @@ function cms_public(array $data): array {
         foreach($draft['blocks'] as $b)foreach($page['blocks'] as $original)if($b['id']===$original['id'])$blocks[]=['selector'=>$original['selector'],'visible'=>$b['visible'],'changed'=>$b['visible']!==$original['visible']];
         $pages[$key]=['title'=>$draft['title']??$page['title']??'','fields'=>$fields,'blocks'=>$blocks];
         if(isset($draft['layout'])) {
-            $pages[$key]['layout']=array_map(fn($block)=>cms_component_render($block,$data['components']??[]),$draft['layout']);
+            $pages[$key]['layout']=array_map(fn($block)=>cms_collection_list_render(cms_component_render($block,$data['components']??[]),$data['collections']??[]),$draft['layout']);
             $pages[$key]['sections']=array_map(fn($s)=>['id'=>$s['id'],'selector'=>$s['selector']],$templates[$key]['sections']??[]);
         }
         if(isset($draft['elements']))$pages[$key]['elements']=$draft['elements'];

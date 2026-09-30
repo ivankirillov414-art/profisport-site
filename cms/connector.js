@@ -9,7 +9,15 @@ const pic=(v,placeholder=false)=>{const src=url(v.image,base);return src&&/^http
 const button=v=>{const href=url(v.url,base);return v.label&&href?`<a class="cms-button" href="${esc(href)}">${esc(v.label)}</a>`:'';};
 const heading=p.title?`<h2>${esc(p.title)}</h2>`:'',text=p.text?`<p>${esc(p.text)}</p>`:'';let inner='';
 if(block.type!=='spacer'){
- if(block.type==='split')inner=`<div class="cms-split"><div>${heading}${text}${button(p)}</div>${pic(p,true)}</div>`;
+ if(block.type==='collection-list'){
+  const items=Array.isArray(block.items)?block.items.slice(0,100):[],size=Math.max(1,Math.min(24,Number(block.pageSize)||12));
+  inner=heading+text+`<div data-cms-collection data-page-size="${size}"><div class="cms-list-controls"><label>Поиск<input type="search" data-list-search></label>`;
+  if(block.filterLabel){const values=[...new Set(items.map(v=>String(v.filter??'')))].sort();inner+=`<label>${esc(block.filterLabel)}<select data-list-filter><option value="">Все</option>`+values.filter(Boolean).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'</select></label>';}
+  inner+='<label>Порядок<select data-list-sort><option value="original">Как задано редактором</option><option value="asc">По названию: А–Я</option><option value="desc">По названию: Я–А</option></select></label></div><div class="cms-grid cms-cards" data-list-items>';
+  inner+=items.map((v,i)=>`<article class="cms-card" data-list-card data-order="${i}" data-filter="${esc(v.filter)}"${i>=size?' hidden':''}>${pic(v)}<h3>${esc(v.title)}</h3><p>${esc(v.text)}</p>${/^[a-z0-9][a-z0-9-]{0,90}\.html$/.test(v.recordPage||'')?`<a class="cms-button" data-cms-record="${esc(v.recordPage)}">Подробнее</a>`:''}</article>`).join('');
+  inner+='</div><p data-list-empty'+(items.length?' hidden':'')+'>Записей не найдено.</p><div class="cms-list-pages"><button type="button" data-list-prev disabled>Назад</button><span data-list-status role="status" aria-live="polite"></span><button type="button" data-list-next>Далее</button></div></div>';
+ }
+ else if(block.type==='split')inner=`<div class="cms-split"><div>${heading}${text}${button(p)}</div>${pic(p,true)}</div>`;
  else {inner=heading;
  if(block.type==='columns')inner+=`<div class="cms-columns" style="--cms-columns:2"><p>${esc(p.text)}</p><p>${esc(p.text2)}</p></div>`;
  else inner+=text;
@@ -26,7 +34,19 @@ return `<section class="cms-block${visibility}" data-cms-new="${esc(block.id)}" 
 function defaults(type){const p={title:catalog[type]?.[0]||'Блок',text:type==='spacer'?'':'Добавьте свой текст. Изменения сразу видны на странице.',text2:type==='columns'?'Текст второй колонки.':'',image:'',alt:'',label:['hero','cta'].includes(type)?'Подробнее':'',url:['hero','cta'].includes(type)?'#contacts':'',background:type==='hero'?'#eef4ff':'#ffffff',color:'#172033',align:type==='hero'?'center':'left',space:type==='hero'?'80':'48',mobileSpace:'24',visibility:'all',columns:'3',radius:'16',accent:'#2463eb',font:'Arial',fontSize:'',fontWeight:''};
 if(['gallery','cards','faq','pricing','testimonials','metrics'].includes(type))p.items=Array.from({length:3},(_,i)=>({title:type==='metrics'?'—':type==='faq'?'Вопрос '+(i+1):type==='testimonials'?'Имя автора':'Элемент '+(i+1),text:type==='testimonials'?'Добавьте реальный отзыв с разрешения автора.':'Добавьте описание.',image:'',alt:'',label:'',url:''}));
 return p;}
-window.CMBlocks={html,css,defaults,esc,url,catalog};
+function mountCollections(root,{endpoint,site}){
+ for(const list of root.querySelectorAll('[data-cms-collection]')){
+  if(list.dataset.mounted)continue;list.dataset.mounted='1';const cards=[...list.querySelectorAll('[data-list-card]')],grid=list.querySelector('[data-list-items]'),search=list.querySelector('[data-list-search]'),filter=list.querySelector('[data-list-filter]'),sort=list.querySelector('[data-list-sort]'),prev=list.querySelector('[data-list-prev]'),next=list.querySelector('[data-list-next]'),status=list.querySelector('[data-list-status]'),empty=list.querySelector('[data-list-empty]'),size=Number(list.dataset.pageSize);let current=0;
+  for(const link of list.querySelectorAll('[data-cms-record]')){const href=new URL('site.php',endpoint);href.searchParams.set('site',site);href.searchParams.set('page',link.dataset.cmsRecord);link.href=href.href;}
+  function draw(reset=false){if(reset)current=0;const query=search.value.trim().toLocaleLowerCase(),selected=filter?.value||'',shown=cards.filter(c=>(!query||(c.querySelector('h3').textContent+' '+c.querySelector('p').textContent).toLocaleLowerCase().includes(query))&&(!selected||c.dataset.filter===selected));
+   shown.sort((a,b)=>sort.value==='original'?Number(a.dataset.order)-Number(b.dataset.order):(sort.value==='desc'?-1:1)*a.querySelector('h3').textContent.localeCompare(b.querySelector('h3').textContent,'ru',{numeric:true}));
+   const pages=Math.max(1,Math.ceil(shown.length/size));current=Math.min(current,pages-1);cards.forEach(c=>c.hidden=true);shown.forEach((c,i)=>{grid.append(c);c.hidden=i<current*size||i>=(current+1)*size;});empty.hidden=shown.length>0;prev.disabled=current===0;next.disabled=current>=pages-1;status.textContent=shown.length?`Страница ${current+1} из ${pages} · ${shown.length} записей`:'0 записей';
+  }
+  search.oninput=()=>draw(true);if(filter)filter.onchange=()=>draw(true);sort.onchange=()=>draw(true);prev.onclick=()=>{current--;draw();};next.onclick=()=>{current++;draw();};draw();
+ }
+}
+const collectionCSS='.cms-list-controls{display:flex;flex-wrap:wrap;gap:16px;margin:24px 0}.cms-list-controls label{display:grid;gap:6px;flex:1;min-width:180px}.cms-list-controls input,.cms-list-controls select,.cms-list-pages button{font:inherit;padding:10px;border:1px solid #bac8cf;border-radius:6px;max-width:100%;background:#fff;color:#172033}.cms-list-pages{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:24px}.cms-list-pages button:disabled{opacity:.5}.cms-block [hidden]{display:none!important}';
+window.CMBlocks={html,css:css+collectionCSS,defaults,esc,url,catalog,mountCollections};
 })();
 /* Connector preserves existing DOM nodes and their event listeners. */
 (()=>{'use strict';
@@ -56,6 +76,7 @@ window.CMBlocks={html,css,defaults,esc,url,catalog};
    main.querySelectorAll(':scope > [data-cms-new]').forEach(n=>n.remove());
    for(const block of data.layout){if(block.type==='existing'){const entry=originalNodes.get(block.id);if(!entry)continue;main.append(entry.el);entry.el.hidden=!block.visible;entry.el.style.display=block.visible?entry.display:'none';}else {const template=document.createElement('template');template.innerHTML=CMBlocks.html(block,location.href);main.append(template.content);}}
    if(!document.getElementById('cms-block-css')){const style=document.createElement('style');style.id='cms-block-css';style.textContent=CMBlocks.css;document.head.append(style);}
+   CMBlocks.mountCollections(main,{endpoint:endpoint.href,site});
   } else {
    const pairs=(data.blocks||[]).map(b=>({b,el:document.querySelector(b.selector)})).filter(x=>x.el);
    for(const parent of new Set(pairs.map(x=>x.el.parentNode))){const wanted=pairs.filter(x=>x.el.parentNode===parent),nodes=new Set(wanted.map(x=>x.el)),markers=[];for(const child of Array.from(parent.children))if(nodes.has(child)){const marker=document.createComment('cms-block');parent.insertBefore(marker,child);markers.push(marker);}wanted.forEach((x,i)=>{if(x.b.changed)x.el.style.setProperty('display',x.b.visible?'':'none','important');if(x.b.changed&&x.b.visible)x.el.hidden=false;parent.insertBefore(x.el,markers[i]);});markers.forEach(m=>m.remove());}

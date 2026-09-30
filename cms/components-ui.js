@@ -4,7 +4,7 @@ function componentDialog(title){const d=el('dialog',undefined,'access-dialog');d
 async function componentChange(fn){if(!componentWritable())return false;sync();fn();await renderPage();changed();return true;}
 async function createComponent(model,name){
  if(!componentWritable())return false;const recipe=model?.get('recipe');
- if(!recipe||recipe.type==='existing'||recipe._componentId){status('Выберите обычную созданную секцию.',true);return false;}
+ if(!recipe||recipe.type==='existing'||recipe._componentId||recipe._collectionRecipe){status('Выберите обычную созданную секцию.',true);return false;}
  if(!name.trim()||(state.draft.components||[]).length>=50){status('Укажите название; допускается до 50 общих блоков.',true);return false;}
  const id='global-'+crypto.randomUUID();
  return componentChange(()=>{state.draft.components??=[];state.draft.components.push({id,name:name.trim(),block:CMSComponents.render(recipe)});const layout=state.draft.pages[page].layout,index=layout.findIndex(r=>r.id===recipe.id);layout[index]={id:recipe.id,type:'global',component:id,overrides:{}};});
@@ -36,7 +36,7 @@ function componentsPanel(){
  if(!componentWritable())return;sync();const d=componentDialog('Общие блоки сайта');d.id='componentsDialog';
  const intro=el('p','Общие блоки обновляются сразу во всех связанных экземплярах. Сохранённые «Мои блоки» остаются независимыми копиями.');d.append(intro);
  const create=el('form'),select=el('select'),label=el('label','Секция на текущей странице'),name=el('input');select.setAttribute('aria-label','Секция для общего блока');name.placeholder='Название общего блока';name.setAttribute('aria-label','Название общего блока');name.required=true;name.maxLength=100;
- const candidates=sectionModels().filter(m=>m.get('recipe').type!=='existing'&&!m.get('recipe')._componentId);for(const m of candidates){const option=el('option',sectionName(m.get('recipe')));option.value=m.get('recipe').id;select.append(option);}label.append(select);const submit=el('button','Создать из секции');submit.type='submit';submit.disabled=!candidates.length;create.append(label,name,submit);d.append(create);
+ const candidates=sectionModels().filter(m=>m.get('recipe').type!=='existing'&&!m.get('recipe')._componentId&&!m.get('recipe')._collectionRecipe);for(const m of candidates){const option=el('option',sectionName(m.get('recipe')));option.value=m.get('recipe').id;select.append(option);}label.append(select);const submit=el('button','Создать из секции');submit.type='submit';submit.disabled=!candidates.length;create.append(label,name,submit);d.append(create);
  create.onsubmit=async e=>{e.preventDefault();if(await createComponent(candidates.find(m=>m.get('recipe').id===select.value),name.value))d.close();};
  const list=el('div');d.append(list);for(const component of state.draft.components||[]){const card=el('section',undefined,'site-card'),uses=CMSComponents.uses(state.draft,component.id);card.append(el('h3',component.name),el('p',uses.length+' экземпляров · '+[...new Set(uses.map(u=>pageMeta(u.page).title))].join(', ')));
   card.append(actionButton('Добавить на страницу',async()=>{if(await insertComponent(component.id))d.close();}),actionButton('Изменить общий блок',()=>{d.close();editComponent(component.id);}));

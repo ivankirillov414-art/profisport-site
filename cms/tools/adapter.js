@@ -26,6 +26,7 @@
    main.querySelectorAll(':scope > [data-cms-new]').forEach(n=>n.remove());
    for(const block of data.layout){if(block.type==='existing'){const entry=originalNodes.get(block.id);if(!entry)continue;main.append(entry.el);entry.el.hidden=!block.visible;entry.el.style.display=block.visible?entry.display:'none';}else {const template=document.createElement('template');template.innerHTML=CMBlocks.html(block,location.href);main.append(template.content);}}
    if(!document.getElementById('cms-block-css')){const style=document.createElement('style');style.id='cms-block-css';style.textContent=CMBlocks.css;document.head.append(style);}
+   CMBlocks.mountCollections(main,{endpoint:endpoint.href,site});
   } else {
    const pairs=(data.blocks||[]).map(b=>({b,el:document.querySelector(b.selector)})).filter(x=>x.el);
    for(const parent of new Set(pairs.map(x=>x.el.parentNode))){const wanted=pairs.filter(x=>x.el.parentNode===parent),nodes=new Set(wanted.map(x=>x.el)),markers=[];for(const child of Array.from(parent.children))if(nodes.has(child)){const marker=document.createComment('cms-block');parent.insertBefore(marker,child);markers.push(marker);}wanted.forEach((x,i)=>{if(x.b.changed)x.el.style.setProperty('display',x.b.visible?'':'none','important');if(x.b.changed&&x.b.visible)x.el.hidden=false;parent.insertBefore(x.el,markers[i]);});markers.forEach(m=>m.remove());}

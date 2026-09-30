@@ -9,10 +9,10 @@ function collectionDialog(title,id){const d=componentDialog(title);d.id=id;retur
 async function collectionCommit(dialog,transform){
  if(!componentWritable())return false;const message=dialog.querySelector('[role=status]')||el('p');message.setAttribute('role','status');dialog.append(message);message.textContent='Проверяю…';
  const before=JSON.stringify(state.draft.collections||[]),copy=structuredClone(state.draft.collections||[]);dialog.inert=true;
- try{transform(copy);const result=await api('validate-collections',{collections:copy});
+ try{transform(copy);sync();const result=await api('validate-collections',{collections:copy,pages:state.draft.pages,components:state.draft.components||[]});
   if(Object.keys(result.pages||{}).some(key=>state.draft.pages[key]))throw Error('Адрес записи совпадает с адресом существующей страницы.');
   if(before!==JSON.stringify(state.draft.collections||[]))throw Error('Коллекции изменились. Откройте форму заново.');
-  sync();state.draft.collections=result.collections;changed();dialog.close();return true;
+  sync();state.draft.collections=result.collections;await renderPage();changed();dialog.close();return true;
  }catch(error){message.textContent=error.message;return false;}finally{dialog.inert=false;}
 }
 function collectionSchema(id=null){
