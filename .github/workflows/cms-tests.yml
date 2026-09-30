@@ -29,11 +29,15 @@ jobs:
           node cms/tests/autosave.js
           node --check cms/recovery.js
           node --check cms/access.js
+          node --check cms/components.js
+          node --check cms/components-ui.js
+          node cms/tests/components.js
           node cms/tests/recovery.js
           node cms/tests/blocks.js
           node --check cms-client.js
           php cms/tests/validation.php
           php cms/tests/visual-validation.php
+          php cms/tests/components.php
       - name: Editor autosave and recovery in Chromium
         run: |
           npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1
@@ -52,4 +56,5 @@ jobs:
           python3 cms/tests/http_contract.py
           python3 cms/tests/http_roles.py
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/roles-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/components-browser.cjs
           php cms/tests/access-audit.php

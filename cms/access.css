@@ -1,11 +1,13 @@
-[data-cms-edit="false"] :is(#save,#undo,#redo,#addPage,#addSectionTop,#addSectionBottom,#openLibrary,#patternsBtn,#templatesBtn,#recoveryButton,label:has(#mediaUpload),#contextTools,#floatingProperties,#properties,.section-actions,.thumb-open,.empty-board button,#historyList button){display:none!important}
+[data-cms-edit="false"] :is(#save,#undo,#redo,#addPage,#addSectionTop,#addSectionBottom,#openLibrary,#patternsBtn,#componentsButton,#templatesBtn,#recoveryButton,label:has(#mediaUpload),#contextTools,#floatingProperties,#properties,.section-actions,.thumb-open,.empty-board button,#historyList button){display:none!important}
 [data-cms-publish="false"] :is(#publish,#confirmPublish){display:none!important}
 [data-cms-manage="false"] :is(#siteForm,#sitesDialog details:has(#siteForm),#usersButton){display:none!important}
 #roleLabel{font-size:12px;white-space:nowrap;color:inherit}
 .access-dialog{width:calc(100% - 32px);max-width:620px;max-height:85vh;overflow:auto;box-sizing:border-box}
 .access-dialog label{display:grid;gap:6px;margin:14px 0;font-size:14px}
-.access-dialog input,.access-dialog select{box-sizing:border-box;max-width:100%;width:100%;padding:10px;border:1px solid #d4dae3;border-radius:6px}
+.access-dialog input,.access-dialog select,.access-dialog textarea{box-sizing:border-box;max-width:100%;width:100%;padding:10px;border:1px solid #d4dae3;border-radius:6px}
 .access-dialog input[type=checkbox]{width:auto;justify-self:start}
 .access-dialog button{margin:8px 8px 8px 0}
 .access-dialog>div>select{margin-top:16px}
 @media(max-width:900px){.bar{height:auto!important;min-height:64px;flex-wrap:wrap;padding:10px!important;gap:8px!important}.bar-space{display:none}.bar #siteSelect{max-width:190px}.board-workspace{min-height:calc(100vh - 160px)}}
+
+.access-dialog .site-card{display:block}.access-dialog textarea{min-height:90px;resize:vertical}
