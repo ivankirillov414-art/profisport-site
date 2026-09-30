@@ -49,7 +49,7 @@ try {
     $sites=cms_sites_for_user();$default=in_array(cms_config()['site_key'],array_column($sites,'site_key'),true)?cms_config()['site_key']:($sites[0]['site_key']??'');$key=(string)($_GET['site']??$default);
     if($key==='')cms_reply(['error'=>'Владелец ещё не назначил вам доступ к сайту.','code'=>'no_sites'],403);
     cms_require_permission('read',$key);cms_select_site($key);$role=cms_role($key);
-    $permission=match($action){'state','history','media'=>'read','save','restore','upload'=>'edit','publish'=>'publish',default=>null};
+    $permission=match($action){'state','history','media'=>'read','save','restore','upload','validate-collections'=>'edit','publish'=>'publish',default=>null};
     if($permission===null)cms_reply(['error'=>'Неизвестное действие.'],422);cms_require_permission($permission,$key);
     if($action==='state'&&$method==='GET'){$row=cms_document();cms_reply(['user'=>$actor,'user_id'=>(int)$_SESSION['user'],'role'=>$role,'permissions'=>cms_permissions($role),'csrf'=>$_SESSION['csrf'],'manifest'=>cms_manifest(),'site_url'=>cms_site()['url'],'site'=>['key'=>cms_site_key(),'name'=>cms_site()['name']],'templates'=>cms_templates(),'draft'=>json_decode($row['draft'],true),'version'=>(int)$row['version'],'published_version'=>(int)$row['published_version']]);}
     if($action==='history'&&$method==='GET'){$s=cms_db()->prepare('SELECT id,actor,action,created_at FROM ps_cms_history WHERE site_key=? ORDER BY id DESC LIMIT 50');$s->execute([cms_site_key()]);cms_reply(['items'=>$s->fetchAll()]);}
@@ -71,6 +71,7 @@ try {
     }
     $raw=file_get_contents('php://input',false,null,0,1048577);if(strlen($raw)>1048576)cms_reply(['error'=>'Слишком большой документ.'],413);
     $input=json_decode($raw,true,512,JSON_THROW_ON_ERROR);if(!is_array($input))throw new InvalidArgumentException('Некорректный документ.');
+    if($action==='validate-collections')cms_reply(['collections'=>cms_collections_validate($input['collections']??null)]);
     cms_reply(cms_change($action,(int)($input['version']??0),$input['draft']??[],$actor,(int)($input['id']??0)));
 }catch(InvalidArgumentException|JsonException $e){cms_reply(['error'=>$e->getMessage()],422);}
 catch(Throwable $e){error_log('CMS: '.$e->getMessage());cms_reply(['error'=>'CMS недоступна или ещё не настроена. Обратитесь к владельцу.'],503);}

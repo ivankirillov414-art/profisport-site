@@ -31,6 +31,7 @@ jobs:
           node --check cms/access.js
           node --check cms/components.js
           node --check cms/components-ui.js
+          node --check cms/collections-ui.js
           node cms/tests/components.js
           node cms/tests/recovery.js
           node cms/tests/blocks.js
@@ -59,4 +60,5 @@ jobs:
           python3 cms/tests/collections-http.py
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/roles-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/components-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collections-browser.cjs
           php cms/tests/access-audit.php

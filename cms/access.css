@@ -11,3 +11,4 @@
 @media(max-width:900px){.bar{height:auto!important;min-height:64px;flex-wrap:wrap;padding:10px!important;gap:8px!important}.bar-space{display:none}.bar #siteSelect{max-width:190px}.board-workspace{min-height:calc(100vh - 160px)}}
 
 .access-dialog .site-card{display:block}.access-dialog textarea{min-height:90px;resize:vertical}
+body[data-cms-edit="false"] #collectionsButton{display:none}.access-dialog fieldset{min-width:0;margin:20px 0;border:1px solid #d4dae3;border-radius:8px}
