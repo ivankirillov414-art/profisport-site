@@ -139,17 +139,17 @@
 .motion-page #heroSlider .heroSlide.psf-leave .heroBackdropMotion{animation:psf-scene-bg-out 700ms ease-in both!important}
 /* Each sport has its own motion; layers settle to a stable composition. */
 .motion-page #heroSlider [data-scene="nordic"]{--scene-entrance:psf-nordic-in;--scene-exit:psf-nordic-out}
-.motion-page #heroSlider [data-scene="snowboard"]{--scene-entrance:psf-snowboard-in;--scene-exit:psf-snowboard-out}
+.motion-page #heroSlider [data-scene="skating"]{--scene-entrance:psf-skating-in;--scene-exit:psf-skating-out}
 .motion-page #heroSlider [data-scene="workshop"]{--scene-entrance:psf-workshop-in;--scene-exit:psf-workshop-out}
 .motion-page #heroSlider [data-scene="nordic"] .heroObject{inset:18px 14px 24px 47%!important}
-.motion-page #heroSlider [data-scene="snowboard"] .heroObject{inset:8px 12px 46px 48%!important}
+.motion-page #heroSlider [data-scene="skating"] .heroObject{inset:8px 12px 46px 48%!important}
 .motion-page #heroSlider [data-scene="workshop"] .heroObject{inset:14px 14px 14px 47%!important}
 .motion-page #heroSlider [data-scene="nordic"] .heroBikeMotion{filter:drop-shadow(0 5px 4px #14253540)}
-.motion-page #heroSlider [data-scene="snowboard"] .heroBikeMotion{filter:none}
+.motion-page #heroSlider [data-scene="skating"] .heroBikeMotion{filter:drop-shadow(0 7px 5px #10182040)}
 @keyframes psf-nordic-in{from{opacity:0;transform:translate3d(52%,-24px,0)}25%{opacity:1}to{opacity:1;transform:translate3d(0,0,0)}}
 @keyframes psf-nordic-out{to{opacity:0;transform:translate3d(-28%,16px,0)}}
-@keyframes psf-snowboard-in{from{opacity:0;transform:translate3d(45%,-70px,0) rotate(8deg) scale(.9)}25%{opacity:1}to{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}}
-@keyframes psf-snowboard-out{to{opacity:0;transform:translate3d(-22%,32px,0) rotate(-4deg)}}
+@keyframes psf-skating-in{from{opacity:0;transform:translate3d(50%,12px,0) rotate(2deg) scale(.98)}25%{opacity:1}to{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}}
+@keyframes psf-skating-out{to{opacity:0;transform:translate3d(-30%,0,0) rotate(-1deg)}}
 @keyframes psf-workshop-in{from{opacity:0;transform:translate3d(40px,18px,0) scale(.96)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
 @keyframes psf-workshop-out{to{opacity:0;transform:translate3d(-20px,0,0) scale(.985)}}
 @keyframes psf-scene-bg-in{from{opacity:0;transform:scale(1.055)}to{opacity:1;transform:scale(1)}}
