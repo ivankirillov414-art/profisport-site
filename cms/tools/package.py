@@ -49,6 +49,8 @@ def build(destination, demo=False):
             if not source.is_file():
                 continue
             relative = source.relative_to(SOURCE)
+            if relative.parts[0] == 'sites' or relative.parts[:2] == ('private', 'connectors'):
+                continue
             if any(part in ('tests', 'tools', 'node_modules', '__pycache__') for part in relative.parts):
                 continue
             if relative.parts[0].startswith('demo') or relative.as_posix() in ('private/config.php', 'private/bindings.json', 'private/templates.json'):

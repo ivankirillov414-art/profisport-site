@@ -1,0 +1,33 @@
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
+const bundle=JSON.parse(fs.readFileSync('cms/private/connectors/kosmosfera.json','utf8'));
+assert.equal(process.env.CMS_TEST,'1');
+(async()=>{const browser=await chromium.launch({channel:'chromium',headless:true});try{
+ const owner=await browser.newPage();await owner.goto('http://localhost:8123/cms/index.html?site=kosmosfera');
+ await owner.locator('#loginForm [name=username]').fill('test-owner');await owner.locator('#loginForm [name=password]').fill('test-only-password-1234');await owner.locator('#loginForm button:enabled').click();
+ await owner.waitForFunction(()=>typeof canvasMain!=='undefined'&&canvasMain&&!building);
+ assert.equal(await owner.evaluate(()=>state.site.key),'kosmosfera');assert.equal(await owner.evaluate(()=>canvasMain.components().length),8);
+ await owner.goto('http://localhost:8123/cms/fields.html?site=kosmosfera');await owner.locator('#fields textarea').first().waitFor();
+ await owner.locator('#fields textarea').first().fill('Правка из редактора Космопорта');await owner.waitForFunction(()=>!dirty&&!busy);
+ const unchanged=await owner.evaluate(async()=>{const r=await fetch('api.php?action=public&site=kosmosfera');return r.json()});assert.equal(unchanged.pages['index.html'].fields[0].value,'Тестовая правка Космопорта');
+ await owner.evaluate(async()=>{await api('publish',{version:state.version});});
+ await owner.close();
+ const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://localhost:8123/cms/sites/kosmosfera/index.html');
+ const first=bundle.manifest.pages['index.html'].fields.find(f=>f.kind==='text');
+ await page.locator(first.selector).filter({hasText:'Правка из редактора Космопорта'}).waitFor();
+ assert.equal(await page.locator('main > section').count(),8);
+ await page.locator('[data-open="ticket-dialog"]').first().click();
+ await page.locator('#ticket-dialog').waitFor();
+ const before=Number(await page.locator('#quantity').textContent());
+ await page.locator('#plus').click();assert.equal(Number(await page.locator('#quantity').textContent()),before+1);
+ assert.equal((await page.locator('#total').textContent()).replace(/\D/g,''),String((before+1)*849));await page.keyboard.press('Escape');
+ const gallery=page.locator('[data-gallery]').first();await gallery.click();await page.locator('#gallery-dialog').waitFor();
+ assert.equal(await page.locator('#gallery-full-image').getAttribute('src'),await gallery.locator('img').getAttribute('src'));await page.keyboard.press('Escape');
+ await page.setViewportSize({width:390,height:844});await page.locator('.menu-toggle').click();assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'true');
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ const missing=await page.locator('img[src]').evaluateAll(es=>es.filter(e=>e.complete&&e.getAttribute('src')&&!e.naturalWidth).map(e=>e.getAttribute('src')));
+ assert.deepEqual(missing,[]);assert.deepEqual(errors,[]);
+ // All mappings address existing elements, without replacing parents of controls.
+ for(const field of bundle.manifest.pages['index.html'].fields)assert.equal(await page.locator(field.selector).count(),1,field.id);
+ console.log('Kosmosfera: live CMS publication applied; ticket calculator, gallery, mobile menu and 79 field selectors passed');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1});

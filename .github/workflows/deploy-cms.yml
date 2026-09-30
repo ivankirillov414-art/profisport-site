@@ -42,7 +42,7 @@ jobs:
           config="<?php\nreturn [\n"
           for key,env in [('db_host','CMS_DB_HOST'),('db_name','CMS_DB_NAME'),('db_user','CMS_DB_USER'),('db_pass','CMS_DB_PASSWORD')]:
               config+=" '"+key+"'=>"+value(env)+",\n"
-          config+=" 'site_key'=>'profisport', 'site_name'=>'ProfiSport',\n 'site_url'=>'https://ferryffggg.infinityfreeapp.com/',\n 'media_url'=>'https://ferryffggg.infinityfreeapp.com/cms/media/',\n];\n"
+          config+=" 'site_key'=>'profisport', 'site_name'=>'ProfiSport',\n 'connected_sites'=>['kosmosfera'],\n 'site_url'=>'https://ferryffggg.infinityfreeapp.com/',\n 'media_url'=>'https://ferryffggg.infinityfreeapp.com/cms/media/',\n];\n"
           pathlib.Path('cms/private/config.php').write_text(config)
           PY
       - name: Protect uploaded media

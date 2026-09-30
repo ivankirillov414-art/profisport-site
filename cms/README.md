@@ -38,6 +38,12 @@ No owner recreation, password reset or content replacement. After owner login th
 
 ## Connect another site
 
+### Космопорт / Космосфера
+
+The reviewed static copy is served at `/cms/sites/kosmosfera/` on the CMS origin; its original Sites publication is unchanged. Production enables `connected_sites => ['kosmosfera']`. The deployment-owned `private/connectors/kosmosfera.json` registers a separate unpublished document on first access or owner login, without replacing existing sites/documents/passwords. Repeated registration preserves all edits. Select **Космопорт / Космосфера** in ID Studio (or open `index.html?site=kosmosfera`) to edit 79 text/image fields and arrange 8 original sections. Save keeps changes private; Publish applies them to the hosted copy. Prices, dates and sale settings remain in the site's `site-config.js` so the calculator stays consistent. The site's public-facing name remains Космосфера.
+
+Generate the reviewed copy from its source with `python cms/tools/connect-kosmosfera.py /path/to/source` and `beautifulsoup4==4.13.4`. Do not regenerate existing field IDs casually. These website files and private connector snapshots are excluded from generic portable archives. `connected-sites.php` and `kosmosfera-browser.cjs` test registration/isolation, editor autosave, draft/public separation, publication delivery and retained ticket/gallery/mobile interactions on a disposable database.
+
 Create it in **Сайты → Подключить новый сайт**. Either use its generated `site.php` pages directly, or embed this script on a page with `<main data-cms-root></main>`:
 
 ```html

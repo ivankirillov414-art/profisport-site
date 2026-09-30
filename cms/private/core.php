@@ -5,6 +5,7 @@ require_once __DIR__.'/components.php';
 require_once __DIR__.'/collections.php';
 require_once __DIR__.'/collection-lists.php';
 require_once __DIR__.'/seo.php';
+require_once __DIR__.'/connected-sites.php';
 // Standalone core: never imports the storefront, its session, or its data tables.
 function cms_config(): array {
     static $config;
@@ -41,9 +42,11 @@ function cms_migrate(): void {
     $original=json_decode(file_get_contents(__DIR__.'/bindings.json'),true,512,JSON_THROW_ON_ERROR);
     $db->prepare('INSERT IGNORE INTO ps_cms_sites(site_key,name,url,manifest) VALUES(?,?,?,?)')->execute([cms_config()['site_key'],cms_config()['site_name']??'ProfiSport',cms_config()['site_url'],cms_encode($original)]);
     cms_access_migrate();
+    foreach(cms_config()['connected_sites']??[] as $key)cms_register_connector($key);
 }
 function cms_select_site(string $key): void {
     $GLOBALS['cms_site_key']=$key;cms_site_key();
+    cms_register_connector($key);
     $s=cms_db()->prepare('SELECT * FROM ps_cms_sites WHERE site_key=?');$s->execute([$key]);$site=$s->fetch();
     if(!$site)throw new InvalidArgumentException('Сайт не найден.');
     $GLOBALS['cms_site']=$site;
@@ -258,6 +261,8 @@ function cms_layout(array $layout,string $page,array $components=[],array $colle
     return $out;
 }
 function cms_templates(): array {
+    $bundle=cms_connector_bundle(cms_manifest()['site']);
+    if($bundle&&cms_manifest()===$bundle['manifest'])return $bundle['templates'];
     if(cms_manifest()['site']!=='profisport')return [];
     $path=__DIR__.'/templates.json';return is_file($path)?json_decode(file_get_contents($path),true,512,JSON_THROW_ON_ERROR):[];
 }
