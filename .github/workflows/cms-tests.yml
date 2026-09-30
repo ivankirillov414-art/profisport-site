@@ -1,5 +1,6 @@
 name: CMS checks
 on:
+  workflow_call:
   push:
     branches: [main, codex/standalone-cms, codex/visual-cms, codex/id-cms, codex/id-cards, codex/id-studio-completion]
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
