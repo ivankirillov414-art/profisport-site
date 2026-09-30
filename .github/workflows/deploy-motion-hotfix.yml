@@ -15,7 +15,7 @@ on:
       - 'sport-energy.css'
       - 'assets/hero/reference-bike-amber-v2.webp'
       - 'assets/hero/workshop-background-v6.webp'
-      - 'assets/hero/profisport-motion-route-v1.webp'
+      - 'assets/hero/*-v11.webp'
       - 'assets/categories/bicycle-illustration-v1.png'
       - 'assets/categories/parts-illustration-v1.png'
       - 'assets/categories/accessories-illustration-v1.png'
@@ -40,17 +40,18 @@ jobs:
         run: |
           set -euo pipefail
           node --check psf-final-motion.js
+          node tests/hero-slides-regression.js
           grep -Eq 'psf-final-motion.css\?v=[0-9]+' index.html
           grep -Eq 'psf-final-motion.js\?v=[0-9]+' index.html
           grep -Fq 'psfSceneHero' index.html
           grep -Fq 'reference-bike-amber-v2.webp' index.html
-          grep -Fq 'profisport-motion-route-v1.webp' index.html
+          grep -Fq 'mountain-scene-v11.webp' index.html
           grep -Fq 'heroBikeMotion' psf-final-motion.css
           grep -Fq 'bicycle-illustration-v1.png' index.html
           grep -Fq 'scooter-illustration-v2.png' index.html
           test -s assets/hero/reference-bike-amber-v2.webp
           test -s assets/hero/workshop-background-v6.webp
-          test -s assets/hero/profisport-motion-route-v1.webp
+          test -s assets/hero/mountain-scene-v11.webp
           test -s assets/categories/bicycle-illustration-v1.png
           test -s assets/categories/parts-illustration-v1.png
           test -s assets/categories/accessories-illustration-v1.png
@@ -70,7 +71,7 @@ jobs:
           cp index.html app.js motion.js sport-energy.css catalog-loader.js psf-final-motion.css psf-final-motion.js hotfix-upload/
           cp assets/hero/reference-bike-amber-v2.webp hotfix-upload/assets/hero/
           cp assets/hero/workshop-background-v6.webp hotfix-upload/assets/hero/
-          cp assets/hero/profisport-motion-route-v1.webp hotfix-upload/assets/hero/
+          cp assets/hero/*-v11.webp hotfix-upload/assets/hero/
           cp assets/categories/bicycle-illustration-v1.png hotfix-upload/assets/categories/
           cp assets/categories/parts-illustration-v1.png hotfix-upload/assets/categories/
           cp assets/categories/accessories-illustration-v1.png hotfix-upload/assets/categories/

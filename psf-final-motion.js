@@ -100,7 +100,7 @@
         slides.forEach(slide=>slide.classList.remove('psf-enter','psf-leave'));
         busy=false;
         schedule();
-      },1480);
+      },1780);
     };
     slider.querySelector('.heroAdvance,.heroNext')?.addEventListener('click',()=>{
       if(!suppressClick)setSlide(current+1);
@@ -148,7 +148,7 @@
     slider.addEventListener('click',event=>{
       if(suppressClick){event.preventDefault();event.stopPropagation();}
     },true);
-    // Start after the shared foreground is decoded; never animate an empty image.
+    // Decode the first scene before entrance; preload the next scene before autoplay.
     slider.classList.add('psf-preparing');
     slides.forEach((slide,i)=>{
       slide.classList.toggle('is-active',i===0);
