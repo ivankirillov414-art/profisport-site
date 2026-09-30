@@ -129,5 +129,6 @@ jobs:
             sleep 1
           done
           python3 tests/orders-http.py
+          php -r 'require "server/bootstrap.php"; db()->exec("DELETE FROM auth_rate_limits");'
           python3 tests/phone-login-http.py
           if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-order-writes.php; fi
