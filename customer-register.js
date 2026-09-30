@@ -17,7 +17,7 @@
       const response=await fetch('api/customer.php?action=qr_register',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':await token()},body:JSON.stringify(values)});const json=await response.json();
       if(!response.ok||!json.ok)throw new Error(json.error||'server_error');
       dialog.querySelector('.customerRegisterStart').hidden=true;dialog.querySelector('.customerRegisterSuccess').hidden=false;
-    }catch(error){msg.textContent=error.message==='rate_limited'?'Слишком много попыток. Попробуйте немного позже.':error.message==='invalid_input'?'Проверьте заполнение всех полей.':'Не удалось сохранить анкету. Попробуйте ещё раз.'}
+    }catch(error){msg.textContent=error.message==='account_exists'?'Анкета с такими контактами уже есть. Войдите в кабинет или обратитесь в магазин для проверки владельца.':error.message==='rate_limited'?'Слишком много попыток. Попробуйте немного позже.':error.message==='invalid_input'?'Проверьте заполнение всех полей.':'Не удалось сохранить анкету. Попробуйте ещё раз.'}
     finally{button.disabled=false;button.textContent='Зарегистрироваться'}
   });
   if(new URLSearchParams(location.search).get('register')==='qr')requestAnimationFrame(()=>dialog.showModal());

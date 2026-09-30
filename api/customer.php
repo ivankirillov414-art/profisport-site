@@ -143,21 +143,13 @@ try{
   if($action==='register'&&$_SERVER['REQUEST_METHOD']==='POST'){
     customer_session(); $in=input_json();
     $name=trim((string)($in['name']??''));$lastName=trim((string)($in['last_name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=customer_phone((string)($in['phone']??''));$birthDate=customer_birth_date((string)($in['birth_date']??''));$password=(string)($in['password']??'');$consent=($in['consent']??false)===true||($in['consent']??'')==='on';
-    auth_rate_check($pdo,'customer_register','',5,3600);
+    auth_rate_check($pdo,'customer_register','',5,3600);auth_rate_failure($pdo,'customer_register','',5,3600,3600);
     if(!customer_valid_name($name)||!customer_valid_name($lastName)||mb_strlen($email)>200||!filter_var($email,FILTER_VALIDATE_EMAIL)||$phone===''||$birthDate===''||strlen($password)<10||strlen($password)>72||!$consent)json_response(['ok'=>false,'error'=>'invalid_input'],422);
-    $phoneOwner=$pdo->prepare("SELECT id FROM customers WHERE phone=? AND email<>? AND password_hash IS NOT NULL AND password_hash<>'' LIMIT 1");$phoneOwner->execute([$phone,$email]);
-    if($phoneOwner->fetchColumn()){auth_rate_failure($pdo,'customer_register','',5,3600,3600);json_response(['ok'=>false,'error'=>'phone_exists'],409);}
-    $s=$pdo->prepare('SELECT id,phone,birth_date,password_hash FROM customers WHERE email=? LIMIT 1');$s->execute([$email]);$existing=$s->fetch();
-    if($existing){
-      if(!empty($existing['password_hash'])){auth_rate_failure($pdo,'customer_register','',5,3600,3600);json_response(['ok'=>false,'error'=>'email_exists'],409);}
-      if(customer_phone((string)($existing['phone']??''))!==$phone||(string)($existing['birth_date']??'')!==$birthDate){auth_rate_failure($pdo,'customer_register','',5,3600,3600);json_response(['ok'=>false,'error'=>'profile_mismatch'],409);}
-      $pdo->prepare("UPDATE customers SET name=?,last_name=?,password_hash=?,registration_source='qr_and_account',is_active=1 WHERE id=?")->execute([$name,$lastName,password_hash($password,PASSWORD_DEFAULT),(int)$existing['id']]);
-      $_SESSION['customer_id']=(int)$existing['id'];
-    }else{
-      $s=$pdo->prepare("INSERT INTO customers(name,last_name,email,phone,birth_date,password_hash,registration_source,consent_at) VALUES(?,?,?,?,?,?,'website',NOW())");$s->execute([$name,$lastName,$email,$phone,$birthDate,password_hash($password,PASSWORD_DEFAULT)]);
-      $_SESSION['customer_id']=(int)$pdo->lastInsertId();
-    }
-    auth_rate_clear($pdo,'customer_register','');$_SESSION['customer_csrf']=bin2hex(random_bytes(24));session_regenerate_id(true);
+    $s=$pdo->prepare('SELECT id FROM customers WHERE email=? OR phone=? LIMIT 1');$s->execute([$email,$phone]);
+    if($s->fetchColumn())json_response(['ok'=>false,'error'=>'account_exists'],409);
+    $s=$pdo->prepare("INSERT INTO customers(name,last_name,email,phone,birth_date,password_hash,registration_source,consent_at) VALUES(?,?,?,?,?,?,'website',NOW())");$s->execute([$name,$lastName,$email,$phone,$birthDate,password_hash($password,PASSWORD_DEFAULT)]);
+    $_SESSION['customer_id']=(int)$pdo->lastInsertId();
+    $_SESSION['customer_csrf']=bin2hex(random_bytes(24));session_regenerate_id(true);
     json_response(['ok'=>true,'customer'=>customer_me($pdo),'csrf'=>customer_csrf()]);
   }
   if($action==='qr_register'&&$_SERVER['REQUEST_METHOD']==='POST'){
@@ -168,13 +160,8 @@ try{
     $name=trim((string)($in['name']??''));$lastName=trim((string)($in['last_name']??''));$email=mb_strtolower(trim((string)($in['email']??'')));$phone=customer_phone((string)($in['phone']??''));$birthDate=customer_birth_date((string)($in['birth_date']??''));$consent=($in['consent']??false)===true;
     if(!customer_valid_name($name)||!customer_valid_name($lastName)||!filter_var($email,FILTER_VALIDATE_EMAIL)||$phone===''||$birthDate===''||!$consent)json_response(['ok'=>false,'error'=>'invalid_input'],422);
     $s=$pdo->prepare('SELECT id,password_hash FROM customers WHERE email=? OR phone=? ORDER BY (email=?) DESC LIMIT 1');$s->execute([$email,$phone,$email]);$existing=$s->fetch();
-    if($existing){
-      if(empty($existing['password_hash']))$pdo->prepare("UPDATE customers SET name=?,last_name=?,email=?,phone=?,birth_date=?,registration_source='store_qr',consent_at=NOW(),qr_registered_at=NOW(),is_active=1 WHERE id=?")->execute([$name,$lastName,$email,$phone,$birthDate,(int)$existing['id']]);
-      else $pdo->prepare("UPDATE customers SET last_name=COALESCE(NULLIF(last_name,''),?),birth_date=COALESCE(birth_date,?),consent_at=NOW(),qr_registered_at=NOW() WHERE id=?")->execute([$lastName,$birthDate,(int)$existing['id']]);
-      $id=(int)$existing['id'];
-    }else{
-      $s=$pdo->prepare("INSERT INTO customers(name,last_name,email,phone,birth_date,password_hash,registration_source,consent_at,qr_registered_at) VALUES(?,?,?,?,?,NULL,'store_qr',NOW(),NOW())");$s->execute([$name,$lastName,$email,$phone,$birthDate]);$id=(int)$pdo->lastInsertId();
-    }
+    if($existing)json_response(['ok'=>false,'error'=>'account_exists'],409);
+    $s=$pdo->prepare("INSERT INTO customers(name,last_name,email,phone,birth_date,password_hash,registration_source,consent_at,qr_registered_at) VALUES(?,?,?,?,?,NULL,'store_qr',NOW(),NOW())");$s->execute([$name,$lastName,$email,$phone,$birthDate]);$id=(int)$pdo->lastInsertId();
     json_response(['ok'=>true,'customer_id'=>$id]);
   }
   if($action==='login'&&$_SERVER['REQUEST_METHOD']==='POST'){

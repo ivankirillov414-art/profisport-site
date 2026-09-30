@@ -1,5 +1,5 @@
 Options -Indexes
-<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh|htaccess)$">
+<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh|htaccess|csv|xlsx|xls|sql|json|zip)$">
   Require all denied
 </FilesMatch>
 <IfModule mod_headers.c>

@@ -66,7 +66,12 @@ $stmt=$pdo->prepare("INSERT IGNORE INTO admin_users (username,password_hash,role
 }
 function start_secure_session(): void { if(session_status()===PHP_SESSION_ACTIVE)return; ini_set('session.use_strict_mode','1'); ini_set('session.gc_maxlifetime',(string)(60*60*8)); session_name('PROFISPORT_ADMIN'); session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Strict']); session_start(); }
 function json_response(array $data,int $status=200): never { http_response_code($status);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);exit; }
-function input_json(): array {$raw=file_get_contents('php://input',false,null,0,1048577)?:'';if(strlen($raw)>1048576)json_response(['ok'=>false,'error'=>'payload_too_large'],413);$data=json_decode($raw,true);return is_array($data)?$data:[];}
+function input_json(): array {
+  // JSON-only requests cannot be submitted by cross-site HTML forms.
+  $type=strtolower(trim(explode(';',(string)($_SERVER['CONTENT_TYPE']??''))[0]));
+  if($type!=='application/json')json_response(['ok'=>false,'error'=>'unsupported_media_type'],415);
+  if(($_SERVER['HTTP_SEC_FETCH_SITE']??'')==='cross-site')json_response(['ok'=>false,'error'=>'cross_site_request'],403);
+$raw=file_get_contents('php://input',false,null,0,1048577)?:'';if(strlen($raw)>1048576)json_response(['ok'=>false,'error'=>'payload_too_large'],413);$data=json_decode($raw,true);return is_array($data)?$data:[];}
 function require_admin(): array {start_secure_session();if(empty($_SESSION['admin']))json_response(['ok'=>false,'error'=>'unauthorized'],401);$s=db()->prepare('SELECT id,username,role FROM admin_users WHERE id=? AND is_active=1');$s->execute([(int)$_SESSION['admin']['id']]);$a=$s->fetch();if(!$a){$_SESSION=[];json_response(['ok'=>false,'error'=>'unauthorized'],401);}$_SESSION['admin']=$a;return $a;}
 function csrf_check(): void {start_secure_session();$token=$_SERVER['HTTP_X_CSRF_TOKEN']??'';if(!$token||empty($_SESSION['csrf'])||!hash_equals($_SESSION['csrf'],$token))json_response(['ok'=>false,'error'=>'csrf'],403);}
 function auth_rate_subject(string $identity=''): string { $ip=(string)($_SERVER['REMOTE_ADDR']??'unknown');return hash('sha256',$ip."\n".mb_strtolower(trim($identity),'UTF-8')); }
