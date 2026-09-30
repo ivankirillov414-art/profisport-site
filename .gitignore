@@ -6,3 +6,5 @@ node_modules/
 cms/private/config.php
 cms/media/*
 !cms/media/.htaccess
+/artifacts/id-studio/
+cms/tools/__pycache__/

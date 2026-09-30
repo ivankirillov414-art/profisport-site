@@ -30,7 +30,7 @@ No owner recreation, password reset or content replacement. After owner login th
 
 ## Independent install
 
-1. Download the `content-cms-standalone` release artifact or run `bash cms/tools/package.sh /absolute/new/output-directory`. Unzip onto a PHP/MySQL host in any directory or domain. The portable build starts with a generic site and contains no ProfiSport bindings, demo content, credentials or media.
+1. Download the `id-studio-standalone` artifact from a successful CMS checks run, or run `python3 cms/tools/package.py /absolute/new/output-directory` (the Bash wrapper remains supported). Unzip onto a PHP/MySQL host in any directory or domain. The portable build starts with a generic site and contains no ProfiSport bindings, demo content, credentials or media. The archive has a SHA-256 sidecar and an internal `release-manifest.json` with hashes of its files.
 2. Copy `private/config.example.php` to `private/config.php`; set your own DB credentials, initial site key/name/URL, **absolute HTTPS** `media_url`, and `public_url` to the directory hosting this CMS (for example `https://example.com/cms/`).
 3. Generate a random installation token (`php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`) and place it in `install_token` in private config.
 4. Open `install.php`, provide the token and choose owner credentials. Installation locks once the first owner exists. Remove `install_token`. No shop login is involved.
@@ -115,3 +115,11 @@ Visitors can search displayed titles/descriptions, filter by the selected field,
 An external website must integrate the published page's `seo` object into its own server-rendered head. The JavaScript connector does not rewrite the external site's source HTML or provide server-side SEO there. Likewise, submit an external site's own sitemap for URLs outside the CMS directory. The CMS does not edit an existing robots.txt or automatically submit sitemaps to search engines. Canonical and sitemap behavior follows the [Google Search Central sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
 
 Local verification: `seo.php` checks validation, absolute URLs, XML escaping, noindex, external canonical exclusion and typed collection bindings. `seo-browser.cjs` exercises the actual form/API/database and checks raw HTML responses without executing JavaScript: published metadata, draft isolation, noindex exclusion, preview privacy, collection record metadata and reload. Both passed and are included in CI; production SEO remains unverified.
+
+## Release packaging and clean installation
+
+`tools/package.py` builds on Windows and Linux without an external zip utility. The `--demo` mode collects the current HTML's script/style dependencies and vendor assets; the preview workflow now uses this instead of an outdated file list. `tests/package.py` verifies both outputs, all editor dependencies, hashes, generic bindings, absence of local configuration/uploads, and refusal to overwrite an existing build.
+
+Clean installation was verified from the extracted `ID-Studio-2026-09-30-rc2.zip` against a new disposable `idstudio_portable_release2_test` database: one-time installation, installation lock, independent owner login, generic editor without storefront bindings/templates, section creation, autosave, server SEO, publication, sitemap and fields-mode navigation. `portable-browser.cjs` and the guarded fixture helper reproduce this in CI on a separate fresh database. This is evidence of a local portable installation, not of production deployment.
+
+The clean-install check uncovered a login startup race: before JavaScript loaded, native form submission could put credentials in a GET URL. Both login forms now specify POST and keep their button disabled until session/CSRF initialization succeeds. `login-startup-browser.cjs` deliberately delays scripts and the session response, then verifies the disabled state, POST request, CSRF token and absence of credentials in URLs for both editors. Only disposable test credentials were used during this verification.

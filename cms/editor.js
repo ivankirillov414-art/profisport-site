@@ -45,4 +45,4 @@ function previewPayload(){const p=state.manifest.pages[page],draft=state.draft.p
 $('#preview').onclick=()=>{const url=new URL(page,state.site_url);url.searchParams.set('cms-preview','1');previewWindow=window.open(url.href,'cms-preview');if(!previewWindow)status('Разрешите открытие окна предпросмотра.',true);};
 window.addEventListener('message',event=>{if(!state||event.source!==previewWindow||event.origin!==new URL(state.site_url).origin||event.data?.type!=='cms-ready')return;previewWindow.postMessage({type:'cms-preview',payload:previewPayload()},event.origin);});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-(async()=>{try{const s=await api('session');csrf=s.csrf;if(s.authenticated)await load();}catch(e){status(e.message,true);}})();
+(async()=>{try{const s=await api('session');csrf=s.csrf;$('#loginForm button').disabled=false;if(s.authenticated)await load();}catch(e){status(e.message,true);}})();

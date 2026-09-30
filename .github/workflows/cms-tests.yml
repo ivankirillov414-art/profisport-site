@@ -52,6 +52,8 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1
           node "$RUNNER_TEMP/cms-browser/node_modules/playwright/cli.js" install --with-deps chromium
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/autosave-browser.cjs
+      - name: Portable and demo package contracts
+        run: python3 cms/tests/package.py
       - name: Disposable database integration
         env:
           CMS_TEST: '1'
@@ -72,3 +74,24 @@ jobs:
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collection-lists-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/seo-browser.cjs
           php cms/tests/access-audit.php
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/login-startup-browser.cjs
+      - name: Install and verify extracted portable release
+        env:
+          CMS_TEST: '1'
+          CMS_TEST_DB_PORT: '3306'
+          MYSQL_PWD: cms-test-password
+        run: |
+          mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE idstudio_portable_release_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+          python3 cms/tools/package.py "$RUNNER_TEMP/id-studio-release"
+          python3 cms/tests/portable-fixture.py "$RUNNER_TEMP/id-studio-release.zip" "$RUNNER_TEMP/id-studio-install"
+          php -S 127.0.0.1:8124 -t "$RUNNER_TEMP/id-studio-install" > /tmp/cms-portable-server.log 2>&1 &
+          portable_pid=$!
+          trap 'kill "$portable_pid"' EXIT
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/portable-browser.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: id-studio-standalone
+          path: |
+            ${{ runner.temp }}/id-studio-release.zip
+            ${{ runner.temp }}/id-studio-release.zip.sha256
+          retention-days: 30

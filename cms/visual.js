@@ -129,7 +129,7 @@ for(const b of document.querySelectorAll('[data-device]'))b.onclick=()=>{editor.
 $('#logout').onclick=async()=>{await autosave.settle();if(dirty&&!confirm('Выйти без сохранения?')){autosave.schedule();return;}try{await api('logout',{});dirty=false;location.reload();}catch(e){status(e.message,true);}};
 $('#historyBtn').onclick=async()=>{try{const r=await api('history');$('#historyList').replaceChildren();for(const item of r.items){const row=el('div',undefined,'history-row');row.append(el('span',`№${item.id} · ${item.created_at} · ${item.actor}`));const b=el('button','Восстановить');b.onclick=async()=>{if(confirm('Заменить черновик выбранной версией?')&&await mutation('restore',{id:item.id}))$('#history').close();};row.append(b);$('#historyList').append(row);}$('#history').showModal();}catch(e){status(e.message,true);}};
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-(async()=>{try{const s=await api('session');csrf=s.csrf;if(s.authenticated)await load();}catch(e){status(e.message,true);}})();
+(async()=>{try{const s=await api('session');csrf=s.csrf;$('#loginForm button').disabled=false;if(s.authenticated)await load();}catch(e){status(e.message,true);}})();
 
 // ID Studio tools operate on the same structured draft as the visual canvas.
 let undoStates=[],undoIndex=-1,undoApplying=false,mediaItems=[],mediaSelect=null;
