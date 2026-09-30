@@ -12,6 +12,7 @@ const root=path.resolve(__dirname,'../..');
    page.on('pageerror',e=>errors.push(e.message));
    page.on('dialog',dialog=>dialog.accept());
    const fixture=JSON.parse(fs.readFileSync(path.join(root,'cms/demo-state.json'),'utf8'));
+   fixture.user_id=1;fixture.role='owner';fixture.permissions={read:true,edit:true,publish:true,manage:true};
    fixture.site={key:'test',name:'Test studio'};fixture.site_url='https://id-studio.test/';
    if(entry==='index.html'){fixture.manifest={pages:{}};fixture.templates={};fixture.draft={pages:{'index.html':{title:'Главная',fields:{},blocks:[],layout:[]}}};}
    let saves=0,conflict=false,delay=0;

@@ -14,7 +14,7 @@
   const button=document.createElement('button');button.id='recoveryButton';button.type='button';button.textContent='Локальные копии';button.hidden=!enabled;
   document.querySelector('#save').parentElement.append(button);
   function storage(){const s=getState();if(!enabled||!s)return null;
-   const next=JSON.stringify([location.pathname.replace(/[^/]*$/,''),s.user,s.site.key]);
+   const next=JSON.stringify([location.pathname.replace(/[^/]*$/,''),s.user_id??s.user,s.site.key]);
    if(identity!==next){cache=store(localStorage,JSON.parse(next),tab);identity=next;adopted=new Set();}return cache;
   }
   function capture(){try{const c=storage();if(c&&isDirty()){syncDraft();c.write(getState().draft,getState().version);button.textContent='Локальные копии';}}catch{button.textContent='Локальная копия недоступна';report('Не удалось записать локальную копию. Не закрывайте вкладку до сохранения на сервере.',true);}}
@@ -46,7 +46,7 @@
   }
   async function open(remote=null){if(dialog?.open)return;
    if(!dialog){dialog=document.createElement('dialog');dialog.addEventListener('close',resume);}dialog.id='recoveryDialog';dialog.style.cssText='max-width:850px;width:calc(100% - 40px);max-height:85vh;overflow:auto';document.body.append(dialog);dialog.replaceChildren(node('p','Загружаю версии…'));dialog.showModal();
-   try{await settle();capture();remote??=await loadRemote();if(remote.user!==getState().user||remote.site.key!==getState().site.key)throw Error('Сеанс пользователя изменился. Обновите страницу перед восстановлением.');display(structuredClone(remote),storage()?.list()||[]);}catch(error){dialog.replaceChildren(node('p','Не удалось загрузить серверную версию: '+error.message));const close=node('button','Закрыть');close.onclick=()=>dialog.close();dialog.append(close);}
+   try{await settle();capture();remote??=await loadRemote();if((remote.user_id??remote.user)!==(getState().user_id??getState().user)||remote.site.key!==getState().site.key)throw Error('Сеанс пользователя изменился. Обновите страницу перед восстановлением.');display(structuredClone(remote),storage()?.list()||[]);}catch(error){dialog.replaceChildren(node('p','Не удалось загрузить серверную версию: '+error.message));const close=node('button','Закрыть');close.onclick=()=>dialog.close();dialog.append(close);}
   }
   button.onclick=()=>open();
   return {capture,saved,async offer(){try{if(storage()?.list().length)await open(getState());}catch{report('Локальное восстановление недоступно в этом браузере.',true);}}};

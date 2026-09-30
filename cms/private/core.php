@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/access.php';
 // Standalone core: never imports the storefront, its session, or its data tables.
 function cms_config(): array {
     static $config;
@@ -13,7 +14,7 @@ function cms_db(): PDO {
     static $db;
     if (!$db) {
         $c = cms_config();
-        $db = new PDO('mysql:host='.$c['db_host'].';dbname='.$c['db_name'].';charset=utf8mb4', $c['db_user'], $c['db_pass'], [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
+        $db = new PDO('mysql:host='.$c['db_host'].';port='.(int)($c['db_port']??3306).';dbname='.$c['db_name'].';charset=utf8mb4', $c['db_user'], $c['db_pass'], [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
     }
     return $db;
 }
@@ -35,6 +36,7 @@ function cms_migrate(): void {
     $db->exec("CREATE TABLE IF NOT EXISTS ps_cms_media (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, site_key VARCHAR(64) NOT NULL, filename VARCHAR(80) NOT NULL, name VARCHAR(200) NOT NULL, width INT NOT NULL, height INT NOT NULL, bytes INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX(site_key,id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $original=json_decode(file_get_contents(__DIR__.'/bindings.json'),true,512,JSON_THROW_ON_ERROR);
     $db->prepare('INSERT IGNORE INTO ps_cms_sites(site_key,name,url,manifest) VALUES(?,?,?,?)')->execute([cms_config()['site_key'],cms_config()['site_name']??'ProfiSport',cms_config()['site_url'],cms_encode($original)]);
+    cms_access_migrate();
 }
 function cms_select_site(string $key): void {
     $GLOBALS['cms_site_key']=$key;cms_site_key();
@@ -96,8 +98,9 @@ function cms_session(): void {
 function cms_auth(): string {
     cms_session();
     if(empty($_SESSION['user']) || time()-($_SESSION['seen']??0)>1800 || time()-($_SESSION['started']??0)>28800) cms_reply(['error'=>'Войдите в CMS.'],401);
-    $s=cms_db()->prepare('SELECT username FROM ps_cms_users WHERE id=? AND active=1');$s->execute([$_SESSION['user']]);
-    $username=$s->fetchColumn();if(!$username)cms_reply(['error'=>'Доступ закрыт.'],401);
+    cms_migrate();
+    $s=cms_db()->prepare('SELECT username,auth_version FROM ps_cms_users WHERE id=? AND active=1');$s->execute([$_SESSION['user']]);
+    $user=$s->fetch();if(!$user||(int)$user['auth_version']!==(int)($_SESSION['auth_version']??1))cms_reply(['error'=>'Доступ изменён. Войдите снова.'],401);$username=$user['username'];
     $_SESSION['seen']=time();return $username;
 }
 function cms_csrf(): void {
