@@ -76,6 +76,8 @@ jobs:
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/seo-browser.cjs
           php cms/tests/access-audit.php
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/login-startup-browser.cjs
+          php cms/tests/connected-sites.php
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/kosmosfera-browser.cjs
       - name: Install and verify extracted portable release
         env:
           CMS_TEST: '1'

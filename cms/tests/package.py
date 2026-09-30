@@ -27,6 +27,7 @@ with tempfile.TemporaryDirectory(prefix='id-studio-package-') as temporary:
             else:
                 assert json.loads(packed.read('private/bindings.json')) == {'site': 'generic', 'pages': {}}
                 assert 'private/templates.json' not in files and 'demo-state.json' not in files
+                assert not any(f.startswith(('sites/', 'private/connectors/')) for f in files)
                 assert {f for f in files if f.startswith('media/')} == {'media/.htaccess'}
                 assert {'seo-ui.js', 'collection-lists-ui.js', 'sitemap.php', 'install.php', 'vendor/LICENSE'} <= files
         try:
