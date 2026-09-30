@@ -184,7 +184,7 @@ function cms_validate(array $input): array {
     if($components)cms_components_budget($clean);
     $generated=cms_collection_pages($clean['collections']??[]);
     if(array_intersect_key($clean['pages'],$generated))throw new InvalidArgumentException('Адрес страницы совпадает с адресом записи коллекции.');
-    if(!empty($clean['collections'])){ $total=0;foreach(cms_public($clean) as $publicPage){$size=strlen(cms_encode($publicPage));$total+=$size;if($size>1048576||$total>4194304)throw new InvalidArgumentException('Публичные страницы превышают 1 МБ на страницу или 4 МБ на сайт.');}}
+    if(!empty($clean['collections']))cms_public($clean);
     return $clean;
 }
 function cms_document(bool $lock=false): array {
@@ -262,7 +262,7 @@ function cms_templates(): array {
     $path=__DIR__.'/templates.json';return is_file($path)?json_decode(file_get_contents($path),true,512,JSON_THROW_ON_ERROR):[];
 }
 function cms_public(array $data): array {
-    $manifest=cms_manifest();$templates=cms_templates();$pages=[];
+    $manifest=cms_manifest();$templates=cms_templates();$pages=[];$total=0;$bounded=!empty($data['collections']);
     foreach($data['pages']??[] as $key=>$draft) {
         $page=$manifest['pages'][$key]??['fields'=>[],'blocks'=>[]];$fields=[];$blocks=[];
         foreach($page['fields'] as $f){$v=$draft['fields'][$f['id']]??$f['value'];if($v!==$f['value'])$fields[]=['selector'=>$f['selector'],'kind'=>$f['kind'],'value'=>$v];}
@@ -270,11 +270,17 @@ function cms_public(array $data): array {
         $pages[$key]=['title'=>$draft['title']??$page['title']??'','fields'=>$fields,'blocks'=>$blocks];
         if(isset($draft['seo']))$pages[$key]['seo']=$draft['seo'];
         if(isset($draft['layout'])) {
-            $pages[$key]['layout']=array_map(fn($block)=>cms_collection_list_render(cms_component_render($block,$data['components']??[]),$data['collections']??[]),$draft['layout']);
+            $pages[$key]['layout']=[];$layoutBytes=0;
+            foreach($draft['layout'] as $block){$rendered=cms_collection_list_render(cms_component_render($block,$data['components']??[]),$data['collections']??[]);$layoutBytes+=strlen(cms_encode($rendered));
+                if($bounded&&($layoutBytes>1048576||$total+$layoutBytes>4194304))throw new InvalidArgumentException('Публичные страницы превышают 1 МБ на страницу или 4 МБ на сайт.');
+                $pages[$key]['layout'][]=$rendered;
+            }
             $pages[$key]['sections']=array_map(fn($s)=>['id'=>$s['id'],'selector'=>$s['selector']],$templates[$key]['sections']??[]);
         }
         if(isset($draft['elements']))$pages[$key]['elements']=$draft['elements'];
         if(isset($draft['orders']))$pages[$key]['orders']=$draft['orders'];
+        if($bounded){$size=strlen(cms_encode($pages[$key]));$total+=$size;if($size>1048576||$total>4194304)throw new InvalidArgumentException('Публичные страницы превышают 1 МБ на страницу или 4 МБ на сайт.');}
     }
-    return $pages+cms_collection_pages($data['collections']??[]);
+    foreach(cms_collection_pages($data['collections']??[]) as $key=>$record){$total+=strlen(cms_encode($record));if($total>4194304)throw new InvalidArgumentException('Публичные страницы превышают 4 МБ на сайт.');$pages[$key]=$record;}
+    return $pages;
 }

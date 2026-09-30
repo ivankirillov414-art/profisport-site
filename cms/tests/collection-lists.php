@@ -23,3 +23,10 @@ $bad=$draft;$bad['pages']['index.html']['layout'][0]['query']['sortField']='miss
 $bad=$draft;$bad['pages']['index.html']['layout'][0]['query']['pageSize']=25;rejects($bad);
 $draft['pages']['index.html']['layout'][0]['query']['direction']='desc';$items=cms_public(cms_validate($draft))['index.html']['layout'][0]['items'];yes(array_column($items,'text')===['10','2',''],'Descending sort/null placement incorrect');
 echo "Collection list validation passed: mappings, numeric sorting, null order, privacy, safe record links and missing dependencies\n";
+// A compact document can repeat a large collection many times. Reject during
+// expansion rather than materializing all repeated lists first.
+$large=$draft;$large['collections'][0]['fields'][]=['key'=>'body','label'=>'Body','type'=>'text','required'=>false];$large['collections'][0]['entries']=[];
+for($i=0;$i<30;$i++)$large['collections'][0]['entries'][]=['id'=>'item-'.$i,'slug'=>'item-'.$i,'status'=>'published','values'=>['title'=>'Item','price'=>1,'category'=>'A','body'=>str_repeat('x',12000)]];
+unset($large['collections'][0]['template']);$large['pages']['index.html']['layout']=[];
+for($i=0;$i<100;$i++){$copy=$list;$copy['id']='repeat-'.$i;$copy['mapping']['text']='body';$large['pages']['index.html']['layout'][]=$copy;}
+rejects($large);echo "Repeated collection expansion is bounded before full materialization\n";
