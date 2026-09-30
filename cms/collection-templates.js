@@ -4,6 +4,9 @@ function collectionPageURL(c,e){const url=new URL('site.php',location.href);url.
 function collectionTemplate(id){
  if(!componentWritable())return;const collection=structuredClone(state.draft.collections.find(c=>c.id===id));collection.template??=[];
  const d=collectionDialog('Шаблон · '+collection.name,'collectionTemplateDialog'),form=el('form');d.append(el('p','Один шаблон создаёт страницу для каждой записи, включённой в публикацию. Выберите поля для подстановки или оставьте постоянный текст. Изменения выйдут после публикации сайта.'),form);
+ const seo=collection.seo??={titleField:'',descriptionField:'',imageField:'',noindex:false},seoBox=el('details');seoBox.append(el('summary','SEO страниц записей'));form.append(seoBox);
+ for(const [key,label] of [['titleField','Поле SEO-заголовка'],['descriptionField','Поле SEO-описания'],['imageField','Поле SEO-изображения']]){const options={'':key==='titleField'?'Название записи':'Не задано'};for(const f of collection.fields)if(key==='imageField'?f.type==='image':['string','text'].includes(f.type))options[f.key]=f.label;const input=collectionSelect(seoBox,label,options,seo[key]);input.onchange=()=>seo[key]=input.value;}
+ const noindex=collectionInput(seoBox,'Не индексировать страницы записей',seo.noindex,'checkbox');noindex.onchange=()=>seo.noindex=noindex.checked;
  const rows=el('div');form.append(rows);
  const propLabels={title:'Заголовок',text:'Текст',text2:'Вторая колонка',image:'Изображение',alt:'Описание изображения',label:'Текст кнопки',url:'Ссылка кнопки'};
  function draw(){rows.replaceChildren();collection.template.forEach((section,index)=>{

@@ -12,3 +12,4 @@
 
 .access-dialog .site-card{display:block}.access-dialog textarea{min-height:90px;resize:vertical}
 body[data-cms-edit="false"] #collectionsButton{display:none}.access-dialog fieldset{min-width:0;margin:20px 0;border:1px solid #d4dae3;border-radius:8px}
+body[data-cms-edit="false"] #seoButton{display:none}

@@ -6,7 +6,7 @@
 
 # Контент CMS 2 — standalone visual editor
 
-PHP 8.1+ and MySQL/MariaDB (InnoDB), GrapesJS 0.23.6 OSS core (BSD-3-Clause, `vendor/LICENSE`). No subscription, Node process, storefront imports or product database access at runtime.
+PHP 8.1+ with PDO MySQL and mbstring, and MySQL/MariaDB (InnoDB), GrapesJS 0.23.6 OSS core (BSD-3-Clause, `vendor/LICENSE`). No subscription, Node process, storefront imports or product database access at runtime.
 
 ## What editors can do
 
@@ -31,7 +31,7 @@ No owner recreation, password reset or content replacement. After owner login th
 ## Independent install
 
 1. Download the `content-cms-standalone` release artifact or run `bash cms/tools/package.sh /absolute/new/output-directory`. Unzip onto a PHP/MySQL host in any directory or domain. The portable build starts with a generic site and contains no ProfiSport bindings, demo content, credentials or media.
-2. Copy `private/config.example.php` to `private/config.php`; set your own DB credentials, initial site key/name/URL and **absolute HTTPS** `media_url`.
+2. Copy `private/config.example.php` to `private/config.php`; set your own DB credentials, initial site key/name/URL, **absolute HTTPS** `media_url`, and `public_url` to the directory hosting this CMS (for example `https://example.com/cms/`).
 3. Generate a random installation token (`php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`) and place it in `install_token` in private config.
 4. Open `install.php`, provide the token and choose owner credentials. Installation locks once the first owner exists. Remove `install_token`. No shop login is involved.
 5. Log in, create pages/blocks, save, publish. Uploads need a writable `media/` folder. Protect `private/` and executable uploads with the included Apache rules or equivalent rules on a different server.
@@ -105,3 +105,13 @@ Visitors can search displayed titles/descriptions, filter by the selected field,
 `collections.php` tests schema/type/link validation and legacy compatibility; `collection-templates.php` tests safe field bindings, draft privacy, address collisions and expansion limits. `collections-http.py` verifies real PHP/MariaDB persistence, revision conflicts, rejected writes, atomic history restoration, public privacy and site isolation. `collections-browser.cjs` verifies real schema/record forms, zero-valued numbers, incomplete drafts, required-field errors, reload, search, editing, rejected deletion of a referenced record, viewer denial, template preview, publication and public record pages. It also checks HTTP 404 before publication and for draft record URLs. The record list was visually checked at 390 px. These tests passed locally and are included in CI.
 
 `collection-lists.php` and `collections.js` verify query/mapping validation, type-aware ordering, privacy, client recipe roundtrip and escaped HTML. `collection-lists-browser.cjs` exercises the real PHP API, editor insertion/configuration/removal, reload, dependency protection, publication, public search/filter/sort/pagination and links from a second origin. Chromium's loopback-network permission is granted only to the local embedding test origin. The public list was visually inspected at 390 px; editor autosave/recovery and collection-template regressions also passed. Remote CI, the final release package and production remain unverified.
+
+## SEO and sitemap
+
+**SEO страницы** sets a search title, description, canonical URL, sharing image and noindex for the selected page. Empty titles use the page name. Empty canonical values use the generated page URL, or the connected site's original URL for a manifest page. Canonical overrides must be absolute HTTPS URLs without credentials or fragments. **Шаблон страниц → SEO страниц записей** maps title/description/image fields for collection record pages and optionally excludes those pages from indexing. These settings participate in normal drafts, history and publication.
+
+`site.php` emits title, description, canonical, robots and Open Graph metadata in the server HTML. Preview mode exposes no private metadata and sends `X-Robots-Tag: noindex, nofollow`. `sitemap.php?site=SITE_KEY` emits XML for the published snapshot; unpublished and noindex pages are excluded, as are canonical URLs outside the CMS directory. No invented modification timestamps are emitted. Configure `public_url` explicitly in production, particularly behind a reverse proxy; without it the direct request scheme/host/directory is used, and forwarded headers are not trusted.
+
+An external website must integrate the published page's `seo` object into its own server-rendered head. The JavaScript connector does not rewrite the external site's source HTML or provide server-side SEO there. Likewise, submit an external site's own sitemap for URLs outside the CMS directory. The CMS does not edit an existing robots.txt or automatically submit sitemaps to search engines. Canonical and sitemap behavior follows the [Google Search Central sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
+
+Local verification: `seo.php` checks validation, absolute URLs, XML escaping, noindex, external canonical exclusion and typed collection bindings. `seo-browser.cjs` exercises the actual form/API/database and checks raw HTML responses without executing JavaScript: published metadata, draft isolation, noindex exclusion, preview privacy, collection record metadata and reload. Both passed and are included in CI; production SEO remains unverified.

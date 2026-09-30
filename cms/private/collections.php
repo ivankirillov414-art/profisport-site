@@ -63,6 +63,7 @@ function cms_collections_validate(mixed $input): array {
         }
         $clean=['id'=>$id,'name'=>$name,'titleField'=>$titleField,'fields'=>$fields,'entries'=>$entries];
         if(array_key_exists('template',$collection))$clean['template']=cms_collection_template($collection['template'],$keys);
+        if(array_key_exists('seo',$collection))$clean['seo']=cms_collection_seo_validate($collection['seo'],$keys);
         $out[]=$clean;
     }
     // Resolve only against this document; deleting referenced content cannot
@@ -117,6 +118,7 @@ function cms_collection_pages(array $collections): array {
         foreach($collection['entries'] as $entry){if($entry['status']!=='published')continue;$layout=[];
             foreach($collection['template'] as $section){$block=$section['block'];foreach($section['bindings'] as $prop=>$key)$block['props'][$prop]=cms_collection_display($collection,$entry,$key,$collections);$layout[]=$block;}
             $page=['title'=>(string)$entry['values'][$collection['titleField']],'fields'=>[],'blocks'=>[],'layout'=>$layout,'sections'=>[],'collection'=>true];
+            if(isset($collection['seo'])){$seo=$collection['seo'];$page['seo']=['title'=>mb_strcut((string)($entry['values'][$seo['titleField']]??''),0,600,'UTF-8'),'description'=>mb_strcut((string)($entry['values'][$seo['descriptionField']]??''),0,2000,'UTF-8'),'image'=>(string)($entry['values'][$seo['imageField']]??''),'canonical'=>'','noindex'=>$seo['noindex']];}
             $size=strlen(cms_encode($page));$bytes+=$size;if($size>1048576||$bytes>4194304)throw new InvalidArgumentException('Страницы коллекций превышают 1 МБ на запись или 4 МБ суммарно. Сократите шаблоны или записи.');
             $pages[cms_collection_page_key($collection,$entry)]=$page;
         }

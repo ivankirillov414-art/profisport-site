@@ -4,6 +4,7 @@ require_once __DIR__.'/access.php';
 require_once __DIR__.'/components.php';
 require_once __DIR__.'/collections.php';
 require_once __DIR__.'/collection-lists.php';
+require_once __DIR__.'/seo.php';
 // Standalone core: never imports the storefront, its session, or its data tables.
 function cms_config(): array {
     static $config;
@@ -170,6 +171,7 @@ function cms_validate(array $input): array {
             $clean['pages'][$key]=['title'=>$incoming['title'],'fields'=>[], 'blocks'=>[]];
         }
         if(isset($incoming['layout']))$clean['pages'][$key]['layout']=cms_layout($incoming['layout'],$key,$components,$clean['collections']??[]);
+        if(array_key_exists('seo',$incoming))$clean['pages'][$key]['seo']=cms_seo_validate($incoming['seo']);
     }
     if(isset($input['library'])) {
         if(!is_array($input['library'])||count($input['library'])>50)throw new InvalidArgumentException('Допускается до 50 сохранённых блоков.');
@@ -266,6 +268,7 @@ function cms_public(array $data): array {
         foreach($page['fields'] as $f){$v=$draft['fields'][$f['id']]??$f['value'];if($v!==$f['value'])$fields[]=['selector'=>$f['selector'],'kind'=>$f['kind'],'value'=>$v];}
         foreach($draft['blocks'] as $b)foreach($page['blocks'] as $original)if($b['id']===$original['id'])$blocks[]=['selector'=>$original['selector'],'visible'=>$b['visible'],'changed'=>$b['visible']!==$original['visible']];
         $pages[$key]=['title'=>$draft['title']??$page['title']??'','fields'=>$fields,'blocks'=>$blocks];
+        if(isset($draft['seo']))$pages[$key]['seo']=$draft['seo'];
         if(isset($draft['layout'])) {
             $pages[$key]['layout']=array_map(fn($block)=>cms_collection_list_render(cms_component_render($block,$data['components']??[]),$data['collections']??[]),$draft['layout']);
             $pages[$key]['sections']=array_map(fn($s)=>['id'=>$s['id'],'selector'=>$s['selector']],$templates[$key]['sections']??[]);

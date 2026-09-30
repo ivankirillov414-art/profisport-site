@@ -35,6 +35,7 @@ jobs:
           node --check cms/collection-templates.js
           node --check cms/collection-lists-ui.js
           node --check cms/collections.js
+          node --check cms/seo-ui.js
           node cms/tests/collections.js
           node cms/tests/components.js
           node cms/tests/recovery.js
@@ -58,6 +59,7 @@ jobs:
           cat > cms/private/config.php <<'PHP'
           <?php return ['db_host'=>'127.0.0.1','db_name'=>'cms_test','db_user'=>'root','db_pass'=>'cms-test-password','site_key'=>'profisport','site_url'=>'http://localhost:8123/','media_url'=>'/cms/media/'];
           PHP
+          php cms/tests/seo.php
           php cms/tests/integration.php
           php cms/tests/multisite.php
           php -S 127.0.0.1:8123 > /tmp/cms-server.log 2>&1 &
@@ -68,4 +70,5 @@ jobs:
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/components-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collections-browser.cjs
           NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collection-lists-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/seo-browser.cjs
           php cms/tests/access-audit.php
