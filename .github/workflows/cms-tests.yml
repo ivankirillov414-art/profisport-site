@@ -32,6 +32,7 @@ jobs:
           node --check cms/components.js
           node --check cms/components-ui.js
           node --check cms/collections-ui.js
+          node --check cms/collection-templates.js
           node cms/tests/components.js
           node cms/tests/recovery.js
           node cms/tests/blocks.js
@@ -40,6 +41,7 @@ jobs:
           php cms/tests/visual-validation.php
           php cms/tests/components.php
           php cms/tests/collections.php
+          php cms/tests/collection-templates.php
       - name: Editor autosave and recovery in Chromium
         run: |
           npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1

@@ -10,6 +10,7 @@ async function collectionCommit(dialog,transform){
  if(!componentWritable())return false;const message=dialog.querySelector('[role=status]')||el('p');message.setAttribute('role','status');dialog.append(message);message.textContent='Проверяю…';
  const before=JSON.stringify(state.draft.collections||[]),copy=structuredClone(state.draft.collections||[]);dialog.inert=true;
  try{transform(copy);const result=await api('validate-collections',{collections:copy});
+  if(Object.keys(result.pages||{}).some(key=>state.draft.pages[key]))throw Error('Адрес записи совпадает с адресом существующей страницы.');
   if(before!==JSON.stringify(state.draft.collections||[]))throw Error('Коллекции изменились. Откройте форму заново.');
   sync();state.draft.collections=result.collections;changed();dialog.close();return true;
  }catch(error){message.textContent=error.message;return false;}finally{dialog.inert=false;}

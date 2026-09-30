@@ -179,6 +179,8 @@ function cms_validate(array $input): array {
         }
     }
     if($components)cms_components_budget($clean);
+    $generated=cms_collection_pages($clean['collections']??[]);
+    if(array_intersect_key($clean['pages'],$generated))throw new InvalidArgumentException('Адрес страницы совпадает с адресом записи коллекции.');
     return $clean;
 }
 function cms_document(bool $lock=false): array {
@@ -256,7 +258,7 @@ function cms_templates(): array {
 }
 function cms_public(array $data): array {
     $manifest=cms_manifest();$templates=cms_templates();$pages=[];
-    foreach($data['pages'] as $key=>$draft) {
+    foreach($data['pages']??[] as $key=>$draft) {
         $page=$manifest['pages'][$key]??['fields'=>[],'blocks'=>[]];$fields=[];$blocks=[];
         foreach($page['fields'] as $f){$v=$draft['fields'][$f['id']]??$f['value'];if($v!==$f['value'])$fields[]=['selector'=>$f['selector'],'kind'=>$f['kind'],'value'=>$v];}
         foreach($draft['blocks'] as $b)foreach($page['blocks'] as $original)if($b['id']===$original['id'])$blocks[]=['selector'=>$original['selector'],'visible'=>$b['visible'],'changed'=>$b['visible']!==$original['visible']];
@@ -268,5 +270,5 @@ function cms_public(array $data): array {
         if(isset($draft['elements']))$pages[$key]['elements']=$draft['elements'];
         if(isset($draft['orders']))$pages[$key]['orders']=$draft['orders'];
     }
-    return $pages;
+    return $pages+cms_collection_pages($data['collections']??[]);
 }

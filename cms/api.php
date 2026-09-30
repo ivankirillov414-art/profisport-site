@@ -71,7 +71,7 @@ try {
     }
     $raw=file_get_contents('php://input',false,null,0,1048577);if(strlen($raw)>1048576)cms_reply(['error'=>'Слишком большой документ.'],413);
     $input=json_decode($raw,true,512,JSON_THROW_ON_ERROR);if(!is_array($input))throw new InvalidArgumentException('Некорректный документ.');
-    if($action==='validate-collections')cms_reply(['collections'=>cms_collections_validate($input['collections']??null)]);
+    if($action==='validate-collections'){$collections=cms_collections_validate($input['collections']??null);cms_reply(['collections'=>$collections,'pages'=>cms_collection_pages($collections)]);}
     cms_reply(cms_change($action,(int)($input['version']??0),$input['draft']??[],$actor,(int)($input['id']??0)));
 }catch(InvalidArgumentException|JsonException $e){cms_reply(['error'=>$e->getMessage()],422);}
 catch(Throwable $e){error_log('CMS: '.$e->getMessage());cms_reply(['error'=>'CMS недоступна или ещё не настроена. Обратитесь к владельцу.'],503);}

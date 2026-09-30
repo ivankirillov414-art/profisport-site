@@ -61,7 +61,9 @@ function cms_collections_validate(mixed $input): array {
             }
             $entries[]=['id'=>$entry['id'],'slug'=>$entry['slug'],'status'=>$entry['status'],'values'=>$values];
         }
-        $out[]=['id'=>$id,'name'=>$name,'titleField'=>$titleField,'fields'=>$fields,'entries'=>$entries];
+        $clean=['id'=>$id,'name'=>$name,'titleField'=>$titleField,'fields'=>$fields,'entries'=>$entries];
+        if(array_key_exists('template',$collection))$clean['template']=cms_collection_template($collection['template'],$keys);
+        $out[]=$clean;
     }
     // Resolve only against this document; deleting referenced content cannot
     // silently create a dangling link or disclose another site's records.
@@ -77,4 +79,46 @@ function cms_collections_validate(mixed $input): array {
     }
     if(strlen(cms_encode($out))>700000)throw new InvalidArgumentException('Коллекции превышают 700 КБ. Сократите содержимое записей.');
     return $out;
+}
+function cms_collection_template(mixed $input,array $fields): array {
+    if(!is_array($input)||!array_is_list($input)||count($input)>20)throw new InvalidArgumentException('В шаблоне записи допускается до 20 секций.');
+    $out=[];$ids=[];
+    foreach($input as $section){
+        if(!is_array($section)||!is_array($section['block']??null)||!is_array($section['bindings']??null))throw new InvalidArgumentException('Некорректная секция шаблона.');
+        $block=cms_layout([$section['block']],'__collection_template__')[0];
+        if(isset($ids[$block['id']]))throw new InvalidArgumentException('Повторяющаяся секция шаблона.');$ids[$block['id']]=true;$bindings=[];
+        foreach($section['bindings'] as $prop=>$field){
+            if(!in_array($prop,['title','text','text2','image','alt','label','url'],true)||!is_string($field)||!isset($fields[$field]))throw new InvalidArgumentException('Поле привязки шаблона не найдено.');
+            $type=$fields[$field]['type'];
+            if(($prop==='image'&&$type!=='image')||($prop==='url'&&$type!=='url'))throw new InvalidArgumentException('Изображение и ссылка требуют поля соответствующего типа.');
+            $bindings[$prop]=$field;
+        }
+        $out[]=['block'=>$block,'bindings'=>$bindings];
+    }
+    return $out;
+}
+function cms_collection_page_key(array $collection,array $entry): string {
+    // The length prefix makes addresses unambiguous even when IDs contain dashes.
+    return 'c-'.strlen($collection['id']).'-'.$collection['id'].'-'.$entry['slug'].'.html';
+}
+function cms_collection_display(array $collection,array $entry,string $key,array $collections): string {
+    $value=$entry['values'][$key]??null;if($value===null)return '';
+    $field=array_column($collection['fields'],null,'key')[$key];
+    if($field['type']==='reference'){
+        $target=array_column($collections,null,'id')[$field['target']]??null;if(!$target)return '';
+        $record=array_column($target['entries'],null,'id')[$value]??null;
+        return $record&&$record['status']==='published'?(string)($record['values'][$target['titleField']]??''):'';
+    }
+    return is_bool($value)?($value?'Да':'Нет'):(string)$value;
+}
+function cms_collection_pages(array $collections): array {
+    $pages=[];$bytes=0;
+    foreach($collections as $collection){if(empty($collection['template']))continue;
+        foreach($collection['entries'] as $entry){if($entry['status']!=='published')continue;$layout=[];
+            foreach($collection['template'] as $section){$block=$section['block'];foreach($section['bindings'] as $prop=>$key)$block['props'][$prop]=cms_collection_display($collection,$entry,$key,$collections);$layout[]=$block;}
+            $page=['title'=>(string)$entry['values'][$collection['titleField']],'fields'=>[],'blocks'=>[],'layout'=>$layout,'sections'=>[],'collection'=>true];
+            $size=strlen(cms_encode($page));$bytes+=$size;if($size>1048576||$bytes>4194304)throw new InvalidArgumentException('Страницы коллекций превышают 1 МБ на запись или 4 МБ суммарно. Сократите шаблоны или записи.');
+            $pages[cms_collection_page_key($collection,$entry)]=$page;
+        }
+    }return $pages;
 }
