@@ -1,7 +1,8 @@
 name: CMS checks
 on:
+  workflow_call:
   push:
-    branches: [main, codex/standalone-cms, codex/visual-cms, codex/id-cms, codex/id-cards]
+    branches: [main, codex/standalone-cms, codex/visual-cms, codex/id-cms, codex/id-cards, codex/id-studio-completion]
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
   pull_request:
     paths: ['cms/**', 'cms-client.js', 'admin/cms-setup.php', '.github/workflows/cms-tests.yml']
@@ -25,10 +26,35 @@ jobs:
           node --check cms/editor.js
           node --check cms/visual.js
           node --check cms/workspace.js
+          node --check cms/autosave.js
+          node cms/tests/autosave.js
+          node --check cms/recovery.js
+          node --check cms/access.js
+          node --check cms/components.js
+          node --check cms/components-ui.js
+          node --check cms/collections-ui.js
+          node --check cms/collection-templates.js
+          node --check cms/collection-lists-ui.js
+          node --check cms/collections.js
+          node --check cms/seo-ui.js
+          node cms/tests/collections.js
+          node cms/tests/components.js
+          node cms/tests/recovery.js
           node cms/tests/blocks.js
           node --check cms-client.js
           php cms/tests/validation.php
           php cms/tests/visual-validation.php
+          php cms/tests/components.php
+          php cms/tests/collections.php
+          php cms/tests/collection-templates.php
+          php -d memory_limit=32M cms/tests/collection-lists.php
+      - name: Editor autosave and recovery in Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1
+          node "$RUNNER_TEMP/cms-browser/node_modules/playwright/cli.js" install --with-deps chromium
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/autosave-browser.cjs
+      - name: Portable and demo package contracts
+        run: python3 cms/tests/package.py
       - name: Disposable database integration
         env:
           CMS_TEST: '1'
@@ -36,6 +62,37 @@ jobs:
           cat > cms/private/config.php <<'PHP'
           <?php return ['db_host'=>'127.0.0.1','db_name'=>'cms_test','db_user'=>'root','db_pass'=>'cms-test-password','site_key'=>'profisport','site_url'=>'http://localhost:8123/','media_url'=>'/cms/media/'];
           PHP
+          php cms/tests/seo.php
           php cms/tests/integration.php
+          php cms/tests/multisite.php
           php -S 127.0.0.1:8123 > /tmp/cms-server.log 2>&1 &
           python3 cms/tests/http_contract.py
+          python3 cms/tests/http_roles.py
+          python3 cms/tests/collections-http.py
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/roles-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/components-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collections-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/collection-lists-browser.cjs
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/seo-browser.cjs
+          php cms/tests/access-audit.php
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/login-startup-browser.cjs
+      - name: Install and verify extracted portable release
+        env:
+          CMS_TEST: '1'
+          CMS_TEST_DB_PORT: '3306'
+          MYSQL_PWD: cms-test-password
+        run: |
+          mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE idstudio_portable_release_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+          python3 cms/tools/package.py "$RUNNER_TEMP/id-studio-release"
+          python3 cms/tests/portable-fixture.py "$RUNNER_TEMP/id-studio-release.zip" "$RUNNER_TEMP/id-studio-install"
+          php -S 127.0.0.1:8124 -t "$RUNNER_TEMP/id-studio-install" > /tmp/cms-portable-server.log 2>&1 &
+          portable_pid=$!
+          trap 'kill "$portable_pid"' EXIT
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/portable-browser.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: id-studio-standalone
+          path: |
+            ${{ runner.temp }}/id-studio-release.zip
+            ${{ runner.temp }}/id-studio-release.zip.sha256
+          retention-days: 30

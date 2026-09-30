@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),C=require('../components.js');
+const components=[{id:'g1',name:'Shared',block:{id:'source',type:'cards',props:{title:'Title',items:[{title:'Card'}]}}}];
+const ref={id:'instance',type:'global',component:'g1',overrides:{}};
+const expanded=C.expand(ref,components);assert.deepEqual(C.reference(expanded),ref);
+expanded.props.items[0].title='Local card';assert.equal(components[0].block.props.items[0].title,'Card');
+const local=C.reference(expanded);assert.equal(local.overrides.items[0].title,'Local card');
+components[0].block.props.title='New shared title';
+const rendered=C.render(local,components);assert.equal(rendered.props.title,'New shared title');assert.equal(rendered.props.items[0].title,'Local card');assert(!('_componentId' in rendered));
+components[0].block.props.items[0].title='Local card';
+const equal=C.reference(C.expand(local,components));assert('items' in equal.overrides,'Explicit exception survives equality with a new shared base');
+components[0].block.props.items[0].title='Later shared card';assert.equal(C.render(equal,components).props.items[0].title,'Local card');
+assert.deepEqual(C.reference(undefined),undefined);
+assert.throws(()=>C.render(ref,[]),/не найден/);
+assert.equal(C.uses({pages:{a:{layout:[ref]},b:{layout:[ref]},c:{layout:[rendered]}}},'g1').length,2);
+console.log('Shared component model: independent clones, compact references, explicit exceptions and usage tracking passed');

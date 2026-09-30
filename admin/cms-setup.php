@@ -14,7 +14,8 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         if($installed){
             if(strlen($username)<3||strlen($username)>100||strlen($password)<12||strlen($password)>72)throw new InvalidArgumentException('Логин: 3–100 символов. Новый пароль: 12–72 символа.');
             if(!hash_equals($password,$confirm))throw new InvalidArgumentException('Пароли не совпадают.');
-            $s=cms_db()->prepare('UPDATE ps_cms_users SET username=?, password_hash=?, active=1 WHERE id=1');$s->execute([$username,password_hash($password,PASSWORD_DEFAULT)]);
+            cms_migrate();
+            $s=cms_db()->prepare('UPDATE ps_cms_users SET username=?, password_hash=?, active=1, auth_version=auth_version+1 WHERE id=1');$s->execute([$username,password_hash($password,PASSWORD_DEFAULT)]);
             if($s->rowCount()!==1)throw new RuntimeException('owner_missing');
             audit($pdo,'cms_owner_recovered','cms_user','1');$message='Доступ к ID Studio восстановлен. Войдите с новым логином и паролем.';
         }else {cms_install($username,$password);$installed=true;$message='CMS настроена. Войдите с новым логином и паролем.';}

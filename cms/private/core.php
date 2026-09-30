@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/access.php';
+require_once __DIR__.'/components.php';
+require_once __DIR__.'/collections.php';
+require_once __DIR__.'/collection-lists.php';
+require_once __DIR__.'/seo.php';
 // Standalone core: never imports the storefront, its session, or its data tables.
 function cms_config(): array {
     static $config;
@@ -13,7 +18,7 @@ function cms_db(): PDO {
     static $db;
     if (!$db) {
         $c = cms_config();
-        $db = new PDO('mysql:host='.$c['db_host'].';dbname='.$c['db_name'].';charset=utf8mb4', $c['db_user'], $c['db_pass'], [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
+        $db = new PDO('mysql:host='.$c['db_host'].';port='.(int)($c['db_port']??3306).';dbname='.$c['db_name'].';charset=utf8mb4', $c['db_user'], $c['db_pass'], [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_EMULATE_PREPARES=>false]);
     }
     return $db;
 }
@@ -35,6 +40,7 @@ function cms_migrate(): void {
     $db->exec("CREATE TABLE IF NOT EXISTS ps_cms_media (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, site_key VARCHAR(64) NOT NULL, filename VARCHAR(80) NOT NULL, name VARCHAR(200) NOT NULL, width INT NOT NULL, height INT NOT NULL, bytes INT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX(site_key,id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $original=json_decode(file_get_contents(__DIR__.'/bindings.json'),true,512,JSON_THROW_ON_ERROR);
     $db->prepare('INSERT IGNORE INTO ps_cms_sites(site_key,name,url,manifest) VALUES(?,?,?,?)')->execute([cms_config()['site_key'],cms_config()['site_name']??'ProfiSport',cms_config()['site_url'],cms_encode($original)]);
+    cms_access_migrate();
 }
 function cms_select_site(string $key): void {
     $GLOBALS['cms_site_key']=$key;cms_site_key();
@@ -96,8 +102,9 @@ function cms_session(): void {
 function cms_auth(): string {
     cms_session();
     if(empty($_SESSION['user']) || time()-($_SESSION['seen']??0)>1800 || time()-($_SESSION['started']??0)>28800) cms_reply(['error'=>'Войдите в CMS.'],401);
-    $s=cms_db()->prepare('SELECT username FROM ps_cms_users WHERE id=? AND active=1');$s->execute([$_SESSION['user']]);
-    $username=$s->fetchColumn();if(!$username)cms_reply(['error'=>'Доступ закрыт.'],401);
+    cms_migrate();
+    $s=cms_db()->prepare('SELECT username,auth_version FROM ps_cms_users WHERE id=? AND active=1');$s->execute([$_SESSION['user']]);
+    $user=$s->fetch();if(!$user||(int)$user['auth_version']!==(int)($_SESSION['auth_version']??1))cms_reply(['error'=>'Доступ изменён. Войдите снова.'],401);$username=$user['username'];
     $_SESSION['seen']=time();return $username;
 }
 function cms_csrf(): void {
@@ -113,6 +120,8 @@ function cms_url(string $value,bool $image=false): bool {
 }
 function cms_validate(array $input): array {
     $clean=['pages'=>[]];$manifest=cms_manifest();
+    if(array_key_exists('collections',$input))$clean['collections']=cms_collections_validate($input['collections']);
+    $components=cms_components_validate($input['components']??[]);if(array_key_exists('components',$input))$clean['components']=$components;
     if(!is_array($input['pages']??null)||count($input['pages'])>100||array_diff(array_keys($manifest['pages']),array_keys($input['pages'])))throw new InvalidArgumentException('Отсутствуют страницы сайта или превышен лимит 100 страниц.');
     foreach($manifest['pages'] as $key=>$page) {
         $incoming=$input['pages'][$key];$fields=[];
@@ -161,7 +170,8 @@ function cms_validate(array $input): array {
             if(!is_string($incoming['title']??null)||strlen(trim($incoming['title']))<1||strlen($incoming['title'])>200)throw new InvalidArgumentException('Укажите название страницы.');
             $clean['pages'][$key]=['title'=>$incoming['title'],'fields'=>[], 'blocks'=>[]];
         }
-        if(isset($incoming['layout']))$clean['pages'][$key]['layout']=cms_layout($incoming['layout'],$key);
+        if(isset($incoming['layout']))$clean['pages'][$key]['layout']=cms_layout($incoming['layout'],$key,$components,$clean['collections']??[]);
+        if(array_key_exists('seo',$incoming))$clean['pages'][$key]['seo']=cms_seo_validate($incoming['seo']);
     }
     if(isset($input['library'])) {
         if(!is_array($input['library'])||count($input['library'])>50)throw new InvalidArgumentException('Допускается до 50 сохранённых блоков.');
@@ -171,6 +181,10 @@ function cms_validate(array $input): array {
             $clean['library'][]=['name'=>$item['name'],'block'=>cms_layout([$item['block']??[]],'__pattern__')[0]];
         }
     }
+    if($components)cms_components_budget($clean);
+    $generated=cms_collection_pages($clean['collections']??[]);
+    if(array_intersect_key($clean['pages'],$generated))throw new InvalidArgumentException('Адрес страницы совпадает с адресом записи коллекции.');
+    if(!empty($clean['collections']))cms_public($clean);
     return $clean;
 }
 function cms_document(bool $lock=false): array {
@@ -194,13 +208,16 @@ function cms_change(string $action,int $version,array $input,string $actor,int $
     }catch(Throwable $e){if($db->inTransaction())$db->rollBack();throw $e;}
 }
 
-function cms_layout(array $layout,string $page): array {
+function cms_layout(array $layout,string $page,array $components=[],array $collections=[]): array {
     if(count($layout)>100)throw new InvalidArgumentException('На странице допускается до 100 блоков.');
     $templates=cms_templates();$known=array_column($templates[$page]['sections']??[],'id');$seen=[];$out=[];
     foreach($layout as $block) {
+        if(!is_array($block))throw new InvalidArgumentException('Некорректный блок.');
         $id=$block['id']??'';$type=$block['type']??'';
         if(!is_string($id)||!preg_match('/^[a-zA-Z0-9_-]{1,80}$/D',$id)||isset($seen[$id]))throw new InvalidArgumentException('Неверный или повторяющийся блок.');
         $seen[$id]=true;
+        if($type==='collection'){$out[]=cms_collection_list_validate($block,$collections);continue;}
+        if($type==='global'){$out[]=cms_component_reference($block,$components);continue;}
         if($type==='existing') {
             if(!in_array($id,$known,true)||!is_bool($block['visible']??null))throw new InvalidArgumentException('Неизвестный блок сайта.');
             $out[]=['id'=>$id,'type'=>'existing','visible'=>$block['visible']];continue;
@@ -245,18 +262,25 @@ function cms_templates(): array {
     $path=__DIR__.'/templates.json';return is_file($path)?json_decode(file_get_contents($path),true,512,JSON_THROW_ON_ERROR):[];
 }
 function cms_public(array $data): array {
-    $manifest=cms_manifest();$templates=cms_templates();$pages=[];
-    foreach($data['pages'] as $key=>$draft) {
+    $manifest=cms_manifest();$templates=cms_templates();$pages=[];$total=0;$bounded=!empty($data['collections']);
+    foreach($data['pages']??[] as $key=>$draft) {
         $page=$manifest['pages'][$key]??['fields'=>[],'blocks'=>[]];$fields=[];$blocks=[];
         foreach($page['fields'] as $f){$v=$draft['fields'][$f['id']]??$f['value'];if($v!==$f['value'])$fields[]=['selector'=>$f['selector'],'kind'=>$f['kind'],'value'=>$v];}
         foreach($draft['blocks'] as $b)foreach($page['blocks'] as $original)if($b['id']===$original['id'])$blocks[]=['selector'=>$original['selector'],'visible'=>$b['visible'],'changed'=>$b['visible']!==$original['visible']];
         $pages[$key]=['title'=>$draft['title']??$page['title']??'','fields'=>$fields,'blocks'=>$blocks];
+        if(isset($draft['seo']))$pages[$key]['seo']=$draft['seo'];
         if(isset($draft['layout'])) {
-            $pages[$key]['layout']=$draft['layout'];
+            $pages[$key]['layout']=[];$layoutBytes=0;
+            foreach($draft['layout'] as $block){$rendered=cms_collection_list_render(cms_component_render($block,$data['components']??[]),$data['collections']??[]);$layoutBytes+=strlen(cms_encode($rendered));
+                if($bounded&&($layoutBytes>1048576||$total+$layoutBytes>4194304))throw new InvalidArgumentException('Публичные страницы превышают 1 МБ на страницу или 4 МБ на сайт.');
+                $pages[$key]['layout'][]=$rendered;
+            }
             $pages[$key]['sections']=array_map(fn($s)=>['id'=>$s['id'],'selector'=>$s['selector']],$templates[$key]['sections']??[]);
         }
         if(isset($draft['elements']))$pages[$key]['elements']=$draft['elements'];
         if(isset($draft['orders']))$pages[$key]['orders']=$draft['orders'];
+        if($bounded){$size=strlen(cms_encode($pages[$key]));$total+=$size;if($size>1048576||$total>4194304)throw new InvalidArgumentException('Публичные страницы превышают 1 МБ на страницу или 4 МБ на сайт.');}
     }
+    foreach(cms_collection_pages($data['collections']??[]) as $key=>$record){$total+=strlen(cms_encode($record));if($total>4194304)throw new InvalidArgumentException('Публичные страницы превышают 4 МБ на сайт.');$pages[$key]=$record;}
     return $pages;
 }
