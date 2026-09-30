@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {store}=require('../recovery.js');
+const entries=new Map();
+const storage={get length(){return entries.size;},key:i=>[...entries.keys()][i],getItem:k=>entries.get(k),setItem:(k,v)=>entries.set(k,v),removeItem:k=>entries.delete(k)};
+const a=store(storage,['/cms/','alice','site-a'],'tab-a'),b=store(storage,['/cms/','alice','site-a'],'tab-b');
+const otherUser=store(storage,['/cms/','bob','site-a'],'tab-a'),otherSite=store(storage,['/cms/','alice','site-b'],'tab-a');
+const draft={pages:{'index.html':{fields:{title:'Unsaved text'}}}};
+a.write(draft,5);b.write(draft,6);otherUser.write(draft,7);otherSite.write(draft,8);
+assert.equal(a.list().length,2);assert.equal(otherUser.list().length,1);assert.equal(otherSite.list().length,1);
+a.remove();assert.equal(b.list().length,1,'A clean tab must not delete another tab backup');
+assert.equal(b.list()[0].version,6);assert.deepEqual(b.list()[0].draft,draft);
+assert.throws(()=>a.remove(otherUser.key),/namespace/);
+storage.setItem(a.key,'broken JSON');assert.equal(a.list().length,1,'Corrupt entry does not hide good copies');
+storage.setItem(a.key,JSON.stringify({schema:2,version:1,draft}));assert.equal(a.list().length,1,'Unknown schema ignored');
+const blocked=store({...storage,setItem(){throw Error('QuotaExceededError');}},['/cms/','alice','site-a'],'new');
+assert.throws(()=>blocked.write(draft,9),/Quota/,'Storage failure is surfaced, not reported as saved');
+console.log('Recovery: user/site/tab isolation, payload, corruption, schema and quota checks passed');

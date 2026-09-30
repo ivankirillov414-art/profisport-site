@@ -27,10 +27,17 @@ jobs:
           node --check cms/workspace.js
           node --check cms/autosave.js
           node cms/tests/autosave.js
+          node --check cms/recovery.js
+          node cms/tests/recovery.js
           node cms/tests/blocks.js
           node --check cms-client.js
           php cms/tests/validation.php
           php cms/tests/visual-validation.php
+      - name: Editor autosave and recovery in Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/cms-browser" --no-save --ignore-scripts playwright@1.62.1
+          node "$RUNNER_TEMP/cms-browser/node_modules/playwright/cli.js" install --with-deps chromium
+          NODE_PATH="$RUNNER_TEMP/cms-browser/node_modules" node cms/tests/autosave-browser.cjs
       - name: Disposable database integration
         env:
           CMS_TEST: '1'
