@@ -1,0 +1,275 @@
+{
+  "style": "Graphite and amber, realistic 3D category illustration, true transparency, no logos or product claims",
+  "categories": [
+    {
+      "title": "Мази держания",
+      "slug": "grip-wax",
+      "subject": "three short cylindrical cross-country ski grip wax tins with graphite caps and yellow blank labels, one wax stick exposed"
+    },
+    {
+      "title": "Парафины",
+      "slug": "paraffin",
+      "subject": "three solid rectangular ski paraffin wax blocks, ivory pale amber and charcoal, unwrapped wax texture"
+    },
+    {
+      "title": "Порошки, ускорители, эмульсии",
+      "slug": "accelerators",
+      "subject": "small ski tuning powder jar with a heap of white powder and a compact ski accelerator liquid bottle"
+    },
+    {
+      "title": "Лыжные аксессуары",
+      "slug": "ski-accessories",
+      "subject": "cross-country ski straps, protective tip caps and small tuning accessories"
+    },
+    {
+      "title": "Сумки и чехлы для беговых лыж",
+      "slug": "ski-bag",
+      "subject": "long narrow zipped padded cross-country ski bag, graphite nylon with amber trim and shoulder strap"
+    },
+    {
+      "title": "Лыжные шапки",
+      "slug": "ski-hat",
+      "subject": "ribbed winter cross-country sport beanie, graphite black with mustard yellow fold and small pompom"
+    },
+    {
+      "title": "Тюбинги (средние) 80-95см",
+      "slug": "tubing-medium",
+      "subject": "round medium inflatable snow tube, yellow rim charcoal seat fabric, two handles and tow strap"
+    },
+    {
+      "title": "Щётки",
+      "slug": "ski-brush",
+      "subject": "three oval handheld ski waxing brushes with visible brass nylon and horsehair bristles and yellow grips"
+    },
+    {
+      "title": "Комплектующие детали",
+      "slug": "ski-spares",
+      "subject": "set of small replacement ski binding hardware, screws and toe latch components"
+    },
+    {
+      "title": "Снегокаты",
+      "slug": "snow-racer",
+      "subject": "children's snow racer with three short skis, steel graphite frame, yellow seat and steering wheel"
+    },
+    {
+      "title": "Хоккей",
+      "slug": "hockey",
+      "subject": "black hockey stick with amber accents beside puck and hockey helmet"
+    },
+    {
+      "title": "Запасные части для лыжероллеров",
+      "slug": "roller-ski-spares",
+      "subject": "two small roller-ski wheels with rubber tread, bearings and axle bolt"
+    },
+    {
+      "title": "Лыжи охотничьи",
+      "slug": "hunting-skis",
+      "subject": "pair of broad short wooden hunting skis, natural pale wood surfaces, dark straps"
+    },
+    {
+      "title": "IFP-NIS",
+      "slug": "ifp-nis",
+      "subject": "pair of flat integrated cross-country ski mounting plates with tracks and compact ski binding, precise black plastic"
+    },
+    {
+      "title": "Санки",
+      "slug": "sled",
+      "subject": "traditional low snow sled with steel runners and warm yellow slatted wooden seat"
+    },
+    {
+      "title": "Санки-коляски",
+      "slug": "stroller-sled",
+      "subject": "winter push sled with high parent handle, hood, padded seat and steel ski runners"
+    },
+    {
+      "title": "Прочие инструменты для лыж",
+      "slug": "ski-tools",
+      "subject": "compact ski tuning tool kit with screwdriver, file and yellow handled multitool"
+    },
+    {
+      "title": "Зимний спорт",
+      "slug": "winter-sport",
+      "subject": "winter sports collection of slim cross-country skis, ski poles and a winter helmet"
+    },
+    {
+      "title": "Тюбинги (большие) 100-120см.",
+      "slug": "tubing-large",
+      "subject": "large round snow tubing sled with broad graphite rim, golden yellow seat and four sturdy handles"
+    },
+    {
+      "title": "Крепления к лыжам",
+      "slug": "ski-bindings",
+      "subject": "pair of compact cross-country ski bindings with a toe latch, black base and yellow accent"
+    },
+    {
+      "title": "Лыжные куртки",
+      "slug": "ski-jacket",
+      "subject": "lightweight cross-country ski sport jacket, upright front view, graphite fabric and amber shoulder panels"
+    },
+    {
+      "title": "Ледобур",
+      "slug": "ice-auger",
+      "subject": "manual ice fishing auger with steel spiral drill shaft, yellow crank handle and sharp cutting head"
+    },
+    {
+      "title": "Смывки",
+      "slug": "wax-remover",
+      "subject": "ski wax remover liquid bottle next to a folded white cleaning cloth"
+    },
+    {
+      "title": "NNN",
+      "slug": "nnn-bindings",
+      "subject": "pair of black cross-country ski bindings, double longitudinal guide ridges, yellow toe-lock lever"
+    },
+    {
+      "title": "Ледянки",
+      "slug": "snow-slider",
+      "subject": "small yellow molded plastic snow sliding tray with curved front handle"
+    },
+    {
+      "title": "Скребки",
+      "slug": "ski-scrapers",
+      "subject": "three rectangular ski wax scrapers, clear acrylic, yellow acrylic and graphite, with a notched edge"
+    },
+    {
+      "title": "Лыжные трубы, маски",
+      "slug": "neck-warmer",
+      "subject": "sport neck gaiter and balaclava, graphite fabric with a mustard yellow panel"
+    },
+    {
+      "title": "Коньковые лыжероллеры",
+      "slug": "skate-roller-skis",
+      "subject": "pair of short skating roller skis with two large narrow wheels per ski and bindings on yellow metal rails"
+    },
+    {
+      "title": "Пробки (растирки)",
+      "slug": "wax-cork",
+      "subject": "handheld rectangular natural cork ski wax rubbing block with a rounded graphite handle"
+    },
+    {
+      "title": "ТЮБИНГИ (ЧЕХЛЫ)",
+      "slug": "tubing-cover",
+      "subject": "empty fabric cover for a snow tube, relaxed circular folded nylon shell, yellow and graphite, no inflated tube"
+    },
+    {
+      "title": "Классические",
+      "slug": "classic",
+      "subject": "classic cross-country skiing equipment, pair of slim parallel skis with rounded classic ski boots"
+    },
+    {
+      "title": "Шайбы",
+      "slug": "pucks",
+      "subject": "three stacked black rubber ice hockey pucks, one lying flat nearby"
+    },
+    {
+      "title": "Прочие крепления",
+      "slug": "other-bindings",
+      "subject": "a pair of adjustable universal ski strap bindings with black buckles and yellow heel strap"
+    },
+    {
+      "title": "Ремонтный пластик",
+      "slug": "repair-plastic",
+      "subject": "ski base repair polyethylene candles, thin black and clear repair sticks in a neat bundle"
+    },
+    {
+      "title": "Ботинки лыжероллерные",
+      "slug": "roller-ski-boots",
+      "subject": "pair of ventilated summer roller-ski boots with high ankle cuffs, graphite mesh and yellow accents"
+    },
+    {
+      "title": "Аксессуары",
+      "slug": "winter-accessories",
+      "subject": "winter accessories set, compact hand warmers, ski clip and winter sport protective case"
+    },
+    {
+      "title": "Лыжные брюки",
+      "slug": "ski-pants",
+      "subject": "pair of slim cross-country ski trousers displayed upright, graphite stretch fabric, amber side piping"
+    },
+    {
+      "title": "Комплектующие тюбингов",
+      "slug": "tube-spares",
+      "subject": "uncovered circular black rubber inner tube with metal valve beside a towing strap and two fabric handles"
+    },
+    {
+      "title": "Комплекты",
+      "slug": "ski-set",
+      "subject": "complete cross-country ski kit of two slim skis, matching poles, bindings and boots"
+    },
+    {
+      "title": "Классические лыжероллеры",
+      "slug": "classic-roller-skis",
+      "subject": "pair of short classic roller skis with small wide rubber wheels and yellow long rails"
+    },
+    {
+      "title": "Лыжные перчатки",
+      "slug": "ski-gloves",
+      "subject": "pair of snug insulated cross-country ski gloves, five fingers visible, graphite black and mustard yellow"
+    },
+    {
+      "title": "Смолы, пропитки",
+      "slug": "ski-resin",
+      "subject": "small ski resin tin with glossy amber resin and natural wooden brush for ski impregnation"
+    },
+    {
+      "title": "Горнолыжные аксессуары",
+      "slug": "alpine-accessories",
+      "subject": "alpine skiing goggles with amber lens and graphite protective helmet"
+    },
+    {
+      "title": "Тюбинги (малые) 65-73см.",
+      "slug": "tubing-small",
+      "subject": "small child snow tube with yellow and graphite alternating segments, seat and two handles"
+    },
+    {
+      "title": "Комбинированные",
+      "slug": "combi",
+      "subject": "Pair of narrow COMBI cross-country skis, graphite and amber, skis only"
+    },
+    {
+      "title": "Детские, юниорские",
+      "slug": "junior",
+      "subject": "junior cross-country skis and small junior ski boots, compact child proportions and yellow graphics"
+    },
+    {
+      "title": "Коньковые",
+      "slug": "skating",
+      "subject": "Pair of narrow skating cross-country skis, graphite and amber, skis only"
+    },
+    {
+      "title": "Утюги",
+      "slug": "wax-iron",
+      "subject": "compact specialized ski waxing iron with thick metal flat sole and graphite yellow handle, no household pointed nose"
+    },
+    {
+      "title": "Ботинки NNN",
+      "slug": "nnn-boots",
+      "subject": "pair of cross-country ski boots with modern ribbed sole and low toe binding bar, graphite with amber detailing"
+    },
+    {
+      "title": "Канторезы",
+      "slug": "edge-tuner",
+      "subject": "compact ski edge sharpening tool with visible flat steel file and yellow adjustable holder"
+    },
+    {
+      "title": "Ботинки SNS",
+      "slug": "sns-boots",
+      "subject": "pair of cross-country ski boots with single center groove sole, charcoal with mustard yellow ankle panels"
+    },
+    {
+      "title": "Ботинки NN75",
+      "slug": "nn75-boots",
+      "subject": "pair of classic low leather cross-country ski boots with wide projecting 75mm toe flange"
+    },
+    {
+      "title": "NN75",
+      "slug": "nn75-bindings",
+      "subject": "pair of traditional metal three pin 75mm cross-country ski bindings with bail toe clamp"
+    },
+    {
+      "title": "Коньки",
+      "slug": "ice-skates",
+      "subject": "pair of ice skates with curved steel blades, graphite boots and amber trim"
+    }
+  ]
+}

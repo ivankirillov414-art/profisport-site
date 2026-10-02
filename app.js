@@ -273,7 +273,9 @@ const MEGA_CATEGORY_ART={
   tourism:'assets/categories/tourism-illustration-v2.png?v=2',
   scooter:'assets/categories/scooter-illustration-v2.png?v=2'
 };
-function megaPhotoSources(items,fallbackKey=''){
+function megaPhotoSources(items,fallbackKey='',sectionTitle=''){
+  const winterArt=fallbackKey==='skiing'&&typeof WINTER_CATEGORY_ART!=='undefined'?WINTER_CATEGORY_ART[String(sectionTitle).toLowerCase().replace(/ё/g,'е')]:null;
+  if(winterArt)return [winterArt];
   // Section artwork is independent of product photography and availability.
   return [MEGA_CATEGORY_ART[fallbackKey]||MEGA_CATEGORY_ART[catalogSectionFor(items[0]?.department)]||MEGA_CATEGORY_ART.accessories];
 }
@@ -285,7 +287,7 @@ function buildMega(context=''){
   const ranked=[...groups].sort((a,b)=>section?b[1].length-a[1].length:(CATALOG_DEPARTMENTS[a[0]]?.order||999)-(CATALOG_DEPARTMENTS[b[0]]?.order||999));
   panel.innerHTML=`<div class="megaHeading"><div><h2>${esc(section?.label||'Каталог товаров')}</h2><span>${rows.length} товаров</span></div><button type="button" class="megaClose" aria-label="Закрыть каталог">×</button></div>`+ranked.map(([key,items])=>{
     const fallbackKey=section?catalogSectionFor(items[0]?.department):key;
-    const title=section?(items[0].rawCat||items[0].cat):catalogCategoryLabel(key),sources=megaPhotoSources(items,fallbackKey),subs=new Map();
+    const title=section?(items[0].rawCat||items[0].cat):catalogCategoryLabel(key),sources=megaPhotoSources(items,fallbackKey,section?title:''),subs=new Map();
     for(const p of items){const sub=p.rawCat||p.cat;if(sub)subs.set(sub,(subs.get(sub)||0)+1)}
     const target=section?`data-mega-term="${esc(title)}" data-mega-department-filter="${esc(items[0].department)}"`:`data-mega-department="${esc(key)}"`;
     const href=section?`?cat=${encodeURIComponent(items[0].department)}&sub=${encodeURIComponent(title)}#catalogProducts`:`?cat=${encodeURIComponent(key)}#catalogProducts`;

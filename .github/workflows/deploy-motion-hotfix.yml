@@ -11,6 +11,8 @@ on:
       - 'psf-final-motion.css'
       - 'psf-final-motion.js'
       - 'app.js'
+      - 'winter-category-art.js'
+      - 'assets/categories/winter/**'
       - 'motion.js'
       - 'sport-energy.css'
       - 'assets/hero/reference-bike-amber-v2.webp'
@@ -69,10 +71,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p hotfix-upload/assets/hero hotfix-upload/assets/categories
-          cp index.html app.js motion.js sport-energy.css catalog-loader.js catalog-live-paged.js psf-final-motion.css psf-final-motion.js hotfix-upload/
+          cp index.html app.js winter-category-art.js motion.js sport-energy.css catalog-loader.js catalog-live-paged.js psf-final-motion.css psf-final-motion.js hotfix-upload/
           cp assets/hero/reference-bike-amber-v2.webp hotfix-upload/assets/hero/
           cp assets/hero/workshop-background-v6.webp hotfix-upload/assets/hero/
           cp assets/hero/*-v11.webp assets/hero/*-v12.webp hotfix-upload/assets/hero/
+          cp -r assets/categories/winter hotfix-upload/assets/categories/
           cp assets/categories/bicycle-illustration-v1.png hotfix-upload/assets/categories/
           cp assets/categories/parts-illustration-v1.png hotfix-upload/assets/categories/
           cp assets/categories/accessories-illustration-v1.png hotfix-upload/assets/categories/
