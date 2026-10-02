@@ -264,10 +264,21 @@ const megaSections={
 };
 const navigationCategory={'велосипед':'bicycle','самокат':'scooter','запчаст':'cycling','аксессуар':'accessories','лыж':'skiing','фитнес':'fitness','туризм':'tourism'};
 let megaContext='',megaCloseTimer,megaTrigger=null;
-function megaPhotoSources(items){
+const MEGA_CATEGORY_ART={
+  bicycle:'assets/categories/bicycle-illustration-v1.png',
+  cycling:'assets/categories/parts-illustration-v1.png',
+  accessories:'assets/categories/accessories-illustration-v1.png',
+  skiing:'assets/categories/skiing-illustration-v2.png',
+  fitness:'assets/categories/fitness-illustration-v1.png',
+  tourism:'assets/categories/tourism-illustration-v2.png',
+  scooter:'assets/categories/scooter-illustration-v2.png'
+};
+function megaPhotoSources(items,fallbackKey=''){
   const preferred=new Set(['bicycle','scooter','skis','snowboard','skates','rollers','dumbbell','kettlebell','ball','tent','helmet']);
   const candidates=[...items].sort((a,b)=>Number(preferred.has(b.productType))-Number(preferred.has(a.productType)));
-  return [...new Set(candidates.flatMap(p=>imageCandidates(p).filter(src=>!src.includes('product-fallback-image.php')).slice(0,1)))].slice(0,6);
+  const productSources=[...new Set(candidates.flatMap(p=>imageCandidates(p).filter(src=>!src.includes('product-fallback-image.php')).slice(0,1)))].slice(0,5);
+  const fallback=MEGA_CATEGORY_ART[fallbackKey]||MEGA_CATEGORY_ART[catalogSectionFor(items[0]?.department)]||MEGA_CATEGORY_ART.accessories;
+  return [...productSources,fallback].filter(Boolean);
 }
 function buildMega(context=''){
   const panel=$('#megaCatalog');if(!panel)return;
@@ -276,11 +287,12 @@ function buildMega(context=''){
   for(const p of rows){if(!section&&!CATALOG_SECTIONS[catalogSectionFor(p.department)])continue;const key=section?JSON.stringify([p.department,p.rawCat||p.cat]):catalogSectionFor(p.department);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p)}
   const ranked=[...groups].sort((a,b)=>section?b[1].length-a[1].length:(CATALOG_DEPARTMENTS[a[0]]?.order||999)-(CATALOG_DEPARTMENTS[b[0]]?.order||999));
   panel.innerHTML=`<div class="megaHeading"><div><h2>${esc(section?.label||'Каталог товаров')}</h2><span>${rows.length} товаров</span></div><button type="button" class="megaClose" aria-label="Закрыть каталог">×</button></div>`+ranked.map(([key,items])=>{
-    const title=section?(items[0].rawCat||items[0].cat):catalogCategoryLabel(key),sources=megaPhotoSources(items),subs=new Map();
+    const fallbackKey=section?catalogSectionFor(items[0]?.department):key;
+    const title=section?(items[0].rawCat||items[0].cat):catalogCategoryLabel(key),sources=megaPhotoSources(items,fallbackKey),subs=new Map();
     for(const p of items){const sub=p.rawCat||p.cat;if(sub)subs.set(sub,(subs.get(sub)||0)+1)}
     const target=section?`data-mega-term="${esc(title)}" data-mega-department-filter="${esc(items[0].department)}"`:`data-mega-department="${esc(key)}"`;
     const href=section?`?cat=${encodeURIComponent(items[0].department)}&sub=${encodeURIComponent(title)}#catalogProducts`:`?cat=${encodeURIComponent(key)}#catalogProducts`;
-    return `<section class="megaGroup${section?' megaSubgroup':''}"><a class="megaCardHead" href="${href}" ${target}><span class="megaCardTitle"><h3>${esc(title)}</h3><small>${items.length} товаров</small></span>${sources.length?`<span class="megaPhoto"><img data-mega-sources="${esc(encodeURIComponent(JSON.stringify(sources)))}" alt="" loading="lazy" decoding="async" width="120" height="110"></span>`:''}</a>${section?'':`<div class="megaLinks">${[...subs].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([sub,count])=>`<a href="?cat=${encodeURIComponent(key)}&sub=${encodeURIComponent(sub)}#catalogProducts" data-mega-term="${esc(sub)}" data-mega-department-filter="${esc(key)}"><span>${esc(sub)}</span><small>${count}</small></a>`).join('')}</div>`}<a class="megaCardMore" href="${href}" ${target}>Смотреть товары <span aria-hidden="true">→</span></a></section>`;
+    return `<section class="megaGroup${section?' megaSubgroup':''}"><a class="megaCardHead" href="${href}" ${target}><span class="megaCardTitle"><h3>${esc(title)}</h3></span><span class="megaPhoto"><img data-mega-sources="${esc(encodeURIComponent(JSON.stringify(sources)))}" alt="" loading="lazy" decoding="async" width="160" height="120"></span></a>${section?'':`<div class="megaLinks">${[...subs].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([sub])=>`<a href="?cat=${encodeURIComponent(key)}&sub=${encodeURIComponent(sub)}#catalogProducts" data-mega-term="${esc(sub)}" data-mega-department-filter="${esc(key)}"><span>${esc(sub)}</span></a>`).join('')}</div>`}<a class="megaCardMore" href="${href}" ${target}>Смотреть товары</a></section>`;
   }).join('')+'<div class="megaFooter"><a href="#catalogProducts" data-mega-all>Каталог товаров</a><a href="service.html">Мастерская ПрофиСпорт</a><a href="service.html#bikeGuide">Устройство велосипеда</a></div>';
   panel.scrollTop=0;
   panel.querySelectorAll('[data-mega-term]').forEach(a=>a.onclick=e=>{e.preventDefault();$('#resetFilters').click();selectedSubcategory=a.dataset.megaTerm||'';category.value=a.dataset.megaDepartmentFilter||'';apply();closeMega();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
