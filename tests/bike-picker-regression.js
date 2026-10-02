@@ -17,4 +17,5 @@ assert.equal(context.pickerAssessment(bike('range',{specs:{'Рекомендуе
 assert.equal(context.selectPickerProducts(candidates,195,5000,'Бездорожье').length,0);
 for(const suffix of ['10% НДС','10% (НДС)','(НДС) 10%','НДС 10%'])assert.equal(context.cleanCatalogLabel('Малышам '+suffix),'Малышам');
 assert.equal(context.cleanCatalogLabel('VATAN'),'VATAN');assert.equal(context.cleanCatalogLabel('Скидка 10%'),'Скидка 10%');
+assert.equal(context.catalogSubcategory('Велосипед',['Велосипеды','Малышам 10%'],{key:'bicycle',type:'bicycle'}),'Малышам');
 console.log('Bike picker: height, route, stock, budget, incomplete specs and tax labels passed.');

@@ -168,7 +168,8 @@ function catalogSubcategory(name,path,tax){
   // DIAFAN roots can include tax suffixes: "Велосипеды (НДС)".
   // Keep their actual leaf categories instead of collapsing every bike to the root.
   if(tax.key==='bicycle'&&(path.some(part=>/велосипед/.test(textNorm(part)))||/горн|детск|малыш|подрост|складн|фэтбайк|двухподвес|гибрид|шоссе|дорожн|городск|bmx/i.test(leaf))){
-    return cleanCatalogLabel(leaf)||'Велосипеды';
+    // Legacy infant category stores its tax rate even without the VAT token.
+    return cleanCatalogLabel(leaf).replace(/^(Малышам)\s+(?:10|20)\s*%$/iu,'$1')||'Велосипеды';
   }
   // Do not expose an unrelated old category (e.g. skates on a bicycle).
   if(tax.source==='name'&&path.length&&departmentFor('',path).key!==tax.key)return CATALOG_DEPARTMENTS[tax.key]?.label||leaf;
