@@ -508,7 +508,7 @@ function pickerRideScore(product,ride){
   return city?3:mixed?2:0;
 }
 function pickerAssessment(product,height,ride){
-  if(!isPrimaryProduct(product,'bicycle')||pickerRideScore(product,ride)===0)return null;
+  if(product.department!=='bicycle'||product.productType!=='bicycle'||pickerRideScore(product,ride)===0)return null;
   const text=plain([product.name,product.rawCat,product.cat].join(' '));
   if(/беговел|трехкол|3-х кол|bmx/.test(text))return null;
   const wheel=parseFloat(String(product.facets?.wheel||'').replace(',','.'));
