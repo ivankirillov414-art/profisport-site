@@ -27,3 +27,47 @@
   .bikeAnatomy .bikeHotspot{width:24px;height:24px;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.bikeAnatomy button{transition:none!important}}
+
+
+/* Cleaner technical bike guide: the bike is the focus, labels remain readable. */
+.bikeAnatomy .bikeDiagram{
+  aspect-ratio:3/2;
+  min-height:430px;
+  padding:18px;
+  border:1px solid #e2e7eb;
+  border-radius:22px;
+  background:
+    linear-gradient(rgba(18,27,34,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(18,27,34,.035) 1px,transparent 1px),
+    #fbfcfd;
+  background-size:28px 28px;
+  box-shadow:0 18px 48px rgba(17,24,32,.08);
+}
+.bikeAnatomy .bikeIllustration{
+  object-fit:contain;
+  object-position:center;
+  filter:saturate(.92) contrast(1.03);
+}
+.bikeAnatomy .bikeParts button{
+  text-align:left;
+  color:#252c32;
+}
+.bikeAnatomy .bikeParts button:hover,
+.bikeAnatomy .bikeParts button:focus-visible,
+.bikeAnatomy .bikeParts button.is-highlighted{
+  background:#fff3b6;
+  color:#17191c;
+}
+.bikeAnatomy .bikeHotspot{
+  display:grid;
+  place-items:center;
+  width:26px;
+  height:26px;
+  border:2px solid #fff;
+  background:#f5c928;
+  color:#17191c;
+  box-shadow:0 3px 12px rgba(0,0,0,.3);
+}
+@media(max-width:850px){
+  .bikeAnatomy .bikeDiagram{min-height:0;padding:10px;border-radius:16px}
+}
