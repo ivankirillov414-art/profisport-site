@@ -256,3 +256,26 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
  .storefrontHome .heroLayout .heroTrack>.heroSlide.is-active{animation:energy-quiet-in 300ms ease-out!important}
  .productShell .galleryMain img{transform:perspective(900px) translate(var(--view-x,0px),var(--view-y,0px)) rotateY(0deg) scale(var(--view-scale,1))!important}
 }
+
+
+/* Category tiles: stable centered composition across all images and hover states. */
+#categoryTiles .categoryTile{align-items:center;text-align:center}
+#categoryTiles .categoryTile>div{width:100%;text-align:center}
+#categoryTiles .categoryTile h3{color:#20282f!important;text-align:center}
+#categoryTiles .categoryTile:is(:hover,:focus-visible) h3{color:#20282f!important}
+#categoryTiles .categoryTile .categoryArtwork,
+#categoryTiles .categoryTile:first-child .categoryArtwork{
+  display:block;
+  align-self:center;
+  width:100%;
+  max-width:300px;
+  height:145px;
+  margin:14px auto 0;
+  object-fit:contain;
+  object-position:center;
+}
+#categoryTiles .tileArrow{display:none!important}
+@media(max-width:700px){
+  #categoryTiles .categoryTile .categoryArtwork,
+  #categoryTiles .categoryTile:first-child .categoryArtwork{height:112px;margin-top:12px}
+}
