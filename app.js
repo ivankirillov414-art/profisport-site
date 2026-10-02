@@ -265,20 +265,17 @@ const megaSections={
 const navigationCategory={'велосипед':'bicycle','самокат':'scooter','запчаст':'cycling','аксессуар':'accessories','лыж':'skiing','фитнес':'fitness','туризм':'tourism'};
 let megaContext='',megaCloseTimer,megaTrigger=null;
 const MEGA_CATEGORY_ART={
-  bicycle:'assets/categories/bicycle-illustration-v1.png',
-  cycling:'assets/categories/parts-illustration-v1.png',
-  accessories:'assets/categories/accessories-illustration-v1.png',
-  skiing:'assets/categories/skiing-illustration-v2.png',
-  fitness:'assets/categories/fitness-illustration-v1.png',
-  tourism:'assets/categories/tourism-illustration-v2.png',
-  scooter:'assets/categories/scooter-illustration-v2.png'
+  bicycle:'assets/categories/bicycle-illustration-v1.png?v=2',
+  cycling:'assets/categories/parts-illustration-v1.png?v=2',
+  accessories:'assets/categories/accessories-illustration-v1.png?v=2',
+  skiing:'assets/categories/skiing-illustration-v2.png?v=2',
+  fitness:'assets/categories/fitness-illustration-v1.png?v=2',
+  tourism:'assets/categories/tourism-illustration-v2.png?v=2',
+  scooter:'assets/categories/scooter-illustration-v2.png?v=2'
 };
 function megaPhotoSources(items,fallbackKey=''){
-  const preferred=new Set(['bicycle','scooter','skis','snowboard','skates','rollers','dumbbell','kettlebell','ball','tent','helmet']);
-  const candidates=[...items].sort((a,b)=>Number(preferred.has(b.productType))-Number(preferred.has(a.productType)));
-  const productSources=[...new Set(candidates.flatMap(p=>imageCandidates(p).filter(src=>!src.includes('product-fallback-image.php')).slice(0,1)))].slice(0,5);
-  const fallback=MEGA_CATEGORY_ART[fallbackKey]||MEGA_CATEGORY_ART[catalogSectionFor(items[0]?.department)]||MEGA_CATEGORY_ART.accessories;
-  return [...productSources,fallback].filter(Boolean);
+  // Section artwork is independent of product photography and availability.
+  return [MEGA_CATEGORY_ART[fallbackKey]||MEGA_CATEGORY_ART[catalogSectionFor(items[0]?.department)]||MEGA_CATEGORY_ART.accessories];
 }
 function buildMega(context=''){
   const panel=$('#megaCatalog');if(!panel)return;
@@ -417,8 +414,8 @@ function setupHero(){
   dots.forEach((d,i)=>d.onclick=()=>setSlide(i));
   slider.querySelector('.heroPrev')&&(slider.querySelector('.heroPrev').onclick=()=>setSlide(current-1));
   slider.querySelector('.heroNext').onclick=()=>{if(!suppressClick)setSlide(current+1)};
-  
-  
+
+
   slider.addEventListener('focusin',pause);
   slider.addEventListener('focusout',()=>setTimeout(resume,0));
   slider.addEventListener('keydown',e=>{

@@ -1,5 +1,11 @@
 /* One public sport-tech layer; the administration keeps its functional UI. */
 :root{--energy: #ffc928;--energy-strong:#e8a914;--energy-dark:#13191e;--energy-panel:#20282f;--energy-soft:#eef1f3;--energy-shadow:0 18px 48px #11182014;--y:var(--energy)}
+/* The compact header originally assumed a white nav. Keep its interaction
+   states readable on the current graphite surface. */
+body.motion-page>nav:not(.mobileBottomNav)>a:is(:hover,:focus-visible,[aria-expanded="true"]){color:var(--energy);background:transparent}
+body.motion-page>nav:not(.mobileBottomNav)>a:focus-visible{outline-color:var(--energy)}
+body.motion-page #megaCatalog .megaGroup :is(.megaCardHead,.megaCardMore,.megaLinks a):is(:hover,:focus-visible){color:#20282f;background:#fff3c4;border-radius:10px}
+body.motion-page #megaCatalog .megaGroup :is(.megaCardHead,.megaCardMore,.megaLinks a):focus-visible{outline:2px solid #947000;outline-offset:2px}
 body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;color:#20282f;background:#f5f6f7;--profisport-brand-logo:url('assets/brand/profisport-logo.svg')}
 .motion-page :is(h1,h2,h3){font-family:inherit;font-style:normal;letter-spacing:-.025em;font-weight:650;text-transform:none;line-height:1.2}
 .motion-page:not(.motion-admin) :is(p,label,small,input,select,textarea,.price,.priceNow,.stock,h1,h2,h3,h4){font-family:'Segoe UI',Arial,sans-serif!important}
@@ -279,3 +285,6 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
   #categoryTiles .categoryTile .categoryArtwork,
   #categoryTiles .categoryTile:first-child .categoryArtwork{height:112px;margin-top:12px}
 }
+
+/* Transparent section artwork keeps the original brand colours. */
+#categoryTiles .categoryTile .categoryArtwork{mix-blend-mode:normal;filter:none}

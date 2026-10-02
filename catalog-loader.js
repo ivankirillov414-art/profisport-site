@@ -1,3 +1,10 @@
+// Presentation only: preserve source names, prices and accounting records.
+function cleanCatalogLabel(value){
+  return String(value??'')
+    .replace(/(?<![\p{L}\p{N}])(?:(?:цена\s+)?(?:с|без|включая|в\s*т\.?\s*ч\.?)\s+)?(?:\d+(?:[.,]\d+)?\s*%\s*)?(?:НДС|NDS|VAT)(?![\p{L}\p{N}])(?:\s+не\s+облагается|\s*[-–—:=]?\s*\d+(?:[.,]\d+)?\s*%)?/giu,'')
+    .replace(/[([]\s*[)\]]/g,'')
+    .replace(/\s+/g,' ').replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g,'').trim();
+}
 function readStoredArray(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value.filter(x=>typeof x==='string'||typeof x==='number'):[]}catch(e){return[]}}
 function pathOf(p){return p.category_path||p.breadcrumbs||[]}
 function textNorm(s){return String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9.,+"' -]+/gi,' ').replace(/\s+/g,' ').trim()}
@@ -49,7 +56,7 @@ function catalogSectionFor(department){
 function catalogCategoryLabel(key){return CATALOG_SECTIONS[key]?.label||CATALOG_DEPARTMENTS[key]?.label||key}
 function isSupReference(name){return /(?:^|[^a-zа-я])(?:sup(?=$|[^a-z])|са[пб](?:[- ]?борд|(?=$|[^а-я])))/i.test(textNorm(name))}
 function cleanPath(path){
-  const list=Array.isArray(path)?path.map(x=>String(x||'').trim()).filter(Boolean):[];
+  const list=Array.isArray(path)?path.map(cleanCatalogLabel).filter(Boolean):[];
   return list.filter(x=>!['главная','каталог товаров','каталог'].includes(textNorm(x)))
 }
 function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-')||n.startsWith(x+','))}
@@ -159,7 +166,7 @@ function catalogSubcategory(name,path,tax){
   // DIAFAN roots can include tax suffixes: "Велосипеды (НДС)".
   // Keep their actual leaf categories instead of collapsing every bike to the root.
   if(tax.key==='bicycle'&&(path.some(part=>/велосипед/.test(textNorm(part)))||/горн|детск|малыш|подрост|складн|фэтбайк|двухподвес|гибрид|шоссе|дорожн|городск|bmx/i.test(leaf))){
-    return leaf.replace(/\s*\(?\s*(?:НДС|NDS|VAT)(?:\s*[-–:]?\s*\d+(?:[.,]\d+)?\s*%)?\s*\)?/gi,'').trim()||'Велосипеды';
+    return cleanCatalogLabel(leaf)||'Велосипеды';
   }
   // Do not expose an unrelated old category (e.g. skates on a bicycle).
   if(tax.source==='name'&&path.length&&departmentFor('',path).key!==tax.key)return CATALOG_DEPARTMENTS[tax.key]?.label||leaf;
@@ -262,7 +269,7 @@ function normalizeProduct(p,i){
   const oldPrice=rawOld>price?rawOld:0;
   const qty=p.stock_qty===null||p.stock_qty===undefined||p.stock_qty===''?null:Number(p.stock_qty);
   const stockCode=(p.availability==='in_stock'||p.stock_status==='in_stock')?'in':(p.availability==='out_of_stock'||p.stock_status==='out_of_stock')?'out':'unknown';
-  const name=p.title||p.name||'Товар';
+  const name=cleanCatalogLabel(p.title||p.name)||'Товар';
   const specs=sanitizeCatalogSpecs(name,p.specs||{});
   const brandInfo=resolveCatalogBrand(name,p.brand,specs);
   const brand=brandInfo.brand;

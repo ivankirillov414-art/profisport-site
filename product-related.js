@@ -25,11 +25,5 @@ function descriptionText(value){
 }
 
 
-// Tax/accounting suffixes are hidden only in storefront navigation labels.
-function cleanProductCategoryLabel(value){
-  return String(value||'')
-    .replace(/(?<![\p{L}\p{N}])(?:НДС|NDS|VAT)\s+не\s+облагается/giu,'')
-    .replace(/(?<![\p{L}\p{N}])(?:(?:без|с|включая)\s+)?(?:НДС|NDS|VAT)(?![\p{L}])(?:\s*[-–—:=]?\s*\d+(?:[.,]\d+)?\s*%)?/giu,'')
-    .replace(/[([]\s*[)\]]/g,'')
-    .replace(/\s+/g,' ').replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g,'').trim();
-}
+// Use the same presentation rule in breadcrumbs, catalogue and basket.
+function cleanProductCategoryLabel(value){return cleanCatalogLabel(value)}
