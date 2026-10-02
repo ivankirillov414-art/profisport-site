@@ -228,3 +228,48 @@ header .logo{display:none!important}
 #filterControls [hidden]{display:none!important}
 @media(max-width:850px){#filterControls{border:0;padding:14px 4px;box-shadow:none;margin:0}#filterControls .filterGrid,#filterControls .filters{grid-template-columns:repeat(2,minmax(0,1fr))}#filterControls .filterSelection .filterField:first-child{grid-column:1/-1}#filterControls .filterPanelMark{display:none}#filterControls .filterPanelIntro h3{font-size:19px}#filterControls .riderFit{grid-template-columns:1fr 1fr}#filterControls .riderFit p{grid-column:1/-1}#filterDialogFooter #filterActions{display:flex;gap:10px;width:100%}#filterDialogFooter #filterActions button{flex:1}}
 @media(max-width:420px){#filterControls .filterGrid,#filterControls .filters{grid-template-columns:1fr}#filterControls .filterField{grid-column:auto}}
+
+
+/* 2026-10 catalog card cleanup: consistent previews, centered labels, no count/arrow noise. */
+@media(min-width:851px){
+  #megaCatalog .megaGroup{color:#20252b}
+  #megaCatalog .megaGroup a,
+  #megaCatalog .megaGroup a:hover,
+  #megaCatalog .megaGroup a:focus-visible{color:#20252b}
+  #megaCatalog .megaCardHead{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    min-height:176px;
+    padding:2px 0 12px;
+    text-align:center;
+  }
+  #megaCatalog .megaCardTitle{display:block;width:100%;text-align:center}
+  #megaCatalog .megaCardTitle h3{margin:0;font-size:16px;line-height:1.3;color:#20252b;text-align:center}
+  #megaCatalog .megaPhoto{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:122px;
+    min-height:122px;
+    overflow:hidden;
+  }
+  #megaCatalog .megaPhoto img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+  #megaCatalog .megaLinks{grid-template-rows:repeat(4,40px)}
+  #megaCatalog .megaLinks a{justify-content:center;text-align:center;color:#4b545d}
+  #megaCatalog .megaLinks a:hover,
+  #megaCatalog .megaLinks a:focus-visible{color:#20252b;background:#fff8dc;border-radius:8px}
+  #megaCatalog .megaGroup .megaCardMore{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#20252b;
+    font-weight:800;
+  }
+  #megaCatalog .megaGroup .megaCardMore:hover,
+  #megaCatalog .megaGroup .megaCardMore:focus-visible{color:#20252b;background:#fff8dc}
+}
