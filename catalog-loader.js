@@ -1,6 +1,8 @@
 // Presentation only: preserve source names, prices and accounting records.
 function cleanCatalogLabel(value){
   return String(value??'')
+    .replace(/\d+(?:[.,]\d+)?\s*%\s*(?=[([]\s*(?:НДС|NDS|VAT)(?![\p{L}\p{N}]))/giu,'')
+    .replace(/((?:НДС|NDS|VAT)\s*[)\]])\s*\d+(?:[.,]\d+)?\s*%/giu,'$1')
     .replace(/(?<![\p{L}\p{N}])(?:(?:цена\s+)?(?:с|без|включая|в\s*т\.?\s*ч\.?)\s+)?(?:\d+(?:[.,]\d+)?\s*%\s*)?(?:НДС|NDS|VAT)(?![\p{L}\p{N}])(?:\s+не\s+облагается|\s*[-–—:=]?\s*\d+(?:[.,]\d+)?\s*%)?/giu,'')
     .replace(/[([]\s*[)\]]/g,'')
     .replace(/\s+/g,' ').replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g,'').trim();

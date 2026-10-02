@@ -48,6 +48,7 @@ jobs:
           node tests/product-gallery-regression.js
           node tests/mobile-layout-regression.js
           node tests/catalog-taxonomy-regression.js
+          node tests/bike-picker-regression.js
           node tests/catalog-live-source-regression.js
           node tests/current-export-regression.js
           node tests/migration-readiness.js
@@ -126,6 +127,7 @@ jobs:
           node tests/mobile-layout-regression.js
           node tests/hero-slides-regression.js
           node tests/catalog-taxonomy-regression.js
+          node tests/bike-picker-regression.js
           node tests/catalog-live-source-regression.js
           node tests/current-export-regression.js
           node tests/migration-readiness.js
