@@ -44,7 +44,7 @@ try{
     if($action==='start'){
         $batch=bin2hex(random_bytes(16));
         $stage=import_upload_stage_dir($importRoot,$batch);import_upload_mkdir($stage);
-        upload_out(['ok'=>true,'batch'=>$batch]);
+        upload_out(['ok'=>true,'batch'=>$batch,'limits'=>import_upload_limits()]);
     }
 
     $batch=(string)($_GET['batch']??'');
@@ -69,9 +69,9 @@ try{
             $tmp=(string)$file['tmp_name'];if(!is_uploaded_file($tmp))throw new RuntimeException('Сервер не получил файл.');
             $relative=import_upload_sanitize_path((string)$paths[$i]);
             $size=(int)$file['size'];$ext=strtolower(pathinfo($relative,PATHINFO_EXTENSION));
-            $limit=import_upload_is_image($relative)?25*1024*1024:64*1024*1024;
+            $limit=import_upload_limits()['max_file_bytes'];
             if($size<1||$size>$limit)throw new RuntimeException('Недопустимый размер файла '.$relative);
-            $chunkBytes+=$size;if($chunkBytes>24*1024*1024)throw new RuntimeException('Пакет слишком большой. Уменьшите количество файлов за одну загрузку.');
+            $chunkBytes+=$size;if($chunkBytes>import_upload_limits()['max_batch_bytes'])throw new RuntimeException('Пакет слишком большой. Уменьшите количество файлов за одну загрузку.');
             if(import_upload_is_image($relative)&&!upload_image_valid($tmp,$relative))throw new RuntimeException('Файл не является допустимым изображением: '.$relative);
             $dest=$stage.DIRECTORY_SEPARATOR.str_replace('/',DIRECTORY_SEPARATOR,$relative).'.part';
             import_upload_mkdir(dirname($dest));

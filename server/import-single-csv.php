@@ -53,3 +53,15 @@ function single_csv_merge_photos(array $incoming,array $previous,string $main): 
     $previous=array_values(array_filter($previous,fn($v)=>!isset($replaced[$name($v)])));
     return ['images'=>array_values(array_unique(array_merge($incoming,$previous))),'main'=>$incoming[0]];
 }
+
+/** Same-second uploads must not select an older, larger CSV by file size. */
+function single_csv_source_mtime(string $path): float {
+    $mtime=(float)filemtime($path);
+    $dir=str_replace('\\','/',dirname($path));
+    if(!preg_match('~/manual/[^/]+$~',$dir))return $mtime;
+    $marker=$dir.'/.upload.json';
+    if(!is_file($marker))return $mtime;
+    $data=json_decode((string)file_get_contents($marker),true);
+    $completed=$data['completed_at']??0;
+    return is_numeric($completed)?max($mtime,(float)$completed):$mtime;
+}
