@@ -15,18 +15,18 @@ assert.match(api,/function customer_review_eligible/,'account API must expose co
 assert.match(api,/o\.status='completed'/,'review eligibility must require completed orders');
 assert.match(api,/review_not_eligible/,'review submit must reject non-purchases');
 assert.match(api,/duplicate_review/,'review submit must reject duplicates');
-assert.match(api,/\$review\['status'\]!=='rejected'/,'rejected review must be resubmittable instead of duplicated');
+assert.doesNotMatch(api,/resubmitted/,'archived reviews must not be overwritten by customer resubmission');
 assert.match(api,/GET_LOCK/,'review creation must serialize customer/product submissions');
 assert.match(api,/verified_purchase/,'public and account review payloads must include verified purchase');
 assert.match(api,/review_details/,'me payload must include review details');
 assert.match(api,/review_eligible/,'me payload must include review eligibility');
 
-for(const fn of ['renderReviewDashboard','reviewEligibleCard','reviewDetailCard','openReviewComposer','submitCustomerReview']){
+for(const fn of ['renderReviewDashboard','reviewEligibleCard','openReviewComposer','submitCustomerReview']){
   assert.match(profile,new RegExp('function '+fn+'\\b'),'profile must implement '+fn);
 }
 assert.match(profile,/Куплено в ProfiSport/,'profile reviews must show verified purchase label');
-assert.match(profile,/На модерации/,'profile reviews must show moderation status');
-assert.match(profile,/Исправить и отправить снова/,'rejected reviews must support resubmission');
+assert.doesNotMatch(profile,/reviewStatusLabels|reviewStatusChip|data-review-retry/,'customer profile must not reveal moderation decisions');
+assert.doesNotMatch(profile,/Исправить и отправить снова|Статус обновляется после модерации/,'customer must not be prompted to resubmit rejected content');
 assert.match(profile,/id="reviewComposer"/,'profile must have review composer');
 
 for(const cls of ['reviewEligibleCard','customerReviewCard','reviewStatusChip','reviewComposer','reviewRatingPicker','verifiedPurchaseBadge']){
@@ -42,5 +42,13 @@ assert.match(productCss,/\.verifiedReviewBadge/,'public verified badge must be s
 const inline=[...profile.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
 for(const source of inline)new Function(source);
 new Function(product);
+const admin=read('admin/reviews.php');
+for(const code of [...admin.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)])new Function(code[1]);
+assert.match(admin,/Архив отклонённых/);
+assert.match(admin,/reason_code.*required/);
+assert.match(admin,/rejection_note/);
+const detail=api.slice(api.indexOf('function customer_review_details'),api.indexOf('function customer_review_eligible'));
+assert.doesNotMatch(detail,/SELECT[^;]*status|review_text|rejection_reason_code/);
+assert.doesNotMatch(product,/existing\.status|Предыдущий отзыв отклонён|Ваш отзыв уже на модерации/);
 
 console.log('Customer reviews block 4 regression checks passed.');

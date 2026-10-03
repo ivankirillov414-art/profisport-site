@@ -165,32 +165,48 @@ review={'product_id':1,'rating':5,'text':'Useful test review for moderation'}
 assert call('api/customer.php?action=review_submit',review,customer_cookie)[0]==403
 status,not_eligible,_=call('api/customer.php?action=review_submit',{**review,'product_id':2},customer_cookie,customer_csrf);assert (status,not_eligible['error'])==(403,'review_not_eligible')
 assert call('api/customer.php?action=review_submit',{**review,'text':'x'*5001},customer_cookie,customer_csrf)[0]==422
-status,submitted,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert status==200 and submitted['resubmitted'] is False
+status,submitted,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert status==200 and submitted['accepted'] is True and 'status' not in submitted
 review_id=submitted['review_id']
 status,duplicate,_=call('api/customer.php?action=review_submit',review,customer_cookie,customer_csrf);assert (status,duplicate['error'])==(409,'duplicate_review')
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
 assert account['reviews_count']==1
 assert all(x['product_id']!=1 for x in account['review_eligible']) and any(x['product_id']==3 for x in account['review_eligible'])
-assert len(account['review_details'])==1 and account['review_details'][0]['status']=='pending' and account['review_details'][0]['verified_purchase'] is True
+assert account['review_details']==[{'product_id':1}]
 assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id
-rejection={'review_id':review_id,'action':'reject','bonus':0}
+rejection={'review_id':review_id,'action':'reject'}
 assert call('api/review-moderation.php',rejection,cookie)[0]==403
+assert call('api/review-moderation.php',rejection,cookie,csrf)[0]==422
+assert call('api/review-moderation.php',{**rejection,'reason_code':'made_up'},cookie,csrf)[0]==422
+assert call('api/review-moderation.php',{**rejection,'reason_code':'other'},cookie,csrf)[0]==422
+assert call('api/review-moderation.php',{**rejection,'reason_code':'spam','reason_note':'x'*501},cookie,csrf)[0]==422
+rejection.update(reason_code='profanity',reason_note='Contains prohibited wording')
 assert call('api/review-moderation.php',rejection,cookie,csrf)[0]==200
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
-assert account['review_details'][0]['status']=='rejected'
-fixed={**review,'rating':4,'text':'Updated verified purchase review after moderation'}
-status,resubmitted,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert status==200 and resubmitted['resubmitted'] is True and resubmitted['review_id']==review_id
-pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id and pending[0]['rating']==4
-approval={'review_id':review_id,'action':'approve','bonus':50}
+assert account['review_details']==[{'product_id':1}]
+assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
+assert call('api/review-moderation.php?status=rejected')[0]==401
+archive=call('api/review-moderation.php?status=rejected',cookie=cookie)[1]
+archived=next(x for x in archive['items'] if x['id']==review_id)
+assert archive['total']==1 and archive['page']==1 and archive['pages']==1
+assert archived['review_text']==review['text'] and archived['rejection_reason_code']=='profanity'
+assert archived['rejection_note']=='Contains prohibited wording' and archived['rejected_at'] and archived['rejected_by_name']
+assert call('api/review-moderation.php',rejection,cookie,csrf)[0]==409
+fixed={**review,'rating':4,'text':'Attempt to overwrite archived review'}
+assert call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf)[0]==409
+assert call('api/review-moderation.php?status=rejected',cookie=cookie)[1]['items'][0]['review_text']==review['text']
+assert call('api/review-moderation.php',{'review_id':review_id,'action':'approve'},cookie,csrf)[0]==409
+second={**review,'product_id':3,'rating':4,'text':'Another verified purchase review'}
+status,submitted,_=call('api/customer.php?action=review_submit',second,customer_cookie,customer_csrf);assert status==200
+approval={'review_id':submitted['review_id'],'action':'approve','bonus':50}
 status,approved,_=call('api/review-moderation.php',approval,cookie,csrf);assert status==200
 assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_unconfigured'
 assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
-status,approved_duplicate,_=call('api/customer.php?action=review_submit',fixed,customer_cookie,customer_csrf);assert (status,approved_duplicate['error'])==(409,'duplicate_review')
-public_review=call('api/customer.php?action=reviews&product_id=1')[1]
+assert call('api/customer.php?action=review_submit',second,customer_cookie,customer_csrf)[0]==409
+public_review=call('api/customer.php?action=reviews&product_id=3')[1]
 assert public_review['count']==1 and public_review['items'][0]['verified_purchase'] is True
 account=call('api/customer.php?action=me',cookie=customer_cookie)[1]
-assert account['review_details'][0]['status']=='approved' and account['review_details'][0]['rating']==4
+assert account['review_details']==[{'product_id':3},{'product_id':1}]
 assert account['customer']['bonus_balance']==0 and len(account['loyalty'])==0
 assert account['loyalty_program']['enabled'] is False and account['loyalty_program']['configured'] is False
 manual={'customer_id':account['customer']['id'],'amount':40,'note':'Test ledger adjustment'}
