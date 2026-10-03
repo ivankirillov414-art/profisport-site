@@ -27,6 +27,8 @@ jobs:
         run: |
           if ! grep -q "require .*import-single-csv.php" api/import-apply.php; then python3 scripts/apply-single-csv.py; fi
           python3 scripts/single-csv-ordering.py
+          # Existing deployment and store workflows are outside this job's writes.
+          git restore .github/workflows/store-tests.yml .github/workflows/deploy-infinityfree.yml
       - name: Syntax and focused regression tests
         run: |
           find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
@@ -46,11 +48,11 @@ jobs:
           trap 'kill "$SERVER_PID"' EXIT
           for i in 1 2 3 4 5; do curl -s http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
           python3 tests/import-single-csv-http.py
-      - name: Commit verified code to review branch only
+      - name: Commit verified application code to review branch only
         run: |
           git config user.name 'ProfiSport validation'
           git config user.email 'profisport@users.noreply.github.com'
-          git add admin/ api/import-apply.php api/import-upload.php server/import-upload.php server/import-single-csv.php .github/workflows/store-tests.yml .github/workflows/deploy-infinityfree.yml
+          git add admin/ api/import-apply.php api/import-upload.php server/import-upload.php server/import-single-csv.php
           if ! git diff --cached --quiet; then
             git commit -m 'Apply single CSV upload and optional categories after HTTP verification'
             git push origin HEAD:codex/single-csv-images
