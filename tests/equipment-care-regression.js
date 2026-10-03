@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('equipment-care.js','utf8'),ctx={};vm.createContext(ctx);vm.runInContext(source,ctx);
+const fixture={vehicle_type:'inline_skates',title:'Ролики <test>',passport:{care:{usage_unit:'hours',usage_value:20,items:[{key:'wheels',label:'Колёса',state:'unknown',wear_percent:null,personal_cycles:0,criterion:'Осмотр по состоянию',routine:'Проверить',history:[],measurement_threshold:null}]}}};
+let html=ctx.equipmentCareMarkup(fixture);assert.match(html,/Расходники и обслуживание/);assert.doesNotMatch(html,/value="null"/);assert.doesNotMatch(html,/<progress/);assert.match(html,/Ресурс определяется по состоянию/);
+const item=fixture.passport.care.items[0];Object.assign(item,{state:'soon',wear_percent:85,remaining:3,predicted_life:20,personal_cycles:2,basis:'personal'});html=ctx.equipmentCareMarkup(fixture);assert.match(html,/<progress max="100" value="85"/);assert.match(html,/остаток: 3 ч/);
+Object.assign(item,{basis:'measurement',remaining:null,measurement_threshold:0.8,measurement_unit:'%'});html=ctx.equipmentCareMarkup(fixture);assert.match(html,/Износ по замеру/);assert.doesNotMatch(html,/Ориентировочный остаток/);assert.match(html,/name="measurement_value"/);
+item.history=[{created_at:'2026-10-03 12:00:00',event_type:'checked',usage_value:20,include_learning:1,note:'<img src=x onerror=alert(1)>'}];html=ctx.equipmentCareMarkup(fixture);assert.doesNotMatch(html,/<img src=x/);assert.match(html,/&lt;img/);
+const api=fs.readFileSync('api/customer.php','utf8');assert.match(api,/equipment_care.*POST/);assert.match(api,/customer_csrf_check\(\);\$in=input_json\(\);\s*try\{equipment_care_save/);
+const domain=fs.readFileSync('server/equipment-care.php','utf8');assert.match(domain,/customer_id=\? AND is_active=1 FOR UPDATE/);assert.match(domain,/\(float\)\$value<\(float\)\$old/);
+const profile=fs.readFileSync('profile.html','utf8');for(const code of [...profile.matchAll(/<script(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/g)])new Function(code[1]);assert.match(profile,/equipmentCareMarkup\(vehicle\)/);assert.match(profile,/vehicleImageMarkup\(vehicle\)/);
+console.log('Equipment care UI: unknown vs measured resource, counter units, escaped history, ownership and CSRF passed.');

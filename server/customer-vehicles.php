@@ -6,13 +6,19 @@ function customer_vehicle_type(string $title,string $categoryPath): ?string {
     $categoryNorm=mb_strtolower(trim($categoryPath),'UTF-8');
     $top=trim((string)(preg_split('~\s*(?:/|>|»|→)\s*~u',$categoryNorm)[0]??$categoryNorm));
     if(preg_match('/запчаст|аксессуар|детал|покрыш|камер|компонент/u',$top))return null;
+    if(preg_match('/^(?:ролики|роликовые коньки).*?(?:shimano|переключ|пресс|массаж)/u',$titleNorm))return null;
+    if(preg_match('/^лыжи?\s+(?:боков|для снегокат)/u',$titleNorm))return null;
+    if(preg_match('/^(?:ролики|роликовые коньки)\b/u',$titleNorm))return 'inline_skates';
+    if(preg_match('/^(?:скейтборд|скейт|лонгборд)\b/u',$titleNorm))return 'skateboard';
+    if(preg_match('/^(?:(?:беговые|горные)\s+)?лыжи\b/u',$titleNorm))return 'skis';
+    if(preg_match('/^сноуборд\b/u',$titleNorm))return 'snowboard';
     if(preg_match('/самокат/u',$top)||preg_match('/^(?:электро)?самокат\b/u',$titleNorm))return 'scooter';
     if(preg_match('/велосипед|\bbmx\b/u',$top)||preg_match('/^(?:электро)?велосипед\b|^bmx\b/u',$titleNorm))return 'bicycle';
     return null;
 }
 
 function customer_vehicle_image(array $row): ?string {
-    $urls=[(string)($row['main_image']??''),(string)($row['image_url']??'')];
+    $urls=[(string)($row['image_url']??''),(string)($row['main_image']??'')];
     $images=json_decode((string)($row['images']??''),true);
     if(is_array($images))foreach($images as $value)$urls[]=(string)$value;
     foreach($urls as $url){

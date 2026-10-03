@@ -22,6 +22,7 @@ function vehicle_passport_hotspots(): array {
 }
 
 function ensure_vehicle_passport_schema(PDO $pdo): void {
+    ensure_equipment_care_schema($pdo);
     $cols=table_columns($pdo,'customer_vehicles');
     $defs=[
         'serial_number'=>'VARCHAR(180) NULL',
@@ -454,6 +455,7 @@ function vehicle_passport_payload(PDO $pdo,int $vehicleId,bool $includeEvents=fa
         'vehicle'=>$vehicle,
         'hotspots'=>(string)$vehicle['vehicle_type']==='bicycle'?vehicle_passport_hotspots():[],
         'components'=>$components,
+        'care'=>equipment_care_payload($pdo,$vehicle,$components),
         'maintenance_alerts'=>$alertRows,
         'verified_profile'=>$verifiedProfile?['key'=>$verifiedProfile['key'],'source_url'=>$verifiedProfile['source_url'],'verified_at'=>'2026-09-26']:null,
     ];

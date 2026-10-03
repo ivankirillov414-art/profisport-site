@@ -39,8 +39,9 @@ assert.match(customer,/vehicles'=>customer_vehicle_rows/,'customer payload must 
 
 assert.match(profile,/id="vehiclePassport"/,'customer profile must contain passport surface');
 assert.match(profile,/function openVehiclePassport/,'customer profile must render the interactive passport');
-assert.match(profile,/assets\/guide\/bicycle\.png/,'customer passport must reuse the approved service bicycle visual');
-assert.match(profile,/vehicle\.vehicle_type==='bicycle'/,'customer passport must not show the bicycle diagram for other vehicle types');
+assert.match(profile,/vehicleImageMarkup\(vehicle\)/,'passport must show the actually purchased model');
+assert.doesNotMatch(profile,/assets\/guide\/bicycle\.png/,'ownership passport must not substitute a generic bicycle');
+assert.match(profile,/inline_skates.*skateboard.*skis/,'passport must name all supported equipment types');
 assert.match(profile,/confirm_component_replacement/,'customer must explicitly confirm installation after a compatible purchase');
 assert.match(profile,/Точная модель не подтверждена/,'customer UI must expose uncertainty instead of inventing a component');
 assert.match(profile,/data-passport-hotspot/,'customer passport must support interactive hotspots');

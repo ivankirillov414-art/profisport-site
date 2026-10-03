@@ -89,6 +89,8 @@ jobs:
           node tests/profile-block5-cookie-regression.js
           node tests/profile-phone-login-regression.js
           node tests/profile-vehicles-service-regression.js
+          node tests/equipment-care-regression.js
+          php tests/equipment-care.php
           node tests/vehicle-passport-regression.js
           node tests/vehicle-maintenance-alerts-regression.js
           node tests/vehicle-compatible-parts-regression.js

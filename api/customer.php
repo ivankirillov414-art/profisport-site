@@ -198,7 +198,7 @@ try{
   if($action==='service_submit'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$customerId=(int)$u['id'];$vehicleId=(int)($in['vehicle_id']??0);
     $serviceType=trim((string)($in['service_type']??''));$problem=trim((string)($in['problem']??''));$key=(string)($in['request_key']??'');
-    $allowedTypes=['Диагностика','Тормоза','Передачи и цепь','Колёса и покрышки','Техническое обслуживание','Сборка и настройка','Другое'];
+    $allowedTypes=['Диагностика','Тормоза','Передачи и цепь','Колёса и покрышки','Техническое обслуживание','Сборка и настройка','Подвеска','Колёса и подшипники','Руль и крепления','Тормоз роликов','Рама и застёжки','Дека и подвески','Подготовка лыж','Подготовка сноуборда','Проверка креплений','Другое'];
     if($vehicleId<1||!in_array($serviceType,$allowedTypes,true)||mb_strlen($problem)<5||mb_strlen($problem)>4000||!preg_match('/^[a-f0-9]{64}$/D',$key))json_response(['ok'=>false,'error'=>'invalid_input'],422);
     $v=$pdo->prepare('SELECT id,title FROM customer_vehicles WHERE id=? AND customer_id=? AND is_active=1 LIMIT 1');$v->execute([$vehicleId,$customerId]);$vehicle=$v->fetch();if(!$vehicle)json_response(['ok'=>false,'error'=>'vehicle_not_found'],404);
     auth_rate_check($pdo,'customer_service_request',(string)$customerId,10,3600);auth_rate_failure($pdo,'customer_service_request',(string)$customerId,10,3600,3600);
@@ -225,6 +225,12 @@ try{
     $result=vehicle_replacement_assign_customer($pdo,(int)$u['id'],$purchaseId,$componentId);
     audit($pdo,'customer_replacement_purchase_assign','vehicle_component',(string)$componentId,['customer_id'=>(int)$u['id'],'purchase_id'=>$purchaseId,'event_id'=>$result['event_id']]);
     json_response(['ok'=>true,'vehicles'=>customer_vehicle_rows($pdo,(int)$u['id']),'replacement_purchases'=>vehicle_replacement_pending_for_customer($pdo,(int)$u['id']),'maintenance_alerts'=>vehicle_maintenance_alerts_for_customer($pdo,(int)$u['id'],true),'csrf'=>customer_csrf()]);
+  }
+  if($action==='equipment_care'&&$_SERVER['REQUEST_METHOD']==='POST'){
+    $u=customer_require($pdo);customer_csrf_check();$in=input_json();
+    try{equipment_care_save($pdo,(int)$u['id'],$in);}catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>$e->getMessage()],422);}
+    audit($pdo,'customer_equipment_care','vehicle',(string)($in['vehicle_id']??0),['customer_id'=>(int)$u['id'],'care_key'=>$in['care_key']??null]);
+    json_response(['ok'=>true,'vehicles'=>customer_vehicle_rows($pdo,(int)$u['id']),'csrf'=>customer_csrf()]);
   }
   if($action==='confirm_component_replacement'&&$_SERVER['REQUEST_METHOD']==='POST'){
     $u=customer_require($pdo);customer_csrf_check();$in=input_json();$componentId=(int)($in['component_id']??0);

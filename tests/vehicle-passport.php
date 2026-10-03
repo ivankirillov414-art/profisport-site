@@ -13,6 +13,12 @@ try{
     $s=$pdo->prepare("INSERT INTO customer_vehicles(customer_id,product_id,title,vehicle_type,order_number,purchase_date,spec_snapshot,is_active) VALUES(?,3,'Demo bicycle','bicycle','PASS-1',NOW(),?,1)");
     $s->execute([$customerId,$snapshot]);$vehicleId=(int)$pdo->lastInsertId();
 
+    equipment_care_save($pdo,$customerId,['vehicle_id'=>$vehicleId,'usage_value'=>100,'care_key'=>'chain','event_type'=>'checked','condition_state'=>'watch','note'=>'Проверка владельца']);
+    $care=equipment_care_payload($pdo,['id'=>$vehicleId,'vehicle_type'=>'bicycle','title'=>'Demo bicycle'],[]);
+    vp_check($care['usage_value']===100.0&&$care['items'][0]['state']==='watch','care counter and condition must persist');
+    try{equipment_care_save($pdo,$customerId+999,['vehicle_id'=>$vehicleId,'usage_value'=>200]);throw new RuntimeException('care ownership bypass');}catch(InvalidArgumentException $e){vp_check($e->getMessage()==='vehicle_not_found','care must check ownership');}
+    try{equipment_care_save($pdo,$customerId,['vehicle_id'=>$vehicleId,'usage_value'=>50]);throw new RuntimeException('counter rollback allowed');}catch(InvalidArgumentException $e){vp_check($e->getMessage()==='bad_usage','care counters must be monotonic');}
+    vp_check($pdo->inTransaction(),'care failures must not roll back caller transaction');
     $seeded=vehicle_passport_seed_vehicle($pdo,$vehicleId);vp_check($seeded===2,'only explicit recognized 1C specs should seed components');
     $components=vehicle_passport_components($pdo,$vehicleId,true);
     $chain=next_component($components,'chain');$brakes=next_component($components,'brakes');
