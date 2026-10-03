@@ -38,7 +38,7 @@ function searchWord(word){
 }
 function searchTokens(raw){return canonicalQuery(raw).replace(/[^a-zа-я0-9]+/g,' ').split(' ').filter(Boolean).map(searchWord)}
 function productText(p){return plain([p.name,p.sku,p.sourceId,p.brand,p.model,p.cat,p.rawCat,p.departmentLabel,p.pathText,p.productType==='sup'?'сап sup сапборд':'',p.description,catalogSpecEntries(p.specs||{}).flat().join(' ')].join(' '))}
-const accessoryStems=['чехол','сумк','багажник','крыл','фонар','звонок','замок','покрыш','камер','насос','держател','креплен','корзин','зеркал','седл','сиден','педал','грипс','трос','цеп','кассет','звезд','переключ','тормоз','обод','вилк','рам','втулк','спиц','поднож','подстав','крепеж','адаптер','палк','ботин','маск','очк','перчат','защит','колес','подшип','ось','амортиз','ремкомплект','запчаст'];
+const accessoryStems=['чехол','сумк','багажник','крыл','фонар','звонок','замок','покрыш','камер','насос','держател','креплен','корзин','зеркал','седл','сиден','педал','грипс','трос','цеп','кассет','звезд','переключ','тормоз','обод','вилк','рам','втулк','спиц','поднож','подстав','крепеж','адаптер','рул','зажим','дек','вынос','палк','ботин','маск','очк','перчат','защит','колес','подшип','ось','амортиз','ремкомплект','запчаст'];
 const typeTerms={
   bicycle:['электровелосипед','велосипед'], balance_bike:['беговел'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборд'], skates:['коньк'], rollers:['роликов','ролик','квад'], skateboard:['скейтборд','скейт'], longboard:['лонгборд'], sled:['санк','сани','ледянк'], snow_scooter:['снегокат','снегосамокат'], tubing:['тюбинг','ватрушк'], helmet:['шлем'], backpack:['рюкзак'], tent:['палатк'], sleeping_bag:['спальник','спальный мешок'], trampoline:['батут'], treadmill:['беговая дорожк'], exercise_bike:['велотренажер'], elliptical:['эллипс','эллиптическ'], dumbbell:['гантел'], barbell:['штанг'], kettlebell:['гиря','гири','гирь'], resistance_band:['эспандер'], ab_wheel:['ролик для пресса','ролики для пресса'], racket:['ракетк'], ball:['мяч'], hockey_stick:['клюшк'], pool:['бассейн'], sup:['сап','sup'], kayak:['каяк'], boat:['лодк']
 };
@@ -71,7 +71,7 @@ function isPrimaryProduct(p,intent){
   for(const t of terms){const i=n.indexOf(t);if(i>=0)pos=Math.min(pos,i)}
   if(!Number.isFinite(pos))return false;
   const before=n.slice(0,pos);
-  if(containsAccessory(before)||/(?:^|\s)для\s*$/.test(before))return false;
+  if(containsAccessory(before)||/(?:^|\s)для(?:\s|$)/.test(before))return false;
   return pos<=48;
 }
 const SEARCH_BRAND_ALIASES={'шимано':'shimano','стелс':'stels','стелз':'stels','техтим':'techteam','тт':'techteam','tt':'techteam','старфит':'starfit','кенда':'kenda','максис':'maxxis','фишер':'fischer','нордски':'nordski','провокатор':'provokator'};

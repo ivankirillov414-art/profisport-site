@@ -35,8 +35,8 @@
         if(child.nodeType===Node.TEXT_NODE&&child.textContent.includes('Предыдрщая'))child.textContent=child.textContent.replaceAll('Предыдрщая','Предыдущая');
       });
     });
-    document.querySelectorAll('option').forEach(option=>{
-      if(/Самокаты/i.test(option.textContent))option.textContent=option.textContent.replace(/Самокаты,?\s*/i,'').replace(/^\s+/,'')||'Ролики и скейты';
+    document.querySelectorAll('#category option').forEach(option=>{
+      if(option.value==='scooter')option.textContent='Ролики и скейты';
     });
   }
 
