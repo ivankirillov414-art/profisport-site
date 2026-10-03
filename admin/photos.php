@@ -1,65 +1,16 @@
 <?php require __DIR__.'/guard.php'; ?>
-<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow">
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>ПрофиСпорт — фото из 1С</title>
 <style>
-:root{--y:#f2c94c;--bg:#f5f5f3;--tx:#202124;--muted:#747a80;--line:#e3e3df;--green:#19763b;--red:#a92b20;--page:980px}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-.top{background:linear-gradient(135deg,#454b51,#2f3439);color:#fff}.topin{width:min(var(--page),calc(100% - 28px));min-height:62px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{font-size:20px;font-weight:900}.brand i{font-style:normal;color:var(--y)}.back{color:#fff;text-decoration:none;background:#ffffff17;border:1px solid #ffffff26;padding:10px 13px;border-radius:10px}
-main{width:min(var(--page),calc(100% - 28px));margin:22px auto 60px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0}.notice{background:#fff8d8;border-color:#efd36a}
-h1{margin:0 0 8px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.metric{background:#f7f7f4;border-radius:13px;padding:13px}.metric b{display:block;font-size:24px}.metric span{font-size:12px;color:var(--muted)}
-button{border:0;border-radius:11px;padding:11px 15px;font:inherit;font-weight:800;background:var(--y);cursor:pointer}.ok{color:var(--green)}.bad{color:var(--red)}.list{display:grid;gap:8px;margin-top:12px}.row{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#fafaf8}
-@media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-</style>
-<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style></head>
-<body class="motion-page motion-admin">
+:root{--y:#f2c94c;--bg:#f5f5f3;--tx:#202124;--muted:#62686e;--line:#e3e3df;--green:#19763b;--red:#a92b20;--page:1100px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}.top{background:linear-gradient(135deg,#454b51,#2f3439);color:#fff}.topin{width:min(var(--page),calc(100% - 28px));min-height:62px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:20px;font-weight:900}.brand i{font-style:normal;color:var(--y)}.back{color:#fff;text-decoration:none;background:#ffffff17;border:1px solid #ffffff26;padding:10px 13px;border-radius:10px}main{width:min(var(--page),calc(100% - 28px));margin:22px auto 60px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0}.notice{background:#fff8d8;border-color:#efd36a}h1,h2{margin:0 0 12px}.muted,small{color:var(--muted)}button,input{font:inherit}button{border:0;border-radius:10px;padding:11px 15px;font-weight:750;background:var(--y);color:var(--tx);cursor:pointer}button:disabled{opacity:.55;cursor:default}button:focus-visible,input:focus-visible{outline:3px solid #347dbe;outline-offset:3px}.secondary{background:#eeefec}.danger{background:#fff0ef;color:var(--red)}.ok{color:var(--green)}.bad{color:var(--red)}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.toolbar input{flex:1;min-width:170px;border:1px solid #bfc3c6;border-radius:10px;padding:12px}.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}.product-result{background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:90px 1fr;gap:14px;text-align:left;font-weight:400;min-width:0}.product-result b{display:block;overflow-wrap:anywhere}.product-result strong{display:block;font-size:13px;margin-top:6px}.product-result small{display:block;margin:4px 0}.result-preview{height:88px;display:grid;place-items:center;border-radius:10px;background:#f6f6f3;color:var(--muted);font-size:12px;overflow:hidden}.result-preview img{width:100%;height:100%;object-fit:contain}.pagination{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:20px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.metric{background:#f7f7f4;border-radius:13px;padding:13px}.metric b{display:block;font-size:24px}.metric span{font-size:12px;color:var(--muted)}.health-row{display:block;width:100%;margin:6px 0;text-align:left;background:#f7f7f4;font-weight:500}.health-row small{display:block}.dialog{width:min(950px,calc(100% - 20px));max-height:90dvh;overflow:auto;border:1px solid var(--line);border-radius:18px;padding:22px}.dialog::backdrop{background:#0008}.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.dialog-head h2{font-size:21px;overflow-wrap:anywhere}.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.photo-item{border:1px solid var(--line);border-radius:13px;padding:12px;min-width:0}.photo-preview{height:180px;background:#f7f7f4;border-radius:9px;display:grid;place-items:center}.photo-preview img{width:100%;height:100%;object-fit:contain}.photo-item b{display:block;margin:8px 0}.photo-actions{display:flex;flex-wrap:wrap;gap:6px}.photo-actions button{padding:8px 9px;font-size:12px;background:#efefea}.photo-actions .danger{color:var(--red)}#editorMessage{min-height:24px;margin-top:12px;overflow-wrap:anywhere}#pendingPhoto{margin:16px 0;border:2px solid var(--y);border-radius:12px;padding:14px}#pendingImage{display:block;max-width:100%;max-height:220px;margin:10px auto}#pendingName{overflow-wrap:anywhere}[hidden]{display:none!important}
+@media(max-width:700px){.results{grid-template-columns:1fr}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card,.dialog{padding:15px}.dialog-head h2{font-size:18px}.product-result{grid-template-columns:70px 1fr}.result-preview{height:75px}.photo-preview{height:140px}}@media(max-width:380px){.gallery{grid-template-columns:1fr}}
+</style></head><body>
 <header class="top"><div class="topin"><div class="brand">Профи<i>Спорт</i></div><a class="back" href="index.php">← Админка</a></div></header>
-<main>
-<section class="card notice">
-<h1>Фотографии из актуальной выгрузки 1С</h1>
-<p>Фото товара берётся только из текущей выгрузки 1С / записи MySQL. Ручная загрузка, подбор из старого каталога и поиск картинок в интернете отключены.</p>
-<p class="muted">Если у товара в выгрузке нет физического фото, сайт сохраняет это как отсутствие фото. Ни администратор, ни фоновый процесс не подменяют его сторонним изображением.</p>
-</section>
-<section class="card">
-<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Диагностика</h2><div id="generated" class="muted">Загрузка…</div></div><button id="refresh" type="button">Обновить</button></div>
-<div id="metrics" class="grid"></div>
-<div id="message" class="muted" style="margin-top:12px"></div>
-</section>
-<section class="card">
-<h2 style="margin-top:0">Товары без рабочего фото</h2>
-<div id="examples" class="list"><div class="muted">Загрузка…</div></div>
-</section>
-</main>
-<script>
-(()=>{
-const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-async function load(){
- $('refresh').disabled=true;$('message').textContent='Проверяю актуальные записи MySQL и локальные файлы из выгрузки…';
- try{
-   const r=await fetch('../api/photo-health.php?v=2',{cache:'no-store'}),j=await r.json();
-   if(!r.ok||!j.ok)throw new Error(j.error||('HTTP '+r.status));
-   const s=j.stats||{};
-   $('generated').textContent='Проверено: '+(j.generated_at||'сейчас');
-   const cards=[
-     [s.active_products||0,'активных товаров'],
-     [s.products_with_working_image||0,'с рабочим фото'],
-     [s.products_without_db_image||0,'без фото в выгрузке'],
-     [s.products_with_broken_local_only||0,'с битой локальной ссылкой']
-   ];
-   $('metrics').innerHTML=cards.map(x=>'<div class="metric"><b>'+Number(x[0])+'</b><span>'+esc(x[1])+'</span></div>').join('');
-   $('message').innerHTML='<span class="ok">Источник фото: только текущая 1С/MySQL. Автоподбор и ручная подмена отключены.</span>';
-   const list=j.unresolved_examples||[];
-   $('examples').innerHTML=list.length?list.map(x=>'<div class="row"><b>#'+Number(x.id)+' · '+esc(x.name)+'</b><div class="muted">'+esc(x.category||'Без категории')+' · '+esc(x.reason||'нет фото')+'</div></div>').join(''):'<div class="ok">У активных товаров нет проблем с рабочими фотографиями.</div>';
- }catch(e){$('message').innerHTML='<span class="bad">Не удалось выполнить диагностику: '+esc(e.message)+'</span>';$('examples').innerHTML='';}
- finally{$('refresh').disabled=false}
-}
-$('refresh').onclick=load;load();
-})();
-</script>
-</body>
-</html>
+<main><section class="card notice"><h1>Фото из 1С</h1><p>Здесь можно добавлять фотографии к товарам вручную, заменять их и выбирать главный снимок.</p><p class="muted">Ручная галерея не перезаписывается при обновлении каталога. К фотографиям из 1С можно вернуться кнопкой в карточке товара. Цены, остатки и категории здесь не меняются.</p></section>
+<section class="card"><h2>Фотографии товаров</h2><form id="photoSearchForm" class="toolbar"><input id="photoSearch" type="search" placeholder="Название, артикул или ID товара" aria-label="Поиск товара" maxlength="150"><button type="submit">Найти товар</button></form><p id="searchMessage" class="muted" role="status">Загрузка…</p><div id="photoProducts" class="results"></div><div class="pagination"><button id="prevPhotos" class="secondary" disabled>← Назад</button><span id="photoPage">Страница 1</span><button id="nextPhotos" class="secondary" disabled>Далее →</button></div></section>
+<section class="card"><div class="toolbar" style="justify-content:space-between"><h2>Диагностика</h2><button id="refresh" class="secondary">Обновить</button></div><div id="generated" class="muted" role="status">Загрузка…</div><div id="metrics" class="grid"></div><details><summary>Товары без рабочего фото — открыть для исправления</summary><div id="examples"></div></details></section></main>
+<dialog id="photoEditor" class="dialog" aria-labelledby="editorTitle"><div class="dialog-head"><div><h2 id="editorTitle">Фотографии товара</h2><div id="editorMeta" class="muted"></div></div><button id="closeEditor" class="secondary">Закрыть</button></div><p id="editorMode" class="muted"></p><div class="toolbar"><button id="addPhoto">Добавить фотографию</button><button id="resetSource" class="secondary">Вернуть фото из 1С</button></div><p id="uploadHint" class="muted"></p><input id="photoFile" type="file" accept=".jpg,.jpeg,.png,.webp" hidden><section id="pendingPhoto" hidden><b id="pendingName"></b><img id="pendingImage" alt="Предпросмотр выбранной фотографии"><div class="toolbar"><button id="savePhoto">Сохранить фотографию</button><button id="cancelPhoto" class="secondary">Отмена</button></div></section><p id="editorMessage" role="status" aria-live="polite"></p><div id="photoGallery" class="gallery"></div></dialog>
+<script src="photos.js?v=manual-20261003-1"></script>
+</body></html>
