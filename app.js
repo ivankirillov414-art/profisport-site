@@ -74,7 +74,7 @@ function isPrimaryProduct(p,intent){
   // A sport mentioned inside another object's title does not identify the object.
   return words.slice(0,nounIndex).every(w=>/^(?:детск|горн|бегов|городск|трюков|спортивн|мужск|женск|подрост|взросл|профессиональн|надувн|электрическ|магнитн)/.test(w));
 }
-const SEARCH_BRAND_ALIASES={'шимано':'shimano','стелс':'stels','стелз':'stels','техтим':'techteam','тт':'techteam','tt':'techteam','старфит':'starfit','кенда':'kenda','максис':'maxxis','фишер':'fischer','нордски':'nordski','провокатор':'provokator'};
+const SEARCH_BRAND_ALIASES=Object.fromEntries(Object.entries({'шимано':'shimano','стелс':'stels','стелз':'stels','техтим':'techteam','тт':'techteam','tt':'techteam','старфит':'starfit','кенда':'kenda','максис':'maxxis','фишер':'fischer','нордски':'nordski','провокатор':'provokator'}).map(([name,value])=>[searchWord(name),value]));
 const searchIndex=new WeakMap();
 function indexedSearch(p){
   if(searchIndex.has(p))return searchIndex.get(p);
