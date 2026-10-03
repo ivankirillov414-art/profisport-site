@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>ПрофиСпорт — фото из 1С и ручная загрузка</title>
 <link rel="stylesheet" href="photos.css?v=manual-photos-1">
-</head><body>
+<link rel="stylesheet" href="layout.css?v=1"></head><body>
 <header><div class="bar"><b>Профи<span>Спорт</span></b><a href="index.php">← Админка</a></div></header>
 <main>
 <section class="card">
