@@ -63,7 +63,7 @@ function cleanPath(path){
 }
 function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-')||n.startsWith(x+','))}
 function isCyclingPulleyName(n){
-  return n.startsWith('ролики ')&&(
+  return /^ролик(?:и)? /.test(n)&&(
     n.includes('переключател')||n.includes('суппорт')||n.includes('подшипник')||n.includes('направляющ')||
     n.includes('shimano')||n.includes('sram')||/(?:^|\s)rd[- ]?[a-z0-9]/.test(n)
   )
@@ -72,12 +72,14 @@ function primaryProductType(name){
   const n=textNorm(name).replace(/^["' -]+/,'');
   if(isSupReference(n)&&(/^(?:sup|са[пб](?:[- ]?борд|[- ]))/.test(n)||/^(?:надувная )?доска/.test(n)))return'sup';
   if(startsAny(n,['беговел']))return'balance_bike';
+  if(/^ролик(?:и)? .*массаж/.test(n))return'massage_roller';
+  if(/^ролик(?:и)? .*гимнаст/.test(n))return'ab_wheel';
   if(startsAny(n,['ролик для пресса','ролики для пресса']))return'ab_wheel';
   if(/^вело +[0-9]/.test(n)||startsAny(n,['детский велосипед','горный велосипед','электровелосипед','велосипед']))return'bicycle';
   if(/^(?:спортивный )?самокат.*(?:снег|лыж)|^снегосамокат/.test(n))return'snow_scooter';
   if(startsAny(n,['детский самокат','городской самокат','трюковой самокат','электросамокат','самокат']))return'scooter';
   if(startsAny(n,['сноуборд']))return'snowboard';
-  if(startsAny(n,['роликовые коньки','коньки роликовые','коньки для танцев','квады']))return'rollers';
+  if(startsAny(n,['роликовые коньки','роликовый комплект','коньки роликовые','коньки для танцев','квады']))return'rollers';
   if(startsAny(n,['коньки']))return'skates';
   if(startsAny(n,['ролики'])){
     if(isCyclingPulleyName(n))return'';
@@ -98,7 +100,7 @@ function primaryProductType(name){
   if(startsAny(n,['гиря','гири']))return'kettlebell';
   if(startsAny(n,['палатка']))return'tent';
   if(startsAny(n,['спальный мешок','спальник']))return'sleeping_bag';
-  if(startsAny(n,['шлем']))return'helmet';
+  if(/^(?:(?:велосипедный|детский|защитный|горнолыжный|роликовый) )?шлем(?: |$)/.test(n))return'helmet';
   if(startsAny(n,['рюкзак']))return'backpack';
   if(startsAny(n,['батут']))return'trampoline';
   if(startsAny(n,['бассейн']))return'pool';
@@ -121,7 +123,7 @@ function departmentFor(name,path){
   if(type==='rollers')return match('rollers','name',type);
   if(type==='skis')return match('skiing','name',type);
   if(['skateboard','longboard'].includes(type))return match('boards','name',type);
-  if(['treadmill','exercise_bike','elliptical','dumbbell','barbell','kettlebell','trampoline','ab_wheel','resistance_band'].includes(type))return match('fitness','name',type);
+  if(['treadmill','exercise_bike','elliptical','dumbbell','barbell','kettlebell','trampoline','ab_wheel','resistance_band','massage_roller'].includes(type))return match('fitness','name',type);
   if(['tent','sleeping_bag','backpack'].includes(type))return match('tourism','name',type);
   if(['pool','sup','kayak','boat'].includes(type))return match('water','name',type);
   if(type==='hockey_stick')return match('hockey','name',type);

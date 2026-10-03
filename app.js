@@ -40,7 +40,7 @@ function searchTokens(raw){return canonicalQuery(raw).replace(/[^a-zа-я0-9]+/g
 function productText(p){return plain([p.name,p.sku,p.sourceId,p.brand,p.model,p.cat,p.rawCat,p.departmentLabel,p.pathText,p.productType==='sup'?'сап sup сапборд':'',p.description,catalogSpecEntries(p.specs||{}).flat().join(' ')].join(' '))}
 const accessoryStems=['чехол','сумк','багажник','крыл','фонар','звонок','замок','покрыш','камер','насос','держател','креплен','корзин','зеркал','седл','сиден','педал','грипс','трос','цеп','кассет','звезд','переключ','тормоз','обод','вилк','рам','втулк','спиц','поднож','подстав','крепеж','адаптер','рул','зажим','дек','вынос','палк','ботин','маск','очк','перчат','защит','колес','подшип','ось','амортиз','ремкомплект','запчаст'];
 const typeTerms={
-  bicycle:['электровелосипед','велосипед'], balance_bike:['беговел'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборд'], skates:['коньк'], rollers:['роликов','ролик','квад'], skateboard:['скейтборд','скейт'], longboard:['лонгборд'], sled:['санк','сани','ледянк'], snow_scooter:['снегокат','снегосамокат'], tubing:['тюбинг','ватрушк'], helmet:['шлем'], backpack:['рюкзак'], tent:['палатк'], sleeping_bag:['спальник','спальный мешок'], trampoline:['батут'], treadmill:['беговая дорожк'], exercise_bike:['велотренажер'], elliptical:['эллипс','эллиптическ'], dumbbell:['гантел'], barbell:['штанг'], kettlebell:['гиря','гири','гирь'], resistance_band:['эспандер'], ab_wheel:['ролик для пресса','ролики для пресса'], racket:['ракетк'], ball:['мяч'], hockey_stick:['клюшк'], pool:['бассейн'], sup:['сап','sup'], kayak:['каяк'], boat:['лодк']
+  bicycle:['электровелосипед','велосипед'], balance_bike:['беговел'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборд'], skates:['коньк'], rollers:['роликов','ролик','квад'], skateboard:['скейтборд','скейт'], longboard:['лонгборд'], sled:['санк','сани','ледянк'], snow_scooter:['снегокат','снегосамокат'], tubing:['тюбинг','ватрушк'], helmet:['шлем'], backpack:['рюкзак'], tent:['палатк'], sleeping_bag:['спальник','спальный мешок'], trampoline:['батут'], treadmill:['беговая дорожк'], exercise_bike:['велотренажер'], elliptical:['эллипс','эллиптическ'], dumbbell:['гантел'], barbell:['штанг'], kettlebell:['гиря','гири','гирь'], resistance_band:['эспандер'], ab_wheel:['ролик для пресса','ролики для пресса','ролик гимнастический','гимнастический ролик'], massage_roller:['ролик массажный','массажный ролик'], racket:['ракетк'], ball:['мяч'], hockey_stick:['клюшк'], pool:['бассейн'], sup:['сап','sup'], kayak:['каяк'], boat:['лодк']
 };
 function containsAccessory(s){return searchTokens(s).some(word=>accessoryStems.some(st=>word.startsWith(st)))}
 function intentFor(raw){
@@ -49,7 +49,8 @@ function intentFor(raw){
   const words=searchTokens(qv);
   if(/самокат/.test(qv)&&/снег|лыж/.test(qv))return'snow_scooter';
   // Multiword objects precede generic nouns (e.g. fitness rollers).
-  for(const id of ['ab_wheel','sleeping_bag','treadmill'])if(typeTerms[id].some(t=>searchTokens(t).every(token=>words.some(w=>w===token||w.startsWith(token)))))return id;
+  for(const id of ['ab_wheel','massage_roller','sleeping_bag','treadmill'])if(typeTerms[id].some(t=>searchTokens(t).every(token=>words.some(w=>w===token||w.startsWith(token)))))return id;
+  if(/ролик.*(?:лыжероллер|переключ|классическ)/.test(qv)||/лыж.*(?:боков|снегокат)/.test(qv))return'';
   if(/роликов.*коньк|коньк.*роликов/.test(qv))return'rollers';
   let found='',first=Infinity;
   for(const [id,terms] of Object.entries(typeTerms)){
@@ -65,14 +66,13 @@ function isPrimaryProduct(p,intent){
   if(!intent)return true;
   const type=p.productType||primaryProductType(p.name);
   if(type)return type===intent;
-  const n=plain(p.name||''),terms=typeTerms[intent]||[];
+  if(['rollers','skis','skates'].includes(intent))return false;
+  const n=plain(p.name||''),terms=typeTerms[intent]||[],words=searchTokens(n);
   if(intent==='rollers'&&isCyclingPulleyName(n))return false;
-  let pos=Infinity;
-  for(const t of terms){const i=n.indexOf(t);if(i>=0)pos=Math.min(pos,i)}
-  if(!Number.isFinite(pos))return false;
-  const before=n.slice(0,pos);
-  if(containsAccessory(before)||/(?:^|\s)для(?:\s|$)/.test(before))return false;
-  return pos<=48;
+  const nounIndex=words.findIndex(w=>terms.some(term=>!term.includes(' ')&&w===searchWord(term)));
+  if(nounIndex<0)return false;
+  // A sport mentioned inside another object's title does not identify the object.
+  return words.slice(0,nounIndex).every(w=>/^(?:детск|горн|бегов|городск|трюков|спортивн|мужск|женск|подрост|взросл|профессиональн|надувн|электрическ|магнитн)/.test(w));
 }
 const SEARCH_BRAND_ALIASES={'шимано':'shimano','стелс':'stels','стелз':'stels','техтим':'techteam','тт':'techteam','tt':'techteam','старфит':'starfit','кенда':'kenda','максис':'maxxis','фишер':'fischer','нордски':'nordski','провокатор':'provokator'};
 const searchIndex=new WeakMap();
