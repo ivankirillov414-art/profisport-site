@@ -13,6 +13,14 @@ on:
       - 'app.js'
       - 'winter-category-art.js'
       - 'subcategory-art.js'
+      - 'profile.html'
+      - 'checkout.html'
+      - 'service.html'
+      - 'product.html'
+      - 'product-kant.js'
+      - 'shop.html'
+      - 'workshop.html'
+      - 'buyer-info.html'
       - 'assets/categories/subsections/ebike-kit-v1.webp'
       - 'assets/categories/subsections/sports-accessories-v1.webp'
       - 'assets/categories/subsections/snow-scooter-v1.webp'
@@ -75,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p hotfix-upload/assets/hero hotfix-upload/assets/categories/subsections
-          cp index.html app.js subcategory-art.js winter-category-art.js motion.js sport-energy.css catalog-loader.js catalog-live-paged.js psf-final-motion.css psf-final-motion.js hotfix-upload/
+          cp index.html profile.html checkout.html service.html product.html product-kant.js shop.html workshop.html buyer-info.html app.js subcategory-art.js winter-category-art.js motion.js sport-energy.css catalog-loader.js catalog-live-paged.js psf-final-motion.css psf-final-motion.js hotfix-upload/
           cp assets/hero/reference-bike-amber-v2.webp hotfix-upload/assets/hero/
           cp assets/hero/workshop-background-v6.webp hotfix-upload/assets/hero/
           cp assets/hero/*-v11.webp assets/hero/*-v12.webp hotfix-upload/assets/hero/
