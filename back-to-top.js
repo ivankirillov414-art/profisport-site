@@ -100,8 +100,8 @@
         min-height: 44px !important;
         padding: 0 !important;
         border: 0 !important;
-        border-radius: 50% !important;
-        background: #f0f2f4 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
         box-shadow: none !important;
         color: #24282c !important;
         opacity: 1 !important;
