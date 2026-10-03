@@ -32,6 +32,7 @@ function queryVariants(raw){return[canonicalQuery(raw),canonicalQuery(swap(raw,r
 // Shared matching for suggestions and the result list. Keep model/number tokens
 // intact; only Russian word endings are folded.
 function searchWord(word){
+  if(/^вело(?:камер|покрыш|насос|замок|шлем|сумк|чехол|перчат|фонар|компьютер|багажник)/.test(word))word=word.slice(4);
   if(!/^[а-я]+$/.test(word)||word.length<4)return word;
   const stem=word.replace(/(?:иями|ями|ами|ого|его|ому|ему|ыми|ими|ая|яя|ое|ее|ые|ие|ой|ый|ий|ую|юю|ов|ев|ах|ях|ам|ям|ом|ем|ы|и|а|я|у|ю|е)$/,'');
   return stem.length>=3?stem:word;
