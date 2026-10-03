@@ -1,0 +1,44 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const {execFileSync}=require('node:child_process');
+const fs=require('node:fs');
+const path=require('node:path');
+const php=code=>execFileSync('php',['-r',code]);
+(async()=>{
+ let browser;
+ try{
+  php('require "server/bootstrap.php";db()->exec("INSERT INTO products(id,source_id,name,title,sku,price,price_rub,stock_qty,stock_status,availability,is_active,main_image,images) VALUES(910010,\'ppe-browser\',\'PPE browser bicycle\',\'PPE browser bicycle\',\'PHOTO-BROWSER\',500,500,3,\'in_stock\',\'in_stock\',1,\'\',\'[]\')");');
+  browser=await chromium.launch({headless:true});const context=await browser.newContext({viewport:{width:1280,height:900}});
+  const response=await context.request.post('http://127.0.0.1:8080/server/api.php?action=login',{data:{username:'Иван Кириллов 414',password:'test-only-password'}});
+  assert.equal(response.status(),200);
+  const cookies=response.headersArray().filter(x=>x.name.toLowerCase()==='set-cookie').map(x=>x.value).filter(x=>x.startsWith('PROFISPORT_ADMIN='));
+  assert(cookies.length);const value=cookies.at(-1).split(';')[0].split('=').slice(1).join('=');
+  await context.addCookies([{name:'PROFISPORT_ADMIN',value,domain:'127.0.0.1',path:'/',httpOnly:true,secure:false,sameSite:'Lax'}]);
+  const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:8080/admin/photos.php');
+  await page.locator('#photoQuery').fill('PHOTO-BROWSER');await page.locator('#photoSearch').evaluate(f=>f.requestSubmit());
+  await page.locator('[data-product="910010"]').click();await page.waitForFunction(()=>document.getElementById('photoEditorTitle').textContent==='PPE browser bicycle');
+  const image=php('$im=imagecreatetruecolor(80,60);imagefill($im,0,0,imagecolorallocate($im,180,140,60));imagepng($im);');
+  await page.locator('#photoFile').setInputFiles({name:'bicycle.png',mimeType:'image/png',buffer:image});
+  await page.waitForFunction(()=>document.getElementById('photoPreview').complete&&document.getElementById('photoPreview').naturalWidth>0);
+  await page.locator('#photoSave').click();await page.waitForFunction(()=>document.getElementById('photoEditorStatus').textContent.startsWith('Сохранено.'));
+  assert.equal(await page.locator('#photoGallery .photo.primary').count(),1);
+  const image2=php('$im=imagecreatetruecolor(80,60);imagefill($im,0,0,imagecolorallocate($im,40,80,150));imagepng($im);');
+  await page.locator('#photoMakePrimary').uncheck();await page.locator('#photoFile').setInputFiles({name:'detail.png',mimeType:'image/png',buffer:image2});
+  await page.locator('#photoSave').click();await page.waitForFunction(()=>document.querySelectorAll('#photoGallery .photo').length===2);
+  await page.locator('#photoGallery [data-primary]').click();await page.waitForFunction(()=>document.getElementById('photoEditorStatus').textContent.startsWith('Сохранено.'));
+  await page.screenshot({path:'/tmp/manual-product-photos-desktop.png'});
+  await page.setViewportSize({width:390,height:844});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  assert(await page.locator('#photoEditor').evaluate(d=>d.scrollWidth<=d.clientWidth+1));
+  await page.screenshot({path:'/tmp/manual-product-photos-mobile.png'});
+  await page.locator('#photoClose').click();await page.locator('#photoMissing').check();
+  await page.waitForFunction(()=>document.getElementById('photoStatus').textContent.startsWith('Ничего не найдено.'));
+  assert.equal(errors.length,0,errors.join('\n'));
+  console.log('PASS Chromium: search, product choice, preview, upload, gallery, primary, missing-photo filter, desktop/mobile and no JS exceptions');
+ }finally{
+  if(browser)await browser.close();
+  php('require "server/bootstrap.php";require "server/product-photo-editor.php";ppe_schema(db());db()->exec("DELETE FROM product_photo_overrides WHERE product_id=910010");db()->exec("DELETE FROM products WHERE id=910010");');
+  fs.rmSync(path.join('import','curated-photos','910010'),{recursive:true,force:true});
+ }
+})().catch(e=>{console.error(e);process.exitCode=1;});
