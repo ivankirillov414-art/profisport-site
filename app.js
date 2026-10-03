@@ -101,6 +101,11 @@ function productMatchesQuery(p,qv,intent){
   if(plain(p.name)===plan.exact)return true;
   if(!intent&&plan.parts.length&&typeTerms[p.productType]&&!['helmet','backpack'].includes(p.productType))return false;
   if(!intent&&!plan.parts.every(token=>searchTokenMatches(token,index.name)))return false;
+  if(!intent&&plan.parts.length){
+    const firstPart=index.name.findIndex(word=>searchTokenMatches(plan.parts[0],[word]));
+    const brandWords=searchTokens(p.brand);
+    if(!index.name.slice(0,firstPart).every(word=>plan.tokens.some(t=>searchTokenMatches(t,[word]))||brandWords.includes(word)||/^[a-z0-9]+$/.test(word)||/^(?:набор|комплект|пара|н|р|к|т|ручн|ножн|задн|передн|велосипедн|универсальн|детск|спортивн)$/.test(word)))return false;
+  }
   return (!intent||isPrimaryProduct(p,intent))&&tokens.every(t=>searchTokenMatches(t,index.all));
 }
 function relevanceScore(p,qv,intent){
