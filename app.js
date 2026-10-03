@@ -81,9 +81,10 @@ function indexedSearch(p){
   const fields=[p.name,p.sku,p.brand,p.model].join(' '),entry={name:searchTokens(p.name),direct:searchTokens(fields),all:searchTokens(productText(p))};
   searchIndex.set(p,entry);return entry;
 }
+const SEARCH_EXACT_NOUNS=new Set(searchTokens('камера грипсы педали цепь покрышка руль зажим седло вилка втулка спица насос шлем мяч гантель коньки лыжи самокат велосипед'));
 function searchTokenMatches(token,words){
   token=SEARCH_BRAND_ALIASES[token]||token;
-  return words.some(raw=>{const w=SEARCH_BRAND_ALIASES[raw]||raw;return w===token||(token.length>=3&&!/\d/.test(token)&&w.startsWith(token));});
+  return words.some(raw=>{const w=SEARCH_BRAND_ALIASES[raw]||raw;return w===token||(token.length>=3&&!SEARCH_EXACT_NOUNS.has(token)&&!/\d/.test(token)&&w.startsWith(token));});
 }
 const searchPlans=new Map();
 function searchPlan(qv){
@@ -97,6 +98,7 @@ function productMatchesQuery(p,qv,intent){
   if(!tokens.length)return true;
   // Exact product names and identifiers must always remain addressable.
   if(plain(p.name)===plan.exact)return true;
+  if(!intent&&plan.parts.length&&typeTerms[p.productType]&&!['helmet','backpack'].includes(p.productType))return false;
   if(!intent&&!plan.parts.every(token=>searchTokenMatches(token,index.name)))return false;
   return (!intent||isPrimaryProduct(p,intent))&&tokens.every(t=>searchTokenMatches(t,index.all));
 }

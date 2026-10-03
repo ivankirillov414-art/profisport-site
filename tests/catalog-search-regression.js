@@ -54,7 +54,10 @@ const raw=[
  ['Лыжа боковая к снегокату ЛБ1','Снегокаты'],
  ['Покрышка Kenda 29','Покрышки'],
  ['Куртка Nordski','Одежда'],
- ['Беговые лыжи+ крепл. FISCHER TWIN SKIN','Беговые лыжи']
+ ['Беговые лыжи+ крепл. FISCHER TWIN SKIN','Беговые лыжи'],
+ ['Тюбинг 100см без камеры','Тюбинги'],
+ ['Камера 26 Kenda','Камеры'],
+ ['Грипстопы черные для самоката','Запчасти для самокатов']
 ];
 ctx.raw=raw.map(([name,leaf],i)=>({id:i+1,name,category_path:[leaf],price_rub:1000,sku:'SKU-'+String(i+1).padStart(4,'0'),stock_qty:2,availability:'in_stock'}));
 vm.runInContext('products=raw.map(normalizeProduct)',ctx);
@@ -65,10 +68,10 @@ equal('техтим',[2,28]);equal('тт',[2,28]);equal('самокаты',[1,2,
 equal('велосипеды',[6]);equal('шлем велосипедный',[7,45]);equal('ролики',[9]);equal('ролики для пресса',[10,43]);equal('роликовые коньки',[9]);equal('массажный ролик',[42]);equal('ролик лыжероллеров',[48,49]);equal('лыжа боковая',[50]);equal('гимнастический ролик',[43]);
 equal('лыжи',[11,53]);equal('ботинки лыжные',[12]);equal('лыжные ботинки',[12]);equal('сноуборды',[13]);equal('коньки фигурные',[14]);
 equal('гантели',[15]);equal('палатки',[16]);equal('насос',[17,19]);equal('сапборды',[18]);equal('насос сапборд',[19]);
-equal('шимано',[8,20]);equal('кенда',[51]);equal('нордски',[52]);equal('stels',[6]);equal('стелс',[6]);equal('6001',[20]);equal('SKU-0003',[3]);equal('600',[ ]);
-equal('велотренажеры',[21]);equal('беговые дорожки',[22]);equal('эспандеры',[23]);equal('мяч',[24,25]);equal('клюшки',[26]);
+equal('шимано',[8,20]);equal('кенда',[51,55]);equal('нордски',[52]);equal('stels',[6]);equal('стелс',[6]);equal('6001',[20]);equal('SKU-0003',[3]);equal('600',[ ]);
+equal('велотренажеры',[21]);equal('беговые дорожки',[22]);equal('эспандеры',[23]);equal('мяч',[24,25]);equal('камеры',[55]);equal('клюшки',[26]);
 equal('спальники',[27]);equal('беговелы',[30]);equal('гири',[31]);equal('батуты',[32]);equal('бассейны',[33]);equal('ракетки',[34]);
-equal('лодки',[35]);equal('лонгборды',[36]);equal('скейтборды',[37]);equal('снегокаты',[38]);equal('тюбинги',[39]);
+equal('лодки',[35]);equal('лонгборды',[36]);equal('скейтборды',[37]);equal('снегокаты',[38]);equal('тюбинги',[39,54]);
 equal('dfkjcbgtl',[]);equal('dtkjcbgtl',[6]);
 for(let i=0;i<raw.length;i++){ctx.query=raw[i][0];ctx.target=i+1;assert.ok(vm.runInContext('products.some(p=>p.id===target&&productMatchesQuery(p,bestQuery(query)))',ctx),'full name: '+raw[i][0]);equal('SKU-'+String(i+1).padStart(4,'0'),[i+1])}
 assert.equal(vm.runInContext('products[0].rawCat',ctx),'Трюковые самокаты');
@@ -84,4 +87,4 @@ assert.equal(vm.runInContext('suggestionItems(q.value).map(p=>p.id).join(",")',c
 // Mentions of a pump/brake in a bicycle description must not promote it as a spare part.
 vm.runInContext("products=products.map(p=>p.id===6?{...p,description:'Насос и грипсы продаются отдельно',specs:{Тормоза:'Гидравлические'}}:p)",ctx);
 equal('насос',[17,19]);equal('грипсы',[3]);equal('велосипед гидравлические тормоза',[6]);
-console.log('Catalog search: 53 products, full names and SKUs, query variants across all sections, category repair, primary/accessory intent, keyboard layout and stale-filter reset passed.');
+console.log('Catalog search: 56 products, full names and SKUs, query variants across all sections, category repair, primary/accessory intent, keyboard layout and stale-filter reset passed.');
