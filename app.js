@@ -64,10 +64,10 @@ function intentFor(raw){
 }
 function isPrimaryProduct(p,intent){
   if(!intent)return true;
-  const type=p.productType||primaryProductType(p.name);
+  const type=p.productType!==undefined?p.productType:primaryProductType(p.name);
   if(type)return type===intent;
   if(['rollers','skis','skates'].includes(intent))return false;
-  const n=plain(p.name||''),terms=typeTerms[intent]||[],words=searchTokens(n);
+  const n=plain(p.name||''),terms=typeTerms[intent]||[],words=indexedSearch(p).name;
   if(intent==='rollers'&&isCyclingPulleyName(n))return false;
   const nounIndex=words.findIndex(w=>terms.some(term=>!term.includes(' ')&&w===searchWord(term)));
   if(nounIndex<0)return false;
@@ -78,23 +78,26 @@ const SEARCH_BRAND_ALIASES=Object.fromEntries(Object.entries({'шимано':'sh
 const searchIndex=new WeakMap();
 function indexedSearch(p){
   if(searchIndex.has(p))return searchIndex.get(p);
-  const fields=[p.name,p.sku,p.brand,p.model].join(' '),entry={direct:searchTokens(fields),all:searchTokens(productText(p))};
+  const fields=[p.name,p.sku,p.brand,p.model].join(' '),entry={name:searchTokens(p.name),direct:searchTokens(fields),all:searchTokens(productText(p))};
   searchIndex.set(p,entry);return entry;
 }
 function searchTokenMatches(token,words){
   token=SEARCH_BRAND_ALIASES[token]||token;
   return words.some(raw=>{const w=SEARCH_BRAND_ALIASES[raw]||raw;return w===token||(token.length>=3&&!/\d/.test(token)&&w.startsWith(token));});
 }
-function productMatchesQuery(p,qv,intent=intentFor(qv)){
-  const tokens=searchTokens(qv),index=indexedSearch(p);
+const searchPlans=new Map();
+function searchPlan(qv){
+  if(searchPlans.has(qv))return searchPlans.get(qv);
+  const tokens=searchTokens(qv),plan={tokens,intent:intentFor(qv),exact:plain(qv),parts:tokens.filter(token=>accessoryStems.some(st=>token.startsWith(st)))};
+  if(searchPlans.size>=100)searchPlans.clear();searchPlans.set(qv,plan);return plan;
+}
+function productMatchesQuery(p,qv,intent){
+  const plan=searchPlan(qv),tokens=plan.tokens,index=indexedSearch(p);
+  if(intent===undefined)intent=plan.intent;
   if(!tokens.length)return true;
   // Exact product names and identifiers must always remain addressable.
-  if(tokens.every(t=>searchTokenMatches(t,index.direct))&&plain(p.name)===plain(qv))return true;
-  if(!intent){
-    const requestedParts=tokens.filter(token=>accessoryStems.some(st=>token.startsWith(st)));
-    const nameTokens=searchTokens(p.name);
-    if(!requestedParts.every(token=>searchTokenMatches(token,nameTokens)))return false;
-  }
+  if(plain(p.name)===plan.exact)return true;
+  if(!intent&&!plan.parts.every(token=>searchTokenMatches(token,index.name)))return false;
   return (!intent||isPrimaryProduct(p,intent))&&tokens.every(t=>searchTokenMatches(t,index.all));
 }
 function relevanceScore(p,qv,intent){
@@ -104,9 +107,10 @@ function relevanceScore(p,qv,intent){
   if(n===c)score+=1000;else if(n.startsWith(c))score+=650;else if(n.includes(c))score+=420;
   if(brand===c||model===c||plain(p.sku)===c)score+=900;
   const direct=indexedSearch(p).direct;
-  for(const token of searchTokens(c))if(searchTokenMatches(token,direct))score+=180;
+  for(const token of searchPlan(c).tokens)if(searchTokenMatches(token,direct))score+=180;
   return score;
 }
+function sortByRelevance(list,qv,intent){return list.map(product=>({product,score:relevanceScore(product,qv,intent)})).sort((a,b)=>b.score-a.score).map(row=>row.product)}
 function bestQuery(raw){
   const vars=queryVariants(raw);if(!vars.length)return'';
   for(const qv of vars)if(products.some(p=>productMatchesQuery(p,qv)))return qv;
@@ -236,7 +240,7 @@ function apply(resetPage=true,sync=true){
   configureContextFilters(raw,intent);
   if(c)list=list.filter(p=>catalogMatchesDepartment(p,c));
   if(selectedSubcategory)list=list.filter(p=>(p.rawCat||p.cat)===selectedSubcategory);
-  if(qv){list=list.filter(p=>productMatchesQuery(p,qv,intent));if(sort.value==='popular')list.sort((a,b)=>relevanceScore(b,qv,intent)-relevanceScore(a,qv,intent))}
+  if(qv){list=list.filter(p=>productMatchesQuery(p,qv,intent));if(sort.value==='popular')list=sortByRelevance(list,qv,intent)}
   if(brandFilter.value)list=list.filter(p=>p.brand===brandFilter.value);
   if(saleOnly.checked)list=list.filter(p=>Number(p.oldPrice)>Number(p.price)&&Number(p.price)>0);
   for(const sel of [facet1,facet2]){const key=sel?.dataset.key,val=sel?.value;if(key&&val)list=list.filter(p=>p.facets?.[key]===val)}
@@ -272,7 +276,7 @@ async function toggleFavorite(id,button){
 
 function suggestionItems(raw){
   if(raw.trim().length<2)return[];const qv=bestQuery(raw),intent=intentFor(qv||raw);
-  return products.filter(p=>productMatchesQuery(p,qv,intent)).sort((a,b)=>relevanceScore(b,qv,intent)-relevanceScore(a,qv,intent)).slice(0,7);
+  return sortByRelevance(products.filter(p=>productMatchesQuery(p,qv,intent)),qv,intent).slice(0,7);
 }
 function bindSuggest(input,box){
   if(!input||!box)return;

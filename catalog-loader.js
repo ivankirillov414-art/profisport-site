@@ -61,7 +61,7 @@ function cleanPath(path){
   const list=Array.isArray(path)?path.map(cleanCatalogLabel).filter(Boolean):[];
   return list.filter(x=>!['главная','каталог товаров','каталог'].includes(textNorm(x)))
 }
-function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-')||n.startsWith(x+','))}
+function startsAny(n,arr){return arr.some(x=>n===x||n.startsWith(x+' ')||n.startsWith(x+'-')||n.startsWith(x+',')||n.startsWith(x+'+'))}
 function isCyclingPulleyName(n){
   return /^ролик(?:и)? /.test(n)&&(
     n.includes('переключател')||n.includes('суппорт')||n.includes('подшипник')||n.includes('направляющ')||
@@ -118,6 +118,7 @@ function departmentFor(name,path){
   // a sport are routed before broad generic categories such as pumps or bags.
   if(['bicycle','balance_bike'].includes(type))return match('bicycle','name',type);
   if(type==='scooter')return match('scooter','name',type);
+  if(type==='helmet')return match(/сноуборд/.test(p)?'snowboard':/лыж/.test(p+' '+n)?'skiing':'accessories','name',type);
   if(type==='snowboard')return match('snowboard','name',type);
   if(type==='skates')return match('skates','name',type);
   if(type==='rollers')return match('rollers','name',type);
