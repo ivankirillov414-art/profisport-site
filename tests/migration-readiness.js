@@ -56,15 +56,30 @@ assert.match(deploy,/vehicle wear maintenance/,'post-deploy maintenance must rep
 assert.match(admin,/Текущий пароль админки/,'admin migration UI must request current password');
 assert.match(adminJs,/confirm\(/,'admin migration UI must request final confirmation');
 
-assert.match(photoPage,/Ручная загрузка, подбор из старого каталога и поиск картинок в интернете отключены/,'photo admin must describe the 1C-only policy');
-assert.doesNotMatch(photoPage,/photo-moderation\.js/,'photo admin must not load moderation code');
-assert.match(photoHealth,/current_1c_mysql_only/,'photo diagnostics must be 1C/MySQL only');
+// Owner explicitly requested manual product photo editing on 2026-10-03.
+// Only this policy changed: no external auto-fill or retired parser is restored.
+assert.match(photoPage,/добавлять фотографии к товарам вручную/,'photo admin must explain authorized manual editing');
+assert.match(photoPage,/Ручная галерея не перезаписывается/,'photo admin must explain preservation across imports');
+assert.match(photoPage,/Вернуть фото из 1С/,'source reset must remain discoverable');
+assert.match(photoPage,/photos\.js/,'photo admin must load the new photo editor');
+assert.doesNotMatch(photoPage,/photo-moderation\.js/,'photo admin must not load retired moderation code');
+assert.match(photoHealth,/manual_override_or_current_1c_mysql/,'diagnostics must include authorized manual galleries');
+assert.match(photoHealth,/'internet_search'=>'disabled'/,'automatic internet photo lookup must stay disabled');
+const manualApi=read('api/product-photos.php'),manualStore=read('server/product-photos.php');
+assert.match(manualApi,/require_admin\(\)/,'manual photo requests must require active administrator authentication');
+assert.match(manualApi,/csrf_check\(\)/,'manual mutations must check CSRF');
+assert.match(manualApi,/\['owner','admin'\]/,'manual photo mutations must be role-restricted');
+assert.match(manualStore,/product_photo_overrides/,'manual data must stay independent of the source gallery');
+assert.match(manualStore,/source_identity/,'manual galleries must be bound to source product identity');
+assert.match(manualStore,/FOR UPDATE/,'gallery writes must guard against concurrent updates');
+assert.match(read('api/catalog.php'),/pph_apply_rows/,'storefront must actually render the manual gallery');
+assert.match(productDbImage,/pph_apply_rows/,'compatibility resolver must respect the same gallery');
 assert.match(photoApi,/photo_moderation_disabled/,'legacy photo mutation API must stay disabled');
 assert.equal(exists('admin/photo-moderation.js'),false,'legacy photo moderation script must remain retired');
 assert.equal(exists('scripts/photo_autofill.py'),false,'legacy internet photo autofill script must remain retired');
 assert.equal(exists('api/image-fallback.php'),false,'legacy image fallback endpoint must remain retired');
 assert.equal(exists('api/product-fallback-image.php'),false,'legacy product fallback image endpoint must remain retired');
-assert.equal(exists('data/photo-overrides.json'),false,'manual photo override data must remain retired');
+assert.equal(exists('data/photo-overrides.json'),false,'retired static override data must not be restored');
 for(const p of ['data/products.part-001.json','data/products.public-0001.json','data/products.public-0002.json','data/products.public-0003.json','data/products.public-0004.json']) assert.equal(exists(p),false,'retired static catalog data must stay out of runtime: '+p);
 
 assert.doesNotMatch(catalog,/loadStaticCatalogFallback/,'storefront must not use parser/static fallback');
@@ -72,4 +87,4 @@ assert.doesNotMatch(loader,/staticRowWithDbPhotoFallback/,'base loader must not 
 assert.equal(exists('.github/workflows/sync-catalog.yml'),false,'parser catalog sync workflow must stay retired');
 assert.equal(exists('.github/workflows/photo-autofill.yml'),false,'fallback photo research workflow must stay retired');
 
-console.log('Hosting migration, 1C-only catalog and 1C-only photo policy checks passed.');
+console.log('Hosting migration, 1C catalog, protected manual galleries and no-auto-fill policy checks passed.');
