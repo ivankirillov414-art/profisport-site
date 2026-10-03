@@ -673,9 +673,9 @@ function setupCatalogSearchBlock(){
     if(!catalogComplete){box.innerHTML='<p class="suggestHeading">Загружаем подсказки…</p>';}
     else{
       const variants=queryVariants(raw).map(searchTokens);
-      const types=[...new Set(products.map(p=>p.rawCat||p.cat).filter(Boolean))]
+      const types=[...new Set(products.map(p=>String(p.rawCat||p.cat||'').replace(/\s+-\d+\s*$/,'')).filter(Boolean))]
         .filter(label=>variants.some(tokens=>tokens.length&&tokens.every(t=>searchTokens(label).some(w=>w.startsWith(t)))))
-        .sort((x,y)=>x.localeCompare(y,'ru')).slice(0,5);
+        .sort((x,y)=>searchTokens(x).length-searchTokens(y).length||x.localeCompare(y,'ru')).slice(0,7);
       const found=suggestionItems(raw).slice(0,4);
       box.innerHTML=(types.length?'<div class="suggestHeading">Варианты поиска</div>'+types.map(label=>'<button type="button" class="catalogQueryChoice" data-catalog-query="'+esc(label)+'">'+esc(label)+'</button>').join(''):'')+
         (found.length?'<div class="suggestHeading">Товары</div>'+found.map(p=>'<a href="product.html?id='+encodeURIComponent(p.id)+'"><span><b>'+esc(p.name)+'</b><small>'+esc(p.brand)+'</small></span><strong>'+rub(p.price)+'</strong></a>').join(''):'')+
@@ -692,7 +692,7 @@ function setupCatalogSearchBlock(){
   input.addEventListener('focus',draw);
   input.addEventListener('keydown',event=>{
     if(event.key==='Enter'){event.preventDefault();clearTimeout(catalogSearchTimer);applyCatalogQuery(input.value.trim());close();}
-    if(event.key==='Escape'){close();}
+    if(event.key==='Escape'){event.preventDefault();close();}
     if(event.key==='ArrowDown'){event.preventDefault();box.querySelector('button,a')?.focus();}
   });
   box.addEventListener('click',event=>{
