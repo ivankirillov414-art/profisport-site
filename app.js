@@ -29,29 +29,44 @@ function canonicalQuery(raw){
   return s.replace(/\s+/g,' ').trim();
 }
 function queryVariants(raw){return[canonicalQuery(raw),canonicalQuery(swap(raw,ruMap)),canonicalQuery(swap(raw,enMap))].filter((x,i,a)=>x&&a.indexOf(x)===i)}
-function productText(p){return plain([p.name,p.brand,p.model,p.cat,p.rawCat,p.departmentLabel,p.pathText,p.productType==='sup'?'сап sup сапборд':'',p.description,Object.entries(p.specs||{}).flat().join(' ')].join(' '))}
-
+// Shared matching for suggestions and the result list. Keep model/number tokens
+// intact; only Russian word endings are folded.
+function searchWord(word){
+  if(!/^[а-я]+$/.test(word)||word.length<4)return word;
+  const stem=word.replace(/(?:иями|ями|ами|ого|его|ому|ему|ыми|ими|ая|яя|ое|ее|ые|ие|ой|ый|ий|ую|юю|ов|ев|ах|ях|ам|ям|ом|ем|ы|и|а|я|у|ю|е)$/,'');
+  return stem.length>=3?stem:word;
+}
+function searchTokens(raw){return canonicalQuery(raw).replace(/[^a-zа-я0-9]+/g,' ').split(' ').filter(Boolean).map(searchWord)}
+function productText(p){return plain([p.name,p.sku,p.sourceId,p.brand,p.model,p.cat,p.rawCat,p.departmentLabel,p.pathText,p.productType==='sup'?'сап sup сапборд':'',p.description,catalogSpecEntries(p.specs||{}).flat().join(' ')].join(' '))}
 const accessoryStems=['чехол','сумк','багажник','крыл','фонар','звонок','замок','покрыш','камер','насос','держател','креплен','корзин','зеркал','седл','сиден','педал','грипс','трос','цеп','кассет','звезд','переключ','тормоз','обод','вилк','рам','втулк','спиц','поднож','подстав','крепеж','адаптер','палк','ботин','маск','очк','перчат','защит','колес','подшип','ось','амортиз','ремкомплект','запчаст'];
 const typeTerms={
-  bicycle:['электровелосипед','велосипед'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборд'], skates:['коньк'], rollers:['роликов','ролик'], skateboard:['скейтборд'], longboard:['лонгборд'], sled:['санк'], snow_scooter:['снегокат'], tubing:['тюбинг'], helmet:['шлем'], backpack:['рюкзак'], tent:['палатк'], sleeping_bag:['спальник','спальный мешок'], trampoline:['батут'], treadmill:['беговая дорожк'], exercise_bike:['велотренажер'], elliptical:['эллипс','эллиптическ'], dumbbell:['гантел'], barbell:['штанг'], kettlebell:['гиря','гири','гирь'], racket:['ракетк'], ball:['мяч'], hockey_stick:['клюшк'], pool:['бассейн'], sup:['сап','sup'], kayak:['каяк'], boat:['лодк']
+  bicycle:['электровелосипед','велосипед'], balance_bike:['беговел'], scooter:['электросамокат','самокат'], skis:['лыж'], snowboard:['сноуборд'], skates:['коньк'], rollers:['роликов','ролик','квад'], skateboard:['скейтборд','скейт'], longboard:['лонгборд'], sled:['санк','сани','ледянк'], snow_scooter:['снегокат','снегосамокат'], tubing:['тюбинг','ватрушк'], helmet:['шлем'], backpack:['рюкзак'], tent:['палатк'], sleeping_bag:['спальник','спальный мешок'], trampoline:['батут'], treadmill:['беговая дорожк'], exercise_bike:['велотренажер'], elliptical:['эллипс','эллиптическ'], dumbbell:['гантел'], barbell:['штанг'], kettlebell:['гиря','гири','гирь'], resistance_band:['эспандер'], ab_wheel:['ролик для пресса','ролики для пресса'], racket:['ракетк'], ball:['мяч'], hockey_stick:['клюшк'], pool:['бассейн'], sup:['сап','sup'], kayak:['каяк'], boat:['лодк']
 };
-function containsAccessory(s){return accessoryStems.some(st=>s.includes(st))}
+function containsAccessory(s){return searchTokens(s).some(word=>accessoryStems.some(st=>word.startsWith(st)))}
 function intentFor(raw){
   const qv=canonicalQuery(raw);
   if(!qv)return'';
-  const pairs=[['bicycle',['велосипед','электровелосипед']],['scooter',['самокат','электросамокат']],['skis',['лыж']],['snowboard',['сноуборд']],['skates',['коньк']],['rollers',['ролик']],['skateboard',['скейтборд']],['longboard',['лонгборд']],['sled',['санк']],['snow_scooter',['снегокат']],['tubing',['тюбинг']],['helmet',['шлем']],['backpack',['рюкзак']],['tent',['палатк']],['sleeping_bag',['спальник','спальный мешок']],['trampoline',['батут']],['treadmill',['беговая дорожк']],['exercise_bike',['велотренажер']],['elliptical',['эллипс','эллиптическ']],['dumbbell',['гантел']],['barbell',['штанг']],['kettlebell',['гиря','гири','гирь']],['racket',['ракетк']],['ball',['мяч']],['hockey_stick',['клюшк']],['pool',['бассейн']],['sup',['сап','sup']],['kayak',['каяк']],['boat',['лодк']]];
-  for(const [id,terms] of pairs){
-    if(terms.some(t=>qv.startsWith(t))){
-      if(!['helmet','backpack'].includes(id)&&containsAccessory(qv))return'';
-      return id;
+  const words=searchTokens(qv);
+  if(/самокат/.test(qv)&&/снег|лыж/.test(qv))return'snow_scooter';
+  // Multiword objects precede generic nouns (e.g. fitness rollers).
+  for(const id of ['ab_wheel','sleeping_bag','treadmill'])if(typeTerms[id].some(t=>searchTokens(t).every(token=>words.some(w=>w===token||w.startsWith(token)))))return id;
+  if(/роликов.*коньк|коньк.*роликов/.test(qv))return'rollers';
+  let found='',first=Infinity;
+  for(const [id,terms] of Object.entries(typeTerms)){
+    for(const term of terms.filter(t=>!t.includes(' '))){
+      const i=words.findIndex(w=>w===searchWord(term));
+      if(i>=0&&i<first){found=id;first=i;}
     }
   }
-  return'';
+  const accessoryIndex=words.findIndex(word=>accessoryStems.some(st=>word.startsWith(st)));
+  return accessoryIndex>=0&&accessoryIndex<first?'':found;
 }
 function isPrimaryProduct(p,intent){
   if(!intent)return true;
-  if(p.productType)return p.productType===intent;
+  const type=p.productType||primaryProductType(p.name);
+  if(type)return type===intent;
   const n=plain(p.name||''),terms=typeTerms[intent]||[];
+  if(intent==='rollers'&&isCyclingPulleyName(n))return false;
   let pos=Infinity;
   for(const t of terms){const i=n.indexOf(t);if(i>=0)pos=Math.min(pos,i)}
   if(!Number.isFinite(pos))return false;
@@ -59,18 +74,42 @@ function isPrimaryProduct(p,intent){
   if(containsAccessory(before)||/(?:^|\s)для\s*$/.test(before))return false;
   return pos<=48;
 }
+const SEARCH_BRAND_ALIASES={'шимано':'shimano','стелс':'stels','стелз':'stels','техтим':'techteam','тт':'techteam','tt':'techteam','старфит':'starfit','кенда':'kenda','максис':'maxxis','фишер':'fischer','нордски':'nordski','провокатор':'provokator'};
+const searchIndex=new WeakMap();
+function indexedSearch(p){
+  if(searchIndex.has(p))return searchIndex.get(p);
+  const fields=[p.name,p.sku,p.brand,p.model].join(' '),entry={direct:searchTokens(fields),all:searchTokens(productText(p))};
+  searchIndex.set(p,entry);return entry;
+}
+function searchTokenMatches(token,words){
+  token=SEARCH_BRAND_ALIASES[token]||token;
+  return words.some(raw=>{const w=SEARCH_BRAND_ALIASES[raw]||raw;return w===token||(token.length>=3&&!/\d/.test(token)&&w.startsWith(token));});
+}
+function productMatchesQuery(p,qv,intent=intentFor(qv)){
+  const tokens=searchTokens(qv),index=indexedSearch(p);
+  if(!tokens.length)return true;
+  // Exact product names and identifiers must always remain addressable.
+  if(tokens.every(t=>searchTokenMatches(t,index.direct))&&plain(p.name)===plain(qv))return true;
+  if(!intent){
+    const requestedParts=tokens.filter(token=>accessoryStems.some(st=>token.startsWith(st)));
+    const nameTokens=searchTokens(p.name);
+    if(!requestedParts.every(token=>searchTokenMatches(token,nameTokens)))return false;
+  }
+  return (!intent||isPrimaryProduct(p,intent))&&tokens.every(t=>searchTokenMatches(t,index.all));
+}
 function relevanceScore(p,qv,intent){
-  const c=canonicalQuery(qv),n=plain(p.name||''),brand=plain(p.brand||''),model=plain(p.model||''),cat=plain(p.cat||''),path=plain(p.pathText||'');
+  const c=canonicalQuery(qv),n=plain(p.name||''),brand=plain(p.brand||''),model=plain(p.model||'');
   let score=0;
   if(intent&&isPrimaryProduct(p,intent))score+=1200;
   if(n===c)score+=1000;else if(n.startsWith(c))score+=650;else if(n.includes(c))score+=420;
-  if(brand===c||model===c)score+=500;else if(brand.startsWith(c)||model.startsWith(c))score+=280;
-  if(cat.includes(c))score+=120;if(path.includes(c))score+=80;
+  if(brand===c||model===c||plain(p.sku)===c)score+=900;
+  const direct=indexedSearch(p).direct;
+  for(const token of searchTokens(c))if(searchTokenMatches(token,direct))score+=180;
   return score;
 }
 function bestQuery(raw){
   const vars=queryVariants(raw);if(!vars.length)return'';
-  for(const qv of vars){const intent=intentFor(qv);if(products.some(p=>(!intent||isPrimaryProduct(p,intent))&&productText(p).includes(qv)))return qv}
+  for(const qv of vars)if(products.some(p=>productMatchesQuery(p,qv)))return qv;
   return vars[0];
 }
 
@@ -186,7 +225,7 @@ function syncState(){
   selectedSubcategory?u.searchParams.set("sub",selectedSubcategory):u.searchParams.delete("sub");
   history.replaceState(null,'',u);
 }
-function hasPendingFilters(){return Boolean(category.value||brandFilter.value||saleOnly.checked||minPrice.value||maxPrice.value||q.value||mobileQ.value||facet1.value||facet2.value||sort.value!=='popular'||page>1)}
+function hasPendingFilters(){return Boolean(selectedSubcategory||category.value||brandFilter.value||saleOnly.checked||minPrice.value||maxPrice.value||q.value||mobileQ.value||facet1.value||facet2.value||sort.value!=='popular'||page>1)}
 function apply(resetPage=true,sync=true){
   if(!catalogComplete){if(resetPage)page=1;if(sync)syncState();render(hasPendingFilters()?[]:products);return;}
 
@@ -196,7 +235,7 @@ function apply(resetPage=true,sync=true){
   configureContextFilters(raw,intent);
   if(c)list=list.filter(p=>catalogMatchesDepartment(p,c));
   if(selectedSubcategory)list=list.filter(p=>(p.rawCat||p.cat)===selectedSubcategory);
-  if(qv){const terms=qv.split(' ').filter(Boolean);list=list.filter(p=>(!intent||isPrimaryProduct(p,intent))&&terms.every(t=>productText(p).includes(t)));if(sort.value==='popular')list.sort((a,b)=>relevanceScore(b,qv,intent)-relevanceScore(a,qv,intent))}
+  if(qv){list=list.filter(p=>productMatchesQuery(p,qv,intent));if(sort.value==='popular')list.sort((a,b)=>relevanceScore(b,qv,intent)-relevanceScore(a,qv,intent))}
   if(brandFilter.value)list=list.filter(p=>p.brand===brandFilter.value);
   if(saleOnly.checked)list=list.filter(p=>Number(p.oldPrice)>Number(p.price)&&Number(p.price)>0);
   for(const sel of [facet1,facet2]){const key=sel?.dataset.key,val=sel?.value;if(key&&val)list=list.filter(p=>p.facets?.[key]===val)}
@@ -231,8 +270,8 @@ async function toggleFavorite(id,button){
 }
 
 function suggestionItems(raw){
-  if(raw.trim().length<2)return[];const qv=bestQuery(raw),intent=intentFor(qv||raw),terms=qv.split(' ').filter(Boolean);
-  return products.filter(p=>(!intent||isPrimaryProduct(p,intent))&&terms.every(t=>productText(p).includes(t))).sort((a,b)=>relevanceScore(b,qv,intent)-relevanceScore(a,qv,intent)).slice(0,7);
+  if(raw.trim().length<2)return[];const qv=bestQuery(raw),intent=intentFor(qv||raw);
+  return products.filter(p=>productMatchesQuery(p,qv,intent)).sort((a,b)=>relevanceScore(b,qv,intent)-relevanceScore(a,qv,intent)).slice(0,7);
 }
 function bindSuggest(input,box){
   if(!input||!box)return;
@@ -351,18 +390,33 @@ function buildBrandShortcuts(){
 }
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 function buildCategoryTiles(){
-  const keys=['bicycle','cycling','accessories','skiing','fitness','tourism'];
+  const keys=['bicycle','scooter','cycling','accessories','skiing','fitness','tourism'];
   const available=keys.map(key=>[key,CATALOG_SECTIONS[key]]).filter(([,section])=>section);
   $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/categories/subsections/service-06-v1.webp" alt="" loading="lazy"><b class="tileArrow" aria-hidden="true">↗</b></a>';
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){
-  const dep=category.value||contextDepartment(q.value,intentFor(bestQuery(q.value))),box=$('#categoryShortcuts');
-  if(!dep){box.innerHTML='<span>Тип товара</span><select disabled aria-label="Подкатегория"><option>Сначала выберите раздел</option></select>';return}
-  const counts=new Map();for(const p of products.filter(p=>catalogMatchesDepartment(p,dep))){const sub=p.rawCat||p.cat;if(sub)counts.set(sub,(counts.get(sub)||0)+1)}
-  const entries=[...counts].sort((a,b)=>a[0].localeCompare(b[0],'ru'));
-  box.innerHTML=`<label for="subcategorySelect">Тип товара</label><select id="subcategorySelect" aria-label="Подкатегория"><option value="">Все подразделы</option>${entries.map(([sub])=>`<option value="${esc(sub)}" ${sub===selectedSubcategory?'selected':''}>${esc(sub)}</option>`).join('')}</select>`;
-  box.querySelector('select').onchange=e=>{selectedSubcategory=e.target.value;if(typeof resetExtraFilters==='function')resetExtraFilters();apply()};
+  const dep=category.value,box=$('#categoryShortcuts'),groups=new Map();
+  for(const p of products.filter(p=>catalogMatchesDepartment(p,dep))){
+    const sub=p.rawCat||p.cat;if(!sub)continue;
+    const section=catalogSectionFor(p.department),key=JSON.stringify([section,sub]);
+    if(!groups.has(key))groups.set(key,{sub,section});
+  }
+  const entries=[...groups.values()].sort((a,b)=>a.sub.localeCompare(b.sub,'ru')||a.section.localeCompare(b.section));
+  const selected=entries.find(e=>e.sub===selectedSubcategory);
+  box.innerHTML=`<label for="subcategorySelect">Тип товара</label><select id="subcategorySelect" aria-label="Подкатегория"><option value="">Все типы товаров</option>${entries.map(e=>`<option value="${esc(JSON.stringify([e.section,e.sub]))}" ${e===selected?'selected':''}>${esc(e.sub)}${dep?'':' · '+esc(catalogCategoryLabel(e.section))}</option>`).join('')}</select>`;
+  box.querySelector('select').onchange=e=>{
+    if(e.target.value){const [section,sub]=JSON.parse(e.target.value);if(!category.value)category.value=section;selectedSubcategory=sub;}else selectedSubcategory='';
+    q.value='';mobileQ.value='';clearContextFilters();apply();
+  };
+}
+function clearContextFilters(){
+  brandFilter.value='';facet1.value='';facet2.value='';restoredFacetValues=null;
+  if(typeof resetExtraFilters==='function')resetExtraFilters();
+}
+function resetSearchFilters(){
+  category.value='';selectedSubcategory='';clearContextFilters();
+  minPrice.value='';maxPrice.value='';saleOnly.checked=false;sort.value='popular';
 }
 function renderFilterChips(){
   const chips=[];
@@ -470,7 +524,7 @@ function setupStoragePromo(){
 }
 
 function populateCategoryOptions(availableProducts=null){
-  category.innerHTML='<option value="">Каталог</option>';
+  category.innerHTML='<option value="">Все разделы</option>';
   for(const [key,section] of Object.entries(CATALOG_SECTIONS)){
     const departments=section.departments.filter(dep=>!availableProducts||availableProducts.some(p=>p.department===dep));
     if(!departments.length)continue;
@@ -478,26 +532,21 @@ function populateCategoryOptions(availableProducts=null){
     parent.style.fontWeight='700';
     parent.style.color='#17191c';
     category.add(parent);
-    for(const dep of departments.filter(dep=>dep!==key&&CATALOG_DEPARTMENTS[dep])){
-      const label=dep==='winter'?'Зимний инвентарь':CATALOG_DEPARTMENTS[dep].label;
-      const child=new Option('\u00a0\u00a0\u00a0'+label,dep);
-      child.style.fontWeight='400';
-      category.add(child);
-    }
+
   }
 }
 function populateFilters(){
   populateCategoryOptions(products);
   refreshBrandOptions(products);
 }
-function restoreState(){selectedSubcategory=new URLSearchParams(location.search).get('sub')||'';const sp=new URLSearchParams(location.search),initialQ=sp.get('q')||'';q.value=initialQ;mobileQ.value=initialQ;category.value=sp.get('cat')||'';brandFilter.value=sp.get('brand')||'';saleOnly.checked=sp.get('sale')==='1';minPrice.value=sp.get('min')||'';maxPrice.value=sp.get('max')||'';sort.value=sp.get('sort')||'popular';page=Math.max(1,+sp.get('page')||1);restoredFacetValues=[sp.get('f1')||'',sp.get('f2')||'']}
+function restoreState(){selectedSubcategory=new URLSearchParams(location.search).get('sub')||'';const sp=new URLSearchParams(location.search),initialQ=sp.get('q')||'';q.value=initialQ;mobileQ.value=initialQ;const requestedCategory=sp.get('cat')||'';if(requestedCategory&&!CATALOG_SECTIONS[requestedCategory]&&CATALOG_DEPARTMENTS[requestedCategory]&&!Array.from(category.options).some(o=>o.value===requestedCategory))category.add(new Option(CATALOG_DEPARTMENTS[requestedCategory].label,requestedCategory));category.value=requestedCategory;brandFilter.value=sp.get('brand')||'';saleOnly.checked=sp.get('sale')==='1';minPrice.value=sp.get('min')||'';maxPrice.value=sp.get('max')||'';sort.value=sp.get('sort')||'popular';page=Math.max(1,+sp.get('page')||1);restoredFacetValues=[sp.get('f1')||'',sp.get('f2')||'']}
 
 $('#cartBtn')?.addEventListener('click',()=>toggleCart());$('#searchBtn')?.addEventListener('click',()=>{toggleMenu(false);mobileQ?.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>mobileQ?.focus({preventScroll:true}),250)});$('#menuBtn')?.addEventListener('click',()=>toggleMenu(true));$('#menuClose')?.addEventListener('click',()=>toggleMenu(false));$('#menuBackdrop')?.addEventListener('click',()=>toggleMenu(false));$$('[data-menu-close]').forEach(a=>a.addEventListener('click',()=>toggleMenu(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape'){toggleMenu(false);toggleCart(false);closeMega()}});$('.checkout')?.addEventListener('click',()=>{if(cart.length)location.href='checkout.html'});
 $('#applyFilters')?.addEventListener('click',e=>{e?.preventDefault();apply(true,true);$('#filterDialog').close()});$('#resetFilters')?.addEventListener('click',e=>{e?.preventDefault();if(typeof resetExtraFilters==='function')resetExtraFilters();selectedSubcategory='';category.value='';brandFilter.value='';saleOnly.checked=false;minPrice.value='';maxPrice.value='';sort.value='popular';q.value='';mobileQ.value='';if(facet1)facet1.value='';if(facet2)facet2.value='';page=1;configureContextFilters('', '');render(products);renderFilterChips();renderCategoryShortcuts();syncState()});
-[category,brandFilter,sort,saleOnly,facet1,facet2].forEach(el=>el?.addEventListener('change',()=>{if(el===category){selectedSubcategory='';if(typeof resetExtraFilters==='function')resetExtraFilters();}apply(true,true)}));
+[category,brandFilter,sort,saleOnly,facet1,facet2].forEach(el=>el?.addEventListener('change',()=>{if(el===category){selectedSubcategory='';q.value='';mobileQ.value='';clearContextFilters();}apply(true,true)}));
 prevPage?.addEventListener('click',()=>{if(page>1){page--;render(view);syncState();productsEl.scrollIntoView()}});nextPage?.addEventListener('click',()=>{if(page*PAGE<view.length){page++;render(view);syncState();productsEl.scrollIntoView()}});
 $$('[data-category]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const term=a.dataset.category||'';selectedSubcategory='';closeMega();toggleMenu(false);const key=navigationCategory[term];if(key){$('#resetFilters').click();selectDepartment(key)}else{category.value='';q.value=term;mobileQ.value=term;apply(true,true);productsEl.scrollIntoView({behavior:'smooth'})}}));
-$('#search')?.addEventListener('submit',e=>{e.preventDefault();mobileQ.value=q.value;selectedSubcategory='';apply(true,true);$('#desktopSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});$('#mobileSearch')?.addEventListener('submit',e=>{e.preventDefault();q.value=mobileQ.value;selectedSubcategory='';apply(true,true);$('#mobileSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});
+$('#search')?.addEventListener('submit',e=>{e.preventDefault();mobileQ.value=q.value;resetSearchFilters();apply(true,true);$('#desktopSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});$('#mobileSearch')?.addEventListener('submit',e=>{e.preventDefault();q.value=mobileQ.value;resetSearchFilters();apply(true,true);$('#mobileSuggest')?.classList.remove('open');productsEl.scrollIntoView({behavior:'smooth'})});
 $('#desktopCatalogLink')?.addEventListener('click',e=>{e.preventDefault();openMega()});$('#megaBackdrop')?.addEventListener('click',closeMega);
 const normalizePickerNumber=(selector,maxLength,max)=>{const input=$(selector);input?.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,maxLength);const invalid=!!input.value&&+input.value>max;if(invalid)input.value='';input.classList.toggle('inputError',invalid)})};
 normalizePickerNumber('#height',3,220);normalizePickerNumber('#budget',7,2000000);
@@ -560,7 +609,7 @@ $('#picker').parentNode.insertBefore(pickerHome,$('#picker'));pickerHome.append(
 function syncMobileLayout(){
   const filters=$('#filterControls'),picker=$('#picker');
   if(mobileLayout.matches){$('#filterDialogBody').append(filters);$('#filterDialogFooter').append($('#filterActions'));$('#pickerDialog').append(picker)}
-  else{$('#filterDialog').close();$('#pickerDialog').close();$('#filterHome').append(filters);filters.querySelector('.filters').append($('#filterActions'));pickerHome.append(picker);$('#applyFilters').textContent='Показать'}
+  else{$('#filterDialog').close();$('#pickerDialog').close();$('#filterHome').append(filters);filters.querySelector('.filterActionsHome').append($('#filterActions'));pickerHome.append(picker);$('#applyFilters').textContent='Показать'}
   syncBodyLock();
 }
 $('#openFilters').onclick=()=>{$('#applyFilters').textContent=catalogComplete?`Показать товары (${view.length})`:'Показать';$('#filterDialog').showModal();syncBodyLock()};

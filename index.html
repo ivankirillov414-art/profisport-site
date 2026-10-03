@@ -15,7 +15,7 @@
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
   <link rel="stylesheet" href="back-to-top.css?v=2">
   <link rel="stylesheet" href="motion.css?v=3">
-  <link rel="stylesheet" href="sport-energy.css?v=14">
+  <link rel="stylesheet" href="sport-energy.css?v=15">
   <link href="psf-final-motion.css?v=12" rel="stylesheet">
   <script src="motion.js?v=6" defer></script>
 </head>
@@ -113,10 +113,13 @@
       <div class="sectionHead"><h2>Каталог товаров</h2><span id="catalogStatus" hidden aria-hidden="true">Загрузка…</span></div>
       <div class="mobileCatalogToolbar"><button type="button" id="openFilters">Фильтры <span id="filterCount"></span></button><label><span class="srOnly">Сортировка товаров</span><select id="mobileSort"><option value="popular">Рекомендуем</option><option value="priceAsc">Дешевле</option><option value="priceDesc">Дороже</option><option value="name">По названию</option></select></label></div>
       <div id="filterHome"><div id="filterControls">
-      <div class="filterPanelIntro"><div><h3>Подберите свой вариант</h3><p>Раздел, бренд и бюджет — найдите снаряжение для своего маршрута.</p></div><span class="filterPanelMark">ПРОФИСПОРТ</span></div>
+      <div class="filterPanelIntro"><div><h3>Найдите нужный товар</h3><p>Выберите тип товара сразу или введите название в поиск. Раздел выбирать необязательно.</p></div><span class="filterPanelMark">ПРОФИСПОРТ</span></div>
       <div class="filterSection filterSelection"><h4>Что ищем</h4><div class="filterGrid">
-        <label class="filterField"><span>Раздел</span><select id="category" aria-label="Категория"><option value="">Каталог</option></select></label>
+        <label class="filterField"><span>Раздел</span><select id="category" aria-label="Категория"><option value="">Все разделы</option></select></label>
         <div id="categoryShortcuts" class="filterField" aria-label="Разделы категории"></div>
+      </div></div>
+      <details class="catalogAdvanced"><summary>Цена, бренд и характеристики</summary>
+      <div class="filterSection"><div class="filterGrid">
         <label class="filterField"><span>Бренд</span><select id="brandFilter" aria-label="Бренд"><option value="">Все бренды</option></select></label>
       </div></div>
       <div class="filterSection" id="parameterSection" hidden><h4>Подходящие параметры</h4>
@@ -129,8 +132,9 @@
         <label class="filterField"><span>Цена до, ₽</span><input min="0" inputmode="numeric" id="maxPrice" aria-label="Цена до, рублей" type="number" placeholder="Без ограничения"></label>
         <label class="filterField"><span>Сортировка</span><select id="sort" aria-label="Сортировка товаров"><option value="popular">Рекомендуем</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="name">По названию</option></select></label>
         <label class="stockOnly"><input type="checkbox" id="saleOnly"> Со скидкой</label>
-        <div id="filterActions"><button id="resetFilters" class="secondary">Сбросить</button><button id="applyFilters">Показать</button></div>
       </div></div>
+      </details>
+      <div class="filterActionsHome"><div id="filterActions"><button id="resetFilters" class="secondary">Сбросить</button><button id="applyFilters">Показать</button></div></div>
       </div></div>
       <div id="activeFilters" class="filterChips" aria-label="Выбранные фильтры" aria-live="polite"></div>
       <div id="products" class="products"><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article><article class="product productSkeleton"><div class="photo"></div><h3>Загрузка каталога…</h3></article></div>
@@ -175,13 +179,13 @@
       </div>
     </div>
   </dialog>
-  <script src="catalog-loader.js?v=34"></script>
-  <script src="catalog-live-paged.js?v=13"></script>
+  <script src="catalog-loader.js?v=35"></script>
+  <script src="catalog-live-paged.js?v=14"></script>
   <script src="brand-showcase.js?v=3"></script>
   <script src="catalog-filter-panel.js?v=1"></script>
   <script src="winter-category-art.js?v=1"></script>
   <script src="subcategory-art.js?v=1"></script>
-  <script src="app.js?v=70"></script>
+  <script src="app.js?v=71"></script>
   <script src="psf-final-motion.js?v=12"></script>
   <script src="buyer-info.js?v=1"></script>
   <script src="store-location.js?v=3"></script>

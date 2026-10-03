@@ -74,6 +74,7 @@ function primaryProductType(name){
   if(startsAny(n,['беговел']))return'balance_bike';
   if(startsAny(n,['ролик для пресса','ролики для пресса']))return'ab_wheel';
   if(/^вело +[0-9]/.test(n)||startsAny(n,['детский велосипед','горный велосипед','электровелосипед','велосипед']))return'bicycle';
+  if(/^(?:спортивный )?самокат.*(?:снег|лыж)|^снегосамокат/.test(n))return'snow_scooter';
   if(startsAny(n,['детский самокат','городской самокат','трюковой самокат','электросамокат','самокат']))return'scooter';
   if(startsAny(n,['сноуборд']))return'snowboard';
   if(startsAny(n,['роликовые коньки','коньки роликовые','коньки для танцев','квады']))return'rollers';
@@ -97,6 +98,7 @@ function primaryProductType(name){
   if(startsAny(n,['гиря','гири']))return'kettlebell';
   if(startsAny(n,['палатка']))return'tent';
   if(startsAny(n,['спальный мешок','спальник']))return'sleeping_bag';
+  if(startsAny(n,['шлем']))return'helmet';
   if(startsAny(n,['рюкзак']))return'backpack';
   if(startsAny(n,['батут']))return'trampoline';
   if(startsAny(n,['бассейн']))return'pool';
@@ -163,6 +165,14 @@ function catalogSubcategory(name,path,tax){
   if(tax.type==='sup')return'SUP-борды';
   if(tax.type==='sup_accessory')return'SUP-аксессуары';
   if(tax.type==='balance_bike')return'Беговелы';
+  if(tax.type==='snow_scooter'&&/самокат/i.test(name))return'Снегосамокаты';
+  if(tax.type==='scooter'){
+    const n=textNorm(name),source=textNorm(cleanPath(path).join(' '));
+    if(/электро/.test(n))return'Электросамокаты';
+    if(/трюк|stunt/.test(n+' '+source))return'Трюковые самокаты';
+    if(/детск|трехкол|трёхкол|3-х кол|трехколес/.test(n+' '+source))return'Детские самокаты';
+    return'Городские самокаты';
+  }
   path=cleanPath(path);
   const leaf=path[path.length-1]||CATALOG_DEPARTMENTS[tax.key]?.label||'Другие товары';
   // DIAFAN roots can include tax suffixes: "Велосипеды (НДС)".

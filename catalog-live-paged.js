@@ -62,7 +62,7 @@
     return live;
   }
 
-  const CACHE_KEY='live-catalog-imgtruth5-taxonomy8',CACHE_MAX_AGE=120000;
+  const CACHE_KEY='live-catalog-imgtruth5-taxonomy9',CACHE_MAX_AGE=120000;
   function catalogCache(mode,items,maxAge=CACHE_MAX_AGE){
     return new Promise(resolve=>{
       let database,settled=false;

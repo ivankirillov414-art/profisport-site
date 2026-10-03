@@ -288,3 +288,11 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
 
 /* Transparent section artwork keeps the original brand colours. */
 #categoryTiles .categoryTile .categoryArtwork{mix-blend-mode:normal;filter:none}
+
+/* A direct type picker first; optional refinements stay one click away. */
+#filterControls .filterSelection .filterGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#filterControls .catalogAdvanced>summary{padding:16px 24px;cursor:pointer;font-size:14px;font-weight:600;color:#24313b;border-top:1px solid #e1e6e9}
+#filterControls .catalogAdvanced>summary:focus-visible{outline:2px solid #e8a914;outline-offset:-3px}
+#filterControls .filterActionsHome{display:flex;justify-content:flex-end;padding:14px 24px;border-top:1px solid #e1e6e9}
+#filterControls .filterPanelIntro p{color:#e0e7ec}
+@media(max-width:850px){#filterControls .filterSelection .filterGrid{grid-template-columns:1fr}#filterControls .catalogAdvanced>summary{padding:16px}#filterControls .filterActionsHome:empty{display:none}}
