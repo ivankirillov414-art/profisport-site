@@ -1,0 +1,74 @@
+name: Product photo editor
+on:
+  push:
+    branches: [main, codex/manual-photo-editor-20261003]
+    paths: ['admin/photos*', 'server/product-photo-editor.php', 'api/product-photos.php', 'api/import-apply.php', 'tests/product-photos*', '.github/workflows/product-photo-editor.yml']
+  pull_request:
+    paths: ['admin/photos*', 'server/product-photo-editor.php', 'api/product-photos.php', 'api/import-apply.php', 'tests/product-photos*', '.github/workflows/product-photo-editor.yml']
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-password
+          MYSQL_DATABASE: profisport_test
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptest-only-password" --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: gd, mbstring, pdo_mysql
+      - name: Integrate reviewed source changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/codex/manual-photo-editor-20261003'
+        run: python3 tests/product-photos-integrate.py
+      - name: Syntax, image and source-photo tests
+        run: |
+          php -l server/product-photo-editor.php
+          php -l api/product-photos.php
+          php -l api/import-apply.php
+          php -l admin/photos.php
+          node --check admin/photos.js
+          node --check admin/app.js
+          php tests/product-photos.php
+          node tests/photo-source-ownership.js
+          php tests/source-photo-reconcile.php
+      - name: Disposable database and real HTTP upload/import
+        run: |
+          cat > server/config.php <<'PHP'
+          <?php return ['db_host'=>'127.0.0.1','db_name'=>'profisport_test','db_user'=>'root','db_pass'=>'test-only-password','import_token'=>'test'];
+          PHP
+          php tests/seed.php
+          php -S 127.0.0.1:8080 >/tmp/photo-test-server.log 2>&1 &
+          for attempt in 1 2 3 4 5; do curl -s http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
+          python3 tests/product-photos-http.py
+      - name: Browser test
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.1
+          npx playwright install --with-deps chromium
+          node tests/product-photos-browser.cjs
+      - name: Commit only successfully tested integration edits
+        if: github.event_name == 'push' && github.ref == 'refs/heads/codex/manual-photo-editor-20261003'
+        run: |
+          git config user.name 'ProfiSport validation'
+          git config user.email 'profisport-checks@users.noreply.github.com'
+          git add api/import-apply.php api/photo-health.php admin/index.php .htaccess server/product-photo-editor.php .github/workflows/store-tests.yml .github/workflows/deploy-infinityfree.yml
+          if ! git diff --cached --quiet; then
+            git commit -m 'Integrate tested manual photo ownership into 1C imports and admin navigation'
+            git push origin HEAD:codex/manual-photo-editor-20261003
+          fi
+          git rev-parse HEAD
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-photo-editor-checks
+          path: |
+            /tmp/manual-product-photos-desktop.png
+            /tmp/manual-product-photos-mobile.png
+            /tmp/photo-test-server.log
+          retention-days: 3
