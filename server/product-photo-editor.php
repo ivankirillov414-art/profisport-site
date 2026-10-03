@@ -15,7 +15,7 @@ function ppe_candidates(array $p): array {
 }
 function ppe_safe_url(string $url): string {
     $url=trim($url);
-    if(preg_match('/[\x00-\x20\x7f]/',$url))return '';
+    if(preg_match('/[\x00-\x1f\x7f]/',$url))return '';
     if(preg_match('~^https://[^/]+/~i',$url))return filter_var($url,FILTER_VALIDATE_URL)?$url:'';
     if(str_starts_with($url,'import/'))$url='/'.$url;
     if(!str_starts_with($url,'/import/'))return '';
