@@ -64,6 +64,8 @@ function spd_report(string $root): ?array {
     $iterator=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS));
     foreach($iterator as $file){
         if(!$file->isFile()||$file->isLink())continue;
+        $normalizedPath=str_replace(DIRECTORY_SEPARATOR,'/',$file->getPathname());
+        if(str_contains($normalizedPath,'/.staging/'))continue;
         $extension=strtolower($file->getExtension());
         $relative=str_replace(DIRECTORY_SEPARATOR,'/',substr($file->getPathname(),strlen($root)+1));
         if(in_array($extension,['jpg','jpeg','png','webp','gif','avif'],true)){

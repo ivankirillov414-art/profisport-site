@@ -12,6 +12,8 @@ try {
     $it=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir,FilesystemIterator::SKIP_DOTS));
     foreach($it as $info){
         if(!$info->isFile())continue;
+        $normalized=str_replace(DIRECTORY_SEPARATOR,'/',$info->getPathname());
+        if(str_contains($normalized,'/.staging/'))continue;
         $ext=strtolower($info->getExtension());
         if(!in_array($ext,$allowed,true))continue;
         $relative=str_replace(DIRECTORY_SEPARATOR,'/',substr($info->getPathname(),strlen($dir)+1));
