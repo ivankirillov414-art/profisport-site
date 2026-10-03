@@ -22,7 +22,7 @@ function pph_urls(array $row): array {
     $urls=[];
     foreach(array_merge([$row['main_image']??''],is_array($gallery)?$gallery:[]) as $value){
         if(!is_string($value))continue;$url=trim($value);
-        if($url===''||strlen($url)>2000||preg_match('/[\x00-\x20\x7f<>"\x27]/',$url))continue;
+        if($url===''||strlen($url)>2000||preg_match('/[\x00-\x1F\x7f<>"\x27]/',$url))continue;
         if(preg_match('~^https://[^/]+/~i',$url)||preg_match('~^/?(?:import|uploads|assets)/~',$url)||str_starts_with($url,'api/product-image.php?'))$urls[]=$url;
     }
     return array_values(array_unique($urls));
