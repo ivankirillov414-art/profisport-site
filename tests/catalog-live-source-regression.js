@@ -32,7 +32,9 @@ if(api.includes("$images[]='api/product-fallback-image.php"))fail('catalog API m
 if(!api.includes("'fallback_image'=>null"))fail('catalog API must not offer unverified fallback photos');
 if(!api.includes("'image_source'=>$imageSource"))fail('catalog API image source diagnostic is missing');
 if(importer.includes('$final=$urls?:$oldImgs'))fail('1C import must never replace historical DB image arrays with a smaller current export');
-if(!importer.includes('array_merge($urls,$oldImgs,$oldMain!=='))fail('1C import must union new image references with historical DB image references');
+// The merge is now a shared helper: test behavior, not its former inline spelling.
+if(!importer.includes('single_csv_merge_photos($urls,$oldImgs,$oldMain)'))fail('1C import must merge new images with retained historical photos');
+try{require('node:child_process').execFileSync('php',['tests/import-single-csv.php'],{cwd:root,stdio:'inherit'});}catch{fail('photo preservation, replacement and CSV behavior checks failed');}
 if(!importer.includes("catalog_snapshot"))fail('1C import must tag every accepted product with its catalog snapshot');
 if(!importer.includes("catalog_snapshot<>?"))fail('completed 1C import must hide products absent from the current snapshot');
 if(!importer.includes("Выгрузка изменилась во время обновления"))fail('1C import must stop if the source file changes between batches');

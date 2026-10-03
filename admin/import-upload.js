@@ -1,79 +1,83 @@
 (()=>{
   const catalog=document.getElementById('catalog');if(!catalog||document.getElementById('adminUpdateUpload'))return;
-  const box=document.createElement('div');box.id='adminUpdateUpload';box.style.cssText='margin:0 0 20px;padding:16px;border:1px solid #e3e3df;border-radius:14px;background:#fafaf8';
+  const box=document.createElement('div');box.id='adminUpdateUpload';box.style.cssText='margin:0 0 20px;padding:16px;border:1px solid #e3e3df;border-radius:14px;background:#fafaf8;scroll-margin-top:80px';
   box.innerHTML=`
-    <h3 style="margin:0 0 6px">Загрузить новое обновление</h3>
-    <div class="muted" style="margin-bottom:12px">Обязательны только две CSV-таблицы. Картинки можно не загружать или добавить только часть. Существующие фотографии сохраняются; отсутствие новых фото не мешает обновлению товаров.</div>
-    <label style="display:grid;gap:5px;margin:10px 0"><b>Товары / сводка (CSV)</b><input id="adminProductsCsv" type="file" accept=".csv,text/csv"></label>
-    <label style="display:grid;gap:5px;margin:10px 0"><b>Категории (CSV)</b><input id="adminCategoriesCsv" type="file" accept=".csv,text/csv"></label>
-    <label style="display:flex;gap:8px;align-items:center;margin:12px 0"><input id="adminUploadWithoutImages" type="checkbox"> Без новых картинок — обновить только таблицы</label>
-    <fieldset id="adminOptionalImages" style="border:1px solid #e3e3df;border-radius:10px;min-width:0;margin:10px 0">
-      <legend>Картинки — необязательно</legend>
-      <label style="display:grid;gap:5px;margin:10px 0"><b>Папка с картинками</b><input id="adminImagesFolder" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.avif" multiple webkitdirectory directory></label>
-      <label style="display:grid;gap:5px;margin:10px 0"><b>Или отдельные картинки</b><input id="adminImageFiles" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.avif" multiple></label>
-      <small class="muted">Выберите только нужные файлы или оставьте оба поля пустыми. Повторно загружать все фотографии не нужно.</small>
-    </fieldset>
-    <label style="display:flex;gap:8px;align-items:center;margin:12px 0"><input id="adminRunAfterUpload" type="checkbox" checked> После загрузки сразу обновить каталог</label>
+    <h3 style="margin:0 0 6px">Загрузить обновление</h3>
+    <p class="muted">Одна CSV-таблица с любым названием и фотографии отдельными файлами. Вторая таблица и папки не нужны.</p>
+    <label style="display:grid;gap:5px;margin:12px 0"><b>Таблица товаров (CSV)</b><input id="adminProductsCsv" type="file" accept=".csv,text/csv"></label>
+    <label style="display:grid;gap:5px;margin:12px 0"><b>Выбрать фотографии</b><input id="adminImagesFiles" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.avif" multiple></label>
+    <p class="muted" style="margin:6px 0">Можно выбрать сразу несколько файлов и добавить ещё следующим выбором. Названия фотографий должны совпадать со ссылками в таблице. Без новых фото сохраняются прежние.</p>
+    <div><span id="adminImagesCount">Фотографии не выбраны</span> <button id="adminClearImages" class="secondary" type="button">Очистить выбор фото</button></div>
+    <label style="display:flex;gap:8px;align-items:center;margin:12px 0"><input id="adminRunAfterUpload" type="checkbox" checked> После загрузки обновить каталог</label>
     <button class="importBtn" id="adminUploadUpdateBtn" type="button">Загрузить обновление</button>
     <progress id="adminUploadProgress" max="100" value="0" style="display:none;width:100%;margin-top:12px"></progress>
     <div id="adminUploadUpdateMsg" class="msg muted" role="status" aria-live="polite"></div>`;
   catalog.insertBefore(box,catalog.firstChild);
-
-  const btn=document.getElementById('adminUploadUpdateBtn'),msg=document.getElementById('adminUploadUpdateMsg'),progress=document.getElementById('adminUploadProgress');
-  const products=document.getElementById('adminProductsCsv'),categories=document.getElementById('adminCategoriesCsv'),images=document.getElementById('adminImagesFolder');
-  const separateImages=document.getElementById('adminImageFiles'),withoutImages=document.getElementById('adminUploadWithoutImages'),photoFields=document.getElementById('adminOptionalImages'),runAfter=document.getElementById('adminRunAfterUpload');
-  let busy=false;
-  function syncControls(){
-    for(const control of [btn,products,categories,withoutImages,runAfter])control.disabled=busy;
-    photoFields.disabled=busy||withoutImages.checked;
-    images.disabled=separateImages.disabled=photoFields.disabled;
+  const $=id=>document.getElementById(id),btn=$('adminUploadUpdateBtn'),msg=$('adminUploadUpdateMsg'),progress=$('adminUploadProgress');
+  const products=$('adminProductsCsv'),images=$('adminImagesFiles'),clear=$('adminClearImages'),selected=new Map();let busy=false;
+  const count=()=>{$('adminImagesCount').textContent=selected.size?`Выбрано фотографий: ${selected.size}`:'Фотографии не выбраны';};
+  images.addEventListener('change',()=>{
+    if(busy)return;
+    const incoming=[...(images.files||[])];
+    try{
+      const next=new Map(selected);
+      for(const f of incoming){
+        if(!/\.(jpe?g|png|webp|gif|avif)$/i.test(f.name))throw new Error(`Неподдерживаемый формат: ${f.name}`);
+        const key=f.name.toLocaleLowerCase('ru-RU'),old=next.get(key);
+        if(old&&(old.size!==f.size||old.lastModified!==f.lastModified))throw new Error(`Разные фотографии называются одинаково: ${f.name}. Очистите выбор и оставьте нужный файл.`);
+        next.set(key,f);
+      }
+      selected.clear();for(const [key,f] of next)selected.set(key,f);count();msg.textContent='';
+    }catch(e){msg.className='msg err';msg.textContent=e.message;}finally{images.value='';}
+  });
+  clear.onclick=()=>{if(!busy){selected.clear();images.value='';count();}};
+  async function token(){
+    let value=window.getProfisportCsrf?.()||'';
+    if(!value){const r=await fetch('../server/api.php?action=me',{credentials:'same-origin',cache:'no-store'});const d=await r.json();if(!r.ok||!d.ok)throw new Error('Нужно заново войти в админку');value=d.csrf||'';}
+    if(!value)throw new Error('Нужно заново войти в админку');return value;
   }
-  withoutImages.addEventListener('change',syncControls);syncControls();
-  const csrf=async()=>{let token=window.getProfisportCsrf?.()||'';if(!token&&window.refreshProfisportAuth){await window.refreshProfisportAuth();token=window.getProfisportCsrf?.()||'';}if(!token)throw new Error('Нужно заново войти в админку');return token;};
-  async function jsonPost(url,token,body={},form=false){
-    const opt={method:'POST',credentials:'same-origin',cache:'no-store',headers:{'X-CSRF-Token':token}};
-    if(form)opt.body=body;else{opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body);}
-    const r=await fetch(url,opt);const text=await r.text();let data;try{data=JSON.parse(text)}catch{throw new Error('Сервер вернул некорректный ответ');}
-    if(!r.ok||!data.ok)throw new Error(data.error||('HTTP '+r.status));return data;
+  async function post(action,batch,csrf,body={},form=false){
+    const url='../api/import-upload.php?action='+action+(batch?'&batch='+encodeURIComponent(batch):'');
+    const options={method:'POST',credentials:'same-origin',cache:'no-store',headers:{'X-CSRF-Token':csrf},body:form?body:JSON.stringify(body)};
+    if(!form)options.headers['Content-Type']='application/json';
+    const r=await fetch(url,options);let d;try{d=await r.json();}catch{throw new Error(`Сервер не подтвердил загрузку (HTTP ${r.status}).`);}
+    if(!r.ok||d.ok!==true)throw new Error(d.error||`Ошибка HTTP ${r.status}`);return d;
   }
-  function chunks(items,maxFiles=20,maxBytes=18*1024*1024){const out=[];let chunk=[],bytes=0;for(const item of items){if(chunk.length&&(chunk.length>=maxFiles||bytes+item.file.size>maxBytes)){out.push(chunk);chunk=[];bytes=0;}chunk.push(item);bytes+=item.file.size;}if(chunk.length)out.push(chunk);return out;}
-  async function uploadChunk(batch,items,token){
-    const form=new FormData();for(const item of items){form.append('files[]',item.file,item.file.name);form.append('paths[]',item.path);}
-    const result=await jsonPost('../api/import-upload.php?action=upload&batch='+encodeURIComponent(batch),token,form,true);
-    if(Number(result.saved)!==items.length)throw new Error('Сервер не подтвердил получение всех выбранных файлов. Каталог не обновлён.');
-    return result;
+  function chunks(items,limits){
+    const out=[];let part=[],bytes=0;
+    for(const item of items){
+      if(item.file.size<1||item.file.size>Math.min(limits.max_file_bytes,limits.max_batch_bytes))throw new Error(`Файл «${item.file.name}» пуст или превышает лимит хостинга (${Math.floor(Math.min(limits.max_file_bytes,limits.max_batch_bytes)/1048576)} МБ).`);
+      if(part.length&&(part.length>=limits.max_files||bytes+item.file.size>limits.max_batch_bytes)){out.push(part);part=[];bytes=0;}
+      part.push(item);bytes+=item.file.size;
+    }
+    if(part.length)out.push(part);return out;
   }
-  async function cancel(batch,token){if(!batch)return;try{await jsonPost('../api/import-upload.php?action=cancel&batch='+encodeURIComponent(batch),token,{});}catch{}}
-
   btn.addEventListener('click',async()=>{
     if(busy)return;
-    const product=products.files?.[0],category=categories.files?.[0];if(!product||!category){msg.className='msg err';msg.textContent='Выберите обе CSV-таблицы: товары/сводка и категории. Картинки необязательны.';return;}
-    if(!/\.csv$/i.test(product.name)||!/\.csv$/i.test(category.name)){msg.className='msg err';msg.textContent='Для текущего импорта нужны CSV-файлы.';return;}
-    // A folder or a full photo set is never required. Explicitly opting out also ignores old selections.
-    const selectedImages=withoutImages.checked?[]:[...(images.files||[]),...(separateImages.files||[])];
-    const imageFiles=selectedImages.filter(f=>/\.(jpe?g|png|webp|gif|avif)$/i.test(f.name));
-    const skipped=selectedImages.length-imageFiles.length;
-    const photoItems=new Map();
-    for(const file of imageFiles){
-      const path='images/'+(file.webkitRelativePath||file.name),key=path.toLowerCase();
-      const prior=photoItems.get(key);
-      if(prior&&prior.file!==file){msg.className='msg err';msg.textContent='Два выбранных файла имеют одинаковый путь: '+path+'. Оставьте один файл или включите «Без новых картинок».';return;}
-      photoItems.set(key,{file,path});
-    }
-    const items=[{file:product,path:'Tovary.csv'},{file:category,path:'Categories.csv'},...photoItems.values()];
-    const totalBytes=items.reduce((s,x)=>s+x.file.size,0),parts=chunks(items),shouldRun=runAfter.checked;let batch='',doneBytes=0,token='';
-    busy=true;syncControls();progress.style.display='block';progress.value=0;msg.className='msg';msg.textContent=`Подготовка: 2 таблицы, новых картинок ${photoItems.size}, ${(totalBytes/1048576).toFixed(1)} МБ`;
+    const file=products.files?.[0];if(!file||!/\.csv$/i.test(file.name)){msg.className='msg err';msg.textContent='Выберите одну CSV-таблицу. Название файла может быть любым.';return;}
+    const items=[{file,path:file.name},...[...selected.values()].map(file=>({file,path:'images/'+file.name}))];
+    const total=items.reduce((n,x)=>n+x.file.size,0);let batch='',csrf='',sent=0,published=false;
+    busy=true;for(const el of [btn,products,images,clear])el.disabled=true;
+    progress.style.display='block';progress.value=0;msg.className='msg';msg.textContent='Подготовка загрузки…';
     try{
-      token=await csrf();const start=await jsonPost('../api/import-upload.php?action=start',token,{});batch=start.batch;
-      for(let i=0;i<parts.length;i++){msg.textContent=`Загрузка выбранных файлов… ${i+1} / ${parts.length}`;await uploadChunk(batch,parts[i],token);doneBytes+=parts[i].reduce((s,x)=>s+x.file.size,0);progress.value=totalBytes?Math.round(doneBytes/totalBytes*95):90;}
-      msg.textContent='Проверка таблиц и публикация выбранных файлов…';const final=await jsonPost('../api/import-upload.php?action=finalize&batch='+encodeURIComponent(batch),token,{});batch='';
-      if(Number(final.files)!==items.length||Number(final.images)!==photoItems.size)throw new Error('Число опубликованных файлов отличается от выбранных. Обновление каталога не запущено; проверьте список файлов.');
-      progress.value=100;msg.className='msg ok';
-      msg.textContent=photoItems.size===0?'Таблицы загружены без новых картинок. Существующие фотографии не удалены.':`Таблицы загружены, добавлено картинок: ${final.images}. Остальные фотографии сохранены.`;
-      if(skipped)msg.textContent+=` Пропущено файлов, не являющихся изображениями: ${skipped}.`;
-      document.getElementById('refreshImports')?.click();
-      if(shouldRun){msg.textContent+=' Результат обновления каталога появится ниже.';setTimeout(()=>document.getElementById('run1cImportBtn')?.click(),400);}
-      else msg.textContent+=' Для применения нажмите «Обновить каталог» ниже.';
-    }catch(e){msg.className='msg err';msg.textContent='Загрузка остановлена: '+e.message;await cancel(batch,token);}finally{busy=false;syncControls();}
+      csrf=await token();const start=await post('start','',csrf);batch=start.batch;
+      const parts=chunks(items,start.limits||{max_file_bytes:18*1048576,max_batch_bytes:18*1048576,max_files:20});
+      for(let i=0;i<parts.length;i++){
+        msg.textContent=`Загрузка ${i+1} / ${parts.length}: одна таблица и ${selected.size} фото`;
+        const body=new FormData();for(const item of parts[i]){body.append('files[]',item.file,item.file.name);body.append('paths[]',item.path);}
+        const r=await post('upload',batch,csrf,body,true);if(r.saved!==parts[i].length)throw new Error('Сервер сохранил не все файлы. Каталог не обновлён.');
+        sent+=parts[i].reduce((n,x)=>n+x.file.size,0);progress.value=total?Math.round(sent/total*95):90;
+      }
+      msg.textContent='Проверка комплекта…';const result=await post('finalize',batch,csrf);published=true;batch='';progress.value=100;
+      msg.className='msg ok';msg.textContent=`Загружено: одна таблица «${file.name}» и ${result.images} фото.`;
+      $('refreshImports')?.click();
+      if($('adminRunAfterUpload').checked){
+        const run=$('run1cImportBtn');if(!run||run.disabled)msg.textContent+=' Каталог ещё не обновлён: нажмите «Обновить каталог» после завершения текущей операции.';
+        else{msg.textContent+=' Запускаю обновление каталога — результат появится ниже.';run.click();}
+      }
+    }catch(e){
+      msg.className='msg err';msg.textContent='Загрузка остановлена: '+e.message;
+      if(batch&&!published)await post('cancel',batch,csrf).catch(()=>{});
+    }finally{busy=false;for(const el of [btn,products,images,clear])el.disabled=false;}
   });
 })();

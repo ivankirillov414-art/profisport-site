@@ -16,5 +16,5 @@ const refresh=$('refreshImports');if(refresh)refresh.addEventListener('click',lo
 const photosTile=document.querySelector('a[href="#photos"]');if(photosTile)photosTile.href='photos.php';
 addCommerceTiles();
 const reconcileScript=document.createElement('script');reconcileScript.src='reconcile.js?v=2';reconcileScript.defer=true;document.head.appendChild(reconcileScript);
-const uploadScript=document.createElement('script');uploadScript.src='import-upload.js?v=2';uploadScript.defer=true;document.head.appendChild(uploadScript);
+// The single-CSV uploader is included directly by admin/index.php.
 (async()=>{try{await refreshAuth();await Promise.allSettled([dashboard(),loadProducts(),loadImportFiles()])}catch(e){console.error('admin boot',e);setText('statProducts','—');setText('statOrders','—')}})();
