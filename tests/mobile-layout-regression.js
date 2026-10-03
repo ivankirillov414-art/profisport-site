@@ -20,7 +20,7 @@ const stylesheetHrefs=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/
 if(stylesheetHrefs.length!==5)fail('home page must load the storefront, compact-header, back-to-top, motion and Sport Energy theme stylesheets');
 if(!stylesheetHrefs.some(href=>/^motion\.css\?v=\d+$/.test(href)))fail('shared motion.css is missing');
 if(!stylesheetHrefs.some(href=>/^sport-energy\.css\?v=\d+$/.test(href)))fail('Sport Energy theme is missing');
-if(!stylesheetHrefs.includes('back-to-top.css?v=2'))fail('back-to-top.css is missing from stylesheet list');
+if(!stylesheetHrefs.some(href=>/^back-to-top\.css\?v=\d+$/.test(href)))fail('back-to-top.css is missing from stylesheet list');
 if(!stylesheetHrefs.some(x=>/^storefront-v2\.css\?v=\d+$/.test(x)))fail('storefront-v2.css is missing from stylesheet list');
 if(!stylesheetHrefs.some(x=>/^header-compact\.css\?v=\d+$/.test(x)))fail('header-compact.css is missing from stylesheet list');
 
