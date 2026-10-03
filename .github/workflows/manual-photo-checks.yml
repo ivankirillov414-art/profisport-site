@@ -1,0 +1,54 @@
+name: Manual product photo checks
+on:
+  push:
+    branches: [codex/manual-product-photos]
+  pull_request:
+    paths: ['admin/photos*', 'api/*photo*.php', 'api/catalog.php', 'server/product-photos.php', 'tests/product-photos*', '.github/workflows/manual-photo-checks.yml']
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test-only-password
+          MYSQL_DATABASE: profisport_test
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptest-only-password" --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: gd, fileinfo, mbstring, pdo_mysql
+      - name: Syntax and domain checks
+        run: |
+          php -l server/product-photos.php
+          php -l api/product-photos.php
+          php -l api/catalog.php
+          php -l api/photo-health.php
+          php -l admin/photos.php
+          node --check admin/photos.js
+          php tests/product-photos-domain.php
+          node tests/photo-source-ownership.js
+      - name: Disposable database HTTP tests
+        run: |
+          printf '%s\n' "<?php return ['db_host'=>'127.0.0.1','db_name'=>'profisport_test','db_user'=>'root','db_pass'=>'test-only-password','import_token'=>'test'];" > server/config.php
+          php tests/seed.php
+          php tests/product-photos-seed.php
+          php -S 127.0.0.1:8080 > /tmp/photo-server.log 2>&1 &
+          sleep 2
+          python3 tests/product-photos-http.py || { tail -70 /tmp/photo-server.log; exit 1; }
+      - name: Browser editor checks
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node tests/product-photos-ui.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manual-photo-browser-check
+          path: /tmp/manual-photos-*.png
+          retention-days: 3
