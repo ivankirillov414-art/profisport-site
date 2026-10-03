@@ -2,6 +2,9 @@ name: Single CSV upload validation
 on:
   push:
     branches: [codex/single-csv-images]
+concurrency:
+  group: single-csv-validation
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -21,7 +24,9 @@ jobs:
         with:
           node-version: '22'
       - name: Apply bounded source edits
-        run: python3 scripts/apply-single-csv.py
+        run: |
+          if ! grep -q "require .*import-single-csv.php" api/import-apply.php; then python3 scripts/apply-single-csv.py; fi
+          python3 scripts/single-csv-ordering.py
       - name: Syntax and focused regression tests
         run: |
           find api server admin tests -name '*.php' -print0 | xargs -0 -n1 php -l
@@ -45,7 +50,7 @@ jobs:
         run: |
           git config user.name 'ProfiSport validation'
           git config user.email 'profisport@users.noreply.github.com'
-          git add admin/ api/import-apply.php api/import-upload.php server/import-upload.php .github/workflows/store-tests.yml .github/workflows/deploy-infinityfree.yml
+          git add admin/ api/import-apply.php api/import-upload.php server/import-upload.php server/import-single-csv.php .github/workflows/store-tests.yml .github/workflows/deploy-infinityfree.yml
           if ! git diff --cached --quiet; then
             git commit -m 'Apply single CSV upload and optional categories after HTTP verification'
             git push origin HEAD:codex/single-csv-images
