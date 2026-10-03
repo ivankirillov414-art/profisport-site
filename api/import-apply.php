@@ -3,6 +3,7 @@ declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
 require __DIR__.'/../server/import-safety.php';
 require __DIR__.'/../server/import-single-csv.php';
+require __DIR__.'/../server/product-photo-editor.php';
 start_secure_session();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -43,6 +44,7 @@ try{
  if($productRows===0||$valid/max(1,$productRows)<.99)throw new RuntimeException('Остатки заполнены недостаточно полно. Импорт остановлен до изменения базы.');
  $sourceCounts=[];foreach($r as $rr){$id=trim((string)($rr[$map['source_id']]??''));if($id!=='')$sourceCounts[$id]=($sourceCounts[$id]??0)+1;}
  $slice=array_slice($r,$offset,$limit);
+ $manualPhotoOverrides=ppe_override_map($pdo);
  $cats=[];foreach($catsRaw as $x){$id=trim((string)($x[0]??''));$name=trim((string)($x[1]??''));if($id===''||$name==='')continue;$cats[$id]=['name'=>$name,'parent'=>trim((string)($x[2]??''))];}
  $catPath=function(string $id)use(&$cats):string{$parts=[];$seen=[];while($id!==''&&isset($cats[$id])&&!isset($seen[$id])){$seen[$id]=1;array_unshift($parts,$cats[$id]['name']);$id=(string)($cats[$id]['parent']??'');}return implode(' / ',$parts);};
  [$img,$imageFiles]=imageIndex($root,$offset,dirname($pf));
@@ -55,7 +57,7 @@ try{
   $bySource->execute([$sourceId]);$sourceMatches=$bySource->fetchAll();$byHash->execute([$hash]);$hashMatches=$byHash->fetchAll();$nameMatches=[];if(!$sourceMatches&&!$hashMatches){$byName->execute([$name]);$nameMatches=$byName->fetchAll();}
   $decision=import_identity_decision($sourceId,$sourceMatches,$hashMatches,$nameMatches);if($decision['status']==='conflict'){$skippedIdentity++;continue;}$ex=$decision['product']??false;
   $stockMapped++;if($q>0)$positive++;else$zero++;if($urls){$rowsWithPhoto++;$photosLinked+=count($urls);}
-  $oldImgs=[];if($ex&&!empty($ex['images']))$oldImgs=json_decode((string)$ex['images'],true)?:[];$oldMain=$ex?trim((string)($ex['main_image']??'')):'';$photoSet=single_csv_merge_photos($urls,$oldImgs,$oldMain);$final=$photoSet['images'];$main=$photoSet['main'];$sl=$ex['slug']??slug($name,'product-'.$sourceId);$ij=json_encode($final,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+  $oldImgs=[];if($ex&&!empty($ex['images']))$oldImgs=json_decode((string)$ex['images'],true)?:[];$oldMain=$ex?trim((string)($ex['main_image']??'')):'';$photoSet=single_csv_merge_photos($urls,$oldImgs,$oldMain);if($ex&&isset($manualPhotoOverrides[(int)$ex['id']]))$photoSet=ppe_overlay($photoSet,$manualPhotoOverrides[(int)$ex['id']]);$final=$photoSet['images'];$main=$photoSet['main'];$sl=$ex['slug']??slug($name,'product-'.$sourceId);$ij=json_encode($final,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
   if($ex){$was=(int)($ex['is_active']??1);$upd->execute([$sourceId?:($ex['source_id']??null),$hash,$snapshot,$name,$sl,$sku?:($ex['sku']??null),$price,$priceRub,$q,$status,$status,$category?:($ex['category_path']??''),$main,$ij,$active,(int)$ex['id']]);if($was===1&&$active===0)$archived++;if($was===0&&$active===1)$restored++;$updated++;}else{$ins->execute([$sourceId?:null,$hash,$snapshot,$name,$sl,$sku?:null,$price,$priceRub,$q,$status,$status,$category,$main,$ij,$active]);$created++;if($active===0)$archived++;}
  }
  $pdo->commit();$next=$offset+count($slice);$done=$next>=$total;

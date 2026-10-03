@@ -56,15 +56,25 @@ assert.match(deploy,/vehicle wear maintenance/,'post-deploy maintenance must rep
 assert.match(admin,/Текущий пароль админки/,'admin migration UI must request current password');
 assert.match(adminJs,/confirm\(/,'admin migration UI must request final confirmation');
 
-assert.match(photoPage,/Ручная загрузка, подбор из старого каталога и поиск картинок в интернете отключены/,'photo admin must describe the 1C-only policy');
-assert.doesNotMatch(photoPage,/photo-moderation\.js/,'photo admin must not load moderation code');
-assert.match(photoHealth,/current_1c_mysql_only/,'photo diagnostics must be 1C/MySQL only');
+// The owner explicitly enabled per-product uploads on 3 October 2026.
+// Internet autofill and the retired unaudited mutation route remain disabled.
+assert.match(photoPage,/добавьте фотографию вручную/,'photo admin must expose the requested manual upload');
+assert.match(photoPage,/id="photoQuery"/,'manual photos require an explicit catalogue search');
+assert.match(photoPage,/id="photoMissing"/,'missing photos must be filterable');
+assert.doesNotMatch(photoPage,/photo-moderation\.js/,'photo admin must not load retired moderation code');
+assert.match(photoHealth,/current_1c_mysql_with_explicit_admin_photos/,'diagnostics must report both authorized sources');
+assert.match(photoHealth,/explicit_product_selection/,'manual photos must be identified as an explicit choice');
+const editorApi=read('api/product-photos.php');
+assert.match(editorApi,/require_admin\(/,'photo requests require an active admin session');
+assert.match(editorApi,/csrf_check\(/,'photo writes require CSRF protection');
+assert.match(editorApi,/ppe_revision/,'photo writes must reject stale revisions');
+assert.match(read('api/import-apply.php'),/ppe_overlay\(/,'later CSV imports must preserve explicit manual photos');
 assert.match(photoApi,/photo_moderation_disabled/,'legacy photo mutation API must stay disabled');
 assert.equal(exists('admin/photo-moderation.js'),false,'legacy photo moderation script must remain retired');
 assert.equal(exists('scripts/photo_autofill.py'),false,'legacy internet photo autofill script must remain retired');
 assert.equal(exists('api/image-fallback.php'),false,'legacy image fallback endpoint must remain retired');
 assert.equal(exists('api/product-fallback-image.php'),false,'legacy product fallback image endpoint must remain retired');
-assert.equal(exists('data/photo-overrides.json'),false,'manual photo override data must remain retired');
+assert.equal(exists('data/photo-overrides.json'),false,'retired public static override file must not return');
 for(const p of ['data/products.part-001.json','data/products.public-0001.json','data/products.public-0002.json','data/products.public-0003.json','data/products.public-0004.json']) assert.equal(exists(p),false,'retired static catalog data must stay out of runtime: '+p);
 
 assert.doesNotMatch(catalog,/loadStaticCatalogFallback/,'storefront must not use parser/static fallback');
@@ -72,4 +82,4 @@ assert.doesNotMatch(loader,/staticRowWithDbPhotoFallback/,'base loader must not 
 assert.equal(exists('.github/workflows/sync-catalog.yml'),false,'parser catalog sync workflow must stay retired');
 assert.equal(exists('.github/workflows/photo-autofill.yml'),false,'fallback photo research workflow must stay retired');
 
-console.log('Hosting migration, 1C-only catalog and 1C-only photo policy checks passed.');
+console.log('Hosting migration, 1C catalogue and explicit authenticated product photo editing checks passed.');

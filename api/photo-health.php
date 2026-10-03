@@ -63,10 +63,10 @@ try{
     'ok'=>true,
     'generated_at'=>date(DATE_ATOM),
     'source_policy'=>[
-      'primary'=>'current_1c_mysql_only',
+      'primary'=>'current_1c_mysql_with_explicit_admin_photos',
       'fallback'=>'disabled',
       'internet_search'=>'disabled',
-      'admin_override'=>'disabled'
+      'admin_override'=>'explicit_product_selection'
     ],
     'stats'=>$stats,
     'unresolved_examples'=>$examples
