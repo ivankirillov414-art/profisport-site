@@ -174,6 +174,22 @@ assert all(x['product_id']!=1 for x in account['review_eligible']) and any(x['pr
 assert account['review_details']==[{'product_id':1}]
 assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
 pending=call('api/review-moderation.php',cookie=cookie)[1]['items'];assert len(pending)==1 and pending[0]['id']==review_id
+initial_review_text=review['text']
+edit={'review_id':review_id,'action':'edit','review_text':'Cleaned customer review text','expected_text':initial_review_text}
+assert call('api/review-moderation.php',edit,cookie)[0]==403
+assert call('api/review-moderation.php',edit,customer_cookie,customer_csrf)[0]==401
+assert call('api/review-moderation.php',{**edit,'review_text':'x'},cookie,csrf)[0]==422
+assert call('api/review-moderation.php',{**edit,'review_text':'x'*5001},cookie,csrf)[0]==422
+assert call('api/review-moderation.php',edit,cookie,csrf)[0]==200
+assert call('api/review-moderation.php',edit,cookie,csrf)[0]==409
+edited=call('api/review-moderation.php',cookie=cookie)[1]['items'][0]
+assert edited['status']=='pending' and edited['rating']==5 and edited['review_text']==edit['review_text']
+assert edited['original_review_text']==initial_review_text and len(edited['edit_history'])==1
+assert edited['edit_history'][0]['before_text']==initial_review_text and edited['edit_history'][0]['after_text']==edit['review_text'] and edited['edit_history'][0]['editor']
+assert call('api/review-moderation.php',{**edit,'expected_text':edit['review_text']},cookie,csrf)[0]==200
+assert len(call('api/review-moderation.php',cookie=cookie)[1]['items'][0]['edit_history'])==1
+assert call('api/customer.php?action=reviews&product_id=1')[1]['count']==0
+review['text']=edit['review_text']
 rejection={'review_id':review_id,'action':'reject'}
 assert call('api/review-moderation.php',rejection,cookie)[0]==403
 assert call('api/review-moderation.php',rejection,cookie,csrf)[0]==422
@@ -202,6 +218,12 @@ approval={'review_id':submitted['review_id'],'action':'approve','bonus':50}
 status,approved,_=call('api/review-moderation.php',approval,cookie,csrf);assert status==200
 assert approved['loyalty']['awarded']==0 and approved['loyalty']['reason']=='program_unconfigured'
 assert call('api/review-moderation.php',approval,cookie,csrf)[0]==200
+edit_published={'review_id':submitted['review_id'],'action':'edit','review_text':'Updated published customer review','expected_text':second['text']}
+assert call('api/review-moderation.php',edit_published,cookie,csrf)[0]==200
+assert call('api/customer.php?action=reviews&product_id=3')[1]['items'][0]['review_text']==edit_published['review_text']
+published=call('api/review-moderation.php?status=approved',cookie=cookie)[1]['items'][0]
+assert published['status']=='approved' and published['rating']==4 and published['original_review_text']==second['text']
+assert len(published['edit_history'])==1
 assert call('api/customer.php?action=review_submit',second,customer_cookie,customer_csrf)[0]==409
 public_review=call('api/customer.php?action=reviews&product_id=3')[1]
 assert public_review['count']==1 and public_review['items'][0]['verified_purchase'] is True

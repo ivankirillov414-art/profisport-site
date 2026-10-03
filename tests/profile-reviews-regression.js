@@ -47,6 +47,13 @@ for(const code of [...admin.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/s
 assert.match(admin,/Архив отклонённых/);
 assert.match(admin,/reason_code.*required/);
 assert.match(admin,/rejection_note/);
+assert.match(admin,/Редактировать текст/);
+assert.match(admin,/Оригинал и история правок/);
+assert.match(admin,/expected_text:item.review_text/);
+const moderation=read('api/review-moderation.php');
+assert.match(moderation,/review_changed/);
+assert.match(moderation,/INSERT INTO review_edit_history/);
+assert.match(moderation,/COALESCE\(original_review_text,review_text\)/);
 const detail=api.slice(api.indexOf('function customer_review_details'),api.indexOf('function customer_review_eligible'));
 assert.doesNotMatch(detail,/SELECT[^;]*status|review_text|rejection_reason_code/);
 assert.doesNotMatch(product,/existing\.status|Предыдущий отзыв отклонён|Ваш отзыв уже на модерации/);
