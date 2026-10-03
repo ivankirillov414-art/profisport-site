@@ -58,6 +58,7 @@ jobs:
           node --check service-guide.js
           node --check product-kant.js
           php tests/order-validation.php
+          php tests/import-upload.php
           php tests/catalog-quality.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
@@ -65,6 +66,7 @@ jobs:
           node --check admin/reconcile.js
           node --check admin/import-run.js
           node --check admin/import-apply.js
+          node --check admin/import-upload.js
           node --check admin/migration.js
           node --check admin/loyalty-calculator.js
           node tests/product-loader-regression.js
