@@ -8,12 +8,18 @@ const assert=require('node:assert/strict');
   const context=await browser.newContext({viewport:{width:1280,height:900}});
   await context.addCookies([{name:'PROFISPORT_ADMIN',value:fixture.cookie.split('=')[1],url:'http://127.0.0.1:8080',httpOnly:true}]);
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const match=fs.readFileSync('.htaccess','utf8').match(/Header always set Content-Security-Policy "([^"]+)"/);
+  assert(match,'Production CSP must be present');
+  // Local HTTP fixture has no TLS; enforce all other production CSP directives.
+  const csp=match[1].replace(/;\s*upgrade-insecure-requests/,'');
+  await page.route('**/admin/photos.php',async route=>{const response=await route.fetch();await route.fulfill({response,headers:{...response.headers(),'content-security-policy':csp}});});
   await page.goto('http://127.0.0.1:8080/admin/photos.php');
   await page.locator('#photoSearch').fill('PHOTO-A');await page.locator('#photoSearchForm button').click();
   const result=page.locator('[data-product="'+fixture.a+'"]', {hasText:'Редактировать фото'});await result.click();
   await page.locator('#editorMode').filter({hasText:'Ручная галерея'}).waitFor();
   const chooser=page.waitForEvent('filechooser');await page.locator('#addPhoto').click();await (await chooser).setFiles('import/photo-test/upload.png');
   await page.locator('#pendingPhoto:visible').waitFor();assert((await page.locator('#pendingImage').getAttribute('src')).startsWith('blob:'));
+  await page.waitForFunction(()=>document.getElementById('pendingImage').naturalWidth>0);
   await page.locator('#savePhoto').click();await page.locator('#editorMessage').filter({hasText:'Фотографии сохранены'}).waitFor();
   assert.equal(await page.locator('.photo-item').count(),1);
   assert.equal(await page.locator('#pendingPhoto').isVisible(),false);
@@ -23,6 +29,6 @@ const assert=require('node:assert/strict');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Mobile horizontal overflow');
   await page.screenshot({path:'/tmp/manual-photos-mobile.png',fullPage:true});
   assert.deepEqual(errors,[]);
-  console.log('PASS: browser search, modal, file chooser, local preview, real save, primary status and mobile layout');
+  console.log('PASS: browser search, modal, file chooser, CSP-compatible local preview, real save, primary status and mobile layout');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
