@@ -64,83 +64,62 @@
     const style = document.createElement('style');
     style.id = 'profisportPopupClosePolish';
     style.textContent = `
-      dialog.customerRegister,
-      dialog.storagePromo,
-      dialog.partDialog,
-      dialog.quickView,
-      dialog.filterDialog {
-        overflow: visible !important;
+      dialog.customerRegister, dialog.storagePromo, dialog.partDialog,
+      dialog.quickView, dialog.filterDialog {
+        overflow: auto !important;
+        max-height: calc(100dvh - 24px) !important;
+        max-width: calc(100vw - 24px);
+        overscroll-behavior: contain;
       }
-
       dialog.customerRegister {
-        background: transparent !important;
+        background: #fff !important;
+        box-shadow: 0 28px 90px rgba(17, 24, 32, .25) !important;
+      }
+      dialog.customerRegister .customerRegisterInner {
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding-top: 68px !important;
         box-shadow: none !important;
       }
-
-      dialog.customerRegister .customerRegisterInner {
-        position: relative;
-        max-height: min(92dvh, 780px);
-        overflow: auto;
-        border-radius: 24px;
-        background: #fff;
-        box-shadow: 0 28px 90px rgba(17, 24, 32, .25);
-      }
-
+      dialog.storagePromo, dialog.partDialog, dialog.quickView { padding-top: 68px !important; }
       dialog.customerRegister .customerRegisterClose,
       dialog.storagePromo .storagePromoClose,
       dialog.partDialog .dialogClose,
       dialog.quickView .dialogClose,
       dialog.filterDialog .dialogClose {
         position: absolute !important;
-        top: -38px !important;
-        right: -8px !important;
+        top: 12px !important;
+        right: 12px !important;
         z-index: 10 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: auto !important;
-        min-width: 0 !important;
-        height: auto !important;
-        min-height: 0 !important;
-        padding: 0 4px !important;
+        display: grid !important;
+        place-items: center !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        padding: 0 !important;
         border: 0 !important;
-        border-radius: 0 !important;
-        background: transparent !important;
+        border-radius: 50% !important;
+        background: #f0f2f4 !important;
         box-shadow: none !important;
-        color: rgba(255, 255, 255, .72) !important;
-        opacity: .72 !important;
-        font: 400 36px/1 Arial, sans-serif !important;
-        text-shadow: 0 2px 12px rgba(0, 0, 0, .36) !important;
-      }
-
-      dialog.customerRegister .customerRegisterClose:hover,
-      dialog.customerRegister .customerRegisterClose:focus-visible,
-      dialog.storagePromo .storagePromoClose:hover,
-      dialog.storagePromo .storagePromoClose:focus-visible,
-      dialog.partDialog .dialogClose:hover,
-      dialog.partDialog .dialogClose:focus-visible,
-      dialog.quickView .dialogClose:hover,
-      dialog.quickView .dialogClose:focus-visible,
-      dialog.filterDialog .dialogClose:hover,
-      dialog.filterDialog .dialogClose:focus-visible {
-        background: transparent !important;
-        color: #fff !important;
+        color: #24282c !important;
         opacity: 1 !important;
-        outline: 0 !important;
+        font: 400 28px/1 Arial, sans-serif !important;
+        text-shadow: none !important;
       }
-
+      dialog :is(.customerRegisterClose,.storagePromoClose,.dialogClose):focus-visible {
+        outline: 3px solid #b18a00 !important;
+        outline-offset: 3px !important;
+      }
       @media (max-width: 620px) {
-        dialog.customerRegister .customerRegisterInner {
-          min-height: 100dvh;
-          max-height: 100dvh;
+        dialog.customerRegister {
+          width: 100% !important;
+          max-width: 100% !important;
+          max-height: 100dvh !important;
           border-radius: 0;
         }
-        dialog.customerRegister .customerRegisterClose {
-          top: calc(10px + env(safe-area-inset-top)) !important;
-          right: 14px !important;
-          color: rgba(23, 25, 28, .55) !important;
-          text-shadow: none !important;
-        }
+        dialog.customerRegister .customerRegisterInner { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
       }
     `;
     document.head.appendChild(style);

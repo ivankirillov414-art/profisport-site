@@ -23,3 +23,6 @@
   .backToTop { right: max(14px, env(safe-area-inset-right)); bottom: calc(20px + env(safe-area-inset-bottom)); }
 }
 @media print { .backToTop { display: none !important; } }
+
+@media(max-width:850px){body:has(.mobileBottomNav) .backToTop{bottom:calc(82px + env(safe-area-inset-bottom))}}
+body:has(.cookieConsent:not([hidden])) .backToTop{display:none}
