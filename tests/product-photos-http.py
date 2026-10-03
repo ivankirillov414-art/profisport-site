@@ -43,7 +43,7 @@ assert catalog['price_rub']==100 and catalog['stock_qty']==5
 assert get(f['b'])['images']==['/import/photo-test/source.png']
 assert call('api/photo-health.php')['stats']['products_with_manual_gallery']==1
 # The actual importer writes only source images and commerce fields. Override remains.
-pathlib.Path('import/photo-test/Tovary.csv').write_text('id;name;price;stock;category;image\nPHOTO-A;Фото товар A;110;7;Тест;source2.png\nPHOTO-B;Фото товар B;120;6;Тест;source.png\n')
+pathlib.Path('import/photo-test/Tovary.csv').write_text('id;name;sku;price;stock;category;image\nPHOTO-A;Фото товар A;PHOTO-A;110;7;Тест;source2.png\nPHOTO-B;Фото товар B;PHOTO-B;120;6;Тест;source.png\n')
 r=call('api/import-apply.php?offset=0&limit=250','POST',{});assert r['ok'] and r['done'],r
 assert get()['images'][0]==replacement,'1C import overwrote manual gallery'
 catalog=call('api/catalog.php?id='+str(f['a']))['items'][0]
@@ -58,6 +58,8 @@ p=change('upload',p,content=trailing,filename='photo.png');photo_bytes,_=call(p[
 assert b'<?php' not in photo_bytes
 p=change('reset',p);assert not p['manual'] and p['images'][0].endswith('source2.png'),p
 assert call('api/catalog.php?id='+str(f['a']))['items'][0]['image'].endswith('source2.png')
-p=change('remove',p,target=p['images'][0]);assert p['manual'] and p['images']==[]
+# Import retains old source gallery entries: remove each deliberately, not just the main one.
+for source in list(p['images']): p=change('remove',p,target=source)
+assert p['manual'] and p['images']==[]
 assert call('api/catalog.php?id='+str(f['a']))['items'][0]['image'] is None
 print('PASS: authenticated upload, preview data, replace, primary, removal, replay, stale revision, true 1C import, reset, image validation and access control')
