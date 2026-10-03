@@ -14,6 +14,8 @@ window.refreshProfisportAuth=refreshAuth;
 window.refreshProfisportDashboard=async()=>{try{await dashboard()}catch(e){console.error('dashboard refresh',e)}};
 const refresh=$('refreshImports');if(refresh)refresh.addEventListener('click',loadImportFiles);
 const photosTile=document.querySelector('a[href="#photos"]');if(photosTile)photosTile.href='photos.php';
+const photoDescription=document.querySelector('a[href="photos.php"] span:not(.ico)');
+if(photoDescription)photoDescription.textContent='Загрузка, замена и выбор главного фото товара';
 addCommerceTiles();
 const reconcileScript=document.createElement('script');reconcileScript.src='reconcile.js?v=2';reconcileScript.defer=true;document.head.appendChild(reconcileScript);
 // The single-CSV uploader is included directly by admin/index.php.
