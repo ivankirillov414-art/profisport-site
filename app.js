@@ -274,6 +274,8 @@ const MEGA_CATEGORY_ART={
   scooter:'assets/categories/scooter-illustration-v2.png?v=2'
 };
 function megaPhotoSources(items,fallbackKey='',sectionTitle=''){
+  const subsectionArt=typeof subcategoryArtwork==='function'?subcategoryArtwork(fallbackKey,sectionTitle):null;
+  if(subsectionArt)return [subsectionArt];
   const winterArt=fallbackKey==='skiing'&&typeof WINTER_CATEGORY_ART!=='undefined'?WINTER_CATEGORY_ART[String(sectionTitle).toLowerCase().replace(/ё/g,'е')]:null;
   if(winterArt)return [winterArt];
   // Section artwork is independent of product photography and availability.
@@ -351,7 +353,7 @@ $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFil
 function buildCategoryTiles(){
   const keys=['bicycle','cycling','accessories','skiing','fitness','tourism'];
   const available=keys.map(key=>[key,CATALOG_SECTIONS[key]]).filter(([,section])=>section);
-  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/hero/classic-workshop-wide-v5.webp" alt="" loading="lazy"><b class="tileArrow" aria-hidden="true">↗</b></a>';
+  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"><b class="tileArrow" aria-hidden="true">↗</b></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/categories/subsections/service-06-v1.webp" alt="" loading="lazy"><b class="tileArrow" aria-hidden="true">↗</b></a>';
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){

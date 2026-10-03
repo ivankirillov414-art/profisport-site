@@ -61,3 +61,28 @@ FTP-деплой сравнивает семь PNG, `category-tiles.css`, HTML, 
 Отдельный запуск каждого из Яндекс, Opera, Edge и Safari не заменяется сменой user-agent;
 для них поставляется один набор PNG и стандартная адаптивная сетка.
 
+
+## Подразделы · 3 октября 2026
+
+В меню каждого подраздела используются отдельные иллюстрации, а не общая
+картинка родительского раздела: 16 велосипедов, 43 запчасти, 37 аксессуаров
+и 50 подразделов фитнеса. Шесть видов работ сервиса также имеют собственные
+иллюстрации. 54 существующие зимние иллюстрации сохраняются.
+
+Новые иллюстрации созданы встроенным image_gen, преобразованы в WebP
+480 × 320 с сохранением прозрачности и находятся в
+`assets/categories/subsections/`. Сопоставление названий ограничено разделом:
+«Разное» в аксессуарах и фитнесе не пересекается. Названия, цены, наличие
+и фотографии товаров не меняются.
+
+Манифест сюжетов и путей: `docs/subcategory-art-prompts.json`.
+Подключение меню: `subcategory-art.js`, перед `app.js`.
+Подключение сервиса: `service-guide.js`.
+
+Общий промпт: Use case: stylized-concept. One standalone transparent website
+subsection illustration for sports store ProfiSport. Subject: [subject from
+manifest]. Accurate recognizable geometry, realistic restrained 3D studio
+render, graphite warm amber and silver palette. True transparent alpha
+background, no environment. Whole objects centered landscape 3:2 generous
+clear margins, never cropped. No text lettering logos numbers watermark
+people or UI. Category: [title from manifest].

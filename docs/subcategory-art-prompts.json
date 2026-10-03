@@ -1,0 +1,1069 @@
+{
+  "style": "Graphite and amber realistic 3D illustration, true transparency, no logos or text",
+  "categories": [
+    {
+      "section": "bicycle",
+      "title": "Детские",
+      "subject": "children's 16-inch bicycle with training wheels",
+      "slug": "bicycle-01",
+      "path": "assets/categories/subsections/bicycle-01-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Горные 27,5\"",
+      "subject": "27.5-inch hardtail mountain bicycle with dominant bright warm amber frame and graphite suspension fork",
+      "slug": "bicycle-02",
+      "path": "assets/categories/subsections/bicycle-02-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Горные 29\"",
+      "subject": "29-inch mountain bicycle with dominant graphite frame, amber wheel rims and silver suspension fork",
+      "slug": "bicycle-03",
+      "path": "assets/categories/subsections/bicycle-03-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Детские спортивные 20\"",
+      "subject": "sporty 20-inch children's bicycle without training wheels",
+      "slug": "bicycle-04",
+      "path": "assets/categories/subsections/bicycle-04-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Подростковые 24\"",
+      "subject": "24-inch junior mountain bike with compact frame",
+      "slug": "bicycle-05",
+      "path": "assets/categories/subsections/bicycle-05-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Малышам",
+      "subject": "tiny toddler tricycle with amber seat and three wheels",
+      "slug": "bicycle-06",
+      "path": "assets/categories/subsections/bicycle-06-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Горные 26\"",
+      "subject": "26-inch compact mountain bicycle with brushed silver frame and graphite fork with amber crown",
+      "slug": "bicycle-07",
+      "path": "assets/categories/subsections/bicycle-07-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "BMX (экстрим)",
+      "subject": "small-wheel BMX stunt bicycle with pegs and angular amber frame",
+      "slug": "bicycle-08",
+      "path": "assets/categories/subsections/bicycle-08-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Дорожные и городские",
+      "subject": "upright city bicycle with fenders and rear rack",
+      "slug": "bicycle-09",
+      "path": "assets/categories/subsections/bicycle-09-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Горные женские",
+      "subject": "women's mountain bicycle with low sloping top tube",
+      "slug": "bicycle-10",
+      "path": "assets/categories/subsections/bicycle-10-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Беговелы",
+      "subject": "toddler balance bicycle without pedals",
+      "slug": "bicycle-11",
+      "path": "assets/categories/subsections/bicycle-11-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Складные",
+      "subject": "folding city bicycle with visible central hinge and small wheels",
+      "slug": "bicycle-12",
+      "path": "assets/categories/subsections/bicycle-12-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Фэтбайки",
+      "subject": "fat-tire bicycle with extremely wide knobby tires",
+      "slug": "bicycle-13",
+      "path": "assets/categories/subsections/bicycle-13-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Шоссе",
+      "subject": "lightweight road racing bicycle with drop handlebars and thin tires",
+      "slug": "bicycle-14",
+      "path": "assets/categories/subsections/bicycle-14-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Двухподвесы",
+      "subject": "full suspension mountain bicycle with clearly visible rear shock",
+      "slug": "bicycle-15",
+      "path": "assets/categories/subsections/bicycle-15-v1.webp"
+    },
+    {
+      "section": "bicycle",
+      "title": "Гибриды",
+      "subject": "trekking hybrid bicycle with flat handlebar and medium-width tires",
+      "slug": "bicycle-16",
+      "path": "assets/categories/subsections/bicycle-16-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "На подростковые и взрослые велосипеды",
+      "subject": "full-size bicycle tires in two sizes standing upright",
+      "slug": "cycling-01",
+      "path": "assets/categories/subsections/cycling-01-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Камеры",
+      "subject": "two coiled black bicycle inner tubes with exposed valves",
+      "slug": "cycling-02",
+      "path": "assets/categories/subsections/cycling-02-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Спицы",
+      "subject": "fan-shaped bundle of silver bicycle spokes and brass nipples",
+      "slug": "cycling-03",
+      "path": "assets/categories/subsections/cycling-03-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Колеса",
+      "subject": "pair of complete bicycle wheels with silver spokes",
+      "slug": "cycling-04",
+      "path": "assets/categories/subsections/cycling-04-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Втулки",
+      "subject": "front and rear bicycle hub with amber end caps",
+      "slug": "cycling-05",
+      "path": "assets/categories/subsections/cycling-05-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Грипсы",
+      "subject": "pair of textured handlebar rubber grips with locking rings",
+      "slug": "cycling-06",
+      "path": "assets/categories/subsections/cycling-06-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Тормозные колодки",
+      "subject": "pair of disc brake pads and pair of rim brake pads",
+      "slug": "cycling-07",
+      "path": "assets/categories/subsections/cycling-07-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Каретки",
+      "subject": "bicycle bottom bracket cartridge with axle and bearing cups",
+      "slug": "cycling-08",
+      "path": "assets/categories/subsections/cycling-08-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Звезды",
+      "subject": "large bicycle chainring beside rear multi-speed cassette",
+      "slug": "cycling-09",
+      "path": "assets/categories/subsections/cycling-09-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Переключатели",
+      "subject": "bicycle rear derailleur and front derailleur",
+      "slug": "cycling-10",
+      "path": "assets/categories/subsections/cycling-10-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Шатуны",
+      "subject": "pair of bicycle crank arms with spider mount",
+      "slug": "cycling-11",
+      "path": "assets/categories/subsections/cycling-11-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "На детские велосипеды и BMX",
+      "subject": "two small 20-inch bicycle tires with different tread",
+      "slug": "cycling-12",
+      "path": "assets/categories/subsections/cycling-12-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Вилки и амортизация",
+      "subject": "mountain bike suspension fork beside compact rear shock",
+      "slug": "cycling-13",
+      "path": "assets/categories/subsections/cycling-13-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Подшипники",
+      "subject": "three steel sealed cartridge bearings in different sizes",
+      "slug": "cycling-14",
+      "path": "assets/categories/subsections/cycling-14-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Манетки",
+      "subject": "pair of bicycle trigger shifter pods with thumb levers",
+      "slug": "cycling-15",
+      "path": "assets/categories/subsections/cycling-15-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Запчасти для BMX",
+      "subject": "BMX crankset and four short axle pegs",
+      "slug": "cycling-16",
+      "path": "assets/categories/subsections/cycling-16-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Седла",
+      "subject": "one graphite ergonomic bicycle saddle with amber edging",
+      "slug": "cycling-17",
+      "path": "assets/categories/subsections/cycling-17-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Подседельные штыри",
+      "subject": "rigid bicycle seatpost and dropper seatpost",
+      "slug": "cycling-18",
+      "path": "assets/categories/subsections/cycling-18-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Тросики, рубашки",
+      "subject": "coiled silver brake cable and black outer housing",
+      "slug": "cycling-19",
+      "path": "assets/categories/subsections/cycling-19-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Выносы",
+      "subject": "short angled bicycle handlebar stem with four-bolt faceplate",
+      "slug": "cycling-20",
+      "path": "assets/categories/subsections/cycling-20-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Обода",
+      "subject": "two bare bicycle rim rings without spokes",
+      "slug": "cycling-21",
+      "path": "assets/categories/subsections/cycling-21-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Педали",
+      "subject": "pair of flat platform bicycle pedals with amber metal cage",
+      "slug": "cycling-22",
+      "path": "assets/categories/subsections/cycling-22-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Цепи",
+      "subject": "loop of bicycle roller chain with quick-link beside it",
+      "slug": "cycling-23",
+      "path": "assets/categories/subsections/cycling-23-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Рулевые колонки",
+      "subject": "exploded arrangement of bicycle headset bearing cups and top cap",
+      "slug": "cycling-24",
+      "path": "assets/categories/subsections/cycling-24-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Рули",
+      "subject": "one wide flat mountain bike handlebar beside curved city handlebar",
+      "slug": "cycling-25",
+      "path": "assets/categories/subsections/cycling-25-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Детали для вилки",
+      "subject": "suspension fork seals and small cartridge components",
+      "slug": "cycling-26",
+      "path": "assets/categories/subsections/cycling-26-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Тормозные ротора (диски)",
+      "subject": "two circular silver bicycle disc brake rotors",
+      "slug": "cycling-27",
+      "path": "assets/categories/subsections/cycling-27-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Хомуты, эксцентрики",
+      "subject": "seatpost clamp with lever and two wheel quick-release skewers",
+      "slug": "cycling-28",
+      "path": "assets/categories/subsections/cycling-28-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Тормоза гидравлические",
+      "subject": "complete hydraulic bicycle disc brake lever hose and caliper",
+      "slug": "cycling-29",
+      "path": "assets/categories/subsections/cycling-29-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "На детские коляски",
+      "subject": "small stroller wheel with central bearing and solid tire",
+      "slug": "cycling-30",
+      "path": "assets/categories/subsections/cycling-30-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Адаптеры",
+      "subject": "two bicycle disc brake mounting adapters with bolts",
+      "slug": "cycling-31",
+      "path": "assets/categories/subsections/cycling-31-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Запчасти для рам",
+      "subject": "derailleur hanger beside rear suspension linkage hardware",
+      "slug": "cycling-32",
+      "path": "assets/categories/subsections/cycling-32-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Рога",
+      "subject": "pair of short curved bicycle handlebar bar-end extensions",
+      "slug": "cycling-33",
+      "path": "assets/categories/subsections/cycling-33-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "На садовые тачки",
+      "subject": "chunky pneumatic garden wheelbarrow wheel with amber hub",
+      "slug": "cycling-34",
+      "path": "assets/categories/subsections/cycling-34-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Тормоза V-Brake",
+      "subject": "pair of bicycle V-brake arms with pads and noodle",
+      "slug": "cycling-35",
+      "path": "assets/categories/subsections/cycling-35-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Ремонт камер",
+      "subject": "inner tube patch kit with patches glue and tire lever",
+      "slug": "cycling-36",
+      "path": "assets/categories/subsections/cycling-36-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Калиперы",
+      "subject": "close-up bicycle disc brake caliper with mounting bracket",
+      "slug": "cycling-37",
+      "path": "assets/categories/subsections/cycling-37-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Тормозные ручки",
+      "subject": "pair of mechanical bicycle brake levers",
+      "slug": "cycling-38",
+      "path": "assets/categories/subsections/cycling-38-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "На фэтбайки",
+      "subject": "extra wide fat-bike rim and very wide black tire",
+      "slug": "cycling-39",
+      "path": "assets/categories/subsections/cycling-39-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Запчасти",
+      "subject": "assortment of bicycle bearing axle nuts and spacers",
+      "slug": "cycling-40",
+      "path": "assets/categories/subsections/cycling-40-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "На инвалидные коляски",
+      "subject": "large wheelchair handrim wheel with silver push rim",
+      "slug": "cycling-41",
+      "path": "assets/categories/subsections/cycling-41-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Рамы",
+      "subject": "bare amber hardtail bicycle frame without wheels or components",
+      "slug": "cycling-42",
+      "path": "assets/categories/subsections/cycling-42-v1.webp"
+    },
+    {
+      "section": "cycling",
+      "title": "Чехлы для велосипедов",
+      "subject": "folded dark bicycle protective cover and storage pouch",
+      "slug": "cycling-43",
+      "path": "assets/categories/subsections/cycling-43-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Инструменты",
+      "subject": "bicycle folding multi-tool with hex keys extended and chain tool",
+      "slug": "accessories-01",
+      "path": "assets/categories/subsections/accessories-01-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Сигналы",
+      "subject": "round amber bicycle bell beside compact rubber bulb horn",
+      "slug": "accessories-02",
+      "path": "assets/categories/subsections/accessories-02-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Световое оборудование",
+      "subject": "bicycle front headlight and red rear safety light",
+      "slug": "accessories-03",
+      "path": "assets/categories/subsections/accessories-03-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Багажники, корзины",
+      "subject": "bicycle rear carrier rack and wire front basket",
+      "slug": "accessories-04",
+      "path": "assets/categories/subsections/accessories-04-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Крылья",
+      "subject": "pair of curved bicycle mudguard fenders",
+      "slug": "accessories-05",
+      "path": "assets/categories/subsections/accessories-05-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Флипперы, колпачки, нипеля",
+      "subject": "bicycle rim tape roll tire valve caps and valve stems",
+      "slug": "accessories-06",
+      "path": "assets/categories/subsections/accessories-06-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Велосумки, Бордачки",
+      "subject": "triangular bicycle frame bag and small saddle bag",
+      "slug": "accessories-07",
+      "path": "assets/categories/subsections/accessories-07-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Шлемы",
+      "subject": "one ventilated amber bicycle helmet",
+      "slug": "accessories-08",
+      "path": "assets/categories/subsections/accessories-08-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Смазки и очистители",
+      "subject": "blank bicycle chain lubricant bottle and cleaning spray",
+      "slug": "accessories-09",
+      "path": "assets/categories/subsections/accessories-09-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Подножки",
+      "subject": "single adjustable bicycle kickstand and double-leg center stand",
+      "slug": "accessories-10",
+      "path": "assets/categories/subsections/accessories-10-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Противоугонные системы",
+      "subject": "black bicycle U-lock with amber keyhole beside coiled cable lock",
+      "slug": "accessories-11",
+      "path": "assets/categories/subsections/accessories-11-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Флягодержатели",
+      "subject": "two minimalist bicycle water bottle cages",
+      "slug": "accessories-12",
+      "path": "assets/categories/subsections/accessories-12-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Отражатели, наклейки, украшения",
+      "subject": "bicycle orange wheel reflectors white front reflector and decorative spoke beads",
+      "slug": "accessories-13",
+      "path": "assets/categories/subsections/accessories-13-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Защиты",
+      "subject": "sports knee pads and elbow pads",
+      "slug": "accessories-14",
+      "path": "assets/categories/subsections/accessories-14-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Фляги и питьевые системы",
+      "subject": "bicycle water bottle and hydration bladder with drinking hose",
+      "slug": "accessories-15",
+      "path": "assets/categories/subsections/accessories-15-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Велоперчатки",
+      "subject": "pair of fingerless padded cycling gloves",
+      "slug": "accessories-16",
+      "path": "assets/categories/subsections/accessories-16-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Насосы",
+      "subject": "bicycle floor pump with pressure gauge and small portable hand pump",
+      "slug": "accessories-17",
+      "path": "assets/categories/subsections/accessories-17-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Зеркала",
+      "subject": "two bicycle handlebar mirrors with stems",
+      "slug": "accessories-18",
+      "path": "assets/categories/subsections/accessories-18-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Аксессуары",
+      "subject": "bicycle handlebar phone holder and small weatherproof pouch",
+      "slug": "accessories-19",
+      "path": "assets/categories/subsections/accessories-19-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Тормозные аксессуары",
+      "subject": "disc brake bleed syringe kit and spacer block",
+      "slug": "accessories-20",
+      "path": "assets/categories/subsections/accessories-20-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Платки, Повязки, Банданы",
+      "subject": "folded sports bandana beside stretch headband",
+      "slug": "accessories-21",
+      "path": "assets/categories/subsections/accessories-21-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Детские велокресла",
+      "subject": "rear-mounted child bicycle seat with footrests and harness",
+      "slug": "accessories-22",
+      "path": "assets/categories/subsections/accessories-22-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Носки, гетры",
+      "subject": "pair of sports socks and pair of tall gaiters",
+      "slug": "accessories-23",
+      "path": "assets/categories/subsections/accessories-23-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Разное",
+      "subject": "compact cycling rain poncho folded beside reflective ankle band",
+      "slug": "accessories-24",
+      "path": "assets/categories/subsections/accessories-24-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Пеги и хабгарды",
+      "subject": "two metal BMX axle pegs and two circular hub guards",
+      "slug": "accessories-25",
+      "path": "assets/categories/subsections/accessories-25-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Крепления",
+      "subject": "handlebar accessory mounting brackets with rubber straps",
+      "slug": "accessories-26",
+      "path": "assets/categories/subsections/accessories-26-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Опорные колесики",
+      "subject": "pair of children's bicycle training wheels with mounting arms",
+      "slug": "accessories-27",
+      "path": "assets/categories/subsections/accessories-27-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Очки",
+      "subject": "wraparound sports cycling sunglasses with amber lens",
+      "slug": "accessories-28",
+      "path": "assets/categories/subsections/accessories-28-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Велокомпьютеры",
+      "subject": "compact handlebar bicycle computer with sensor no visible text",
+      "slug": "accessories-29",
+      "path": "assets/categories/subsections/accessories-29-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Стойки для ремонта и хранения",
+      "subject": "folding bicycle repair stand with clamp and three legs",
+      "slug": "accessories-30",
+      "path": "assets/categories/subsections/accessories-30-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Велобагажники (велокрепления) для автомобиля",
+      "subject": "car roof bicycle rack rail and wheel straps",
+      "slug": "accessories-31",
+      "path": "assets/categories/subsections/accessories-31-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Термобелье",
+      "subject": "sports thermal base layer long-sleeve shirt and matching leggings",
+      "slug": "accessories-32",
+      "path": "assets/categories/subsections/accessories-32-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Лосины",
+      "subject": "pair of fitted sports cycling leggings",
+      "slug": "accessories-33",
+      "path": "assets/categories/subsections/accessories-33-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Поддерживающие ручки",
+      "subject": "long curved parent-assist handle for children's bicycle",
+      "slug": "accessories-34",
+      "path": "assets/categories/subsections/accessories-34-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Велоприцепы",
+      "subject": "two-wheel child bicycle trailer with amber canopy and tow bar",
+      "slug": "accessories-35",
+      "path": "assets/categories/subsections/accessories-35-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Аксессуары для надувной продукциии",
+      "subject": "inflatable repair patches valve adapters and compact inflation hose",
+      "slug": "accessories-36",
+      "path": "assets/categories/subsections/accessories-36-v1.webp"
+    },
+    {
+      "section": "accessories",
+      "title": "Майки",
+      "subject": "sleeveless athletic jersey amber and graphite fabric",
+      "slug": "accessories-37",
+      "path": "assets/categories/subsections/accessories-37-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Эспандеры",
+      "subject": "set of resistance exercise bands and hand grip exerciser",
+      "slug": "fitness-01",
+      "path": "assets/categories/subsections/fitness-01-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Железо",
+      "subject": "barbell weight plates and short dumbbell bar",
+      "slug": "fitness-02",
+      "path": "assets/categories/subsections/fitness-02-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Аксессуары для тренировок",
+      "subject": "agility cones training ladder and stopwatch without text",
+      "slug": "fitness-03",
+      "path": "assets/categories/subsections/fitness-03-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Лапы",
+      "subject": "pair of curved boxing focus mitts amber striking faces",
+      "slug": "fitness-04",
+      "path": "assets/categories/subsections/fitness-04-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Мячи для фитнеса",
+      "subject": "large amber stability ball and small textured massage ball",
+      "slug": "fitness-05",
+      "path": "assets/categories/subsections/fitness-05-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Скакалки",
+      "subject": "coiled skipping rope with graphite handles",
+      "slug": "fitness-06",
+      "path": "assets/categories/subsections/fitness-06-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Футбольные мячи",
+      "subject": "one traditional black white soccer ball",
+      "slug": "fitness-07",
+      "path": "assets/categories/subsections/fitness-07-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Баскетбол",
+      "subject": "orange amber basketball beside compact rim hoop",
+      "slug": "fitness-08",
+      "path": "assets/categories/subsections/fitness-08-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Мешки и груши, крепеж",
+      "subject": "hanging boxing punching bag and mounting chains",
+      "slug": "fitness-09",
+      "path": "assets/categories/subsections/fitness-09-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "брусья",
+      "subject": "freestanding parallel dip bars graphite frame amber grips",
+      "slug": "fitness-10",
+      "path": "assets/categories/subsections/fitness-10-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Волейбольные мячи и аксессуары",
+      "subject": "volleyball with amber graphite white panels and ball pump",
+      "slug": "fitness-11",
+      "path": "assets/categories/subsections/fitness-11-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Коврики для фитнеса",
+      "subject": "partly unrolled exercise yoga mat",
+      "slug": "fitness-12",
+      "path": "assets/categories/subsections/fitness-12-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Тренажеры",
+      "subject": "compact home elliptical trainer with flywheel and handles",
+      "slug": "fitness-13",
+      "path": "assets/categories/subsections/fitness-13-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Капы",
+      "subject": "sports mouthguard in open protective case",
+      "slug": "fitness-14",
+      "path": "assets/categories/subsections/fitness-14-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Бинты",
+      "subject": "pair of rolled boxing hand wraps with thumb loops",
+      "slug": "fitness-15",
+      "path": "assets/categories/subsections/fitness-15-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Обручи",
+      "subject": "two fitness hula hoops one segmented and one plain",
+      "slug": "fitness-16",
+      "path": "assets/categories/subsections/fitness-16-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Аксессуары для единоборств",
+      "subject": "martial arts shin guards and protective groin cup",
+      "slug": "fitness-17",
+      "path": "assets/categories/subsections/fitness-17-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Шлемы для единоборств",
+      "subject": "padded boxing head guard with open face",
+      "slug": "fitness-18",
+      "path": "assets/categories/subsections/fitness-18-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Теннисные аксессуары",
+      "subject": "tennis ball tube and racket grip tape",
+      "slug": "fitness-19",
+      "path": "assets/categories/subsections/fitness-19-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Утяжелители",
+      "subject": "pair of ankle wrist training weight cuffs",
+      "slug": "fitness-20",
+      "path": "assets/categories/subsections/fitness-20-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Суппорта",
+      "subject": "knee support brace and ankle support sleeve",
+      "slug": "fitness-21",
+      "path": "assets/categories/subsections/fitness-21-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Спортивные бутылки и шейкеры",
+      "subject": "sports bottle and shaker with mixing ball",
+      "slug": "fitness-22",
+      "path": "assets/categories/subsections/fitness-22-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Разное",
+      "subject": "foam roller and pair of massage balls",
+      "slug": "fitness-23",
+      "path": "assets/categories/subsections/fitness-23-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Фитнес и тренажёры",
+      "subject": "modern compact treadmill with console without readable text",
+      "slug": "fitness-24",
+      "path": "assets/categories/subsections/fitness-24-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Карате",
+      "subject": "white karate uniform with black belt",
+      "slug": "fitness-25",
+      "path": "assets/categories/subsections/fitness-25-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Аксессуары для футбола",
+      "subject": "soccer shin guards and captain armband",
+      "slug": "fitness-26",
+      "path": "assets/categories/subsections/fitness-26-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Игровые виды спорта, прочее",
+      "subject": "badminton rackets and shuttlecock",
+      "slug": "fitness-27",
+      "path": "assets/categories/subsections/fitness-27-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Бейсбол",
+      "subject": "baseball glove ball and wooden bat",
+      "slug": "fitness-28",
+      "path": "assets/categories/subsections/fitness-28-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Велотренажеры",
+      "subject": "stationary exercise bike with amber flywheel casing",
+      "slug": "fitness-29",
+      "path": "assets/categories/subsections/fitness-29-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Маты",
+      "subject": "stack of thick rectangular gym crash mats",
+      "slug": "fitness-30",
+      "path": "assets/categories/subsections/fitness-30-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Пульсометры",
+      "subject": "sports heart rate watch and chest sensor strap",
+      "slug": "fitness-31",
+      "path": "assets/categories/subsections/fitness-31-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Диски здоровья",
+      "subject": "round rotating fitness waist-twister disc",
+      "slug": "fitness-32",
+      "path": "assets/categories/subsections/fitness-32-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Самбо",
+      "subject": "red sambo jacket and wrestling shoes",
+      "slug": "fitness-33",
+      "path": "assets/categories/subsections/fitness-33-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Чешки, балетки",
+      "subject": "pair of soft gymnastics slippers and pair of ballet shoes",
+      "slug": "fitness-34",
+      "path": "assets/categories/subsections/fitness-34-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Волейбольные сетки",
+      "subject": "folded volleyball net with reinforced top band",
+      "slug": "fitness-35",
+      "path": "assets/categories/subsections/fitness-35-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Дзюдо",
+      "subject": "white textured judo uniform jacket with amber belt",
+      "slug": "fitness-36",
+      "path": "assets/categories/subsections/fitness-36-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Воланы, мячи, сетки, струны",
+      "subject": "badminton shuttlecocks tennis ball small net and coiled racket strings",
+      "slug": "fitness-37",
+      "path": "assets/categories/subsections/fitness-37-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Дополнительное оборудование",
+      "subject": "adjustable workout bench with graphite cushions and amber legs",
+      "slug": "fitness-38",
+      "path": "assets/categories/subsections/fitness-38-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Большой теннис",
+      "subject": "full-size tennis racket and two yellow tennis balls",
+      "slug": "fitness-39",
+      "path": "assets/categories/subsections/fitness-39-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Перчатки",
+      "subject": "pair of padded boxing gloves amber and graphite",
+      "slug": "fitness-40",
+      "path": "assets/categories/subsections/fitness-40-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Упоры для отжиманий",
+      "subject": "pair of low push-up handles with rubber grips",
+      "slug": "fitness-41",
+      "path": "assets/categories/subsections/fitness-41-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Оборудование для фитнеса",
+      "subject": "aerobic step platform with risers",
+      "slug": "fitness-42",
+      "path": "assets/categories/subsections/fitness-42-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Настольные игры",
+      "subject": "chessboard with a few black and amber chess pieces no text",
+      "slug": "fitness-43",
+      "path": "assets/categories/subsections/fitness-43-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Детские спортивные комплексы",
+      "subject": "compact children's wall ladder gym with rings and rope",
+      "slug": "fitness-44",
+      "path": "assets/categories/subsections/fitness-44-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Столы для настольного тенниса",
+      "subject": "folding table tennis table with net and wheeled legs",
+      "slug": "fitness-45",
+      "path": "assets/categories/subsections/fitness-45-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Игровой спорт",
+      "subject": "two table tennis paddles and small white ball",
+      "slug": "fitness-46",
+      "path": "assets/categories/subsections/fitness-46-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Перчатки для фитнеса",
+      "subject": "pair of weightlifting fingerless gloves with wrist straps",
+      "slug": "fitness-47",
+      "path": "assets/categories/subsections/fitness-47-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Сетки для настольного тенниса",
+      "subject": "table tennis net with two clamp posts",
+      "slug": "fitness-48",
+      "path": "assets/categories/subsections/fitness-48-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Дартс",
+      "subject": "round dartboard with darts no readable numbers or text",
+      "slug": "fitness-49",
+      "path": "assets/categories/subsections/fitness-49-v1.webp"
+    },
+    {
+      "section": "fitness",
+      "title": "Футбольные сетки",
+      "subject": "small football goal with clearly visible mesh net",
+      "slug": "fitness-50",
+      "path": "assets/categories/subsections/fitness-50-v1.webp"
+    },
+    {
+      "section": "service",
+      "title": "Диагностика",
+      "subject": "bicycle inspection tools caliper and torque wrench beside hub",
+      "slug": "service-01",
+      "path": "assets/categories/subsections/service-01-v1.webp"
+    },
+    {
+      "section": "service",
+      "title": "Тормоза",
+      "subject": "disc rotor caliper and hex key arranged for brake servicing",
+      "slug": "service-02",
+      "path": "assets/categories/subsections/service-02-v1.webp"
+    },
+    {
+      "section": "service",
+      "title": "Передачи и цепь",
+      "subject": "rear derailleur chain loop and chain checker tool",
+      "slug": "service-03",
+      "path": "assets/categories/subsections/service-03-v1.webp"
+    },
+    {
+      "section": "service",
+      "title": "Колёса и покрышки",
+      "subject": "bicycle wheel with tire levers and patch kit",
+      "slug": "service-04",
+      "path": "assets/categories/subsections/service-04-v1.webp"
+    },
+    {
+      "section": "service",
+      "title": "Техническое обслуживание",
+      "subject": "bicycle chain brush lubricant bottle and workshop wrench",
+      "slug": "service-05",
+      "path": "assets/categories/subsections/service-05-v1.webp"
+    },
+    {
+      "section": "service",
+      "title": "Сборка и настройка",
+      "subject": "bicycle frame secured in repair stand beside mechanic tools",
+      "slug": "service-06",
+      "path": "assets/categories/subsections/service-06-v1.webp"
+    }
+  ]
+}
