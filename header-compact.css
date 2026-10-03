@@ -273,3 +273,33 @@ header .logo{display:none!important}
   #megaCatalog .megaGroup .megaCardMore:hover,
   #megaCatalog .megaGroup .megaCardMore:focus-visible{color:#20252b;background:#fff8dc}
 }
+
+/* Search: one rounded focus ring and suggestions above the sticky category strip. */
+#search.smartSearchHost,#mobileSearch.smartSearchHost{
+  gap:0;border-radius:24px;isolation:isolate;
+}
+#search.smartSearchHost:focus-within,#mobileSearch.smartSearchHost:focus-within{
+  outline:2px solid #e0b52a;outline-offset:2px;
+}
+#search.smartSearchHost>input,#mobileSearch.smartSearchHost>input{
+  flex:1 1 auto;width:1%;border-radius:24px 0 0 24px!important;
+  outline:none;box-shadow:none;
+}
+#search.smartSearchHost>button,#mobileSearch.smartSearchHost>button{
+  flex:0 0 auto;border-radius:0 24px 24px 0!important;
+  transform:none!important;box-shadow:none!important;
+}
+#search.smartSearchHost>button:focus-visible,#mobileSearch.smartSearchHost>button:focus-visible{
+  outline:2px solid #896800;outline-offset:-5px;
+}
+#search .smartSuggest,#mobileSearch .smartSuggest{
+  top:calc(100% + 10px);color:#17191c;max-height:min(560px,60dvh);
+  overflow:auto;overscroll-behavior:contain;
+}
+#search .smartSuggest a:hover,#search .smartSuggest a:focus-visible,
+#mobileSearch .smartSuggest a:hover,#mobileSearch .smartSuggest a:focus-visible{
+  background:#fff7db;
+}
+@media(min-width:851px){
+  body>header:has(#search){z-index:60!important;overflow:visible!important}
+}
