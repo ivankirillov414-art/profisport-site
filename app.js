@@ -284,7 +284,7 @@ function bindSuggest(input,box){
     const raw=input.value.trim(),found=suggestionItems(raw);
     if(raw.length<2){
       const deps=[...new Map(products.map(p=>[p.department,p.departmentLabel])).entries()].slice(0,8);
-      box.innerHTML=`<div class="suggestHeading">Разделы каталога</div><div class="suggestCategories">${deps.map(([key,label])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts">${esc(label)}</a>`).join('')}</div><a href="service.html"><span>Мастерская</span><b>Услуги велосервиса</b></a>`;
+      box.innerHTML=`<div class="suggestHeading">Разделы каталога</div><div class="suggestCategories">${deps.map(([key,label])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts">${esc(label)}</a>`).join('')}</div><a class="suggestService" href="service.html"><span><b>Мастерская</b><small>Услуги велосервиса</small></span></a>`;
     }else{
   box.innerHTML=`<div class="suggestHeading">Товары по вашему запросу</div>`+(found.length?found.map(p=>`<a href="product.html?id=${encodeURIComponent(p.id)}">${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'<span class="suggestPh"></span>'}<span><b>${esc(p.name)}</b><small>${esc([p.brand,p.cat].filter(Boolean).join(' · '))}</small></span><strong>${rub(p.price)}</strong></a>`).join(''):'<p class="suggestHeading">Точных совпадений нет. Попробуйте название или модель.</p>')+`<a class="suggestAll" href="?q=${encodeURIComponent(raw)}#catalogProducts">Все результаты</a>`;
     }

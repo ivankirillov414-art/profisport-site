@@ -338,3 +338,8 @@ body.motion-page:not(.motion-admin){font-family:'Segoe UI',Arial,sans-serif;colo
   #filterControls.catalogSearchBlock #filterActions button{padding:10px 14px}
   .catalogSortLabel{display:none}
 }
+
+/* Service shortcut uses its own text layout, independent of product thumbnails. */
+#desktopSuggest .suggestService,#mobileSuggest .suggestService{display:block;padding:14px 16px;color:#24313b}
+#desktopSuggest .suggestService b,#mobileSuggest .suggestService b{font-size:14px;line-height:1.4}
+#desktopSuggest .suggestService small,#mobileSuggest .suggestService small{display:block;margin-top:4px;color:#5c6a75;font-size:12px;line-height:1.4}
