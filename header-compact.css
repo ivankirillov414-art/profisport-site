@@ -85,16 +85,16 @@ header .logo{display:none!important}
     position:sticky;
     top:0;
     z-index:50;
-    min-height:46px;
-    padding:9px clamp(18px,4vw,56px);
-    gap:30px;
+    min-height:58px;
+    padding:12px clamp(18px,4vw,56px);
+    gap:clamp(24px,3vw,44px);
     border-top:0;
     border-bottom:1px solid #dfe3e6;
     background:rgba(255,255,255,.97);
     box-shadow:none;
     backdrop-filter:saturate(1.3) blur(10px);
     -webkit-backdrop-filter:saturate(1.3) blur(10px);
-    font-size:13px;
+    font-size:16px;
     justify-content:center;
     align-items:center;
   }
@@ -197,7 +197,7 @@ header .logo{display:none!important}
 @media (min-width:851px) and (max-width:1050px){
   body>header{left:185px!important;right:160px!important}
   .top>b{font-size:21px;min-width:140px}
-  body>nav:not(.mobileBottomNav){gap:18px;font-size:12px}
+  body>nav:not(.mobileBottomNav){gap:14px;font-size:14px}
   #megaCatalog{grid-template-columns:repeat(3,minmax(0,1fr));padding-left:24px;padding-right:24px}
 }
 
@@ -303,3 +303,5 @@ header .logo{display:none!important}
 @media(min-width:851px){
   body>header:has(#search){z-index:60!important;overflow:visible!important}
 }
+
+@media(min-width:851px){body>nav:not(.mobileBottomNav)>a,body>nav:not(.mobileBottomNav)>.buyerNav>summary{font-size:inherit;white-space:nowrap}}
