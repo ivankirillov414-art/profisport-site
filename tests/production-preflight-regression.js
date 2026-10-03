@@ -69,7 +69,7 @@ for(const [from,to] of [
 for(const selector of ['customerRegisterClose','storagePromoClose','dialogClose']) assert.ok(backToTop.includes(selector),'popup close polish missing '+selector);
 assert.ok(backToTop.includes('border-radius: 0 !important'),'popup close buttons must not be circular');
 assert.ok(backToTop.includes('background: transparent !important'),'popup close buttons must be transparent');
-assert.doesNotMatch(backToTop,/top:\\s*-\\d+px\\s*!important/,'popup close buttons must stay within the modal bounds');
+assert.doesNotMatch(backToTop,/top:\s*-\d+px\s*!important/,'popup close buttons must stay within the modal bounds');
 assert.ok(backToTop.includes('overflow: auto !important'),'long popup content must remain scrollable');
 
 assert.ok(serviceHtml.includes('Актуальный прайс-лист'),'service page must expose the actual price-list section');
