@@ -43,7 +43,7 @@ assert.match(profile,/vehicleImageMarkup\(vehicle\)/,'passport must show the act
 assert.doesNotMatch(profile,/assets\/guide\/bicycle\.png/,'ownership passport must not substitute a generic bicycle');
 assert.match(profile,/inline_skates.*skateboard.*skis/,'passport must name all supported equipment types');
 assert.match(profile,/confirm_component_replacement/,'customer must explicitly confirm installation after a compatible purchase');
-assert.match(profile,/Точная модель не подтверждена/,'customer UI must expose uncertainty instead of inventing a component');
+assert.match(profile,/Модель не указана/,'customer UI must expose uncertainty instead of inventing a component');
 assert.match(profile,/data-passport-hotspot/,'customer passport must support interactive hotspots');
 assert.match(css,/\.vehiclePassportHotspot/,'passport hotspots must be styled');
 assert.match(css,/\.vehiclePassportComponent/,'passport component cards must be styled');

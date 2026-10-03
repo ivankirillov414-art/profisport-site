@@ -76,8 +76,8 @@ function equipment_care_templates(array $vehicle,array $components=[]): array {
     foreach($components as $c){
         if($type!=='bicycle')continue;
         $key=(string)$c['component_key'];$text=trim((string)($c['manufacturer']??'').' '.(string)($c['model']??''));
-        if($key==='chain'&&preg_match('/sram/ui',$text)){$rows['chain']['criterion']='Для подтверждённой цепи SRAM: замена при удлинении 0,8%, замер совместимым калибром.';$rows['chain']['source_url']=$sram;$rows['chain']['measurement_threshold']=0.8;$rows['chain']['measurement_unit']='%';}
-        if($key==='fork'&&preg_match('/rockshox/ui',$text)){$rows['fork']['criterion']='RockShox: сверьте модельный регламент; типовой сервис нижних ног — 50 часов, полный — 200 часов. До уточнения модели автоматический срок не назначен.';$rows['fork']['source_url']='https://www.sram.com/en/service';}
+        if($key==='chain'&&preg_match('/sram/ui',$text)){$rows['chain']['criterion']='Для цепи SRAM: замена при удлинении 0,8%, замер совместимым калибром.';$rows['chain']['source_url']=$sram;$rows['chain']['measurement_threshold']=0.8;$rows['chain']['measurement_unit']='%';}
+        if($key==='fork'&&preg_match('/rockshox/ui',$text)){$rows['fork']['criterion']='RockShox: сверьте модельный регламент; типовой сервис нижних ног — 50 часов, полный — 200 часов. Уточните интервал обслуживания вашей модели вилки.';$rows['fork']['source_url']='https://www.sram.com/en/service';}
         if(str_contains($key,'brake')&&preg_match('/shimano/ui',$text)){$rows['brake_pads']['criterion']='Для дисковых колодок Shimano из указанного руководства: заменить при толщине материала 0,5 мм. Для других тормозов нужен их регламент.';$rows['brake_pads']['source_url']=$shimano;}
         if(in_array($key,['tires','front_tire','rear_tire'],true)&&preg_match('/schwalbe/ui',$text))$rows['tires']['criterion']='Schwalbe приводит ориентир 2 000–5 000 км для стандартных покрышек; это диапазон, а не гарантия. Заменяйте раньше при повреждениях.';
     }

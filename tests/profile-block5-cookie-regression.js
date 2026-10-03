@@ -38,7 +38,7 @@ assert.match(buyer,/id="cookies"/,'buyer info must document cookie/browser stora
 for(const page of ['index.html','product.html','checkout.html','profile.html','service.html','shop.html','workshop.html','buyer-info.html']){
   const html=read(page);
   assert.doesNotMatch(html,/cookie-consent\.css\?v=1/,'cookie CSS must stay lazy-loaded on '+page);
-  assert.match(html,/cookie-consent\.js\?v=1/,'missing cookie JS on '+page);
+  assert.match(html,/cookie-consent\.js\?v=2/,'missing cookie JS on '+page);
 }
 
 const ids=[...profile.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);

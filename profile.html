@@ -124,7 +124,7 @@
   </main>
   <footer class="buyerCompactFooter"><a href="index.html">ПрофиСпорт · Оренбург</a><div class="buyerFooterLinks" aria-label="Информация покупателям"><a href="buyer-info.html#warranty">Гарантия</a><a href="buyer-info.html#payment">Оплата</a><a href="buyer-info.html#delivery">Доставка</a></div></footer>
   <script src="catalog-loader.js?v=33"></script>
-  <script src="equipment-care.js?v=1"></script>
+  <script src="equipment-care.js?v=2"></script>
   <script>
     let csrf='';const $=s=>document.querySelector(s);const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     async function api(action,opts={}){opts.headers={...(opts.headers||{}),'Content-Type':'application/json'};if(csrf)opts.headers['X-CSRF-Token']=csrf;const r=await fetch('api/customer.php?action='+action,opts);const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);if(j.csrf)csrf=j.csrf;return j}
@@ -143,7 +143,7 @@
         const label=statuses[h.status]||h.status||'Статус';
         return '<div class="customerOrderHistoryRow'+(index===rows.length-1?' current':'')+'"><span class="customerOrderHistoryDot"></span><div><b>'+esc(label)+'</b><small>'+esc(formatDateTime(h.created_at))+'</small></div></div>';
       }).join('');
-      const note=j.history_complete?'':'<p class="orderHistoryNote">Для старого заказа сохранены дата создания и текущий статус. Точные промежуточные изменения начали записываться после запуска нового кабинета.</p>';
+      const note=j.history_complete?'':'<p class="orderHistoryNote">История изменений этого заказа доступна не полностью.</p>';
       return '<section class="customerOrderHistory"><h4>История статусов</h4>'+timeline+note+'</section>';
     }
     function orderItemsMarkup(items){
@@ -212,7 +212,7 @@
         const amount=Number(x.amount||0),positive=amount>0;
         return '<article class="loyaltyHistoryRow"><div><b>'+esc(loyaltyKindLabels[x.kind]||x.kind||'Операция')+'</b><span>'+esc(formatDateTime(x.created_at))+(x.note?' · '+esc(x.note):'')+(positive&&x.expires_at?' · действует до '+esc(formatDate(x.expires_at)):'')+'</span></div><strong class="'+(positive?'positive':'negative')+'">'+(positive?'+':'')+amount.toLocaleString('ru-RU')+'</strong></article>';
       }).join('');
-      $('#loyaltyDashboard').innerHTML='<div class="loyaltyBalanceCard"><span>Ваш баланс</span><b>'+balance.toLocaleString('ru-RU')+' бонусов</b><small>'+(program.enabled?'Можно использовать на оформлении заказа по правилам программы.':'Списание и автоматические начисления сейчас не выполняются.')+'</small></div>'+
+      $('#loyaltyDashboard').innerHTML='<div class="loyaltyBalanceCard"><span>Ваш баланс</span><b>'+balance.toLocaleString('ru-RU')+' бонусов</b><small>'+(program.enabled?'Можно использовать на оформлении заказа по правилам программы.':'Бонусная программа сейчас недоступна.')+'</small></div>'+
         (rules.length?'<div class="loyaltyRules">'+rules.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div>':'')+
         '<div class="loyaltyHistory"><h4>История операций</h4>'+(rows||'<div class="loyaltyEmpty">Операций пока нет.</div>')+'</div>';
     }
@@ -312,18 +312,18 @@
     }
     function replacementPurchaseMarkup(p){
       const remaining=Number(p.remaining_qty||0),candidates=Array.isArray(p.candidates)?p.candidates:[];
-      return '<article class="replacementPurchaseCard" data-purchase-id="'+Number(p.id)+'"><div><b>'+esc(cleanCatalogLabel(p.title))+'</b><p>Куплено: '+Number(p.quantity||1)+' · осталось назначить: '+remaining+'</p></div><div class="replacementCandidateList">'+(candidates.length?candidates.map(c=>'<button type="button" data-assign-purchase="'+Number(p.id)+'" data-assign-component="'+Number(c.component_id)+'"><span>'+esc(cleanCatalogLabel(c.vehicle_title))+'</span><small>'+esc(c.component_label)+'</small></button>').join(''):'<span class="replacementNoCandidate">Совместимая техника сейчас не найдена. Покупка сохранена и не будет назначена автоматически.</span>')+'</div></article>';
+      return '<article class="replacementPurchaseCard" data-purchase-id="'+Number(p.id)+'"><div><b>'+esc(cleanCatalogLabel(p.title))+'</b><p>Куплено: '+Number(p.quantity||1)+' · ещё не установлено: '+remaining+'</p></div><div class="replacementCandidateList">'+(candidates.length?candidates.map(c=>'<button type="button" data-assign-purchase="'+Number(p.id)+'" data-assign-component="'+Number(c.component_id)+'"><span>'+esc(cleanCatalogLabel(c.vehicle_title))+'</span><small>'+esc(c.component_label)+'</small></button>').join(''):'<span class="replacementNoCandidate">Для этой детали пока нет подходящей техники в вашем кабинете.</span>')+'</div></article>';
     }
     function renderReplacementPurchases(){
       const box=$('#replacementPurchases');if(!box)return;
       if(!replacementPurchaseState.length){box.classList.add('hidden');box.innerHTML='';return}
       box.classList.remove('hidden');
-      box.innerHTML='<div class="replacementPurchasesHead"><div><span class="profileSectionKicker">Купленные расходники</span><h4>На какую технику установили?</h4><p>Мы нашли несколько совместимых вариантов и не стали выбирать за вас.</p></div><span>'+replacementPurchaseState.length+'</span></div><div class="replacementPurchasesList">'+replacementPurchaseState.map(replacementPurchaseMarkup).join('')+'</div>';
+      box.innerHTML='<div class="replacementPurchasesHead"><div><span class="profileSectionKicker">Купленные расходники</span><h4>На какую технику установили?</h4><p>Выберите технику, на которую установили расходник.</p></div><span>'+replacementPurchaseState.length+'</span></div><div class="replacementPurchasesList">'+replacementPurchaseState.map(replacementPurchaseMarkup).join('')+'</div>';
       box.querySelectorAll('[data-assign-purchase]').forEach(button=>button.onclick=async()=>{
         const purchaseId=Number(button.dataset.assignPurchase),componentId=Number(button.dataset.assignComponent);
         const purchase=replacementPurchaseState.find(x=>Number(x.id)===purchaseId),candidate=purchase?.candidates?.find(x=>Number(x.component_id)===componentId);
         if(!purchase||!candidate)return;
-        if(!confirm('Подтвердить, что «'+purchase.title+'» установлена на '+candidate.vehicle_title+' — '+candidate.component_label+'? Ресурс этого узла начнёт новый цикл.'))return;
+        if(!confirm('Подтвердить, что «'+purchase.title+'» установлена на '+candidate.vehicle_title+' — '+candidate.component_label+'? Замена будет отмечена в истории обслуживания.'))return;
         box.querySelectorAll('button').forEach(x=>x.disabled=true);
         try{
           const j=await api('assign_replacement_purchase',{method:'POST',body:JSON.stringify({purchase_id:purchaseId,component_id:componentId})});
@@ -334,14 +334,14 @@
       });
     }
     function vehicleCardMarkup(v){
-      const current=latestVehicleService(v.id),components=Array.isArray(v.passport?.components)?v.passport.components:[],known=components.filter(c=>c.model||c.manufacturer).length;
+      const current=latestVehicleService(v.id),components=Array.isArray(v.passport?.components)?v.passport.components:[];
       const attention=components.filter(c=>['soon','due'].includes(String(c.wear?.state||''))).length+(v.passport?.care?.items||[]).filter(c=>['watch','soon','due'].includes(c.state)).length;
       const status=current?'<span class="vehicleServiceState" data-status="'+esc(current.status)+'">'+esc(serviceStatusLabels[current.status]||current.status)+'</span>':attention?'<span class="vehicleServiceState" data-status="repair">Внимание: '+attention+'</span>':'<span class="vehicleServiceState idle">Нет отмеченных неисправностей</span>';
       const product=v.product_id?'<a class="vehicleTitle" href="product.html?id='+encodeURIComponent(v.product_id)+'">'+esc(cleanCatalogLabel(v.title))+'</a>':'<span class="vehicleTitle">'+esc(cleanCatalogLabel(v.title))+'</span>';
-      return '<article class="vehicleCard" data-vehicle-card="'+Number(v.id)+'"><div class="vehicleImage">'+vehicleImageMarkup(v)+'</div><div class="vehicleBody"><div class="vehicleTop"><span class="vehicleType">'+esc(vehicleTypeLabel(v.vehicle_type))+'</span>'+status+'</div>'+product+'<div class="vehicleMeta"><span>Покупка: '+esc(formatDate(v.purchase_date)||'—')+'</span><span>Заказ '+esc(v.order_number||'—')+'</span>'+(v.odometer_km!==null&&v.odometer_km!==undefined?'<span>'+Number(v.odometer_km).toLocaleString('ru-RU')+' км</span>':'')+(Number(v.unit_index)>1?'<span>Экземпляр '+Number(v.unit_index)+'</span>':'')+'</div><div class="vehicleMeta"><span>Подтверждено компонентов: '+known+'</span></div><div class="vehicleActions"><button type="button" class="secondary" data-open-passport="'+Number(v.id)+'">Паспорт техники</button><button type="button" data-service-vehicle="'+Number(v.id)+'">'+(current?'Новое обращение':'Записать в сервис')+'</button>'+(current?'<a href="#service-'+Number(current.id)+'">Текущий ремонт</a>':'')+'</div></div></article>';
+      return '<article class="vehicleCard" data-vehicle-card="'+Number(v.id)+'"><div class="vehicleImage">'+vehicleImageMarkup(v)+'</div><div class="vehicleBody"><div class="vehicleTop"><span class="vehicleType">'+esc(vehicleTypeLabel(v.vehicle_type))+'</span>'+status+'</div>'+product+'<div class="vehicleMeta"><span>Покупка: '+esc(formatDate(v.purchase_date)||'—')+'</span><span>Заказ '+esc(v.order_number||'—')+'</span>'+(v.odometer_km!==null&&v.odometer_km!==undefined?'<span>'+Number(v.odometer_km).toLocaleString('ru-RU')+' км</span>':'')+(Number(v.unit_index)>1?'<span>Экземпляр '+Number(v.unit_index)+'</span>':'')+'</div><div class="vehicleActions"><button type="button" class="secondary" data-open-passport="'+Number(v.id)+'">Паспорт техники</button><button type="button" data-service-vehicle="'+Number(v.id)+'">'+(current?'Новое обращение':'Записать в сервис')+'</button>'+(current?'<a href="#service-'+Number(current.id)+'">Текущий ремонт</a>':'')+'</div></div></article>';
     }
     function passportWearLabel(w){
-      if(!w||w.percent===null||w.percent===undefined)return 'Состояние не рассчитано';
+      if(!w||w.percent===null||w.percent===undefined)return 'Нужна проверка состояния';
       return 'Расчётный износ '+Number(w.percent).toLocaleString('ru-RU',{maximumFractionDigits:1})+'%';
     }
     function passportRemaining(w){
@@ -351,10 +351,7 @@
       return '';
     }
     function passportSource(c){
-      if(c.source_type==='official')return c.source_verified_at?'Официальный источник · проверено':'Официальный источник · не подтверждено администратором';
-      if(c.source_type==='1c_spec')return 'Комплектация из карточки 1С';
-      if(c.source_type==='service')return 'Данные сервиса';
-      return 'Данные внесены вручную';
+      return 'Информация о компоненте';
     }
     function passportStateForHotspot(passport,key){
       const components=(passport.components||[]).filter(c=>c.hotspot_key===key&&c.wear?.percent!==null&&c.wear?.percent!==undefined);
@@ -363,21 +360,21 @@
     }
     function passportComponentCard(c){
       const model=[c.manufacturer,c.model].filter(Boolean).join(' ');
-      const source=c.source_url?'<a href="'+esc(c.source_url)+'" target="_blank" rel="noopener">'+esc(passportSource(c))+'</a>':'<span>'+esc(passportSource(c))+'</span>';
+      const source=c.source_url?'<a href="'+esc(c.source_url)+'" target="_blank" rel="noopener">'+esc(passportSource(c))+'</a>':'';
       const replacement=c.compatible_product?.available?'<a class="vehiclePassportAction" href="product.html?id='+encodeURIComponent(c.compatible_product.id)+'">Купить замену · '+Number(c.compatible_product.price_rub||0).toLocaleString('ru-RU')+' ₽</a>':(c.compatible_product_id?'<span class="vehiclePassportPartUnavailable">Совместимая деталь сейчас не в наличии</span>':'');
       const purchased=c.pending_replacement_purchase?'<button class="vehiclePassportAction confirmReplacement" type="button" data-confirm-replacement="'+Number(c.id)+'">Я уже установил купленную деталь</button>':'';
-      const purchaseNote=c.pending_replacement_purchase?'<div class="vehicleReplacementNotice">Недавно куплен совместимый расходник. Ресурс не сброшен, пока замена не подтверждена.</div>':'';
-      return '<article class="vehiclePassportComponent" data-passport-component="'+Number(c.id)+'" data-state="'+esc(c.wear?.state||'unknown')+'"><div><b>'+esc(c.label)+'</b><strong>'+esc(model||'Точная модель не подтверждена')+'</strong><small>'+source+'</small></div><div class="vehicleWearInfo"><span>'+esc(passportWearLabel(c.wear))+'</span>'+(c.wear?.percent!==null&&c.wear?.percent!==undefined?'<progress max="100" value="'+Math.max(0,Math.min(100,Number(c.wear.percent)))+'" aria-label="Расчётный износ '+esc(c.label)+'"></progress>':'')+'<small>'+esc(passportRemaining(c.wear))+'</small><small>'+(Number(c.wear?.personal_samples||0)?'Персональных циклов: '+Number(c.wear.personal_samples):'Персональной истории пока нет')+'</small></div>'+purchaseNote+replacement+purchased+'</article>';
+      const purchaseNote=c.pending_replacement_purchase?'<div class="vehicleReplacementNotice">Установили купленную деталь? Отметьте замену в паспорте.</div>':'';
+      return '<article class="vehiclePassportComponent" data-passport-component="'+Number(c.id)+'" data-state="'+esc(c.wear?.state||'unknown')+'"><div><b>'+esc(c.label)+'</b><strong>'+esc(model||'Модель не указана')+'</strong>'+(source?'<small>'+source+'</small>':'')+'</div><div class="vehicleWearInfo"><span>'+esc(passportWearLabel(c.wear))+'</span>'+(c.wear?.percent!==null&&c.wear?.percent!==undefined?'<progress max="100" value="'+Math.max(0,Math.min(100,Number(c.wear.percent)))+'" aria-label="Расчётный износ '+esc(c.label)+'"></progress>':'')+'<small>'+esc(passportRemaining(c.wear))+'</small></div>'+purchaseNote+replacement+purchased+'</article>';
     }
     function openVehiclePassport(vehicle){
       const box=$('#vehiclePassport'),passport=vehicle.passport;if(!passport){box.classList.remove('hidden');box.innerHTML='<div class="vehiclePassportEmpty">Паспорт техники пока недоступен.</div>';return}
       const components=Array.isArray(passport.components)?passport.components:[],hotspots=Array.isArray(passport.hotspots)?passport.hotspots:[];
       const attention=components.filter(c=>['soon','due'].includes(String(c.wear?.state||''))).length;
-      const visual='<div><div class="vehiclePassportDiagram actualEquipment">'+vehicleImageMarkup(vehicle)+'</div><p class="vehicleModelCaption">'+esc(vehicleTypeLabel(vehicle.vehicle_type))+' · '+esc(cleanCatalogLabel(vehicle.title))+'</p><div class="vehiclePassportNodeList">'+hotspots.filter(h=>components.some(c=>c.hotspot_key===h.key)).map((h,i)=>'<button type="button" class="vehiclePassportNode '+passportStateForHotspot(passport,h.key)+'" data-passport-hotspot="'+esc(h.key)+'">'+(i+1)+'. '+esc(h.label)+'</button>').join('')+'</div><p class="vehicleModelCaption">Выберите узел в списке — откроется его карточка. Положение узлов на фотографии не предполагается автоматически.</p></div>';
+      const visual='<div><div class="vehiclePassportDiagram actualEquipment">'+vehicleImageMarkup(vehicle)+'</div><p class="vehicleModelCaption">'+esc(vehicleTypeLabel(vehicle.vehicle_type))+' · '+esc(cleanCatalogLabel(vehicle.title))+'</p><div class="vehiclePassportNodeList">'+hotspots.filter(h=>components.some(c=>c.hotspot_key===h.key)).map((h,i)=>'<button type="button" class="vehiclePassportNode '+passportStateForHotspot(passport,h.key)+'" data-passport-hotspot="'+esc(h.key)+'">'+(i+1)+'. '+esc(h.label)+'</button>').join('')+'</div></div>';
       box.classList.remove('hidden');
-      box.innerHTML='<div class="vehiclePassportHead"><div><span class="profileSectionKicker">Паспорт техники</span><h4>'+esc(cleanCatalogLabel(vehicle.title))+'</h4><p>'+(attention?'Требуют внимания: '+attention+' узл.':'Критических прогнозов сейчас нет.')+'</p></div><button id="closeVehiclePassport" class="secondary" type="button">Свернуть</button></div>'+
+      box.innerHTML='<div class="vehiclePassportHead"><div><span class="profileSectionKicker">Паспорт техники</span><h4>'+esc(cleanCatalogLabel(vehicle.title))+'</h4>'+(attention?'<p>Требуют внимания: '+attention+' узл.</p>':'')+'</div><button id="closeVehiclePassport" class="secondary" type="button">Свернуть</button></div>'+
         '<div class="vehiclePassportLayout">'+visual+
-        '<div><div id="vehiclePassportComponentList" class="vehiclePassportComponentList">'+(components.length?components.map(passportComponentCard).join(''):'<div class="vehiclePassportEmpty"><b>Точная комплектация ещё не подтверждена.</b><p>Мы не показываем выдуманные компоненты: здесь появятся только данные из 1С, сервиса или проверенного источника.</p></div>')+'</div><div class="vehiclePassportFoot"><button type="button" data-service-vehicle="'+Number(vehicle.id)+'">Записать технику в сервис</button></div></div></div>'+equipmentCareMarkup(vehicle);
+        '<div><div id="vehiclePassportComponentList" class="vehiclePassportComponentList">'+(components.length?components.map(passportComponentCard).join(''):'')+'</div><div class="vehiclePassportFoot"><button type="button" data-service-vehicle="'+Number(vehicle.id)+'">Записать технику в сервис</button></div></div></div>'+equipmentCareMarkup(vehicle);
       bindEquipmentCare(vehicle,box);
       $('#closeVehiclePassport').onclick=()=>{box.classList.add('hidden');box.innerHTML=''};
       box.querySelectorAll('[data-passport-hotspot]').forEach(button=>button.onclick=()=>{
@@ -410,7 +407,7 @@
       $('#serviceQuickText').textContent=maintenanceState.length?'Внимание: '+maintenanceState.length:(active?'Активный сервис: '+active:'Покупки и сервис');
       $('#vehiclesSummary').textContent=vehicleState.length?'Техники в кабинете: '+vehicleState.length:'Покупки, которые можно обслуживать';
       $('#serviceSummary').textContent=serviceState.length?(active?'Активных: '+active+' · Всего: '+serviceState.length:'Обращений: '+serviceState.length):'История обращений';
-      $('#customerVehicles').innerHTML=vehicleState.length?vehicleState.map(vehicleCardMarkup).join(''):'<div class="vehicleEmpty"><b>Техника появится здесь после завершённой покупки.</b><p>Велосипеды и самокаты из завершённых заказов добавляются автоматически.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
+      $('#customerVehicles').innerHTML=vehicleState.length?vehicleState.map(vehicleCardMarkup).join(''):'<div class="vehicleEmpty"><b>Техника появится здесь после завершённой покупки.</b><p>Здесь можно следить за состоянием техники и записываться в сервис.</p><a class="profileShopLink" href="index.html#catalogProducts">Перейти в каталог</a></div>';
       renderMaintenanceAlerts();
       renderReplacementPurchases();
       $('#customerServiceRequests').innerHTML=serviceState.length?serviceState.map(serviceRequestMarkup).join(''):'<div class="serviceEmpty"><b>Обращений в сервис пока нет.</b><p>Выберите технику выше, чтобы создать первую заявку.</p></div>';
@@ -588,7 +585,7 @@
     refresh(true).catch(()=>{$('#authMsg').textContent='Кабинет временно недоступен.'});
   </script>
 <nav class="mobileBottomNav" aria-label="Основная навигация"><a href="index.html#catalogProducts" data-nav="catalog"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/></svg></span><span>Каталог</span></a><a href="checkout.html" data-nav="cart"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l2-8H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span>Корзина</span></a><a href="service.html" data-nav="service"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.4 2.4-3-3z"/></svg></span><span>Сервис</span></a><a href="profile.html" data-nav="profile" class="active" aria-current="page"><span class="navBubble"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.8-4.2 3.3-6.5 7.5-6.5s6.7 2.3 7.5 6.5"/></svg></span><span>Профиль</span></a></nav>
-<script src="back-to-top.js?v=2" defer></script><script src="cookie-consent.js?v=1" defer></script></body>
+<script src="back-to-top.js?v=2" defer></script><script src="cookie-consent.js?v=2" defer></script></body>
 </html>
 
 
