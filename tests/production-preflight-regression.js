@@ -74,7 +74,8 @@ assert.ok(backToTop.includes('top: -38px !important'),'popup close buttons must 
 assert.ok(serviceHtml.includes('Актуальный прайс-лист'),'service page must expose the actual price-list section');
 assert.ok(serviceHtml.includes('ПРАЙС-ЛИСТ МАСТЕРСКОЙ'),'service page must be introduced as a price list');
 assert.ok(serviceHtml.includes('servicePriceList'),'service page must contain the new price-list container');
-assert.ok(serviceHtml.includes('service-guide.js?v=8'),'service guide asset version must bump after removing cached old picker');
+const serviceGuideVersion=Number(serviceHtml.match(/service-guide\.js\?v=(\d+)/)?.[1]||0);
+assert.ok(serviceGuideVersion>=8,'service guide asset version must bump after removing cached old picker');
 for(const oldMarkup of ['serviceCatalog','workCategories','workSummary','selectedWorkCount','selectedWorkChips','Выберите интересующие работы']){
   assert.doesNotMatch(serviceHtml,new RegExp(oldMarkup),'old service picker markup must be absent from service.html: '+oldMarkup);
 }
