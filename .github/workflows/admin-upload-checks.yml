@@ -1,0 +1,23 @@
+name: Admin upload optional photos
+on:
+  push:
+    branches: [main, codex/optional-update-photos]
+    paths: ['admin/**', 'api/import-*.php', 'server/import-*.php', 'tests/import-upload*', '.github/workflows/admin-upload-checks.yml']
+  pull_request:
+    paths: ['admin/**', 'api/import-*.php', 'server/import-*.php', 'tests/import-upload*', '.github/workflows/admin-upload-checks.yml']
+permissions:
+  contents: read
+jobs:
+  optional-photos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check admin entrypoints and upload behavior
+        run: |
+          node --check admin/app.js
+          node --check admin/import-upload.js
+          node --test tests/import-upload-ui.test.mjs
+          php -l server/import-upload.php
+          php -l api/import-upload.php
+          php tests/import-upload.php
+          php tests/import-upload-optional.php
