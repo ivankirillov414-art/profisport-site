@@ -1,5 +1,6 @@
 /* Decorative section illustrations; never used as product photographs. */
 const WINTER_CATEGORY_ART={
+  "снегосамокаты": "assets/categories/subsections/snow-scooter-v1.webp",
   "мази держания": "assets/categories/winter/grip-wax-v1.webp",
   "парафины": "assets/categories/winter/paraffin-v1.webp",
   "порошки, ускорители, эмульсии": "assets/categories/winter/accelerators-v1.webp",

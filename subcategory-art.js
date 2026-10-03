@@ -19,6 +19,7 @@ const SUBCATEGORY_ART={
     "гибриды": "assets/categories/subsections/bicycle-16-v1.webp"
   },
   "cycling": {
+    "для комплекта": "assets/categories/subsections/ebike-kit-v1.webp",
     "на подростковые и взрослые велосипеды": "assets/categories/subsections/cycling-01-v1.webp",
     "камеры": "assets/categories/subsections/cycling-02-v1.webp",
     "спицы": "assets/categories/subsections/cycling-03-v1.webp",
@@ -64,6 +65,7 @@ const SUBCATEGORY_ART={
     "чехлы для велосипедов": "assets/categories/subsections/cycling-43-v1.webp"
   },
   "accessories": {
+    "спортивные аксессуары": "assets/categories/subsections/sports-accessories-v1.webp",
     "инструменты": "assets/categories/subsections/accessories-01-v1.webp",
     "сигналы": "assets/categories/subsections/accessories-02-v1.webp",
     "световое оборудование": "assets/categories/subsections/accessories-03-v1.webp",
