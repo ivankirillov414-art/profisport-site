@@ -52,3 +52,11 @@ for r in rows:
 print(json.dumps({'source':f,'rows':len(rows),'mapping':mapping,'matched':len(matches),'products':matches},ensure_ascii=False))
 
 print(json.dumps({'compound_price_rows':sum('&' in field(r,'price') for r in rows),'duplicate_product_ids':sum(v>1 for k,v in counts.items() if k),'examples':[{'columns':r} for r in rows if field(r,'id') in ('49810','18978','27841')]},ensure_ascii=False))
+
+compound=[r for r in rows if '&' in field(r,'price')]
+attrs=collections.Counter()
+for r in compound:
+    for token in field(r,'price').split('|'):
+        tail=token.split('&')[2:]
+        attrs[','.join(sorted(t.split('=')[0] for t in tail))]+=1
+print(json.dumps({'option_attribute_sets':attrs,'other_examples':[{'name':field(r,'name'),'price':field(r,'price'),'stock':field(r,'stock'),'tail':r[13:]} for r in compound[:8]],'duplicate_rows':[{'id':field(r,'id'),'name':field(r,'name'),'price':field(r,'price'),'stock':field(r,'stock')} for r in rows if counts[field(r,'id')]>1]},ensure_ascii=False))
