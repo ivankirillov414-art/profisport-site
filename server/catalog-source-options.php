@@ -65,5 +65,5 @@ function catalog_repair_source_options(PDO $pdo): array {
         $save=$pdo->prepare('INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)');
         $save->execute([$key,json_encode($result,JSON_UNESCAPED_UNICODE)]);$pdo->commit();return $result;
     }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log($e->__toString());return ['state'=>'failed'];}
-    finally{if($locked)$pdo->query("SELECT RELEASE_LOCK('profisport_source_options_v1')");}
+    finally{if($locked)$pdo->query("SELECT RELEASE_LOCK('profisport_1c_import')");}
 }
