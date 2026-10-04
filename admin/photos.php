@@ -2,13 +2,13 @@
 <!doctype html><html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>ПрофиСпорт — фото из 1С и ручная загрузка</title>
-<link rel="stylesheet" href="photos.css?v=manual-photos-1">
+<link rel="stylesheet" href="photos.css?v=manual-photos-2">
 <link rel="stylesheet" href="layout.css?v=1"></head><body>
 <header><div class="bar"><b>Профи<span>Спорт</span></b><a href="index.php">← Админка</a></div></header>
 <main>
 <section class="card">
 <h1>Фото из 1С</h1>
-<p>Найдите товар и добавьте фотографию вручную или замените основную. Ваши фотографии и выбранное основное фото сохраняются при следующих обновлениях каталога.</p>
+<p>Найдите товар и добавьте фотографию вручную, замените основную или удалите ненужные снимки. Изменения фотографий сохраняются при следующих обновлениях каталога.</p>
 <form id="photoSearch" role="search"><label for="photoQuery">Поиск товара</label><div class="search"><input id="photoQuery" type="search" maxlength="160" placeholder="Название, модель, артикул, код 1С или ID" autocomplete="off"><button type="submit">Найти</button></div></form>
 <div class="filters"><label><input id="photoMissing" type="checkbox"> Только без фото</label><label><input id="photoArchived" type="checkbox"> Включая скрытые товары</label><button id="photoRefresh" class="secondary" type="button">Обновить список</button></div>
 <div id="photoStatus" role="status" aria-live="polite">Загружаю каталог…</div>
@@ -30,5 +30,5 @@
 </section>
 <p id="photoEditorStatus" role="status" aria-live="polite"></p>
 </dialog>
-<script src="photos.js?v=manual-photos-1"></script>
+<script src="photos.js?v=manual-photos-2"></script>
 </body></html>

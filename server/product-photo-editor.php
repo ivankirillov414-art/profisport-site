@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 /** Manual catalogue photos are public product assets, never customer documents. */
 function ppe_schema(PDO $pdo): void {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS product_photo_overrides (product_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,manual_urls LONGTEXT NOT NULL,primary_url TEXT NULL,updated_by INT UNSIGNED NULL,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS product_photo_overrides (product_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,manual_urls LONGTEXT NOT NULL,primary_url TEXT NULL,excluded_urls LONGTEXT NULL,updated_by INT UNSIGNED NULL,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    if(!isset(table_columns($pdo,'product_photo_overrides')['excluded_urls']))$pdo->exec("ALTER TABLE product_photo_overrides ADD COLUMN excluded_urls LONGTEXT NULL");
 }
 function ppe_urls(mixed $value): array {
     if(is_string($value))$value=json_decode($value,true);
@@ -37,20 +38,22 @@ function ppe_manual_url(string $url): bool {
     return preg_match('~^/import/curated-photos/[1-9][0-9]*/[a-f0-9]{64}\.(jpg|png|webp)$~D',$url)===1;
 }
 function ppe_revision(array $p,array $override=[]): string {
-    return hash('sha256',json_encode([(string)($p['main_image']??''),ppe_urls($p['images']??[]),ppe_urls($override['manual_urls']??[]),(string)($override['primary_url']??'')],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR));
+    return hash('sha256',json_encode([(string)($p['main_image']??''),ppe_urls($p['images']??[]),ppe_urls($override['manual_urls']??[]),(string)($override['primary_url']??''),ppe_urls($override['excluded_urls']??[])],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR));
 }
 /** Applied AFTER source-image merge, so later CSV imports cannot undo an explicit choice. */
 function ppe_overlay(array $source,array $override): array {
+    $excluded=ppe_urls($override['excluded_urls']??[]);
     $manual=ppe_urls($override['manual_urls']??[]);
     $primary=trim((string)($override['primary_url']??''));
-    $images=ppe_urls(array_merge($manual,ppe_urls($source['images']??[])));
-    $main=$primary!==''?$primary:($source['main']??($images[0]??null));
+    $sourceMain=(string)($source['main']??'');
+    $images=array_values(array_diff(ppe_urls(array_merge($manual,[$sourceMain],ppe_urls($source['images']??[]))),$excluded));
+    $main=$primary!==''&&!in_array($primary,$excluded,true)?$primary:(in_array($sourceMain,$images,true)?$sourceMain:($images[0]??null));
     if($main!==null&&$main!=='')$images=ppe_urls(array_merge([$main],$images));
     return ['images'=>$images,'main'=>$main];
 }
 function ppe_override_map(PDO $pdo): array {
     ppe_schema($pdo);$map=[];
-    foreach($pdo->query('SELECT product_id,manual_urls,primary_url FROM product_photo_overrides') as $r)$map[(int)$r['product_id']]=$r;
+    foreach($pdo->query('SELECT product_id,manual_urls,primary_url,excluded_urls FROM product_photo_overrides') as $r)$map[(int)$r['product_id']]=$r;
     return $map;
 }
 function ppe_limit_bytes(): int {

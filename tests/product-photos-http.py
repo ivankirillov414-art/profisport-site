@@ -37,6 +37,8 @@ def multipart(revision,picture,primary='1'):
 
 batch=ROOT/'import'/'manual'/prefix
 try:
+    # Exercise upgrading the photo override table installed by the earlier editor.
+    php('require "server/bootstrap.php"; db()->exec("CREATE TABLE IF NOT EXISTS product_photo_overrides (product_id BIGINT UNSIGNED PRIMARY KEY,manual_urls LONGTEXT NOT NULL,primary_url TEXT NULL,updated_by INT UNSIGNED NULL,updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");')
     php('require "server/bootstrap.php"; $s=db()->prepare("INSERT INTO products(id,source_id,source_hash,name,title,sku,model,price,price_rub,stock_qty,stock_status,availability,is_active,category_path,main_image,images) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");$s->execute('+json.dumps([PID,source_id,hashlib.sha256(('1c|'+source_id).encode()).hexdigest(),'Photo test product','Photo test product','PPE-SKU','PPE-MODEL',123,123,7,'in_stock','in_stock',1,'Test / Photos','','[]'])+');')
     assert call('api/product-photos.php')[0]==401
     status,auth,h=call('server/api.php?action=login',{'username':'Иван Кириллов 414','password':'test-only-password'})
@@ -76,7 +78,30 @@ try:
     public=call('api/catalog.php?id='+str(PID))[1]['items'][0]
     assert public['image']==second and first in public['images'] and public['stock_qty']==11 and public['price_rub']==777,public
     assert any('source-new.png' in u for u in public['images'])
-    print('PASS: authenticated search by name/SKU/model/ID; no-photo filter; CSRF; real multipart upload; invalid file rejection; stale conflict; gallery; primary change; public image; later 1C import preserves manual photos')
+    # Removal must unlink every origin, select a remaining main, and survive import.
+    def remove(url, revision=None, token=csrf):
+        return call('api/product-photos.php?action=remove',{'id':PID,'revision':revision or detail()['revision'],'url':url},cookie,token)
+    p=detail();stale=p['revision']
+    assert call('api/product-photos.php?action=remove',{'id':PID,'revision':stale,'url':first})[0]==401
+    assert remove(first,token='')[0]==403
+    assert remove('https://example.test/other-product.jpg')[0]==400
+    s,j,_=remove(first);assert s==200 and all(x['url']!=first for x in j['product']['photos']),(s,j)
+    assert next(x['url'] for x in j['product']['photos'] if x['primary'])==second
+    assert remove(second,revision=stale)[0]==409
+    s,j,_=remove(second);assert s==200,(s,j)
+    source_photo=next(x['url'] for x in j['product']['photos'] if x['primary'])
+    assert 'source-new.png' in source_photo
+    s,j,_=remove(source_photo);assert s==200 and j['product']['photos']==[],(s,j)
+    assert call(q,cookie=cookie)[1]['total']==1
+    public=call('api/catalog.php?id='+str(PID))[1]['items'][0]
+    assert first not in public['images'] and second not in public['images'] and source_photo not in public['images'],public
+    s,j,_=call('api/import-apply.php?offset=0&limit=100',{},cookie,csrf);assert s==200,(s,j)
+    assert detail()['photos']==[], 'Source import resurrected a deleted photo'
+    # Immutable original files remain safe; re-uploading deliberately restores a photo.
+    assert (ROOT/first.lstrip('/')).is_file()
+    s,j,_=call('api/product-photos.php?action=upload',cookie=cookie,csrf=csrf,multipart=multipart(detail()['revision'],image))
+    assert s==200 and len(j['product']['photos'])==1 and j['product']['photos'][0]['url']==first,(s,j)
+    print('PASS product photos: upload, deletion of manual/source/main/last photo, CSRF and authentication, stale conflicts, import persistence and explicit re-upload')
 finally:
     php('require "server/bootstrap.php";require "server/product-photo-editor.php";ppe_schema(db());db()->exec("DELETE FROM product_photo_overrides WHERE product_id='+str(PID)+'");db()->exec("DELETE FROM products WHERE source_id LIKE \''+prefix+'%\'");')
     shutil.rmtree(batch,ignore_errors=True);shutil.rmtree(ROOT/'import'/'curated-photos'/str(PID),ignore_errors=True)

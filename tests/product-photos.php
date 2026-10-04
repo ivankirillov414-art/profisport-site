@@ -11,6 +11,11 @@ pp_assert(in_array($incoming,$set['images'],true),'New source images remain avai
 $set=ppe_overlay(['main'=>$source,'images'=>[$source]],['manual_urls'=>[$manual],'primary_url'=>'']);
 pp_assert($set['main']===$source&&in_array($manual,$set['images'],true),'Gallery-only upload does not replace existing main');
 pp_assert(ppe_overlay(['main'=>$incoming,'images'=>[$incoming]],['manual_urls'=>[],'primary_url'=>$source])['main']===$source,'Explicit source-photo choice is retained');
+$set=ppe_overlay(['main'=>$source,'images'=>[$source,$manual,$incoming]],['manual_urls'=>[$manual],'primary_url'=>$source,'excluded_urls'=>[$source,$manual]]);
+pp_assert($set['main']===$incoming&&$set['images']===[$incoming],'Deleted source, manual and primary stay excluded during imports');
+$set=ppe_overlay(['main'=>$source,'images'=>[$source]],['excluded_urls'=>[$source]]);
+pp_assert($set['main']===null&&$set['images']===[],'Deleting last photo leaves an empty gallery');
+pp_assert(ppe_revision(['images'=>[]],['excluded_urls'=>[$source]])!==ppe_revision(['images'=>[]]),'Deletion exclusions affect revision');
 pp_assert(ppe_safe_url('/import/photo one.jpg')==='/import/photo%20one.jpg','Spaces in local filenames are supported');
 foreach(['javascript:alert(1)','data:text/html,test','//other.test/image.jpg','/import/../server/config.php','/import/%2e%2e/server/config.php','/import/a\\b.png'] as $u)pp_assert(ppe_safe_url($u)==='','Unsafe URL rejected: '.$u);
 pp_assert(ppe_manual_url($manual)&&!ppe_manual_url('/import/manual/42.jpg'),'Separate manual origin');

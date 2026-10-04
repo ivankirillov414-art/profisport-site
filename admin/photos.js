@@ -37,7 +37,7 @@
     $('photoProductMeta').textContent=`ID ${current.id} · Артикул: ${current.sku||'—'} · Код 1С: ${current.source_id||'—'} · ${current.category||'Без категории'}`;
     $('photoProductLink').href='../product.html?id='+Number(current.id);
     $('photoLimit').textContent=`Лимит файла: ${(maxBytes/1048576).toFixed(1)} МБ; не более 12 мегапикселей.`;
-    $('photoGallery').innerHTML=current.photos.length?current.photos.map((p,i)=>`<div class="photo${p.primary?' primary':''}">${imageMarkup(p.preview,'Фотография товара')}<small>${p.primary?'Основное · ':''}${p.manual?'Загружено вручную':'Из каталога'}${p.working?'':' · Файл недоступен'}</small>${!p.primary&&p.working?`<button class="secondary" data-primary="${i}" type="button">Сделать основным</button>`:''}</div>`).join(''):'<p class="muted">У товара пока нет фотографий.</p>';
+    $('photoGallery').innerHTML=current.photos.length?current.photos.map((p,i)=>`<div class="photo${p.primary?' primary':''}">${imageMarkup(p.preview,'Фотография товара')}<small>${p.primary?'Основное · ':''}${p.manual?'Загружено вручную':'Из каталога'}${p.working?'':' · Файл недоступен'}</small>${!p.primary&&p.working?`<button class="secondary" data-primary="${i}" type="button">Сделать основным</button>`:''}<button class="danger" data-remove="${i}" type="button" aria-label="Удалить фотографию ${i+1}">Удалить фото</button></div>`).join(''):'<p class="muted">У товара пока нет фотографий.</p>';
     controls();
   }
   async function open(id){
@@ -47,11 +47,11 @@
     try{const d=await request(endpoint+'?id='+Number(id));if(version!==detailVersion)return;render(d);message('photoEditorStatus',canEdit?'': 'Доступен только просмотр. Изменения вносит владелец или администратор.');}catch(e){if(version===detailVersion)message('photoEditorStatus',e.message,true);}
   }
   async function mutate(action,body,form=false){
-    if(busy||!current||!canEdit)return;busy=true;controls();message('photoEditorStatus',action==='upload'?'Загружаю и сохраняю фотографию…':'Сохраняю основное фото…');
+    if(busy||!current||!canEdit)return;busy=true;controls();message('photoEditorStatus',action==='upload'?'Загружаю и сохраняю фотографию…':action==='remove'?'Удаляю фотографию…':'Сохраняю основное фото…');
     try{
       const token=await auth();const headers={'X-CSRF-Token':token};if(!form)headers['Content-Type']='application/json';
       const d=await request(endpoint+'?action='+action,{method:'POST',headers,body:form?body:JSON.stringify(body)});
-      render(d);clearPreview();message('photoEditorStatus','Сохранено. Фотография привязана к товару и сохранится при обновлении из 1С.');$('photoEditorStatus').className='success';list();
+      render(d);clearPreview();message('photoEditorStatus',action==='remove'?'Фотография удалена из карточки товара.':'Сохранено. Фотография привязана к товару и сохранится при обновлении из 1С.');$('photoEditorStatus').className='success';list();
     }catch(e){
       if(e.status===401||e.status===403)csrf='';
       message('photoEditorStatus',e.message+(e.status===409?' Закройте и откройте карточку заново.':' При обрыве связи обновите карточку перед повторной загрузкой.'),true);
@@ -62,7 +62,7 @@
   for(const id of ['photoMissing','photoArchived'])$(id).addEventListener('change',()=>{page=1;list();});
   $('photoRefresh').onclick=()=>list();$('photoPrev').onclick=()=>{if(page>1){page--;list();}};$('photoNext').onclick=()=>{if(page<pages){page++;list();}};
   $('photoResults').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)open(b.dataset.product);});
-  $('photoGallery').addEventListener('click',e=>{const b=e.target.closest('[data-primary]');if(b&&current){const p=current.photos[Number(b.dataset.primary)];if(p)mutate('primary',{id:current.id,revision:current.revision,url:p.url});}});
+  $('photoGallery').addEventListener('click',e=>{const b=e.target.closest('[data-primary],[data-remove]');if(!b||!current||busy||!canEdit)return;const removing=b.hasAttribute('data-remove');const p=current.photos[Number(removing?b.dataset.remove:b.dataset.primary)];if(!p)return;if(removing&&!window.confirm('Удалить эту фотографию из карточки товара?'))return;mutate(removing?'remove':'primary',{id:current.id,revision:current.revision,url:p.url});});
   $('photoFile').addEventListener('change',()=>{
     if(preview)URL.revokeObjectURL(preview);preview='';$('photoPreview').hidden=true;
     const file=$('photoFile').files?.[0];
