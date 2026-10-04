@@ -318,7 +318,7 @@ const navigationCategory={'велосипед':'bicycle','самокат':'scoot
 let megaContext='',megaCloseTimer,megaTrigger=null;
 const MEGA_CATEGORY_ART={
   bicycle:'assets/categories/bicycle-illustration-v1.png?v=2',
-  cycling:'assets/categories/parts-illustration-v1.png?v=3',
+  cycling:'assets/categories/parts-illustration-v1.png?v=4',
   accessories:'assets/categories/accessories-illustration-v1.png?v=2',
   skiing:'assets/categories/skiing-illustration-v2.png?v=2',
   fitness:'assets/categories/fitness-illustration-v1.png?v=2',
@@ -405,7 +405,7 @@ $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFil
 function buildCategoryTiles(){
   const keys=['bicycle','scooter','cycling','accessories','skiing','fitness','tourism'];
   const available=keys.map(key=>[key,CATALOG_SECTIONS[key]]).filter(([,section])=>section);
-  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="assets/categories/${key==='cycling'?'parts':key}-illustration-v${['scooter','skiing','tourism'].includes(key)?2:1}.png" width="480" height="320" alt="" loading="lazy" decoding="async"></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/categories/subsections/service-06-v1.webp" alt="" loading="lazy"></a>';
+  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="${esc(MEGA_CATEGORY_ART[key])}" width="480" height="320" alt="" loading="lazy" decoding="async"></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/categories/subsections/service-06-v1.webp" alt="" loading="lazy"></a>';
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){
