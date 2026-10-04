@@ -367,7 +367,7 @@ body :is(.breadcrumbs,.hubCrumb) a:focus-visible{outline:2px solid #c69c14;outli
 
 /* The same footer and page-height layout on every storefront page. */
 body.motion-page:has(>footer.siteFooter){display:flex;flex-direction:column;min-height:100dvh}
-body.motion-page:has(>footer.siteFooter)>main{flex:1 0 auto;width:100%;box-sizing:border-box}
+body.motion-page:has(>footer.siteFooter)>main{flex:1 0 auto;box-sizing:border-box}
 body.motion-page>footer.siteFooter{
  position:static;flex:none;display:grid!important;
  grid-template-columns:minmax(220px,1.2fr) repeat(3,minmax(0,1fr))!important;
