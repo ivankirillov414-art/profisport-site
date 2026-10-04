@@ -9,7 +9,7 @@ try{
  if($_SERVER['REQUEST_METHOD']==='GET'){
   $q=mb_substr(trim((string)($_GET['q']??'')),0,200);$page=max(1,min(100000,(int)($_GET['page']??1)));$filters=[];$args=[];if($q!==''){$filters[]='(name LIKE ? OR sku LIKE ?)';$args=['%'.$q.'%','%'.$q.'%'];}if(isset($_GET['category'])){$filters[]="COALESCE(category_path,'')=?";$args[]=mb_substr((string)$_GET['category'],0,2000);}$where=$filters?' WHERE '.implode(' AND ',$filters):'';
   $s=$pdo->prepare('SELECT COUNT(*) FROM products'.$where);$s->execute($args);$total=(int)$s->fetchColumn();
-  $s=$pdo->prepare('SELECT '.PRODUCT_FIELDS.' FROM products'.$where.' ORDER BY id DESC LIMIT 30 OFFSET '.(($page-1)*30));$s->execute($args);$rows=$s->fetchAll();foreach($rows as &$p)$p['version']=product_version($p);unset($p);
+  $s=$pdo->prepare('SELECT '.PRODUCT_FIELDS.' FROM products'.$where.' ORDER BY id DESC LIMIT 30 OFFSET '.(($page-1)*30));$s->execute($args);$rows=$s->fetchAll();foreach($rows as &$p){$p['version']=product_version($p);$p['specs']=product_specs_rows($p['specs']);}unset($p);
   json_response(['ok'=>true,'items'=>$rows,'page'=>$page,'pages'=>max(1,(int)ceil($total/30)),'total'=>$total]);
  }
  if($_SERVER['REQUEST_METHOD']!=='POST')json_response(['ok'=>false,'error'=>'method_not_allowed'],405);
