@@ -48,11 +48,14 @@ assert call('api/service.php?action=status',{'id':j['items'][0]['id'],'status':'
 status,j,_=call('api/product-admin.php?q=Test',cookie=cookie);assert status==200
 p=j['items'][0]
 p['price_rub']=200;p['old_price_rub']=300;p['stock_qty']=2;p['is_active']=1;p['short_description']='Updated description';p['category_path']='Sport / Balls'
+p['specs']=[{'name':'Материал','value':'Алюминий'},{'name':'Вес','value':'3 кг'}]
+assert call('api/product-admin.php',{**p,'specs':[{'name':'','value':'bad'}]},cookie,csrf)[0]==422
 assert call('api/product-admin.php',p,cookie)[0]==403
 assert call('api/product-admin.php',p,cookie,csrf)[0]==200
 assert call('api/product-admin.php',p,cookie,csrf)[0]==409
 status,j,_=call('api/catalog.php?limit=24');assert status==200
 p=next(p for p in j['items'] if p['id']==1);assert p['price_rub']==200 and p['description']=='Updated description'
+assert p['specs']==[{'name':'Материал','value':'Алюминий'},{'name':'Вес','value':'3 кг'}]
 assert call('api/product-admin.php?category=Sport%20%2F%20Balls',cookie=cookie)[1]['total']==1
 assert call('api/product-admin.php?category=No%20such%20category',cookie=cookie)[1]['total']==0
 print('PASS: workshop persistence, product editing, stale-write protection, public catalog')
