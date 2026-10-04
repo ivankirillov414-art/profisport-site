@@ -386,7 +386,7 @@ async function loadInitialCatalog(){
   if(initialCatalogPromise)return initialCatalogPromise;
   initialCatalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth5',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth7-options',{},parseCatalogResponse);
       return j.items.filter(isPurchasableCatalogRow).map(normalizeProduct);
     }catch(e){return[]}
   })();
@@ -396,7 +396,7 @@ async function loadRealCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?v=imgtruth6',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?v=imgtruth7-options',{},parseCatalogResponse);
       const liveItems=j.items.filter(isPurchasableCatalogRow);
       if(liveItems.length){
         const items=liveItems.map(normalizeProduct);
@@ -453,17 +453,24 @@ if(typeof window!=='undefined'&&typeof document!=='undefined'){
 const MIGRATION_TICK_CHECK_MS=5*60*1000;
 async function triggerScheduledHostingMigration(){
   if(typeof window==='undefined'||location.protocol==='file:')return;
-  const key='profisport_migration_tick_last_check';
+  const key='profisport_migration_tick_last_check_options_v1';
   let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
   if(Date.now()-last<MIGRATION_TICK_CHECK_MS)return;
   try{localStorage.setItem(key,String(Date.now()))}catch{}
   try{
-    await fetch('api/migration-tick.php?browser=1',{
-      method:'POST',
-      credentials:'same-origin',
-      cache:'no-store',
-      keepalive:true
-    });
+    for(let batch=0;batch<40;batch++){
+      const response=await catalogRequest('api/migration-tick.php?browser=1',{
+        method:'POST',credentials:'same-origin',cache:'no-store'
+      });
+      const repair=response?.source_options;
+      if(repair?.state==='done'){
+        catalogPromise=undefined;initialCatalogPromise=undefined;
+        window.dispatchEvent(new CustomEvent('profisport-catalog-refreshed',{detail:repair}));
+        break;
+      }
+      if(repair?.state!=='pending')break;
+      await new Promise(resolve=>setTimeout(resolve,150));
+    }
   }catch{}
 }
 if(typeof window!=='undefined'&&typeof document!=='undefined'){

@@ -39,6 +39,7 @@ try{
    $unique=count($vals);$coverage=$num/max(1,$n);
    if($coverage<.99||$gt1<100||$unique<20)throw new RuntimeException('Колонка 12 не прошла проверку как остаток: данные не изменены.');
  }
+ if(!$hasHeader)$r=import_normalize_rows($r,$map,$stockIndex);
  $total=count($r);$productRows=0;$valid=0;$invalid=0;$zeroAll=0;$positiveAll=0;$onesAll=0;$maxStock=0;
  foreach($r as $rr){$name=trim((string)($rr[$map['name']]??''));if($name===''&&!$hasHeader)$name=trim((string)($rr[6]??''));if($name==='')continue;$productRows++;$q=qty((string)($rr[$stockIndex]??''));if($q===null){$invalid++;continue;}$valid++;if($q===0)$zeroAll++;else$positiveAll++;if($q===1)$onesAll++;$maxStock=max($maxStock,$q);}
  if($productRows===0||$valid/max(1,$productRows)<.99)throw new RuntimeException('Остатки заполнены недостаточно полно. Импорт остановлен до изменения базы.');

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
 require __DIR__.'/../server/migration.php';
+require_once __DIR__.'/../server/catalog-source-options.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);echo json_encode(['ok'=>false]);exit;}
@@ -30,7 +31,8 @@ if(!$tokenOk&&!$browserTrigger){http_response_code(401);echo json_encode(['ok'=>
 // Browser trigger cannot schedule, edit or reveal a migration. It only advances a due job
 // that the owner already confirmed with the current admin password.
 @set_time_limit(55);
+$sourceOptions=catalog_repair_source_options($pdo);
 $result=migration_tick_once($pdo);
 $vehicleSpecs=function_exists('vehicle_spec_registry_sync_once')?vehicle_spec_registry_sync_once($pdo):['ran'=>false,'reason'=>'unavailable'];
 $maintenance=function_exists('vehicle_maintenance_refresh_daily')?vehicle_maintenance_refresh_daily($pdo):['ran'=>false,'reason'=>'unavailable'];
-echo json_encode(['ok'=>true,'ran'=>(bool)($result['ran']??false),'vehicle_specs'=>$vehicleSpecs,'maintenance'=>$maintenance],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+echo json_encode(['ok'=>true,'ran'=>(bool)($result['ran']??false),'source_options'=>$sourceOptions,'vehicle_specs'=>$vehicleSpecs,'maintenance'=>$maintenance],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);

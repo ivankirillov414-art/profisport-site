@@ -60,3 +60,12 @@ for r in compound:
         tail=token.split('&')[2:]
         attrs[','.join(sorted(t.split('=')[0] for t in tail))]+=1
 print(json.dumps({'option_attribute_sets':attrs,'other_examples':[{'name':field(r,'name'),'price':field(r,'price'),'stock':field(r,'stock'),'tail':r[13:]} for r in compound[:8]],'duplicate_rows':[{'id':field(r,'id'),'name':field(r,'name'),'price':field(r,'price'),'stock':field(r,'stock')} for r in rows if counts[field(r,'id')]>1]},ensure_ascii=False))
+
+bad_quantity=[];bad_labels=[]
+for r in compound:
+    options=[t.split('&') for t in field(r,'price').split('|')]
+    try:
+        if sum(int(o[1]) for o in options)!=int(field(r,'stock')):bad_quantity.append(field(r,'id'))
+    except (ValueError,IndexError):bad_quantity.append(field(r,'id'))
+    if len(r)<=29 or len(r[29].split('|'))!=len(options):bad_labels.append(field(r,'id'))
+print(json.dumps({'option_stock_mismatches':bad_quantity,'option_label_mismatches':bad_labels},ensure_ascii=False))

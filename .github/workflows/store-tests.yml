@@ -61,6 +61,7 @@ jobs:
           php tests/import-upload.php
           php tests/catalog-quality.php
           php tests/product-spec-editor.php
+          php tests/source-options.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
           node --check admin/analyze.js
@@ -124,6 +125,7 @@ jobs:
           PHP
           if [ '${{ matrix.schema }}' = legacy ]; then php tests/legacy-orders.php; fi
           php tests/seed.php
+          php tests/source-options-db.php
           php tests/loyalty-discounts.php
           php tests/loyalty-live.php
           php tests/vehicle-passport.php
