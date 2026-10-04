@@ -393,3 +393,6 @@ body.motion-page>footer.siteFooter>.footerSection{
 .siteFooter a:focus-visible{outline:2px solid #e0b52a;outline-offset:4px}
 @media(max-width:1000px){body.motion-page>footer.siteFooter{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){body.motion-page>footer.siteFooter{grid-template-columns:minmax(0,1fr)!important;gap:28px!important;padding:32px 20px calc(90px + env(safe-area-inset-bottom))}}
+
+/* Center the caption inside the wide bicycle category card. */
+#categoryTiles .categoryTile[data-department="bicycle"]>div>span{margin-inline:auto;text-align:center}

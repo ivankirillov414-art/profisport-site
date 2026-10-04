@@ -2,8 +2,9 @@
 declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
 require_admin();
+require __DIR__.'/../server/product-spec-editor.php';
 function product_version(array $p):string{return hash('sha256',json_encode($p,JSON_UNESCAPED_UNICODE));}
-const PRODUCT_FIELDS='id,name,price_rub,old_price_rub,stock_qty,stock_status,availability,category_path,short_description,is_active';
+const PRODUCT_FIELDS='id,name,price_rub,old_price_rub,stock_qty,stock_status,availability,category_path,short_description,is_active,specs';
 try{
  if($_SERVER['REQUEST_METHOD']==='GET'){
   $q=mb_substr(trim((string)($_GET['q']??'')),0,200);$page=max(1,min(100000,(int)($_GET['page']??1)));$filters=[];$args=[];if($q!==''){$filters[]='(name LIKE ? OR sku LIKE ?)';$args=['%'.$q.'%','%'.$q.'%'];}if(isset($_GET['category'])){$filters[]="COALESCE(category_path,'')=?";$args[]=mb_substr((string)$_GET['category'],0,2000);}$where=$filters?' WHERE '.implode(' AND ',$filters):'';
@@ -13,6 +14,11 @@ try{
  }
  if($_SERVER['REQUEST_METHOD']!=='POST')json_response(['ok'=>false,'error'=>'method_not_allowed'],405);
  csrf_check();$in=input_json();$id=(int)($in['id']??0);
+ $specsJson=null;
+ if(array_key_exists('specs',$in)){
+  try{$specsJson=product_specs_json($in['specs']);}
+  catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>'invalid_specs','message'=>$e->getMessage()],422);}
+ }
  $name=$in['name']??'';$cat=$in['category_path']??'';$desc=$in['short_description']??'';
  if($id<1||!is_string($name)||mb_strlen(trim($name))<2||mb_strlen($name)>500||!is_string($cat)||mb_strlen($cat)>2000||!is_string($desc)||mb_strlen($desc)>10000)json_response(['ok'=>false,'error'=>'invalid_input'],422);
  foreach(['price_rub','old_price_rub','stock_qty'] as $key){$v=$in[$key]??null;if($v===null&&$key!=='price_rub')continue;if(!is_int($v)||$v<0||$v>2147483647)json_response(['ok'=>false,'error'=>'invalid_input'],422);}
@@ -21,7 +27,7 @@ try{
  if(!$old){$pdo->rollBack();json_response(['ok'=>false,'error'=>'not_found'],404);}
  if(!is_string($in['version']??null)||!hash_equals(product_version($old),$in['version'])){$pdo->rollBack();json_response(['ok'=>false,'error'=>'product_changed'],409);}
  $qty=$in['stock_qty']??null;$stock=$qty===null?'unknown':($qty>0?'in_stock':'out_of_stock');
- $s=$pdo->prepare('UPDATE products SET name=?,price_rub=?,price=?,old_price_rub=?,old_price=?,stock_qty=?,stock_status=?,availability=?,category_path=?,short_description=?,is_active=? WHERE id=?');
- $s->execute([trim($name),$in['price_rub'],$in['price_rub'],$in['old_price_rub']??null,$in['old_price_rub']??null,$qty,$stock,$stock,trim($cat),trim($desc),$in['is_active'],$id]);
+ $s=$pdo->prepare('UPDATE products SET name=?,price_rub=?,price=?,old_price_rub=?,old_price=?,stock_qty=?,stock_status=?,availability=?,category_path=?,short_description=?,is_active=?,specs=?,updated_at=NOW() WHERE id=?');
+ $s->execute([trim($name),$in['price_rub'],$in['price_rub'],$in['old_price_rub']??null,$in['old_price_rub']??null,$qty,$stock,$stock,trim($cat),trim($desc),$in['is_active'],$specsJson??$old['specs'],$id]);
  audit($pdo,'product_update','product',(string)$id);$pdo->commit();json_response(['ok'=>true]);
 }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();error_log($e->__toString());json_response(['ok'=>false,'error'=>'server_error'],500);}

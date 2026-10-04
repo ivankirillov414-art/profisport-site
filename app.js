@@ -318,7 +318,7 @@ const navigationCategory={'велосипед':'bicycle','самокат':'scoot
 let megaContext='',megaCloseTimer,megaTrigger=null;
 const MEGA_CATEGORY_ART={
   bicycle:'assets/categories/bicycle-illustration-v1.png?v=2',
-  cycling:'assets/categories/parts-illustration-v1.png?v=2',
+  cycling:'assets/categories/parts-illustration-v1.png?v=3',
   accessories:'assets/categories/accessories-illustration-v1.png?v=2',
   skiing:'assets/categories/skiing-illustration-v2.png?v=2',
   fitness:'assets/categories/fitness-illustration-v1.png?v=2',

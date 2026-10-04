@@ -60,6 +60,7 @@ jobs:
           php tests/order-validation.php
           php tests/import-upload.php
           php tests/catalog-quality.php
+          php tests/product-spec-editor.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
           node --check admin/analyze.js

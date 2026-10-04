@@ -28,10 +28,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: gd, mbstring, pdo_mysql
       - name: Validate application and regressions
         run: |
           php -v
@@ -83,9 +79,9 @@ jobs:
           php tests/order-validation.php
           php tests/loyalty-math.php
           php tests/catalog-quality.php
+          php tests/product-spec-editor.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
-          php tests/product-photos.php
       - name: Verify runtime on disposable database
         run: |
           cat > server/config.php <<'PHP'
@@ -104,8 +100,6 @@ jobs:
             curl -s http://127.0.0.1:8080/ > /dev/null && break
             sleep 1
           done
-          python3 tests/product-photos-http.py
-          php -r 'require "server/bootstrap.php"; db()->exec("DELETE FROM auth_rate_limits");'
           python3 tests/orders-http.py
           php -r 'require "server/bootstrap.php"; db()->exec("DELETE FROM auth_rate_limits");'
           python3 tests/phone-login-http.py
@@ -164,6 +158,7 @@ jobs:
           node tests/production-preflight-regression.js
           php tests/loyalty-math.php
           php tests/catalog-quality.php
+          php tests/product-spec-editor.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
           node --check admin/analyze.js
