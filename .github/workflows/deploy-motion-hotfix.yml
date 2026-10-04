@@ -63,7 +63,9 @@ jobs:
           grep -Fq 'mountain-scene-v11.webp' index.html
           grep -Fq 'heroBikeMotion' psf-final-motion.css
           grep -Fq 'bicycle-illustration-v1.png' index.html
-          grep -Fq 'scooter-illustration-v2.png' index.html
+          grep -Fq 'scooters-illustration-v1.webp' index.html
+          grep -Fq 'rollers-boards-illustration-v1.webp' index.html
+          node tests/catalog-taxonomy-regression.js
           test -s assets/hero/reference-bike-amber-v2.webp
           test -s assets/hero/workshop-background-v6.webp
           test -s assets/hero/mountain-scene-v11.webp
