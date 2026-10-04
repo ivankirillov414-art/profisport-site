@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Личный кабинет — ПрофиСпорт</title>
   <link rel="stylesheet" href="storefront-v2.css?v=34">
-  <link rel="stylesheet" href="profile-dashboard.css?v=8">
+  <link rel="stylesheet" href="profile-dashboard.css?v=9">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
@@ -124,7 +124,7 @@
   </main>
   <footer id="contacts" class="siteFooter storeFooter storeFooterWithBuyers sectionFooter"><div><a class="footerBrand" href="index.html" aria-label="ПрофиСпорт — на главную"><b>Профи<span>Спорт</span></b></a><p><a href="https://yandex.ru/maps/?rtext=~51.788904,55.121480&amp;rtt=auto" target="_blank" rel="noopener noreferrer">Оренбург, проспект Победы, 79</a></p><p><a href="https://2gis.ru/orenburg/directions/points/%7C55.124228%2C51.788261%3B70000001066281430" target="_blank" rel="noopener noreferrer">Оренбург, проспект Победы, 118, строение 2 · ПрофиСпорт</a></p></div><nav class="footerSection" aria-label="Магазин"><a class="footerSectionTitle" href="shop.html"><span class="footerSectionNumber">01</span><strong>Магазин</strong></a><a href="index.html#catalogProducts">Каталог товаров</a><a href="index.html#picker">Подбор велосипеда</a><a href="profile.html">Избранное и заказы</a><a href="index.html?register=qr">Стать клиентом</a></nav><nav class="footerSection" aria-label="Мастерская"><a class="footerSectionTitle" href="workshop.html"><span class="footerSectionNumber">02</span><strong>Мастерская</strong></a><a href="service.html#serviceWorks">Выбрать работы</a><a href="service.html#bikeGuide">Устройство велосипеда</a><a href="service.html">Перейти в сервис</a></nav><nav class="footerSection" aria-label="Покупателям"><a class="footerSectionTitle" href="buyer-info.html"><span class="footerSectionNumber">03</span><strong>Покупателям</strong></a><a href="buyer-info.html#warranty">Гарантия</a><a href="buyer-info.html#payment">Оплата</a><a href="buyer-info.html#delivery">Доставка</a><a href="buyer-info.html#privacy">Персональные данные</a></nav></footer>
   <script src="catalog-loader.js?v=33"></script>
-  <script src="equipment-care.js?v=2"></script>
+  <script src="equipment-care.js?v=3"></script>
   <script>
     let csrf='';const $=s=>document.querySelector(s);const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     async function api(action,opts={}){opts.headers={...(opts.headers||{}),'Content-Type':'application/json'};if(csrf)opts.headers['X-CSRF-Token']=csrf;const r=await fetch('api/customer.php?action='+action,opts);const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);if(j.csrf)csrf=j.csrf;return j}
@@ -362,24 +362,35 @@
       const box=$('#vehiclePassport'),passport=vehicle.passport;if(!passport){box.classList.remove('hidden');box.innerHTML='<div class="vehiclePassportEmpty">Паспорт техники пока недоступен.</div>';return}
       const components=Array.isArray(passport.components)?passport.components:[],hotspots=Array.isArray(passport.hotspots)?passport.hotspots:[];
       const attention=components.filter(c=>['soon','due'].includes(String(c.wear?.state||''))).length;
-      const visual='<div><div class="vehiclePassportDiagram actualEquipment">'+vehicleImageMarkup(vehicle)+'</div><p class="vehicleModelCaption">'+esc(vehicleTypeLabel(vehicle.vehicle_type))+' · '+esc(cleanCatalogLabel(vehicle.title))+'</p><div class="vehiclePassportNodeList">'+hotspots.filter(h=>components.some(c=>c.hotspot_key===h.key)).map((h,i)=>'<button type="button" class="vehiclePassportNode '+passportStateForHotspot(passport,h.key)+'" data-passport-hotspot="'+esc(h.key)+'">'+(i+1)+'. '+esc(h.label)+'</button>').join('')+'</div></div>';
+      const careItems=passport.care?.items||[];
+      const positions=({bicycle:{chain:[33,66],brake_pads:[78,66],tires:[92,51],cassette:[18,69],fork:[72,49],hubs:[42,70]},scooter:{wheels:[78,82],brake:[23,78],fasteners:[57,38]},inline_skates:{wheels:[50,83],bearings:[72,83],brake:[86,72],fasteners:[48,38]},skateboard:{wheels:[25,75],bearings:[75,75],deck:[50,43],trucks:[35,63]},skis:{base:[40,65],wax:[60,65],bindings:[50,43],edges:[75,65],skins:[32,65]},snowboard:{base:[40,65],wax:[60,65],bindings:[50,43],edges:[75,65]}})[vehicle.vehicle_type]||{};
+      const nodes=careItems.map((item,i)=>({item,x:(positions[item.key]||[15+i*14,55])[0],y:(positions[item.key]||[15+i*14,55])[1]}));
+      const visual='<div class="vehiclePassportDiagram passportInteractiveDiagram">'+(vehicle.vehicle_type==='bicycle'?'<img src="assets/hero/reference-bike-amber-v2.webp" width="1536" height="1024" alt="Схема основных узлов велосипеда">':vehicleImageMarkup(vehicle))+nodes.map(({item,x,y},i)=>'<button type="button" class="vehiclePassportHotspot '+esc(item.state||'unknown')+'" style="left:'+x+'%;top:'+y+'%" data-passport-hotspot="'+esc(item.key)+'" aria-label="'+esc(item.label)+' — '+esc(({good:'В порядке',watch:'Требует внимания',soon:'Скоро обслуживание',due:'Нужен сервис',unknown:'Нужна проверка'})[item.state]||'Нужна проверка')+'" aria-haspopup="dialog">'+(i+1)+'</button>').join('')+'</div>';
       box.classList.remove('hidden');
-      box.innerHTML='<div class="vehiclePassportHead"><div><span class="profileSectionKicker">Паспорт техники</span><h4>'+esc(cleanCatalogLabel(vehicle.title))+'</h4>'+(attention?'<p>Требуют внимания: '+attention+' узл.</p>':'')+'</div><button id="closeVehiclePassport" class="secondary" type="button">Свернуть</button></div>'+
-        '<div class="vehiclePassportLayout">'+visual+
-        '<div><div id="vehiclePassportComponentList" class="vehiclePassportComponentList">'+(components.length?components.map(passportComponentCard).join(''):'')+'</div><div class="vehiclePassportFoot"><button type="button" data-service-vehicle="'+Number(vehicle.id)+'">Записать технику в сервис</button></div></div></div>'+equipmentCareMarkup(vehicle);
+      box.innerHTML='<div class="vehiclePassportHead"><div><span class="profileSectionKicker">Паспорт техники</span><h4>'+esc(cleanCatalogLabel(vehicle.title))+'</h4></div><button id="closeVehiclePassport" class="secondary" type="button">Свернуть</button></div>'+visual+'<p class="vehicleModelCaption">Нажмите на точку, чтобы узнать об узле и его обслуживании.</p><div class="vehiclePassportLegend"><span>🟢 В порядке</span><span>🟡 Скоро проверка / обслуживание</span><span>🔴 Нужен сервис</span><span>⚪ Нет данных — нужна проверка</span></div>'+equipmentCareMarkup({...vehicle,passport:{...passport,care:passport.care?{...passport.care,items:[]}:null}})+'<div class="vehiclePassportFoot"><button type="button" data-service-vehicle="'+Number(vehicle.id)+'">Записать технику в сервис</button></div><dialog class="passportNodeDialog" aria-labelledby="passportNodeTitle"><button type="button" class="secondary passportNodeClose">Закрыть</button><h4 id="passportNodeTitle"></h4><div class="passportNodeContent"></div></dialog>';
+      const summary=box.querySelector('.equipmentCare');if(summary){summary.querySelector('h4')?.remove();summary.querySelector('p')?.remove();summary.querySelector('.equipmentCareItems')?.remove();}
       bindEquipmentCare(vehicle,box);
-      $('#closeVehiclePassport').onclick=()=>{box.classList.add('hidden');box.innerHTML=''};
+      $('#closeVehiclePassport').onclick=()=>{box.querySelector('dialog')?.close();box.classList.add('hidden');box.innerHTML=''};
+      const dialog=box.querySelector('.passportNodeDialog');dialog.querySelector('.passportNodeClose').onclick=()=>dialog.close();
       box.querySelectorAll('[data-passport-hotspot]').forEach(button=>button.onclick=()=>{
-        const match=components.find(c=>c.hotspot_key===button.dataset.passportHotspot);if(!match)return;
-        const card=box.querySelector('[data-passport-component="'+match.id+'"]');if(card){box.querySelectorAll('.vehiclePassportComponent').forEach(x=>x.classList.remove('active'));card.classList.add('active');card.scrollIntoView({behavior:'smooth',block:'nearest'})}
+        const item=careItems.find(item=>item.key===button.dataset.passportHotspot);if(!item)return;
+        dialog.querySelector('h4').textContent=item.label;
+        dialog.querySelector('.passportNodeContent').innerHTML=equipmentCareMarkup({...vehicle,passport:{...passport,care:{...passport.care,items:[item]}}});
+        dialog.querySelector('.equipmentUsageForm')?.remove();dialog.querySelector('.equipmentCare h4')?.remove();dialog.querySelector('.equipmentCare > p')?.remove();
+        const componentKeys=({brake_pads:['front_brake','rear_brake'],tires:['front_tire','rear_tire'],cassette:['drivetrain'],hubs:['hubs','cranks','cockpit']})[item.key]||[item.key];
+        const related=components.filter(c=>componentKeys.includes(c.hotspot_key));
+        if(related.length)dialog.querySelector('.passportNodeContent').insertAdjacentHTML('beforeend',related.map(passportComponentCard).join(''));
+        bindEquipmentCare(vehicle,box);bindPassportReplacement();dialog.showModal();
       });
       box.querySelectorAll('[data-service-vehicle]').forEach(button=>button.onclick=()=>openVehicleService(vehicle));
-      box.querySelectorAll('[data-confirm-replacement]').forEach(button=>button.onclick=async()=>{
+      function bindPassportReplacement(){box.querySelectorAll('[data-confirm-replacement]').forEach(button=>button.onclick=async()=>{
         if(!confirm('Подтвердить, что купленная деталь уже установлена? С этого момента ресурс будет считаться заново.'))return;
         button.disabled=true;button.textContent='Сохраняю…';
         try{await api('confirm_component_replacement',{method:'POST',body:JSON.stringify({component_id:Number(button.dataset.confirmReplacement)})});await refresh(false);const updated=vehicleState.find(v=>String(v.id)===String(vehicle.id));if(updated)openVehiclePassport(updated)}
         catch(e){button.disabled=false;button.textContent='Не удалось подтвердить'}
       });
+      }
+      bindPassportReplacement();
       box.scrollIntoView({behavior:'smooth',block:'start'});
     }
     function serviceHistoryMarkup(r){
