@@ -453,7 +453,7 @@ if(typeof window!=='undefined'&&typeof document!=='undefined'){
 const MIGRATION_TICK_CHECK_MS=5*60*1000;
 async function triggerScheduledHostingMigration(){
   if(typeof window==='undefined'||location.protocol==='file:')return;
-  const key='profisport_migration_tick_last_check_options_v1';
+  const key='profisport_migration_tick_last_check_options_v2';
   let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
   if(Date.now()-last<MIGRATION_TICK_CHECK_MS)return;
   try{localStorage.setItem(key,String(Date.now()))}catch{}
@@ -463,6 +463,8 @@ async function triggerScheduledHostingMigration(){
         method:'POST',credentials:'same-origin',cache:'no-store'
       });
       const repair=response?.source_options;
+      if(repair)document.documentElement.dataset.sourceOptionsState=JSON.stringify(repair);
+      if(repair?.state==='running'){await new Promise(resolve=>setTimeout(resolve,1000));continue;}
       if(repair?.state==='done'){
         catalogPromise=undefined;initialCatalogPromise=undefined;
         window.dispatchEvent(new CustomEvent('profisport-catalog-refreshed',{detail:repair}));

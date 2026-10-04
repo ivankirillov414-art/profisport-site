@@ -27,12 +27,16 @@ try {
         foreach($columns as $column)if(!isset($present[$column]))throw new RuntimeException('schema_not_ready');
     }
     $active=(int)$pdo->query('SELECT COUNT(*) FROM products WHERE is_active=1')->fetchColumn();
+    $repairQuery=$pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key='catalog_source_options_v1'");$repairQuery->execute();
+    $repair=json_decode((string)($repairQuery->fetchColumn()?:''),true);
+    $repairHealth=[];foreach(['state','offset','total','source_products','created','restored','skipped'] as $key)if(isset($repair[$key]))$repairHealth[$key]=$repair[$key];
     http_response_code(200);
     echo json_encode([
         'ok'=>true,
         'database'=>true,
         'schema'=>true,
         'catalog_active'=>$active,
+        'source_options'=>$repairHealth,
         'service'=>'profisport-store',
         'time'=>gmdate('c'),
     ],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
