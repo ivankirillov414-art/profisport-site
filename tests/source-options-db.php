@@ -15,6 +15,7 @@ try{
     }
     fclose($f);file_put_contents($cf,"ski;Hunting skis;\n");clearstatcache();$snapshot=single_csv_snapshot($pf,$cf);$save->execute([$snapshot]);
     $result=catalog_repair_source_options($pdo);
+    if((int)$pdo->query("SELECT IS_FREE_LOCK('profisport_1c_import')")->fetchColumn()!==1)throw new RuntimeException('repair must release the shared import lock between batches');
     if($result['state']!=='pending'||$result['created']!==100)throw new RuntimeException('first batch must be bounded');
     do{$result=catalog_repair_source_options($pdo);}while($result['state']==='pending');
     if($result['state']!=='done'||$result['created']!==210)throw new RuntimeException('all options must recover');
