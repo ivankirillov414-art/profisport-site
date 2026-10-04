@@ -130,7 +130,7 @@ function departmentFor(name,path){
   // a sport are routed before broad generic categories such as pumps or bags.
   if(['bicycle','balance_bike'].includes(type))return match('bicycle','name',type);
   if(type==='scooter')return match('scooter','name',type);
-  if(type==='helmet')return match(/сноуборд/.test(p)?'snowboard':/лыж/.test(p+' '+n)?'skiing':'accessories','name',type);
+  if(type==='helmet')return match(/самокат/.test(n)?'scooter':/сноуборд/.test(p)?'snowboard':/лыж/.test(p+' '+n)?'skiing':'accessories','name',type);
   if(type==='snowboard')return match('snowboard','name',type);
   if(type==='skates')return match('skates','name',type);
   if(type==='rollers')return match('rollers','name',type);

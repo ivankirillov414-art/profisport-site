@@ -60,6 +60,7 @@ equal(catalogSectionFor('rollers'),'rollers','Roller skates have their own combi
 equal(catalogSectionFor('boards'),'rollers','Skateboards stay with roller skates');
 equal(catalogMatchesDepartment({department:'rollers'},'scooter'),false,'Scooter category excludes rollers');
 equal(catalogMatchesDepartment({department:'scooter'},'rollers'),false,'Skating category excludes scooters and scooter parts');
+equal(departmentFor('Шлем для самоката',['Аксессуары','Шлемы']).key,'scooter','Explicit scooter protection stays with scooter equipment');
 equal(departmentFor('Подшипники ABEC',['Ролики и самокаты','Самокаты','Запчасти']).key,'scooter','Explicit scooter branch wins over a mixed roller parent');
 const cases=[
   ['Адаптер диск. торм. BENGAL ADU3',['Адаптеры'],'cycling','cycling'],
