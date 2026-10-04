@@ -1,5 +1,26 @@
 /* Decorative subsection artwork, scoped by section; product photos remain independent. */
 const SUBCATEGORY_ART={
+  "scooter": {
+    "взрослые самокаты -10": "assets/categories/subsections/scooter-adult-v1.webp",
+    "городские самокаты": "assets/categories/subsections/scooter-city-v1.webp",
+    "детские самокаты": "assets/categories/subsections/scooter-kids-v1.webp",
+    "запчасти для самокатов": "assets/categories/subsections/scooter-parts-v1.webp",
+    "на скутеры и электросамокаты": "assets/categories/subsections/scooter-electric-parts-v1.webp",
+    "самокаты": "assets/categories/subsections/scooter-general-v1.webp",
+    "трюковые самокаты": "assets/categories/subsections/scooter-stunt-v1.webp",
+    "электросамокаты": "assets/categories/subsections/scooter-electric-v1.webp",
+    "электроскутеры": "assets/categories/subsections/scooter-moped-v1.webp"
+},
+  "rollers": {
+    "запчасти для роликов": "assets/categories/subsections/rollers-parts-v1.webp",
+    "запчасти для скейтбордов": "assets/categories/subsections/rollers-board-parts-v1.webp",
+    "защита для роликов": "assets/categories/subsections/rollers-protection-v1.webp",
+    "роликовые коньки": "assets/categories/subsections/rollers-skates-v1.webp",
+    "скейтборды и доски": "assets/categories/subsections/rollers-boards-v1.webp",
+    "скейтборды и мини-круизеры": "assets/categories/subsections/rollers-cruisers-v1.webp",
+    "сумки для коньков и роликов": "assets/categories/subsections/rollers-bag-v1.webp",
+    "сумки и чехлы для роликов": "assets/categories/subsections/rollers-cases-v1.webp"
+},
   "bicycle": {
     "детские": "assets/categories/subsections/bicycle-01-v1.webp",
     "горные 27,5\"": "assets/categories/subsections/bicycle-02-v1.webp",

@@ -13,6 +13,8 @@ on:
       - 'app.js'
       - 'winter-category-art.js'
       - 'subcategory-art.js'
+      - 'assets/categories/subsections/scooter-*.webp'
+      - 'assets/categories/subsections/rollers-*.webp'
       - 'profile.html'
       - 'checkout.html'
       - 'service.html'
@@ -91,6 +93,7 @@ jobs:
           cp assets/hero/*-v11.webp assets/hero/*-v12.webp hotfix-upload/assets/hero/
           cp -r assets/categories/winter hotfix-upload/assets/categories/
           cp assets/categories/subsections/ebike-kit-v1.webp assets/categories/subsections/sports-accessories-v1.webp assets/categories/subsections/snow-scooter-v1.webp hotfix-upload/assets/categories/subsections/
+          cp assets/categories/subsections/scooter-*.webp assets/categories/subsections/rollers-*.webp hotfix-upload/assets/categories/subsections/
           cp assets/categories/scooters-illustration-v1.webp assets/categories/rollers-boards-illustration-v1.webp assets/categories/parts-illustration-v2.png hotfix-upload/assets/categories/
           cp assets/categories/bicycle-illustration-v1.png hotfix-upload/assets/categories/
           cp assets/categories/parts-illustration-v1.png hotfix-upload/assets/categories/
