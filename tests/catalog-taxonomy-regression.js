@@ -62,6 +62,8 @@ equal(catalogMatchesDepartment({department:'rollers'},'scooter'),false,'Scooter 
 equal(catalogMatchesDepartment({department:'scooter'},'rollers'),false,'Skating category excludes scooters and scooter parts');
 equal(departmentFor('Шлем для самоката',['Аксессуары','Шлемы']).key,'scooter','Explicit scooter protection stays with scooter equipment');
 equal(departmentFor('Подшипники ABEC',['Ролики и самокаты','Самокаты','Запчасти']).key,'scooter','Explicit scooter branch wins over a mixed roller parent');
+equal(departmentFor('Комплект колес',['Ролики и самокаты','Запчасти для роликов']).key,'rollers','Roller parts follow their leaf branch under mixed parent');
+equal(departmentFor('Подвеска',['Самокаты','Запчасти для скейтбордов']).key,'boards','Skateboard parts follow their leaf branch under scooter parent');
 const cases=[
   ['Адаптер диск. торм. BENGAL ADU3',['Адаптеры'],'cycling','cycling'],
   ['Каретка Shimano',['Каретки'],'cycling','cycling'],

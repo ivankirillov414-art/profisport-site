@@ -153,6 +153,12 @@ function departmentFor(name,path){
   if(/бокс|единобор|карат[еэ]|дзюдо|самбо|борцов/.test(p)||/боксерск|для бокса|кикбокс|единобор|карат[еэ]|дзюдо|самбо|борцов/.test(n))return match('combat');
   if(/сноуборд/.test(p))return match('snowboard');
   if(/лыж|лыжероллер/.test(p)||/(?:^| )лыжн|для (?:беговых |горных )?лыж/.test(n))return match('skiing');
+  // Follow the deepest unambiguous branch, not a shared "Ролики и самокаты" parent.
+  for(const label of parts.map(textNorm).reverse()){
+    const rideKeys=[/самокат|электроскутер/.test(label)?'scooter':'',/ролик/.test(label)?'rollers':'',/скейт|лонгборд/.test(label)?'boards':''].filter(Boolean);
+    if(rideKeys.length===1)return match(rideKeys[0]);
+  }
+  if([/самокат|электроскутер/.test(p),/ролик/.test(p),/скейт|лонгборд/.test(p)].filter(Boolean).length>1)return match('accessories');
   if(/самокат|электроскутер/.test(p))return match('scooter');
   if(/ролик/.test(p))return match('rollers');
   if(/коньк/.test(p)&&!/клюшк|шайб/.test(p+' '+n))return match('skates');
