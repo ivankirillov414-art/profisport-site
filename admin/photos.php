@@ -8,7 +8,7 @@
 <main>
 <section class="card">
 <h1>Фото из 1С</h1>
-<p>Найдите товар и добавьте фотографию вручную, замените основную или удалите ненужные снимки. Изменения фотографий сохраняются при следующих обновлениях каталога.</p>
+<p>Найдите товар и добавьте фотографию вручную, замените основную или удалите ненужные снимки. Загруженные вручную фото закрепляются за товаром и сохраняются при обновлениях каталога, даже если в 1С нет фотографии. Если товар закончится или временно исчезнет из выгрузки, при возвращении его фото восстановится автоматически.</p>
 <form id="photoSearch" role="search"><label for="photoQuery">Поиск товара</label><div class="search"><input id="photoQuery" type="search" maxlength="160" placeholder="Название, модель, артикул, код 1С или ID" autocomplete="off"><button type="submit">Найти</button></div></form>
 <div class="filters"><label><input id="photoMissing" type="checkbox"> Только без фото</label><label><input id="photoArchived" type="checkbox"> Включая скрытые товары</label><button id="photoRefresh" class="secondary" type="button">Обновить список</button></div>
 <div id="photoStatus" role="status" aria-live="polite">Загружаю каталог…</div>

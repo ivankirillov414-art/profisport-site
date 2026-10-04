@@ -36,6 +36,9 @@ def multipart(revision,picture,primary='1'):
     return b''.join(parts),'multipart/form-data; boundary='+boundary
 
 batch=ROOT/'import'/'manual'/prefix
+# Completed snapshots archive unrelated fixtures too; restore their visibility afterward.
+visibility=json.loads(php('require "server/bootstrap.php"; echo json_encode(db()->query("SELECT id,is_active,stock_status,availability FROM products")->fetchAll());'))
+settings=json.loads(php('require "server/bootstrap.php"; echo json_encode(db()->query("SELECT setting_key,setting_value FROM site_settings WHERE setting_key IN (\'current_1c_snapshot\',\'last_1c_import\')")->fetchAll());'))
 try:
     # Exercise upgrading the photo override table installed by the earlier editor.
     php('require "server/bootstrap.php"; db()->exec("CREATE TABLE IF NOT EXISTS product_photo_overrides (product_id BIGINT UNSIGNED PRIMARY KEY,manual_urls LONGTEXT NOT NULL,primary_url TEXT NULL,updated_by INT UNSIGNED NULL,updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");')
@@ -101,7 +104,36 @@ try:
     assert (ROOT/first.lstrip('/')).is_file()
     s,j,_=call('api/product-photos.php?action=upload',cookie=cookie,csrf=csrf,multipart=multipart(detail()['revision'],image))
     assert s==200 and len(j['product']['photos'])==1 and j['product']['photos'][0]['url']==first,(s,j)
-    print('PASS product photos: upload, deletion of manual/source/main/last photo, CSRF and authentication, stale conflicts, import persistence and explicit re-upload')
+    # Full real snapshots: no source photo, sold out, missing, then returned/renamed.
+    sequence=0
+    def complete_snapshot(include_product=True, stock=6, name='Photo test product'):
+        global sequence
+        sequence+=1
+        with (batch/'Tovary.csv').open('w',newline='') as f:
+            w=csv.writer(f,delimiter=';');w.writerow(['id','name','price','stock','category','image'])
+            if include_product:w.writerow([source_id,name,888,stock,'Test / Updated Photos',''])
+            w.writerow([prefix+'-sentinel','Sentinel '+prefix+' '+str(sequence),1,1,'Test / Photos',''])
+        (batch/'.upload.json').write_text(json.dumps({'completed_at':time.time()+20+sequence}))
+        s,j,_=call('api/import-apply.php?offset=0&limit=100',{},cookie,csrf)
+        assert s==200 and j['done'] is True and not j.get('unchanged'),(s,j)
+    complete_snapshot()
+    p=detail();assert p['id']==PID and p['active'] and len(p['photos'])==1 and p['photos'][0]['url']==first and p['photos'][0]['primary'],p
+    complete_snapshot(stock=0)
+    p=detail();assert not p['active'] and p['stock_qty']==0 and p['photos'][0]['url']==first,p
+    assert not call('api/catalog.php?id='+str(PID))[1]['items']
+    complete_snapshot(include_product=False)
+    p=detail();assert not p['active'] and p['photos'][0]['url']==first,p
+    # Clear the denormalized display fields to prove the saved override restores them.
+    php('require "server/bootstrap.php"; db()->exec("UPDATE products SET main_image=NULL,images=\'[]\' WHERE id='+str(PID)+'");')
+    complete_snapshot(stock=9,name='Photo test product renamed')
+    p=detail();assert p['id']==PID and p['active'] and p['stock_qty']==9 and p['name']=='Photo test product renamed',p
+    assert len(p['photos'])==1 and p['photos'][0]['url']==first and p['photos'][0]['primary'],p
+    public=call('api/catalog.php?id='+str(PID))[1]['items'][0]
+    assert public['image']==first and public['images']==[first],public
+    count=php('require "server/bootstrap.php"; echo db()->query("SELECT COUNT(*) FROM products WHERE source_id=\''+source_id+'\'")->fetchColumn();')
+    assert count==b'1', 'Returning product was duplicated'
+    print('PASS product photos: upload, deletion of manual/source/main/last photo, CSRF and authentication, stale conflicts, import persistence, explicit re-upload, sold-out/missing/renamed return without source photos')
 finally:
+    php('require "server/bootstrap.php"; $s=db()->prepare("UPDATE products SET is_active=?,stock_status=?,availability=? WHERE id=?"); foreach(json_decode('+json.dumps(json.dumps(visibility))+',true) as $r)$s->execute([$r["is_active"],$r["stock_status"],$r["availability"],$r["id"]]); db()->exec("DELETE FROM site_settings WHERE setting_key IN (\'current_1c_snapshot\',\'last_1c_import\')"); $s=db()->prepare("INSERT INTO site_settings(setting_key,setting_value) VALUES(?,?)");foreach(json_decode('+json.dumps(json.dumps(settings))+',true) as $r)$s->execute([$r["setting_key"],$r["setting_value"]]);')
     php('require "server/bootstrap.php";require "server/product-photo-editor.php";ppe_schema(db());db()->exec("DELETE FROM product_photo_overrides WHERE product_id='+str(PID)+'");db()->exec("DELETE FROM products WHERE source_id LIKE \''+prefix+'%\'");')
     shutil.rmtree(batch,ignore_errors=True);shutil.rmtree(ROOT/'import'/'curated-photos'/str(PID),ignore_errors=True)
