@@ -386,7 +386,7 @@ async function loadInitialCatalog(){
   if(initialCatalogPromise)return initialCatalogPromise;
   initialCatalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth7-options',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?limit=24&v=imgtruth8-options',{cache:'no-store'},parseCatalogResponse);
       return j.items.filter(isPurchasableCatalogRow).map(normalizeProduct);
     }catch(e){return[]}
   })();
@@ -396,7 +396,7 @@ async function loadRealCatalog(){
   if(catalogPromise)return catalogPromise;
   catalogPromise=(async()=>{
     try{
-      const j=await catalogRequest('api/catalog.php?v=imgtruth7-options',{},parseCatalogResponse);
+      const j=await catalogRequest('api/catalog.php?v=imgtruth8-options',{cache:'no-store'},parseCatalogResponse);
       const liveItems=j.items.filter(isPurchasableCatalogRow);
       if(liveItems.length){
         const items=liveItems.map(normalizeProduct);

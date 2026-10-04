@@ -12,7 +12,7 @@
     for(let attempt=1;attempt<=LIVE_RETRIES;attempt++){
       try{
         const suffix=includeCount?'&count=1':'';
-        return await catalogRequest(`api/catalog.php?limit=${limit}&offset=${offset}${suffix}&v=imgtruth7-options`,{},parseCatalogResponse);
+        return await catalogRequest(`api/catalog.php?limit=${limit}&offset=${offset}${suffix}&v=imgtruth8-options`,{cache:'no-store'},parseCatalogResponse);
       }catch(error){
         lastError=error;
         if(attempt<LIVE_RETRIES)await wait(250*attempt);
@@ -62,7 +62,7 @@
     return live;
   }
 
-  const CACHE_KEY='live-catalog-imgtruth7-options-taxonomy11',CACHE_MAX_AGE=120000;
+  const CACHE_KEY='live-catalog-imgtruth8-options-taxonomy11',CACHE_MAX_AGE=120000;
   function catalogCache(mode,items,maxAge=CACHE_MAX_AGE){
     return new Promise(resolve=>{
       let database,settled=false;
