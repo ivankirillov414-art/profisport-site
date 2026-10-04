@@ -50,3 +50,5 @@ for r in rows:
     if re.search('лыж',name,re.I) and re.search('турист|та[её]ж|охот|армей',name,re.I):
         matches.append({'name':name,'source_id':field(r,'id'),'stock':field(r,'stock'),'price':field(r,'price'),'category':field(r,'category'),'duplicate_id_count':counts[field(r,'id')]})
 print(json.dumps({'source':f,'rows':len(rows),'mapping':mapping,'matched':len(matches),'products':matches},ensure_ascii=False))
+
+print(json.dumps({'compound_price_rows':sum('&' in field(r,'price') for r in rows),'duplicate_product_ids':sum(v>1 for k,v in counts.items() if k),'examples':[{'columns':r} for r in rows if field(r,'id') in ('49810','18978','27841')]},ensure_ascii=False))
