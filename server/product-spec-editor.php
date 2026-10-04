@@ -18,3 +18,17 @@ function product_specs_json(mixed $input): string {
     }
     return json_encode($out,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
 }
+
+/** Decode legacy object maps and current row lists for the editor's JSON contract. */
+function product_specs_rows(mixed $stored): array {
+    $specs=is_string($stored)?json_decode($stored,true):$stored;
+    if(!is_array($specs))return [];
+    $rows=[];
+    foreach($specs as $key=>$value){
+        if(is_array($value)){$name=$value['name']??$value['key']??$value['title']??'';$value=$value['value']??'';}
+        else{$name=(string)$key;}
+        if(!is_string($name)||$name===''||!is_scalar($value))continue;
+        $rows[]=['name'=>$name,'value'=>(string)$value];
+    }
+    return $rows;
+}
