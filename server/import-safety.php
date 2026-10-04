@@ -68,6 +68,18 @@ function import_normalize_rows(array $rows,array $map,int $stockIndex): array {
             $rows[$i][$map['name']]=mb_substr(trim((string)$rows[$i][$map['name']]),0,400).' — '.mb_substr($label,0,90);
         }
     }
+    $sizeLabels=[];$ambiguous=[];
+    foreach($rows as $r){
+        $opts=import_price_options((string)($r[$map['price']]??''));if(!$opts)continue;
+        $labels=array_map('trim',explode('|',(string)($r[29]??'')));
+        if(count($labels)!==count($opts))continue;
+        foreach($opts as $j=>$o){
+            if(count($o['params'])!==1||!isset($o['params'][89])||$labels[$j]==='')continue;
+            $id=(string)$o['params'][89];
+            if(isset($sizeLabels[$id])&&$sizeLabels[$id]!==$labels[$j])$ambiguous[$id]=true;else $sizeLabels[$id]=$labels[$j];
+        }
+    }
+    foreach($ambiguous as $id=>$unused)unset($sizeLabels[$id]);
     $out=[];
     foreach($rows as $i=>$row){
         if(isset($discard[$i]))continue;
@@ -75,7 +87,7 @@ function import_normalize_rows(array $rows,array $map,int $stockIndex): array {
         if(!$options){$out[]=$row;continue;}
         $total=trim((string)($row[$stockIndex]??''));
         if(!preg_match('/^\d+(?:[.,]0+)?$/D',$total)||array_sum(array_column($options,'quantity'))!==(int)$total){$out[]=$row;continue;}
-        $labels=[];
+        $labels=$sizeLabels;
         $attributeKeys=array_keys($options[0]['params']);
         if(count($attributeKeys)===1){
             $key=$attributeKeys[0];$values=array_column(array_column($options,'params'),$key);

@@ -69,3 +69,21 @@ for r in compound:
     except (ValueError,IndexError):bad_quantity.append(field(r,'id'))
     if len(r)<=29 or len(r[29].split('|'))!=len(options):bad_labels.append(field(r,'id'))
 print(json.dumps({'option_stock_mismatches':bad_quantity,'option_label_mismatches':bad_labels},ensure_ascii=False))
+
+label_map={};ambiguous=set()
+for r in compound:
+    options=[t.split('&') for t in field(r,'price').split('|')]
+    labels=r[29].split('|') if len(r)>29 else []
+    if len(options)!=len(labels):continue
+    for o,label in zip(options,labels):
+        k=o[2].split('=')[1]
+        if k in label_map and label_map[k]!=label:ambiguous.add(k)
+        else:label_map[k]=label
+for k in ambiguous:label_map.pop(k,None)
+unresolved=[]
+for r in compound:
+    if field(r,'id') not in bad_labels:continue
+    for o in field(r,'price').split('|'):
+        k=o.split('&')[2].split('=')[1]
+        if k not in label_map:unresolved.append({'id':field(r,'id'),'name':field(r,'name'),'option':k,'tail':r[29:]})
+print(json.dumps({'ambiguous_size_ids':list(ambiguous),'unresolved_sizes':unresolved},ensure_ascii=False))
