@@ -27,9 +27,12 @@ encoding='utf-16' if raw[:2] in (b'\xff\xfe',b'\xfe\xff') else 'utf-8-sig'
 try:text=raw.decode(encoding)
 except UnicodeDecodeError:text=raw.decode('cp1251')
 delimiter=max([';',',','\t'],key=lambda d:len(next(csv.reader([text.splitlines()[0]],delimiter=d))))
-rows=list(csv.reader(io.StringIO(text),delimiter=delimiter))
+rows=list(csv.reader(io.StringIO(text,newline=''),delimiter=delimiter))
 def score(rs):return sum(len(r)==41 and len(r)>4 and r[2].strip()=='Kod_'+r[4].strip() for r in rs)
-physical=list(csv.reader(text.splitlines(),delimiter=delimiter))
+physical=[]
+for line in text.splitlines():
+    try:physical.append(next(csv.reader([line],delimiter=delimiter)))
+    except csv.Error:continue
 if delimiter==';' and score(physical)>score(rows):rows=physical
 norm=lambda s:re.sub('[^a-zа-я0-9]','',s.lower())
 aliases={'name':['name','title','наименование','название','товар'],'id':['id','guid','uuid','код','кодтовара','ид','идентификатор'],'stock':['stock','stockqty','qty','quantity','остаток','остатки','количество','остатокнаскладе','количествонаскладе'],'price':['price','цена','розничнаяцена','ценарозница'],'category':['category','категория','группа']}
