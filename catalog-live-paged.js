@@ -90,7 +90,7 @@
   }
   const readCatalogCache=(maxAge=CACHE_MAX_AGE)=>catalogCache('readonly',undefined,maxAge);
   const writeCatalogCache=items=>catalogCache('readwrite',items);
-  window.addEventListener('profisport-catalog-refreshed',()=>{pagedCatalogPromise=null;void writeCatalogCache([])});
+  window.addEventListener?.('profisport-catalog-refreshed',()=>{pagedCatalogPromise=null;void writeCatalogCache([])});
 
   window.loadRealCatalog=function loadRealCatalogPaged(onInitial){
     if(pagedCatalogPromise)return pagedCatalogPromise;
