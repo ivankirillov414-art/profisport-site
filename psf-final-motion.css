@@ -187,3 +187,6 @@
   .motion-page #heroSlider .heroAdvance{inset:0 0 auto!important;width:100%!important;height:305px!important}
   .motion-page .energyProof{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* Eight independent catalog sections share equal tile widths. */
+.motion-page #categoryTiles .categoryTile:first-child{grid-column:auto!important}

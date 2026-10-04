@@ -1,15 +1,5 @@
 (function(){
   'use strict';
-  const rideTile={key:'scooter',label:'Ролики и скейты',note:'Катание, трюки и комплектующие',img:'assets/categories/scooter-illustration-v2.png'};
-  const categoryTiles=[
-    {key:'bicycle',label:'Велосипеды',note:'Город, прогулки и бездорожье',img:'assets/categories/bicycle-illustration-v1.png'},
-    rideTile,
-    {key:'cycling',label:'Запчасти',note:'Точный подбор и совместимость',img:'assets/categories/parts-illustration-v1.png?v=4'},
-    {key:'accessories',label:'Аксессуары',note:'Защита, свет и оснащение',img:'assets/categories/accessories-illustration-v1.png'},
-    {key:'skiing',label:'Зимний спорт',note:'Лыжи, коньки и экипировка',img:'assets/categories/skiing-illustration-v2.png'},
-    {key:'fitness',label:'Фитнес',note:'Тренировки и восстановление',img:'assets/categories/fitness-illustration-v1.png'},
-    {key:'tourism',label:'Туризм и водный спорт',note:'Снаряжение для новых маршрутов',img:'assets/categories/tourism-illustration-v2.png'}
-  ];
   const esc=value=>String(value??'').replace(/[&<>']/g,match=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;'}[match]));
   const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
 
@@ -34,31 +24,6 @@
       [...button.childNodes].forEach(child=>{
         if(child.nodeType===Node.TEXT_NODE&&child.textContent.includes('Предыдрщая'))child.textContent=child.textContent.replaceAll('Предыдрщая','Предыдущая');
       });
-    });
-    document.querySelectorAll('#category option').forEach(option=>{
-      if(option.value==='scooter')option.textContent='Ролики и скейты';
-    });
-  }
-
-  function restoreRideCategory(){
-    const wrap=document.getElementById('categoryTiles');
-    if(!wrap)return;
-    const current=[...wrap.querySelectorAll('h3')].map(node=>node.textContent.trim()).join('|');
-    if(current.includes('Ролики и скейты')&&!current.includes('Сервис')&&!wrap.querySelector('.tileArrow'))return;
-    wrap.dataset.psfLocked='1';
-    wrap.innerHTML=categoryTiles.map(tile=>`<a href='?cat=${encodeURIComponent(tile.key)}#catalogProducts' class='categoryTile' data-department='${esc(tile.key)}'><div><h3>${esc(tile.label)}</h3><span>${esc(tile.note)}</span></div><img class='categoryArtwork' src='${esc(tile.img)}' width='480' height='320' alt='' loading='lazy' decoding='async'></a>`).join('');
-    wrap.querySelectorAll('[data-department]').forEach(link=>{
-      link.addEventListener('click',event=>{
-        if(typeof window.selectDepartment!=='function')return;
-        event.preventDefault();
-        window.selectDepartment(link.dataset.department);
-      });
-    });
-  }
-
-  function patchMenuCopy(){
-    document.querySelectorAll("a[data-category='самокат'],a[data-department='scooter']").forEach(link=>{
-      if(link.textContent.includes('Самокаты'))link.textContent='Ролики и скейты';
     });
   }
 
@@ -197,8 +162,6 @@
     upgradeHeroScene();
     setupSceneMotion();
     setupSceneParallax();
-    restoreRideCategory();
-    patchMenuCopy();
     patchCopyGlitches();
     removeButtonArrows();
     const categoryWrap=document.getElementById('categoryTiles');
@@ -207,7 +170,7 @@
       new MutationObserver(()=>{
         if(scheduled)return;
         scheduled=true;
-        setTimeout(()=>{scheduled=false;restoreRideCategory();removeButtonArrows(categoryWrap);patchCopyGlitches();},0);
+        setTimeout(()=>{scheduled=false;removeButtonArrows(categoryWrap);patchCopyGlitches();},0);
       }).observe(categoryWrap,{childList:true,subtree:false});
     }
   });

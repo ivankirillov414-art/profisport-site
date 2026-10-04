@@ -11,7 +11,7 @@ if(cut<0)throw new Error('catalog-loader taxonomy section not found');
 const context={};
 vm.createContext(context);
 vm.runInContext(
-  source.slice(0,cut)+'\nthis.__taxonomy={primaryProductType,departmentFor,resolveCatalogBrand,sanitizeCatalogSpecs,isPurchasableCatalogRow,catalogMatchesDepartment,catalogSectionFor,catalogSubcategory,CATALOG_DEPARTMENTS,CATALOG_SECTIONS};',
+  source.slice(0,cut)+'\nthis.__taxonomy={primaryProductType,departmentFor,resolveCatalogBrand,sanitizeCatalogSpecs,isPurchasableCatalogRow,catalogMatchesDepartment,catalogSectionFor,catalogSubcategory,CATALOG_DEPARTMENTS,CATALOG_SECTIONS,CATALOG_CATEGORY_ART};',
   context
 );
 const {primaryProductType,departmentFor,resolveCatalogBrand,sanitizeCatalogSpecs,isPurchasableCatalogRow}=context.__taxonomy;
@@ -55,6 +55,12 @@ const {catalogMatchesDepartment,catalogSectionFor,catalogSubcategory,CATALOG_DEP
 for(const key of Object.keys(CATALOG_DEPARTMENTS)){
   equal(Object.values(CATALOG_SECTIONS).filter(s=>s.departments.includes(key)).length,key==='other'?0:1,`one home section for ${key}`);
 }
+equal(catalogSectionFor('scooter'),'scooter','Scooters have a dedicated home section');
+equal(catalogSectionFor('rollers'),'rollers','Roller skates have their own combined skating section');
+equal(catalogSectionFor('boards'),'rollers','Skateboards stay with roller skates');
+equal(catalogMatchesDepartment({department:'rollers'},'scooter'),false,'Scooter category excludes rollers');
+equal(catalogMatchesDepartment({department:'scooter'},'rollers'),false,'Skating category excludes scooters and scooter parts');
+equal(departmentFor('Подшипники ABEC',['Ролики и самокаты','Самокаты','Запчасти']).key,'scooter','Explicit scooter branch wins over a mixed roller parent');
 const cases=[
   ['Адаптер диск. торм. BENGAL ADU3',['Адаптеры'],'cycling','cycling'],
   ['Каретка Shimano',['Каретки'],'cycling','cycling'],
@@ -117,8 +123,22 @@ equal(filtered("minPrice.value='';sort.value='popular';q.value='сапборды
 equal(filtered("q.value='';mobileQ.value='';category.value='cycling'"),'5','bike parts exclude SUP equipment');
 vm.runInContext("products.push({id:6,name:'Велосипед FORMAT 1412',department:'bicycle',productType:'bicycle',price:42000,specs:{}})",context);
 equal(filtered("category.value='bicycle'"),'6','Bicycle entry excludes hubs and other cycling parts');
+vm.runInContext("products.push({id:7,name:'Самокат трюковой',department:'scooter',productType:'scooter',price:5000,specs:{}},{id:8,name:'Колеса для самокатов',department:'scooter',price:500,specs:{}},{id:9,name:'Ролики детские',department:'rollers',price:3000,specs:{}},{id:10,name:'Скейтборд',department:'boards',price:4000,specs:{}})",context);
+equal(filtered("category.value='scooter'"),'7,8','Scooter tile includes scooters and their parts only');
+equal(filtered("category.value='rollers'"),'9,10','Skating tile includes roller skates and skateboards only');
 vm.runInContext("const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});"+app.slice(app.indexOf('function compareProductCards('),app.indexOf('function render(list=')),context);
 vm.runInContext("this.ranked=[{id:1,name:'Беговел A',department:'bicycle',image:'photo'},{id:2,name:'Велосипед 16 Детский',department:'bicycle',image:'photo'},{id:3,name:'Велосипед 29 Горный',department:'bicycle',image:'photo'},{id:4,name:'Велосипед 26 Без фото',department:'bicycle'}].sort(compareProductCards).map(p=>p.id).join(',')",context);
 equal(context.ranked,'3,2,4,1','Recommended bicycle entry leads with full bicycles and verified photos, before balance bikes');
 
+// Animated startup must not replace the catalog-owned artwork or section labels.
+const motion=fs.readFileSync(path.join(root,'psf-final-motion.js'),'utf8');
+equal(/restoreRideCategory|patchMenuCopy|option.value==='scooter'/.test(motion),false,'Motion script does not rewrite category tiles or scooter menu');
+const home=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const tileHtml=home.slice(home.indexOf('<div id="categoryTiles"'),home.indexOf('<section id="catalogProducts"'));
+for(const [key,url] of Object.entries(context.__taxonomy.CATALOG_CATEGORY_ART)){
+  equal(tileHtml.includes(`data-department="${key}"`),true,`Static home includes ${key}`);
+  const tile=tileHtml.match(new RegExp(`data-department="${key}"[\\s\\S]*?</a>`))?.[0]||'';
+  equal(tile.includes(`src="${url}"`),true,`Static and loaded ${key} tiles share the same image`);
+  equal(fs.existsSync(path.join(root,url.split('?')[0])),true,`Category artwork exists for ${key}`);
+}
 if(!process.exitCode)console.log('Catalog taxonomy and normalization regression checks passed.');

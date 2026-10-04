@@ -42,12 +42,24 @@ const CATALOG_DEPARTMENTS={
 // Home sections collect every department; detail departments remain available in filters.
 const CATALOG_SECTIONS={
   bicycle:{label:'Велосипеды',note:'Город, прогулки и бездорожье',icon:'bicycle',departments:['bicycle']},
-  scooter:{label:'Ролики и скейты',note:'Катание, трюки и комплектующие',icon:'scooter',departments:['scooter','rollers','boards']},
+  scooter:{label:'Самокаты',note:'Городские, детские, трюковые и запчасти',icon:'scooter',departments:['scooter']},
+  rollers:{label:'Ролики и скейты',note:'Ролики, скейтборды и комплектующие',icon:'rollers',departments:['rollers','boards']},
   skiing:{label:'Зимний спорт',note:'Лыжи, сноуборды, коньки и хоккей',icon:'skiing',departments:['skiing','snowboard','skates','winter','hockey']},
   cycling:{label:'Запчасти',note:'Детали для ремонта и обслуживания',icon:'cycling',departments:['cycling']},
   accessories:{label:'Аксессуары',note:'Оснащение, защита и экипировка',icon:'tourism',departments:['accessories','clothing']},
   fitness:{label:'Фитнес и спорт',note:'Тренировки, игры и единоборства',icon:'fitness',departments:['fitness','team','combat']},
   tourism:{label:'Туризм и водный спорт',note:'SUP-борды, плавание и походы',icon:'tourism',departments:['tourism','water','walking']},
+};
+// Shared by static category tiles, catalog rendering and navigation artwork.
+const CATALOG_CATEGORY_ART={
+  bicycle:'assets/categories/bicycle-illustration-v1.png?v=2',
+  scooter:'assets/categories/scooters-illustration-v1.webp',
+  rollers:'assets/categories/rollers-boards-illustration-v1.webp',
+  cycling:'assets/categories/parts-illustration-v2.png',
+  accessories:'assets/categories/accessories-illustration-v1.png?v=2',
+  skiing:'assets/categories/skiing-illustration-v2.png?v=2',
+  fitness:'assets/categories/fitness-illustration-v1.png?v=2',
+  tourism:'assets/categories/tourism-illustration-v2.png?v=2'
 };
 function catalogMatchesDepartment(product,key){
   return !key||(CATALOG_SECTIONS[key]?.departments||[key]).includes(product.department);
@@ -141,11 +153,11 @@ function departmentFor(name,path){
   if(/бокс|единобор|карат[еэ]|дзюдо|самбо|борцов/.test(p)||/боксерск|для бокса|кикбокс|единобор|карат[еэ]|дзюдо|самбо|борцов/.test(n))return match('combat');
   if(/сноуборд/.test(p))return match('snowboard');
   if(/лыж|лыжероллер/.test(p)||/(?:^| )лыжн|для (?:беговых |горных )?лыж/.test(n))return match('skiing');
+  if(/самокат|электроскутер/.test(p))return match('scooter');
   if(/ролик/.test(p))return match('rollers');
   if(/коньк/.test(p)&&!/клюшк|шайб/.test(p+' '+n))return match('skates');
   if(/хоккей/.test(p+' '+n)||/^клюшка(?: |$)/.test(n))return match('hockey');
   if(/скейт|лонгборд/.test(p))return match('boards');
-  if(/самокат|электроскутер/.test(p))return match('scooter');
   if(/фитнес|тренаж|гантел|штанг|спортивные комплекс|пульсометр/.test(p))return match('fitness');
   if(/игровые виды спорта|футбол|баскет|волейбол|теннис|бадминтон|бейсбол/.test(p))return match('team');
   if(/туризм|палат|спальн|рюкзак/.test(p)&&!/велосум|велосип|велобагаж/.test(p+' '+n))return match('tourism');

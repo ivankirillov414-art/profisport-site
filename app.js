@@ -291,7 +291,7 @@ function bindSuggest(input,box){
   const draw=()=>{
     const raw=input.value.trim(),found=suggestionItems(raw);
     if(raw.length<2){
-      const deps=[...new Map(products.map(p=>[p.department,p.departmentLabel])).entries()].slice(0,8);
+      const deps=Object.entries(CATALOG_SECTIONS).map(([key,section])=>[key,section.label]);
       box.innerHTML=`<div class="suggestHeading">Разделы каталога</div><div class="suggestCategories">${deps.map(([key,label])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts">${esc(label)}</a>`).join('')}</div><a class="suggestService" href="service.html"><span><b>Мастерская</b><small>Услуги велосервиса</small></span></a>`;
     }else{
   box.innerHTML=`<div class="suggestHeading">Товары по вашему запросу</div>`+(found.length?found.map(p=>`<a href="product.html?id=${encodeURIComponent(p.id)}">${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'<span class="suggestPh"></span>'}<span><b>${esc(p.name)}</b><small>${esc([p.brand,p.cat].filter(Boolean).join(' · '))}</small></span><strong>${rub(p.price)}</strong></a>`).join(''):'<p class="suggestHeading">Точных совпадений нет. Попробуйте название или модель.</p>')+`<a class="suggestAll" href="?q=${encodeURIComponent(raw)}#catalogProducts">Все результаты</a>`;
@@ -308,23 +308,16 @@ function bindSuggest(input,box){
 const megaSections={
   'велосипед':CATALOG_SECTIONS.bicycle,
   'самокат':CATALOG_SECTIONS.scooter,
+  'ролики':CATALOG_SECTIONS.rollers,
   'запчаст':CATALOG_SECTIONS.cycling,
   'аксессуар':CATALOG_SECTIONS.accessories,
   'лыж':CATALOG_SECTIONS.skiing,
   'фитнес':CATALOG_SECTIONS.fitness,
   'туризм':CATALOG_SECTIONS.tourism
 };
-const navigationCategory={'велосипед':'bicycle','самокат':'scooter','запчаст':'cycling','аксессуар':'accessories','лыж':'skiing','фитнес':'fitness','туризм':'tourism'};
+const navigationCategory={'велосипед':'bicycle','самокат':'scooter','ролики':'rollers','запчаст':'cycling','аксессуар':'accessories','лыж':'skiing','фитнес':'fitness','туризм':'tourism'};
 let megaContext='',megaCloseTimer,megaTrigger=null;
-const MEGA_CATEGORY_ART={
-  bicycle:'assets/categories/bicycle-illustration-v1.png?v=2',
-  cycling:'assets/categories/parts-illustration-v1.png?v=4',
-  accessories:'assets/categories/accessories-illustration-v1.png?v=2',
-  skiing:'assets/categories/skiing-illustration-v2.png?v=2',
-  fitness:'assets/categories/fitness-illustration-v1.png?v=2',
-  tourism:'assets/categories/tourism-illustration-v2.png?v=2',
-  scooter:'assets/categories/scooter-illustration-v2.png?v=2'
-};
+const MEGA_CATEGORY_ART=CATALOG_CATEGORY_ART;
 function megaPhotoSources(items,fallbackKey='',sectionTitle=''){
   const subsectionArt=typeof subcategoryArtwork==='function'?subcategoryArtwork(fallbackKey,sectionTitle):null;
   if(subsectionArt)return [subsectionArt];
@@ -403,9 +396,9 @@ function buildBrandShortcuts(){
 }
 $('#saleShortcut')?.addEventListener('click',e=>{e.preventDefault();$('#resetFilters').click();saleOnly.checked=true;apply();$('#catalogProducts').scrollIntoView({behavior:'smooth'})});
 function buildCategoryTiles(){
-  const keys=['bicycle','scooter','cycling','accessories','skiing','fitness','tourism'];
+  const keys=['bicycle','scooter','rollers','cycling','accessories','skiing','fitness','tourism'];
   const available=keys.map(key=>[key,CATALOG_SECTIONS[key]]).filter(([,section])=>section);
-  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="${esc(MEGA_CATEGORY_ART[key])}" width="480" height="320" alt="" loading="lazy" decoding="async"></a>`).join('')+'<a href="service.html" class="categoryTile serviceTile"><div><h3>Сервис</h3><span>Обслуживание и точная настройка</span></div><img class="categoryArtwork" src="assets/categories/subsections/service-06-v1.webp" alt="" loading="lazy"></a>';
+  $('#categoryTiles').innerHTML=available.map(([key,{label,note}])=>`<a href="?cat=${encodeURIComponent(key)}#catalogProducts" class="categoryTile" data-department="${esc(key)}"><div><h3>${esc(label)}</h3><span>${esc(note)}</span></div><img class="categoryArtwork" src="${esc(MEGA_CATEGORY_ART[key])}" width="480" height="320" alt="" loading="lazy" decoding="async"></a>`).join('');
   $$('#categoryTiles [data-department]').forEach(a=>a.onclick=e=>{e.preventDefault();selectDepartment(a.dataset.department)});
 }
 function renderCategoryShortcuts(){
