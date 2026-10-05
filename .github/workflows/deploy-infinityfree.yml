@@ -38,6 +38,7 @@ jobs:
           node --check checkout.js
           node --check admin/orders.js
           node --check admin/products.js
+          node --check admin/bicycle-fit.js
           node --check admin/service.js
           node --check admin/loyalty-calculator.js
           node --check service.js
@@ -80,6 +81,7 @@ jobs:
           php tests/loyalty-math.php
           php tests/catalog-quality.php
           php tests/product-spec-editor.php
+          php tests/bicycle-fit.php
           php tests/source-options.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
@@ -102,6 +104,7 @@ jobs:
             curl -s http://127.0.0.1:8080/ > /dev/null && break
             sleep 1
           done
+          python3 tests/bicycle-fit-http.py
           python3 tests/orders-http.py
           php -r 'require "server/bootstrap.php"; db()->exec("DELETE FROM auth_rate_limits");'
           python3 tests/phone-login-http.py
@@ -161,6 +164,7 @@ jobs:
           php tests/loyalty-math.php
           php tests/catalog-quality.php
           php tests/product-spec-editor.php
+          php tests/bicycle-fit.php
           php tests/source-photo-diagnostic.php
           php tests/source-photo-reconcile.php
           node --check admin/analyze.js
@@ -268,7 +272,7 @@ jobs:
           PY
           }
 
-          for file in equipment-care.js server/equipment-care.php api/customer.php profile-dashboard.css 404.html 500.html hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html profile-dashboard.css cookie-consent.css cookie-consent.js service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/vehicle-passport-admin.php api/vehicle-spec-admin.php api/orders.php api/order-create.php api/review-moderation.php api/loyalty-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php api/migration.php api/migration-tick.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/migration.php server/loyalty.php server/loyalty-center.php server/customer-vehicles.php server/vehicle-passport.php server/vehicle-spec-registry.php server/order-schema.php server/order-validation.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/migration.js admin/migration.php admin/reconcile.js admin/app.js admin/orders.js admin/orders.php admin/reviews.php admin/loyalty.php admin/loyalty-calculator.js admin/loyalty-calculator.css admin/service.js admin/service.php admin/index.php admin/customers.php admin/customer.php admin/vehicle.php admin/vehicle-specs.php admin/customer-qr.php; do
+          for file in admin/bicycle-fit.php admin/bicycle-fit.js admin/bicycle-fit.css api/bicycle-fit-admin.php server/bicycle-fit.php equipment-care.js server/equipment-care.php api/customer.php profile-dashboard.css 404.html 500.html hero-slides-v5.css assets/hero/classic-workshop-wide-v5.webp assets/hero/classic-workshop-mobile-v5.webp assets/hero/winter-storage-v10.webp cms-client.js admin/cms-setup.php assets/hero/classic-workshop-reference-v4.webp assets/brand/profisport-logo-classic.svg ui-refinements-v4.css workshop.html shop.html workshop.html section-pages.css index.html app.js storefront-v2.css assets/promo/winter-storage-original.jpeg assets/hero/winter-storage-v10.webp assets/brand/favicon-profisport-v1.svg assets/brand/favicon-profisport-v1.png .htaccess admin/recover-access.php api/order-create.php api/service.php api/product-db-image.php category-tiles.css assets/categories/bicycle-illustration-v1.png assets/categories/scooter-illustration-v2.png assets/categories/skiing-illustration-v2.png assets/categories/parts-illustration-v1.png assets/categories/accessories-illustration-v1.png assets/categories/fitness-illustration-v1.png assets/categories/tourism-illustration-v2.png buyer-info.html buyer-info.css buyer-info.js index.html product.html checkout.html profile.html profile-dashboard.css cookie-consent.css cookie-consent.js service.html checkout.js product-related.js product-info.css product-kant.js service.js service-guide.js storefront-v2.css storefront-v2-base.css classic-theme.css header-compact.css customer-register.css customer-register.js assets/customer-registration-qr.svg assets/brand/profisport-logo-classic.svg assets/hero/classic-mountains-v1.webp app.js catalog-loader.js catalog-live-paged.js api/health.php api/catalog.php api/customer.php api/customer-admin.php api/vehicle-passport-admin.php api/vehicle-spec-admin.php api/orders.php api/order-create.php api/review-moderation.php api/loyalty-admin.php api/photo-audit.php api/import-analyze.php api/import-apply.php api/import-reconcile.php api/migration.php api/migration-tick.php server/bootstrap.php server/catalog-quality.php server/import-safety.php server/migration.php server/loyalty.php server/loyalty-center.php server/customer-vehicles.php server/vehicle-passport.php server/vehicle-spec-registry.php server/order-schema.php server/order-validation.php server/source-photo-diagnostic.php server/source-photo-reconcile.php admin/analyze.js admin/import-run.js admin/import-apply.js admin/migration.js admin/migration.php admin/reconcile.js admin/app.js admin/orders.js admin/orders.php admin/reviews.php admin/loyalty.php admin/loyalty-calculator.js admin/loyalty-calculator.css admin/service.js admin/service.php admin/index.php admin/customers.php admin/customer.php admin/vehicle.php admin/vehicle-specs.php admin/customer-qr.php; do
             mkdir -p "$(dirname "/tmp/profisport-remote/$file")"
             echo "Downloading deployed $file for byte-for-byte verification"
             if curl -fsS --ssl-reqd --retry 4 --retry-delay 2 --max-time 60 \

@@ -5,6 +5,7 @@ $configFile=__DIR__.'/../server/config.php';
 if(!is_file($configFile)){http_response_code(500);exit;}
 $config=require $configFile;
 require __DIR__.'/../server/catalog-quality.php';
+require __DIR__.'/../server/bicycle-fit.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: public, max-age=60, stale-while-revalidate=300');
@@ -58,6 +59,7 @@ try{
   if($limit>0)$sql.=' LIMIT '.$limit.' OFFSET '.$offset;
   $stmt=$pdo->query($sql);
 
+  $bicycleFits=bicycle_fit_settings($pdo);
   $items=[];
   $brokenLocal=0;
   $itemsWithoutSourceImage=0;
@@ -94,6 +96,7 @@ try{
 
     $specs=json_decode((string)($p['specs']??'{}'),true);
     if(!is_array($specs))$specs=[];
+    $specs=bicycle_fit_specs($specs,bicycle_fit_current($p,$bicycleFits[(int)$p['id']]??null));
     $specs=catalog_sanitize_specs((string)$p['name'],$specs,$removedSuspiciousSpecs);
     $brandWasInferred=false;
     $brand=catalog_resolve_brand((string)$p['name'],$p['brand']!==null?(string)$p['brand']:null,$specs,$brandWasInferred);
