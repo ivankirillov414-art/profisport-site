@@ -579,9 +579,10 @@ function pickerRideScore(product,ride){
   return city?3:mixed?2:0;
 }
 function pickerAssessment(product,height,ride){
-  if(product.department!=='bicycle'||product.productType!=='bicycle'||pickerRideScore(product,ride)===0)return null;
-  const text=plain([product.name,product.rawCat,product.cat].join(' '));
-  if(/беговел|трехкол|3-х кол|bmx/.test(text))return null;
+  // Riding preference ranks results; it must not hide an otherwise fitting bicycle.
+  if(product.department!=='bicycle'||product.productType!=='bicycle')return null;
+  const text=plain([product.name,product.rawCat,product.cat,product.pathText,findSpec(product.specs,['тип велосипеда','назначение'])].join(' '));
+  if(/беговел|трехкол|3-х кол/.test(text))return null;
   const wheel=parseFloat(String(product.facets?.wheel||'').replace(',','.'));
   const child=/детск|малыш|подрост/.test(text);
   const heightSpec=findSpec(product.specs,['рекомендуемый рост','рост велосипедиста','рост райдера','рост человека']);
@@ -590,8 +591,10 @@ function pickerAssessment(product,height,ride){
     if(height<Math.min(...bounds)||height>Math.max(...bounds))return null;
     return {confirmed:true,label:'Рост по характеристикам: '+heightSpec};
   }
-  if(height>=155&&(child||(wheel&&wheel<26)))return null;
-  if(height<140&&!child&&(!wheel||wheel>24))return null;
+  // 24-inch teenage bikes can fit 160 cm; adult folding bikes and BMX use small wheels too.
+  const smallWheelAdult=/bmx|складн|fold|круиз/.test(text);
+  if(height>=155&&wheel&&wheel<24&&!smallWheelAdult)return null;
+  if(height<140&&!child&&wheel>24&&!smallWheelAdult)return null;
   const frame=String(product.facets?.frame||'');
   // Reuse the existing mountain-bike sizing guide; do not apply it to road/city geometry.
   const mountain=/горн|двухподвес|фэт|fat|mtb/.test(text);
@@ -612,11 +615,22 @@ function selectPickerProducts(list,height,budget,ride){
 function renderPickerResults(matches,budget){
   const box=$('#pickerResults');if(!box)return;
   const allLink=`?cat=bicycle&max=${encodeURIComponent(budget)}#catalogProducts`;
-  if(!matches.length){box.innerHTML=`<p class="pickerEmpty">По росту, типу катания и бюджету подходящих вариантов в каталоге не найдено. Измените параметры или уточните подбор в магазине.</p><a class="pickerResultAll" href="${allLink}">Каталог в этом бюджете</a>`;return}
-  box.innerHTML='<div class="pickerResultHead"><h3>Варианты по вашим параметрам</h3><p>Посадка зависит от геометрии модели. Перед покупкой нужна примерка.</p></div>'+matches.slice(0,4).map(({product,fit})=>{
+  if(!matches.length){box.innerHTML=`<p class="pickerEmpty">В наличии не найдено велосипедов в этом бюджете и ростовке. Измените параметры или уточните подбор в магазине.</p><a class="pickerResultAll" href="${allLink}">Каталог в этом бюджете</a>`;return}
+  let shown=0;
+  const card=({product,fit})=>{
     const image=imageCandidates(product)[0],photo=image?`<img src="${esc(image)}" alt="${esc(product.name)}" loading="lazy">`:'<span class="pickerResultPhoto">Фото уточняется</span>';
     return `<article class="pickerResultCard"><a href="product.html?id=${encodeURIComponent(product.id)}">${photo}<b>${esc(product.name)}</b><span class="pickerFitNote">${esc(fit.label)}</span><strong>${rub(product.price)}</strong></a></article>`;
-  }).join('')+`<a class="pickerResultAll" href="${allLink}">Каталог в этом бюджете</a>`;
+  };
+  const unverified=matches.filter(({fit})=>!fit.confirmed).length;
+  box.innerHTML='<div class="pickerResultHead"><h3>Найдено вариантов: '+matches.length+'</h3><p>Все типы велосипедов. Место катания влияет на порядок рекомендаций. '+(unverified?'У '+unverified+' вариантов ростовку нужно уточнить. ':'')+'Перед покупкой нужна примерка.</p></div><button type="button" class="pickerResultAll" data-picker-more></button>'+`<a class="pickerResultAll" href="${allLink}">Каталог в этом бюджете</a>`;
+  const more=box.querySelector('[data-picker-more]');
+  const showMore=()=>{
+    more.insertAdjacentHTML('beforebegin',matches.slice(shown,shown+12).map(card).join(''));
+    shown=Math.min(shown+12,matches.length);
+    more.textContent='Показать ещё ('+(matches.length-shown)+')';
+    if(shown===matches.length)more.remove();
+  };
+  more.onclick=showMore;showMore();
 }
 $('#pick')?.addEventListener('click',()=>{const result=$('#pickResult'),box=$('#pickerResults'),height=+$('#height').value,budget=+$('#budget').value,ride=$('#ride').value;if(!catalogComplete){result.textContent='Каталог ещё загружается. Подбор станет доступен после загрузки.';box.innerHTML='';return}if(!height||!budget){result.textContent='Укажите рост и бюджет.';box.innerHTML='';return}if(height<120||height>220){result.textContent='Укажите рост от 120 до 220 см.';box.innerHTML='';$('#height').focus();return}if(budget<5000||budget>2000000){result.textContent='Укажите бюджет от 5 000 до 2 000 000 ₽.';box.innerHTML='';$('#budget').focus();return}const matches=selectPickerProducts(products,height,budget,ride);result.textContent=`Рост: ${height} см · ${ride} · бюджет до ${rub(budget)}`;renderPickerResults(matches,budget)});
 
