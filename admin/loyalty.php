@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Центр лояльности — ПрофиСпорт</title>
   <link rel="stylesheet" href="loyalty-calculator.css?v=3">
-<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=1"></head>
+<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=2"></head>
 <body class="motion-page motion-admin">
 <header><div class="top"><div class="brand">Профи<span>Спорт</span></div><a class="back" href="index.php">← Админка</a></div></header>
-<main>
+<?php require __DIR__.'/menu.php'; ?><main>
   <div class="pageHead"><div><h1>Центр лояльности</h1><p>Единственное место для категорийных скидок, персональных скидок и бонусных правил.</p></div><a class="customersLink" href="customers.php">Карточки клиентов →</a></div>
   <section id="programState" class="programState"><div><b>Загрузка…</b><p>Проверяем активную и черновую конфигурации.</p></div></section>
   <section id="stats" class="stats"></section>
@@ -23,7 +23,7 @@
 
       <section class="panel">
         <h2>Правила пересечения</h2>
-        <p class="panelIntro">Эти чекпойнты обязательны, чтобы система не принимала скрытых решений.</p>
+        <p class="panelIntro">Укажите, как сочетать скидки и бонусы. Эти настройки обязательны для публикации правил.</p>
         <div class="ruleGrid">
           <label><span>Если действует категорийная и персональная скидка</span><select id="discountStackRule"><option value="max">Применять максимальную</option><option value="sum">Складывать, максимум 90%</option><option value="personal_overrides">Персональная заменяет категорийную</option></select></label>
           <label><span>Бонусы начислять от суммы</span><select id="earnBasis"><option value="after_discounts">После всех скидок</option><option value="before_discounts">До скидок</option></select></label>

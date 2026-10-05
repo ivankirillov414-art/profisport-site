@@ -12,6 +12,7 @@ const validation=read('server/order-validation.php');
 const reviews=read('api/review-moderation.php');
 const customerAdmin=read('api/customer-admin.php');
 const admin=read('admin/index.php');
+const adminSections=read('admin/sections.php');
 const customers=read('admin/customers.php');
 const loyaltyPage=read('admin/loyalty.php');
 
@@ -41,7 +42,8 @@ assert.doesNotMatch(customerAdmin,/UPDATE customers SET bonus_balance=\?/,'custo
 assert.match(create,/category_path FROM products/,'checkout must snapshot product category');
 assert.match(create,/'category_path'=>\$x\['category_path'\]/,'order item must persist category snapshot');
 assert.match(validation,/'category_path'=>\(string\)/,'order calculation must carry category');
-assert.match(admin,/href="loyalty\.php"/,'admin dashboard must link loyalty status');
+assert.match(admin,/require_once __DIR__\.'\/sections\.php'/,'dashboard must render the shared section directory');
+assert.match(adminSections,/'loyalty\.php'/,'admin directory must link loyalty status');
 assert.match(customers,/Бонусная программа включена/,'customer admin must show live loyalty state');
 assert.match(engine,/function loyalty_reserve_order_redemption/,'loyalty engine must reserve checkout redemption');
 assert.match(engine,/function loyalty_consume_fifo/,'loyalty engine must consume points FIFO');
