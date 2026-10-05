@@ -17,7 +17,8 @@ if(!/header-compact\.css\?v=\d+/.test(index))fail('index.html must load header-c
 if(!/app\.js\?v=\d+/.test(index))fail('index.html must load the unified app.js with a cache version');
 if(!/catalog-loader\.js\?v=\d+/.test(index))fail('index.html must load catalog-loader.js with a cache version');
 const stylesheetHrefs=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
-if(stylesheetHrefs.length!==5)fail('home page must load the storefront, compact-header, back-to-top, motion and Sport Energy theme stylesheets');
+if(stylesheetHrefs.length!==6)fail('home page must load the storefront, compact-header, back-to-top, motion, Sport Energy and header visibility stylesheets');
+if(!stylesheetHrefs.includes('header-visibility-v1.css'))fail('header visibility stylesheet is missing');
 if(!stylesheetHrefs.some(href=>/^motion\.css\?v=\d+$/.test(href)))fail('shared motion.css is missing');
 if(!stylesheetHrefs.some(href=>/^sport-energy\.css\?v=\d+$/.test(href)))fail('Sport Energy theme is missing');
 if(!stylesheetHrefs.some(href=>/^back-to-top\.css\?v=\d+$/.test(href)))fail('back-to-top.css is missing from stylesheet list');
