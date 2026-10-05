@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Центр лояльности — ПрофиСпорт</title>
   <link rel="stylesheet" href="loyalty-calculator.css?v=3">
-<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=1"></head>
+<link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=2"></head>
 <body class="motion-page motion-admin">
 <header><div class="top"><div class="brand">Профи<span>Спорт</span></div><a class="back" href="index.php">← Админка</a></div></header>
 <main>
@@ -60,5 +60,5 @@
   </section>
 </main>
 <script src="loyalty-calculator.js?v=3"></script>
-</body>
+<?php require __DIR__.'/menu.php'; ?></body>
 </html>

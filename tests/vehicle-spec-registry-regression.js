@@ -9,7 +9,7 @@ const passport=read('server/vehicle-passport.php');
 const bootstrap=read('server/bootstrap.php');
 const api=read('api/vehicle-spec-admin.php');
 const page=read('admin/vehicle-specs.php');
-const adminIndex=read('admin/index.php');
+const adminIndex=read('admin/index.php')+read('admin/sections.php');
 
 assert.match(bootstrap,/vehicle-spec-registry\.php/,'bootstrap must load verified spec registry');
 assert.match(bootstrap,/ensure_vehicle_spec_registry_schema\(\$pdo\)/,'registry research schema must migrate');
