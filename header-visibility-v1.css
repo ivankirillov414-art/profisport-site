@@ -1,0 +1,6 @@
+/* Readable customer navigation and a full-width branded hub header. */
+body.motion-page>nav:not(.mobileBottomNav)>.buyerNav>summary{color:#eef1f3}
+body.motion-page>nav:not(.mobileBottomNav)>.buyerNav>summary:is(:hover,:focus-visible),body.motion-page>nav:not(.mobileBottomNav)>.buyerNav[open]>summary{color:var(--energy);background:transparent}
+body.motion-page>nav:not(.mobileBottomNav)>.buyerNav>summary:focus-visible{outline-color:var(--energy)}
+.motion-page.referenceHubs>.hubHeader{width:100%;max-width:1240px;box-sizing:border-box}
+.motion-page.referenceHubs .hubHeader>.hubLogo{flex-shrink:0;background-image:url('assets/brand/profisport-logo.svg')}
