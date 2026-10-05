@@ -2,6 +2,10 @@
 declare(strict_types=1);
 require_once __DIR__.'/product-spec-editor.php';
 const BICYCLE_FIT_PREFIX='bicycle_fit:';
+function bicycle_fit_is_bicycle(array $product): bool {
+    $name=mb_strtolower(trim((string)$product['name']),'UTF-8');
+    return (bool)preg_match('/^(?:(?:детский|детские|горный|горные|городской|дорожный|шоссейный|подростковый|женский|мужской|складной|спортивный)\s+)*(?:электро)?велосипед(?:\s|$)|^(?:electric\s+)?bicycle(?:\s|$)|^bmx(?:\s|$)/u',$name);
+}
 function bicycle_fit_identity(array $product): string {
     return hash('sha256',json_encode([(string)($product['source_id']??''),(string)($product['sku']??''),(string)$product['name']],JSON_UNESCAPED_UNICODE));
 }

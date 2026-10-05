@@ -11,7 +11,7 @@ try{
         $q=mb_strtolower(mb_substr(trim((string)($_GET['q']??'')),0,200),'UTF-8');
         $rows=$pdo->query('SELECT '.BICYCLE_FIT_FIELDS.' FROM products WHERE is_active=1 AND COALESCE(stock_qty,0)>0 ORDER BY id DESC');
         while($p=$rows->fetch()){
-            if(customer_vehicle_type((string)$p['name'],(string)($p['category_path']??''))!=='bicycle')continue;
+            if(!bicycle_fit_is_bicycle($p))continue;
             $stored=$settings[(int)$p['id']]??null;$fit=bicycle_fit_current($p,$stored);
             $specs=bicycle_fit_specs(json_decode((string)$p['specs'],true)?:[],$fit);$range=bicycle_fit_range($specs);
             if($range==='')$pending++;
@@ -28,7 +28,7 @@ try{
     try{$fit=bicycle_fit_validate($input);}catch(InvalidArgumentException $e){json_response(['ok'=>false,'error'=>'invalid_input','message'=>$e->getMessage()],422);}
     $pdo->beginTransaction();
     $s=$pdo->prepare('SELECT '.BICYCLE_FIT_FIELDS.' FROM products WHERE id=? AND is_active=1 AND COALESCE(stock_qty,0)>0 FOR UPDATE');$s->execute([$id]);$p=$s->fetch();
-    if(!$p||customer_vehicle_type((string)$p['name'],(string)($p['category_path']??''))!=='bicycle'){$pdo->rollBack();json_response(['ok'=>false,'error'=>'not_found'],404);}
+    if(!$p||!bicycle_fit_is_bicycle($p)){$pdo->rollBack();json_response(['ok'=>false,'error'=>'not_found'],404);}
     $s=$pdo->prepare('SELECT setting_value FROM site_settings WHERE setting_key=? FOR UPDATE');$s->execute([BICYCLE_FIT_PREFIX.$id]);$raw=$s->fetchColumn();$stored=$raw?json_decode((string)$raw,true):null;
     if(!is_string($input['version']??null)||!hash_equals(bicycle_fit_version($p,$stored),$input['version'])){$pdo->rollBack();json_response(['ok'=>false,'error'=>'product_changed'],409);}
     $fit+=['identity'=>bicycle_fit_identity($p),'admin_id'=>(int)$admin['id'],'verified_at'=>gmdate('c')];
