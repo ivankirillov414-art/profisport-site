@@ -40,6 +40,7 @@ const firstPage=context.selectPickerProducts(crowded,160,20000,'Город').sli
 assert.ok(firstPage.some(x=>x.product.id==='type-1'),'mountain bike appears on the first page');
 assert.ok(firstPage.some(x=>x.product.id==='type-5'),'BMX appears on the first page');
 assert.ok(context.pickerAssessment(bike('teen',{name:'Велосипед подростковый',facets:{wheel:'24″'}}),160,'Город'));
+assert.equal(context.pickerAssessment(bike('toddler',{name:'Велосипед Ricco grey серый 1/1',rawCat:'Малышам',facets:{}}),160,'Город'),null);
 assert.ok(context.pickerAssessment(bike('fold',{name:'Велосипед складной',facets:{wheel:'20″'}}),160,'Город'));
 assert.ok(context.pickerAssessment(bike('bmx',{name:'Велосипед BMX',facets:{wheel:'20″'}}),160,'Город'));
 assert.equal(context.pickerAssessment(bike('mtb-small',{facets:{wheel:'26″',frame:'S'}}),160,'Город').confirmed,true);

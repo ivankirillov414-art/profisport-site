@@ -593,6 +593,7 @@ function pickerAssessment(product,height,ride){
   }
   // 24-inch teenage bikes can fit 160 cm; adult folding bikes and BMX use small wheels too.
   const smallWheelAdult=/bmx|складн|fold|круиз/.test(text);
+  if(height>=155&&child&&!wheel&&!smallWheelAdult)return null;
   if(height>=155&&wheel&&wheel<24&&!smallWheelAdult)return null;
   if(height<140&&!child&&wheel>24&&!smallWheelAdult)return null;
   const frame=String(product.facets?.frame||'');
