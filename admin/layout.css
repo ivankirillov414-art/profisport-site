@@ -37,3 +37,7 @@ pre{max-width:100%;overflow:auto}
 @media(max-width:600px){.adminDirectory{grid-template-columns:minmax(0,1fr);gap:18px}#adminMenu{padding:18px}.adminMenuHead h2{font-size:20px}.adminSection .tile{padding:16px;min-height:135px}.adminSection h2{font-size:21px}.adminJump{gap:6px}.adminJump a{font-size:13px;padding:8px 11px}.adminToolbar{padding:10px 12px}.adminToolbar>a:last-child{font-size:12px}}
 
 .adminPageHelp{max-width:760px;color:#616974;line-height:1.6;margin:10px 0 22px}
+/* Older pages have a brand/back header; the shared toolbar replaces it. */
+body:has(.adminToolbar)>header{display:none}
+.adminToolbar{padding-inline:max(20px,calc((100vw - 1040px)/2))}
+@media(max-width:600px){.adminToolbar{padding-inline:12px}}
