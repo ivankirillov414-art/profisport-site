@@ -35,6 +35,10 @@ assert.equal(context.selectPickerProducts(variety,160,19999,'Город').length
 assert.equal(context.selectPickerProducts(variety,160,20001,'Город').length,variety.length);
 assert.equal(context.selectPickerProducts(variety,160,20000,'Город')[0].product.id,'type-0');
 assert.equal(context.selectPickerProducts(variety,160,20000,'Бездорожье')[0].product.id,'type-1');
+const crowded=[...Array.from({length:20},(_,i)=>bike('city-'+i,{name:'Велосипед городской',price:10000+i,specs:range})),...variety];
+const firstPage=context.selectPickerProducts(crowded,160,20000,'Город').slice(0,12);
+assert.ok(firstPage.some(x=>x.product.id==='type-1'),'mountain bike appears on the first page');
+assert.ok(firstPage.some(x=>x.product.id==='type-5'),'BMX appears on the first page');
 assert.ok(context.pickerAssessment(bike('teen',{name:'Велосипед подростковый',facets:{wheel:'24″'}}),160,'Город'));
 assert.ok(context.pickerAssessment(bike('fold',{name:'Велосипед складной',facets:{wheel:'20″'}}),160,'Город'));
 assert.ok(context.pickerAssessment(bike('bmx',{name:'Велосипед BMX',facets:{wheel:'20″'}}),160,'Город'));

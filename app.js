@@ -607,10 +607,34 @@ function pickerAssessment(product,height,ride){
   }
   return {confirmed:false,label:frame?'Рама '+frame+' — уточните посадку по росту':'Размер рамы не указан — уточните посадку'};
 }
+function pickerBicycleKind(product){
+  const text=plain([product.name,product.rawCat,product.cat,product.pathText,findSpec(product.specs,['тип велосипеда','назначение'])].join(' '));
+  if(/bmx/.test(text))return 'bmx';
+  if(/детск|малыш|подрост/.test(text))return 'junior';
+  if(/гибрид|кросс|прогул|универс/.test(text))return 'hybrid';
+  if(/горн|двухподвес|фэт|fat|mtb/.test(text))return 'mountain';
+  if(/шосс|road|спортив|sport/.test(text))return 'sport';
+  if(/город|дорож|круиз|складн|urban|city/.test(text))return 'city';
+  return 'other';
+}
 function selectPickerProducts(list,height,budget,ride){
-  return list.filter(p=>p.price>0&&p.price<=budget&&p.stockCode!=='out'&&p.stockQty>0)
+  const matches=list.filter(p=>p.price>0&&p.price<=budget&&p.stockCode!=='out'&&p.stockQty>0)
     .map(product=>({product,fit:pickerAssessment(product,height,ride)})).filter(item=>item.fit)
     .sort((a,b)=>Number(b.fit.confirmed)-Number(a.fit.confirmed)||pickerRideScore(b.product,ride)-pickerRideScore(a.product,ride)||a.product.price-b.product.price);
+  // Show the range of bicycle types immediately, instead of filling the first page with city bikes.
+  const result=[];
+  for(const confirmed of [true,false]){
+    const groups=new Map();
+    for(const item of matches){
+      if(item.fit.confirmed!==confirmed)continue;
+      const kind=pickerBicycleKind(item.product);
+      if(!groups.has(kind))groups.set(kind,[]);
+      groups.get(kind).push(item);
+    }
+    const queues=[...groups.values()];
+    for(let i=0;queues.some(group=>i<group.length);i++)for(const group of queues)if(group[i])result.push(group[i]);
+  }
+  return result;
 }
 function renderPickerResults(matches,budget){
   const box=$('#pickerResults');if(!box)return;
