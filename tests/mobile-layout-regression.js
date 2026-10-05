@@ -19,7 +19,7 @@ if(!/catalog-loader\.js\?v=\d+/.test(index))fail('index.html must load catalog-l
 const stylesheetHrefs=[...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
 if(stylesheetHrefs.length!==17)fail('home page must discover all eleven shared stylesheets directly, followed by its six layout layers');
 if(/@import\s/.test(css))fail('shared stylesheets must not wait for a CSS import chain');
-if(!stylesheetHrefs.includes('header-visibility-v1.css'))fail('header visibility stylesheet is missing');
+if(!stylesheetHrefs.includes('header-visibility-v2.css'))fail('header visibility stylesheet is missing');
 if(!stylesheetHrefs.some(href=>/^motion\.css\?v=\d+$/.test(href)))fail('shared motion.css is missing');
 if(!stylesheetHrefs.some(href=>/^sport-energy\.css\?v=\d+$/.test(href)))fail('Sport Energy theme is missing');
 if(!stylesheetHrefs.some(href=>/^back-to-top\.css\?v=\d+$/.test(href)))fail('back-to-top.css is missing from stylesheet list');

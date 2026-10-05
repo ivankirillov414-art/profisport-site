@@ -4,3 +4,10 @@ body.motion-page>nav:not(.mobileBottomNav)>.buyerNav>summary:is(:hover,:focus-vi
 body.motion-page>nav:not(.mobileBottomNav)>.buyerNav>summary:focus-visible{outline-color:var(--energy)}
 .motion-page.referenceHubs>.hubHeader{width:100%;max-width:1240px;box-sizing:border-box}
 .motion-page.referenceHubs .hubHeader>.hubLogo{flex-shrink:0;background-image:url('assets/brand/profisport-logo.svg')}
+
+/* The zoom button explains the action without technical gallery labels. */
+.productShell .galleryMain::before{content:none}
+.productShell .galleryHint{display:none}
+.productShell .galleryMain{grid-template-rows:minmax(240px,1fr) auto;padding:18px}
+.productShell .galleryZoom{grid-row:2}
+@media(max-width:600px){.productShell .galleryMain{grid-template-rows:minmax(180px,1fr) auto;padding:12px}}
