@@ -81,6 +81,10 @@ jobs:
           php tests/loyalty-math.php
           php tests/catalog-quality.php
           php tests/product-spec-editor.php
+          php tests/legal-documents.php
+          node --check admin/legal.js
+          node --check buyer-legal.js
+          php -l legal.php
           php tests/bicycle-fit.php
           php tests/source-options.php
           php tests/source-photo-diagnostic.php
@@ -104,6 +108,7 @@ jobs:
             curl -s http://127.0.0.1:8080/ > /dev/null && break
             sleep 1
           done
+          python3 tests/legal-http.py
           python3 tests/bicycle-fit-http.py
           python3 tests/orders-http.py
           php -r 'require "server/bootstrap.php"; db()->exec("DELETE FROM auth_rate_limits");'

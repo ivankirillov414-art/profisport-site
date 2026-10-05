@@ -6,7 +6,7 @@ $action=$_GET['action']??'health';
 const OWNER='Иван Кириллов 414';
 
 function admin_setting_protected(string $key): bool {
-    return str_starts_with($key, 'loyalty_');
+    return str_starts_with($key, 'loyalty_') || str_starts_with($key, 'legal_');
 }
 
 try{
