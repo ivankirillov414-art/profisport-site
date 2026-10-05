@@ -14,7 +14,7 @@ body{background:#f5f5f3;color:#202124;font-family:system-ui,-apple-system,"Segoe
 <script src="migration.js?v=1" defer></script>
 <link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=2"></head>
 <body class="motion-page motion-admin">
-<main class="wrap">
+<?php require __DIR__.'/menu.php'; ?><main class="wrap">
 <div class="topline"><div><h1>Перенос ProfiSport</h1><p class="muted">Копирование файлов и базы на новый PHP/MySQL-хостинг.</p></div><a href="index.php">← Админка</a></div>
 <section class="card">
 <h2>Новый хостинг</h2>
@@ -64,5 +64,5 @@ body{background:#f5f5f3;color:#202124;font-family:system-ui,-apple-system,"Segoe
 <div id="migrationJobs" class="status"><p class="muted">Загрузка…</p></div>
 </section>
 </main>
-<?php require __DIR__.'/menu.php'; ?></body>
+</body>
 </html>

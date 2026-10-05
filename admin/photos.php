@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="photos.css?v=manual-photos-2">
 <link rel="stylesheet" href="layout.css?v=2"></head><body>
 <header><div class="bar"><b>Профи<span>Спорт</span></b><a href="index.php">← Админка</a></div></header>
-<main>
+<?php require __DIR__.'/menu.php'; ?><main>
 <section class="card">
 <h1>Фото из 1С</h1>
 <p>Найдите товар и добавьте фотографию вручную, замените основную или удалите ненужные снимки. Загруженные вручную фото закрепляются за товаром и сохраняются при обновлениях каталога, даже если в 1С нет фотографии. Если товар закончится или временно исчезнет из выгрузки, при возвращении его фото восстановится автоматически.</p>
@@ -31,4 +31,4 @@
 <p id="photoEditorStatus" role="status" aria-live="polite"></p>
 </dialog>
 <script src="photos.js?v=manual-photos-2"></script>
-<?php require __DIR__.'/menu.php'; ?></body></html>
+</body></html>

@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=2"></head>
 <body class="motion-page motion-admin">
 <header><div class="top"><div class="brand">Профи<span>Спорт</span></div><a class="back" href="index.php">← Админка</a></div></header>
-<main>
+<?php require __DIR__.'/menu.php'; ?><main>
   <div class="pageHead"><div><h1>Центр лояльности</h1><p>Единственное место для категорийных скидок, персональных скидок и бонусных правил.</p></div><a class="customersLink" href="customers.php">Карточки клиентов →</a></div>
   <section id="programState" class="programState"><div><b>Загрузка…</b><p>Проверяем активную и черновую конфигурации.</p></div></section>
   <section id="stats" class="stats"></section>
@@ -60,5 +60,5 @@
   </section>
 </main>
 <script src="loyalty-calculator.js?v=3"></script>
-<?php require __DIR__.'/menu.php'; ?></body>
+</body>
 </html>
