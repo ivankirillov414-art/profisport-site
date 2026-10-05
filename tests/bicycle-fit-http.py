@@ -9,6 +9,7 @@ def call(path,data=None,cookie=None,csrf=None):
     except urllib.error.HTTPError as e: response=e
     return response.status,json.loads(response.read()),response.headers
 assert call('api/bicycle-fit-admin.php')[0]==401
+subprocess.run(['php','-r',"require 'server/bootstrap.php'; if($config['db_name']!=='profisport_test')exit(1); $pdo->exec(\"UPDATE products SET name='Велосипед тестовый' WHERE id=3\");"],check=True)
 status,auth,headers=call('server/api.php?action=login',{'username':'Иван Кириллов 414','password':'test-only-password'})
 assert status==200
 cookie=next(c.split(';')[0] for c in reversed(headers.get_all('Set-Cookie')) if c.startswith('PROFISPORT_ADMIN='))
@@ -32,5 +33,5 @@ assert call('api/catalog.php?id=3')[1]['items'][0]['specs'][0]['value']=='150–
 # Reusing a product identity must invalidate the override.
 subprocess.run(['php','-r',"require 'server/bootstrap.php'; if($config['db_name']!=='profisport_test')exit(1); $pdo->exec(\"UPDATE products SET sku='new-identity' WHERE id=3\");"],check=True)
 specs=call('api/catalog.php?id=3')[1]['items'][0]['specs'];assert specs=={'Размер рамы':'L'}
-subprocess.run(['php','-r',"require 'server/bootstrap.php'; if($config['db_name']!=='profisport_test')exit(1); $pdo->exec(\"DELETE FROM site_settings WHERE setting_key='bicycle_fit:3'\"); $pdo->exec(\"UPDATE products SET sku=NULL,specs=NULL WHERE id=3\");"],check=True)
+subprocess.run(['php','-r',"require 'server/bootstrap.php'; if($config['db_name']!=='profisport_test')exit(1); $pdo->exec(\"DELETE FROM site_settings WHERE setting_key='bicycle_fit:3'\"); $pdo->exec(\"UPDATE products SET sku=NULL,specs=NULL,name='Demo bicycle' WHERE id=3\");"],check=True)
 print('PASS: fit task queue, authentication, CSRF, bounds, stale writes, catalog overlay, import preservation and identity guard')

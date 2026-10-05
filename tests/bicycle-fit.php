@@ -16,3 +16,6 @@ fit_check(bicycle_fit_specs($specs,null)===$specs);
 fit_check(bicycle_fit_range(['Рекомендуемый рост'=>'170'])==='');
 foreach([['min'=>180,'max'=>150],['min'=>150,'max'=>150],['min'=>79,'max'=>150],['min'=>150,'max'=>221],['min'=>'150','max'=>170],['min'=>150,'max'=>170,'frame'=>[]]] as $invalid){try{bicycle_fit_validate($invalid);throw new RuntimeException('invalid fit accepted');}catch(InvalidArgumentException $e){}}
 echo "Bicycle fit override and validation passed\n";
+
+foreach(['Велосипед 29 Aspect','Детский велосипед 16','Электровелосипед Test','BMX Test'] as $name)fit_check(bicycle_fit_is_bicycle(['name'=>$name]));
+foreach(['Набор для прокачки Avid','Рама велосипеда','Инструмент Bike Hand','Велосипедная покрышка'] as $name)fit_check(!bicycle_fit_is_bicycle(['name'=>$name]));
