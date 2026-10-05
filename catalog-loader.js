@@ -422,9 +422,16 @@ async function loadProduct(id){
 
 
 
+function scheduleCatalogMaintenance(task){
+  // Idle work has a bounded fallback and keeps automatic 1C recovery enabled.
+  setTimeout(()=>{
+    if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(task,{timeout:5000});
+    else task();
+  },3000);
+}
 const AUTO_1C_CHECK_MS=10*60*1000;
 async function triggerAutomatic1cRefresh(){
-  if(typeof window==='undefined'||location.protocol==='file:')return;
+  if(typeof window==='undefined'||location.protocol==='file:'||document.hidden)return;
   const key='profisport_auto_1c_last_check';
   let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
   if(Date.now()-last<AUTO_1C_CHECK_MS)return;
@@ -444,15 +451,17 @@ async function triggerAutomatic1cRefresh(){
   }catch{}
 }
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',triggerAutomatic1cRefresh,{once:true});
-  else setTimeout(triggerAutomatic1cRefresh,0);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>scheduleCatalogMaintenance(triggerAutomatic1cRefresh),{once:true});
+  else scheduleCatalogMaintenance(triggerAutomatic1cRefresh);
   setInterval(triggerAutomatic1cRefresh,AUTO_1C_CHECK_MS);
 }
 
 
 const MIGRATION_TICK_CHECK_MS=5*60*1000;
+let sourceOptionsRevision='';
+try{sourceOptionsRevision=localStorage.getItem('profisport_source_options_revision')||''}catch{}
 async function triggerScheduledHostingMigration(){
-  if(typeof window==='undefined'||location.protocol==='file:')return;
+  if(typeof window==='undefined'||location.protocol==='file:'||document.hidden)return;
   const key='profisport_migration_tick_last_check_options_v2';
   let last=0;try{last=Number(localStorage.getItem(key)||0)}catch{}
   if(Date.now()-last<MIGRATION_TICK_CHECK_MS)return;
@@ -466,8 +475,13 @@ async function triggerScheduledHostingMigration(){
       if(repair)document.documentElement.dataset.sourceOptionsState=JSON.stringify(repair);
       if(repair?.state==='running'){await new Promise(resolve=>setTimeout(resolve,1000));continue;}
       if(repair?.state==='done'){
-        catalogPromise=undefined;initialCatalogPromise=undefined;
-        window.dispatchEvent(new CustomEvent('profisport-catalog-refreshed',{detail:repair}));
+        const revision=JSON.stringify([repair.snapshot,repair.created,repair.restored]);
+        if(revision!==sourceOptionsRevision){
+          sourceOptionsRevision=revision;
+          try{localStorage.setItem('profisport_source_options_revision',revision)}catch{}
+          catalogPromise=undefined;initialCatalogPromise=undefined;
+          window.dispatchEvent(new CustomEvent('profisport-catalog-refreshed',{detail:repair}));
+        }
         break;
       }
       if(repair?.state!=='pending')break;
@@ -476,7 +490,7 @@ async function triggerScheduledHostingMigration(){
   }catch{}
 }
 if(typeof window!=='undefined'&&typeof document!=='undefined'){
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',triggerScheduledHostingMigration,{once:true});
-  else setTimeout(triggerScheduledHostingMigration,0);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>scheduleCatalogMaintenance(triggerScheduledHostingMigration),{once:true});
+  else scheduleCatalogMaintenance(triggerScheduledHostingMigration);
   setInterval(triggerScheduledHostingMigration,MIGRATION_TICK_CHECK_MS);
 }

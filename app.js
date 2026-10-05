@@ -11,7 +11,8 @@ let selectedSubcategory="";
 
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
-const rub=n=>new Intl.NumberFormat('ru-RU').format(Number(n)||0)+' ₽';
+const rubFormatter=new Intl.NumberFormat('ru-RU');
+const rub=n=>rubFormatter.format(Number(n)||0)+' ₽';
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function readStoredArray(key){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.filter(x=>['string','number'].includes(typeof x)):[]}catch(e){return[]}}
 function plain(s){return String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[.,;:()[\]{}"']/g,' ').replace(/\s+/g,' ').trim()}
@@ -193,13 +194,23 @@ function openQuickView(id){
   bindProductImages();$('#quickAdd').onclick=()=>{dialog.close();add(p.id)};dialog.showModal();syncBodyLock();
 }
 const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});
+// Catalogue objects are replaced on refresh. Cache stable sort keys per object.
+const cardSortKeys=new WeakMap();
+function productCardSortKeys(p){
+  let keys=cardSortKeys.get(p);
+  if(!keys){
+    const type=primaryProductType(p.name);
+    keys={rank:type==='bicycle'?2:Number(Boolean(type)),adult:type==='bicycle'&&/(?:^|\s)(?:26|27[.,]5|28|29)(?:\s|["″])/.test(p.name)};
+    cardSortKeys.set(p,keys);
+  }
+  return keys;
+}
 function compareProductCards(a,b){
   const departmentOrder=p=>Number(p.departmentOrder)||CATALOG_DEPARTMENTS[p.department]?.order||999;
-  const primaryRank=p=>primaryProductType(p.name)==='bicycle'?2:Number(Boolean(primaryProductType(p.name)));
-  const adultBike=p=>primaryProductType(p.name)==='bicycle'&&/(?:^|\s)(?:26|27[.,]5|28|29)(?:\s|["″])/.test(p.name);
+  const aKeys=productCardSortKeys(a),bKeys=productCardSortKeys(b);
   const bikeOrder=a.department==='bicycle'&&b.department==='bicycle'
-    ? Number(Boolean(b.image))-Number(Boolean(a.image))||Number(adultBike(b))-Number(adultBike(a))||Number(b.stockCode==='in')-Number(a.stockCode==='in') : 0;
-  return primaryRank(b)-primaryRank(a)
+    ? Number(Boolean(b.image))-Number(Boolean(a.image))||Number(bKeys.adult)-Number(aKeys.adult)||Number(b.stockCode==='in')-Number(a.stockCode==='in') : 0;
+  return bKeys.rank-aKeys.rank
     ||bikeOrder
     ||departmentOrder(a)-departmentOrder(b)
     ||cardCollator.compare(a.productType||'',b.productType||'')

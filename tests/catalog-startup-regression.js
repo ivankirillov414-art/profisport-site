@@ -29,3 +29,23 @@ function runtime({cached,hold=false}={}){
  assert(app.includes('if(!catalogComplete)'), 'Early filters must wait for complete results');
  console.log('Catalog startup: first 24 rows before remaining pages, complete IDs, fresh/expired/unavailable cache, immediate categories passed.');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+// Repeated completed repair ticks must not invalidate an unchanged live catalogue.
+(async()=>{
+ const loader=fs.readFileSync(path.join(__dirname,'../catalog-loader.js'),'utf8');
+ let calls=0,events=0;
+ let repair={state:'done',snapshot:'current',created:2,restored:3};
+ const stored=new Map();
+ const context={console,setTimeout:fn=>{queueMicrotask(fn);return 1},setInterval:()=>{},
+  location:{protocol:'https:'},document:{hidden:false,readyState:'loading',addEventListener(){},documentElement:{dataset:{}}},
+  window:{dispatchEvent(){events++}},CustomEvent:function(){},
+  localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v)},
+  catalogRequest:async()=>{calls++;return {source_options:repair}}};
+ vm.createContext(context);
+ vm.runInContext('let catalogPromise,initialCatalogPromise;'+loader.slice(loader.indexOf('function scheduleCatalogMaintenance(')),context);
+ const tick=()=>{stored.delete('profisport_migration_tick_last_check_options_v2');return context.triggerScheduledHostingMigration()};
+ await tick();await tick();assert.equal(calls,2);assert.equal(events,1);
+ repair={...repair,snapshot:'next'};await tick();assert.equal(events,2);
+ context.document.hidden=true;await tick();assert.equal(calls,3,'Hidden tabs do not start maintenance');
+ console.log('Catalogue maintenance: unchanged repairs retain cache, changed export invalidates it, hidden tabs stay idle.');
+})().catch(e=>{console.error(e);process.exitCode=1});

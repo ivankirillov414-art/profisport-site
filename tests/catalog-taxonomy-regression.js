@@ -129,7 +129,7 @@ equal(filtered("category.value='bicycle'"),'6','Bicycle entry excludes hubs and 
 vm.runInContext("products.push({id:7,name:'Самокат трюковой',department:'scooter',productType:'scooter',price:5000,specs:{}},{id:8,name:'Колеса для самокатов',department:'scooter',price:500,specs:{}},{id:9,name:'Ролики детские',department:'rollers',price:3000,specs:{}},{id:10,name:'Скейтборд',department:'boards',price:4000,specs:{}})",context);
 equal(filtered("category.value='scooter'"),'7,8','Scooter tile includes scooters and their parts only');
 equal(filtered("category.value='rollers'"),'9,10','Skating tile includes roller skates and skateboards only');
-vm.runInContext("const cardCollator=new Intl.Collator('ru',{numeric:true,sensitivity:'base'});"+app.slice(app.indexOf('function compareProductCards('),app.indexOf('function render(list=')),context);
+vm.runInContext(app.slice(app.indexOf('const cardCollator='),app.indexOf('function render(list=')),context);
 vm.runInContext("this.ranked=[{id:1,name:'Беговел A',department:'bicycle',image:'photo'},{id:2,name:'Велосипед 16 Детский',department:'bicycle',image:'photo'},{id:3,name:'Велосипед 29 Горный',department:'bicycle',image:'photo'},{id:4,name:'Велосипед 26 Без фото',department:'bicycle'}].sort(compareProductCards).map(p=>p.id).join(',')",context);
 equal(context.ranked,'3,2,4,1','Recommended bicycle entry leads with full bicycles and verified photos, before balance bikes');
 
