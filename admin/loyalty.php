@@ -23,7 +23,7 @@
 
       <section class="panel">
         <h2>Правила пересечения</h2>
-        <p class="panelIntro">Эти чекпойнты обязательны, чтобы система не принимала скрытых решений.</p>
+        <p class="panelIntro">Укажите, как сочетать скидки и бонусы. Эти настройки обязательны для публикации правил.</p>
         <div class="ruleGrid">
           <label><span>Если действует категорийная и персональная скидка</span><select id="discountStackRule"><option value="max">Применять максимальную</option><option value="sum">Складывать, максимум 90%</option><option value="personal_overrides">Персональная заменяет категорийную</option></select></label>
           <label><span>Бонусы начислять от суммы</span><select id="earnBasis"><option value="after_discounts">После всех скидок</option><option value="before_discounts">До скидок</option></select></label>
