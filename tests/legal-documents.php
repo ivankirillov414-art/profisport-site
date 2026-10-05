@@ -18,4 +18,9 @@ $s=legal_apply($s,['revision'=>5,'action'=>'restore','slug'=>'reviews','version'
 $s=legal_apply($s,['revision'=>6,'action'=>'unpublish','slug'=>'reviews'],1);check(legal_public_documents($s)===[],'unpublished documents private');
 $doc=['body'=>'Условия {{seller_name}}. [ЗАПОЛНИТЬ: сведения]'];check(count(legal_publication_errors($doc,$seller))>0,'placeholder publication blocked');
 $seller['seller_type']='ИП';$seller['registration']='';check(count(legal_publication_errors(['body'=>str_repeat('Текст ',20)],$seller))>=3,'IP registration and number lengths');
+$seller['inn']='123456789012';$seller['ogrn']='123456789012345';$seller['registration']='01.01.2020, тестовый регистрирующий орган';$seller['bank_details']='Тестовые реквизиты';
+$ip=legal_defaults();$ip=legal_apply($ip,['revision'=>0,'action'=>'seller','seller'=>$seller],1);
+$ip=legal_apply($ip,['revision'=>1,'action'=>'publish','slug'=>'seller','title'=>'Сведения о продавце','body'=>'Продавец {{seller_name}}. Адрес {{address}}. Телефон {{phone}}. Режим работы {{hours}}.'],1);
+check(str_contains(legal_public_documents($ip)['seller']['body'],$seller['registration']),'IP registration visible to buyers');
+check(str_contains(legal_public_documents($ip)['seller']['body'],$seller['bank_details']),'optional bank details visible');
 echo "PASS: drafts, seller substitution, publication validation, immutable public snapshots, revisions, restore and removal\n";

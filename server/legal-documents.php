@@ -60,7 +60,10 @@ function legal_apply(array $state,array $in,int $adminId): array {
             if($action==='publish'){
                 $errors=legal_publication_errors($doc,$state['seller']);if($errors)throw new InvalidArgumentException(implode("\n",$errors));
                 if($doc['published'])$doc['history'][]=$doc['published'];
-                $doc['published']=['title'=>$doc['title'],'body'=>legal_expand($doc['body'],$state['seller']),'version'=>$state['revision']+1,'published_at'=>date('c'),'by'=>$adminId];
+                $publishedBody=legal_expand($doc['body'],$state['seller']);
+                if($slug==='seller'&&$state['seller']['seller_type']==='ИП')$publishedBody.="\n\nСведения о государственной регистрации ИП и регистрирующем органе: ".$state['seller']['registration'].'.';
+                if($slug==='seller'&&trim($state['seller']['bank_details'])!=='')$publishedBody.="\n\nБанковские реквизиты: ".$state['seller']['bank_details'];
+                $doc['published']=['title'=>$doc['title'],'body'=>$publishedBody,'version'=>$state['revision']+1,'published_at'=>date('c'),'by'=>$adminId];
             }
         }elseif($action==='unpublish'){
             if($doc['published'])$doc['history'][]=$doc['published'];$doc['published']=null;
