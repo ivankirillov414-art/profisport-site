@@ -4,7 +4,7 @@ const index=read('index.html'),app=read('app.js'),css=read('hero-slides-v5.css')
 assert.equal((index.match(/<article class="heroSlide /g)||[]).length,3,'Keep the three approved hero scenes');
 for(const name of ['bikeSlide','winterSlide','serviceSlide'])assert(index.includes(name));
 assert(!index.includes('winter-storage'),'Do not restore winter storage advertising into the hero');
-assert(read('storefront-v2.css').includes('hero-slides-v5.css?v='));
+assert(index.includes('hero-slides-v5.css?v='),'Hero stylesheet is discovered directly in HTML');
 const setup=app.slice(app.indexOf('function setupHero(){'),app.indexOf('function setupStoragePromo(){'));
 assert(setup.includes("track.style.transform='none'"));
 assert(!setup.includes('translateX('),'Do not translate a track with display:none siblings');
