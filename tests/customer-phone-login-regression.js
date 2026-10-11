@@ -10,7 +10,7 @@ const profile=read('profile.html');
 assert.match(profile,/Email или телефон/,'login form must explain both identifiers');
 assert.match(profile,/name="login"/,'login form must submit a neutral login identifier');
 assert.match(profile,/autocomplete="username"/,'identifier must use username autocomplete');
-assert.match(profile,/Проверьте email\/телефон и пароль/,'login error must mention both supported identifiers');
+assert.match(profile,/Неверный логин или пароль/,'invalid credentials must have a clear unified-login message');
 
 assert.match(api,/\$in\['login'\]\?\?\$in\['email'\]/,'API must keep legacy email payload compatibility');
 assert.match(api,/customer_phone\(\$rawLogin\)/,'API must normalize phone login with the same phone helper');

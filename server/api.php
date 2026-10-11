@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/bootstrap.php';
+require_once __DIR__.'/admin-auth.php';
 start_secure_session();
 $action=$_GET['action']??'health';
 const OWNER='Иван Кириллов 414';
@@ -20,18 +21,8 @@ try{
 
  if($action==='login'&&$_SERVER['REQUEST_METHOD']==='POST'){
   $in=input_json();$username=trim((string)($in['username']??''));$password=(string)($in['password']??'');
-  auth_rate_check($pdo,'admin_login',$username);
-  $s=$pdo->prepare('SELECT id,username,password_hash,role,is_active FROM admin_users WHERE username=? LIMIT 1');
-  $s->execute([$username]);$u=$s->fetch();
-  if(!$u||!(int)$u['is_active']||empty($u['password_hash'])||!password_verify($password,$u['password_hash'])){
-   auth_rate_failure($pdo,'admin_login',$username);
-   json_response(['ok'=>false,'error'=>'invalid_credentials'],401);
-  }
-  auth_rate_clear($pdo,'admin_login',$username);session_regenerate_id(true);
-  $_SESSION['admin']=['id'=>(int)$u['id'],'username'=>$u['username'],'role'=>$u['role']];
-  $_SESSION['csrf']=bin2hex(random_bytes(24));
-  audit($pdo,'login','admin_user',(string)$u['id']);
-  json_response(['ok'=>true,'admin'=>$_SESSION['admin'],'csrf'=>$_SESSION['csrf']]);
+  json_response(admin_login($pdo,$username,$password));
+
  }
 
  if($action==='password_change'&&$_SERVER['REQUEST_METHOD']==='POST'){

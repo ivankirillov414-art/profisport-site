@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/../server/bootstrap.php';
+require_once __DIR__.'/../server/admin-auth.php';
 
 function customer_session(): void {
   if(session_status()===PHP_SESSION_ACTIVE)return;
@@ -151,7 +152,12 @@ try{
     json_response(['ok'=>true,'customer_id'=>$id]);
   }
   if($action==='login'&&$_SERVER['REQUEST_METHOD']==='POST'){
-    customer_session();$in=input_json();$rawLogin=trim((string)($in['login']??$in['email']??''));$password=(string)($in['password']??'');
+    $in=input_json();$rawLogin=trim((string)($in['login']??$in['email']??''));$password=(string)($in['password']??'');
+    // Non-contact identifiers belong to the existing admin account namespace.
+    if(!filter_var($rawLogin,FILTER_VALIDATE_EMAIL) && customer_phone($rawLogin)===''){
+      json_response(admin_login($pdo,$rawLogin,$password));
+    }
+    customer_session();
     $phone=customer_phone($rawLogin);$email=mb_strtolower($rawLogin);$identity=$phone!==''?$phone:$email;
     auth_rate_check($pdo,'customer_login',$identity);
     $u=false;

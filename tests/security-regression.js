@@ -4,6 +4,7 @@ const read=file=>fs.readFileSync(file,'utf8');
 
 const bootstrap=read('server/bootstrap.php');
 const adminApi=read('server/api.php');
+const adminAuth=read('server/admin-auth.php');
 const customerApi=read('api/customer.php');
 const deploy=read('.github/workflows/deploy-infinityfree.yml');
 const recovery=read('admin/recover-access.php');
@@ -12,7 +13,10 @@ const headers=read('.htaccess');
 
 assert(bootstrap.includes('CREATE TABLE IF NOT EXISTS auth_rate_limits'));
 assert(bootstrap.includes("'secure'=>true")&&bootstrap.includes("'httponly'=>true"));
-assert(adminApi.includes("auth_rate_check($pdo,'admin_login'"));
+assert(adminApi.includes('admin_login($pdo,$username,$password)'));
+assert(adminAuth.includes("auth_rate_check($pdo,'admin_login'"));
+assert(adminAuth.includes('password_verify'));
+assert(adminAuth.includes("!(int)$u['is_active']"));
 assert(customerApi.includes("auth_rate_check($pdo,'customer_login'"));
 assert(customerApi.includes("auth_rate_check($pdo,'customer_register'"));
 assert(!recovery.includes('const BOOT_HASH='));
