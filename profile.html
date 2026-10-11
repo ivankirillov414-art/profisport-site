@@ -57,7 +57,7 @@
           <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>
           <b>Заказы</b><strong id="ordersCount">0</strong><small>История и статусы</small>
         </a>
-        <a class="profileQuickCard" href="#loyalty">
+        <a class="profileQuickCard hidden" id="loyaltyQuickLink" href="#loyalty">
           <span class="profileQuickIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 12h6M12 9v6"/></svg></span>
           <b>Бонусы</b><strong id="loyaltyBalance">0</strong><small>Баланс и история</small>
         </a>
@@ -92,7 +92,7 @@
         <div id="orderDetails"></div>
       </section>
 
-      <section id="loyalty" class="profileCard profileSecondaryCard loyaltySection">
+      <section id="loyalty" class="profileCard profileSecondaryCard loyaltySection hidden">
         <div class="profileSectionIntro"><h3>Бонусы</h3><span id="loyaltySummary">Баланс и история операций</span></div>
         <div id="loyaltyDashboard" class="loyaltyDashboard"></div>
       </section>
@@ -213,6 +213,10 @@
     const loyaltyKindLabels={manual:'Корректировка',order_earn:'Начисление за заказ',review_bonus:'Бонус за отзыв',redeem_reserve:'Списание в заказе',redeem_refund:'Возврат после отмены',reversal:'Отмена начисления',expiry:'Сгорание',legacy_balance:'Перенос баланса'};
     function renderCustomerLoyalty(j){
       const u=j.customer||{},program=j.loyalty_program||{},cfg=program.config||{},history=Array.isArray(j.loyalty)?j.loyalty:[];
+      const bonusesActive=program.enabled===true&&(cfg.earn_enabled===true||cfg.redeem_enabled===true||cfg.review_bonus_enabled===true);
+      $('#loyalty').classList.toggle('hidden',!bonusesActive);
+      $('#loyaltyQuickLink').classList.toggle('hidden',!bonusesActive);
+      if(!bonusesActive){$('#loyaltyDashboard').innerHTML='';return;}
       const balance=Number(u.bonus_balance||0);$('#loyaltyBalance').textContent=balance.toLocaleString('ru-RU');
       $('#loyaltySummary').textContent=program.enabled?'Программа работает · доступно '+balance.toLocaleString('ru-RU')+' бонусов':(program.configured?'Программа временно выключена':'Программа пока не запущена');
       const rules=[];
