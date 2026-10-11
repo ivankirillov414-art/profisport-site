@@ -34,6 +34,8 @@ on:
       - 'legal.php'
       - 'legal.css'
       - 'buyer-legal.js'
+      - 'admin/seller.*'
+      - 'api/seller-discount.php'
       - 'admin/legal.*'
       - 'api/legal-*.php'
       - 'server/legal-*.php'
@@ -72,6 +74,9 @@ jobs:
           php -l server/legal-defaults.php
           php -l api/legal-admin.php
           php -l api/legal-public.php
+          php -l admin/seller.php
+          php -l api/seller-discount.php
+          node --check admin/seller.js
           php -l admin/legal.php
           php tests/legal-documents.php
           node --check admin/legal.js
@@ -109,6 +114,8 @@ jobs:
           mkdir -p hotfix-upload/assets/hero hotfix-upload/assets/categories/subsections
           mkdir -p hotfix-upload/admin hotfix-upload/api hotfix-upload/server
           cp legal.php legal.css buyer-legal.js hotfix-upload/
+          cp admin/seller.php admin/seller.js hotfix-upload/admin/
+          cp api/seller-discount.php hotfix-upload/api/
           cp admin/legal.php admin/legal.js admin/index.php admin/sections.php hotfix-upload/admin/
           cp api/legal-admin.php api/legal-public.php hotfix-upload/api/
           cp server/legal-documents.php server/legal-defaults.php server/api.php hotfix-upload/server/
