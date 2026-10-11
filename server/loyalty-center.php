@@ -56,8 +56,7 @@ function loyalty_center_sanitize_config(array $input): array {
     $cfg=loyalty_sanitize_config_input($input);
     $cfg['enabled']=($input['enabled']??false)===true;
     $cfg['discounts_enabled']=($input['discounts_enabled']??false)===true;
-    $stack=(string)($input['discount_stack_rule']??'max');
-    $cfg['discount_stack_rule']=in_array($stack,['max','sum','personal_overrides'],true)?$stack:'max';
+    $cfg['discount_stack_rule']='max';
     $basis=(string)($input['earn_basis']??'after_discounts');
     $cfg['earn_basis']=in_array($basis,['after_discounts','before_discounts'],true)?$basis:'after_discounts';
     $cfg['discount_groups']=loyalty_center_sanitize_groups($input['discount_groups']??[]);
@@ -108,12 +107,13 @@ function loyalty_center_publish(PDO $pdo,array $input,int $adminId,string $passw
 
 function loyalty_center_category_group(string $categoryPath,array $cfg): ?array {
     if(!($cfg['discounts_enabled']??false))return null;
+    $best=null;
     foreach(is_array($cfg['discount_groups']??null)?$cfg['discount_groups']:[] as $group){
         foreach(is_array($group['categories']??null)?$group['categories']:[] as $category){
-            if(trim((string)$category)===trim($categoryPath))return $group;
+            if(trim((string)$category)===trim($categoryPath)&&($best===null||(int)$group['percent_bp']>(int)$best['percent_bp']))$best=$group;
         }
     }
-    return null;
+    return $best;
 }
 
 function loyalty_customer_discount(PDO $pdo,int $customerId): ?array {
@@ -143,8 +143,8 @@ function loyalty_effective_discount(PDO $pdo,string $categoryPath,?int $customer
         $scope=(string)($personal['group_key']??'');
         if($scope===''||($group&&$scope===(string)($group['key']??'')))$personalBp=max(0,min(9000,(int)$personal['percent_bp']));
     }
-    $rule=(string)($cfg['discount_stack_rule']??'max');
-    $effective=$rule==='sum'?min(9000,$categoryBp+$personalBp):($rule==='personal_overrides'&&$personalBp>0?$personalBp:max($categoryBp,$personalBp));
+    $rule='max';
+    $effective=max($categoryBp,$personalBp);
     return [
         'percent_bp'=>$effective,
         'category_percent_bp'=>$categoryBp,

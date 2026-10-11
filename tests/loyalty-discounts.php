@@ -44,7 +44,10 @@ try{
 
     $cfg['discount_stack_rule']='sum';$settings->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
     $priced=loyalty_discount_order_items($pdo,$base,$customerId);
-    discount_check($priced['items'][0]['discount_percent_bp']===2500,'sum rule must combine category and personal discount');
+    discount_check($priced['items'][0]['discount_percent_bp']===1500,'legacy sum setting must still apply only the maximum discount');
+
+    $overlapCfg=$cfg; $overlapCfg['discount_groups'][]=array_merge($cfg['discount_groups'][0],['key'=>'overlap','percent_bp'=>2000]);
+    discount_check((int)loyalty_center_category_group($base['items'][0]['category_path'],$overlapCfg)['percent_bp']===2000,'overlapping category discounts must select maximum');
 
     $cfg['enabled']=false;$settings->execute(['loyalty_config_v1',json_encode($cfg,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]);
     $priced=loyalty_discount_order_items($pdo,$base,$customerId);

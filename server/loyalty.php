@@ -57,7 +57,7 @@ function loyalty_config(PDO $pdo): array {
     if(!is_array($decoded))return $base;
     $cfg=array_merge($base,array_intersect_key($decoded,$base));
     foreach(['enabled','earn_enabled','redeem_enabled','expiration_enabled','review_bonus_enabled','category_exclusions_enabled','discounts_enabled'] as $key)$cfg[$key]=($cfg[$key]??false)===true;
-    $cfg['discount_stack_rule']=in_array((string)($cfg['discount_stack_rule']??''),['max','sum','personal_overrides'],true)?(string)$cfg['discount_stack_rule']:'max';
+    $cfg['discount_stack_rule']='max';
     $cfg['earn_basis']=in_array((string)($cfg['earn_basis']??''),['after_discounts','before_discounts'],true)?(string)$cfg['earn_basis']:'after_discounts';
     if(!is_array($cfg['discount_groups']))$cfg['discount_groups']=[];
     foreach(['earn_percent_bp','max_redeem_percent_bp','point_value_kopeks','expiration_days','min_order_rub','review_bonus'] as $key){

@@ -6,6 +6,8 @@ if(!is_file($configFile)){http_response_code(500);exit;}
 $config=require $configFile;
 require __DIR__.'/../server/catalog-quality.php';
 require __DIR__.'/../server/bicycle-fit.php';
+require __DIR__.'/../server/loyalty.php';
+require __DIR__.'/../server/loyalty-center.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: public, max-age=60, stale-while-revalidate=300');
@@ -60,6 +62,7 @@ try{
   $stmt=$pdo->query($sql);
 
   $bicycleFits=bicycle_fit_settings($pdo);
+  $discountConfig=loyalty_config($pdo);
   $items=[];
   $brokenLocal=0;
   $itemsWithoutSourceImage=0;
@@ -109,6 +112,17 @@ try{
     $oldPrice=catalog_sanitize_old_price_float($price,$rawOldPrice);
     $oldPriceRub=catalog_sanitize_old_price($priceRub,$rawOldPriceRub);
     if($rawOldPriceRub!==null&&$oldPriceRub===null)$suppressedInvalidOldPrices++;
+
+    // Public category prices only: personal discounts remain private and are
+    // compared with this promotion at checkout, never applied on top of it.
+    $categoryDiscount=loyalty_effective_discount($pdo,$path,null,$discountConfig);
+    $categoryBp=(int)$categoryDiscount['percent_bp'];
+    if($categoryBp>0&&$oldPriceRub===null){
+      $oldPriceRub=$priceRub;
+      $priceRub=max(0,(int)round($priceRub*(10000-$categoryBp)/10000));
+      $oldPrice=(float)$oldPriceRub;
+      $price=(float)$priceRub;
+    }
 
     $items[]=[
       'id'=>(int)$p['id'],
