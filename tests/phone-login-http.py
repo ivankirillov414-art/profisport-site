@@ -18,7 +18,8 @@ assert status==401 and result['error']=='invalid_credentials',(status,result)
 status,result,h=call('api/customer.php?action=login',{'login':'Иван Кириллов 414','password':'test-only-password'})
 assert status==200 and result['admin']['role']=='owner' and result['redirect']=='admin/index.php',(status,result)
 admin_cookie=next(c.split(';')[0] for c in reversed(h.get_all('Set-Cookie')) if c.startswith('PROFISPORT_ADMIN='))
-assert 'Secure' in h.get('Set-Cookie','') and 'HttpOnly' in h.get('Set-Cookie','')
+admin_set_cookie=next(c for c in reversed(h.get_all('Set-Cookie')) if c.startswith('PROFISPORT_ADMIN='))
+assert '; secure' in admin_set_cookie.lower() and '; httponly' in admin_set_cookie.lower()
 assert call('server/api.php?action=stats',cookie=admin_cookie)[0]==200
 assert call('server/api.php?action=stats')[0]==401
 with urllib.request.urlopen(BASE+'admin/login.php',timeout=15) as r:
