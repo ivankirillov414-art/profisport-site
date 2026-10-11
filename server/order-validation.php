@@ -51,7 +51,7 @@ function order_lines(array $rows,array $groups): array {
         if($price<=0)throw new DomainException('price_unavailable');
         $line=$price*$qty;$total+=$line;
         if($total>2147483647)throw new DomainException('order_too_large');
-        $items[]=['id'=>(int)$p['id'],'title'=>(string)$p['name'],'price'=>$price,'qty'=>$qty,'line'=>$line,'category_path'=>(string)($p['category_path']??'')];
+        $items[]=['id'=>(int)$p['id'],'title'=>(string)$p['name'],'price'=>$price,'qty'=>$qty,'line'=>$line,'category_path'=>(string)($p['category_path']??''),'loyalty_promo'=>(float)($p['old_price_rub']??$p['old_price']??0)>$price];
     }
     return ['items'=>$items,'total'=>$total];
 }

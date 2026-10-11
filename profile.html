@@ -29,7 +29,7 @@
     <div class="profileDashboardTitle"><div><h1>Личный кабинет</h1><p>Заказы, избранное и всё важное по вашему аккаунту.</p></div></div>
     <div id="guest"><section class="profileCard"><div class="authTabs"><button id="loginTab">Войти</button><button id="registerTab" class="secondary">Регистрация</button></div><form id="loginForm" class="profileForm"><label>Email или телефон / логин администратора<input name="login" type="text" required autocomplete="username" placeholder="Email, телефон или логин администратора"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button>Войти</button></form><form id="registerForm" class="profileForm hidden"><label>Имя<input name="name" required minlength="2" maxlength="120" autocomplete="given-name"></label><label>Фамилия<input name="last_name" required minlength="2" maxlength="120" autocomplete="family-name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Телефон<input name="phone" type="tel" required autocomplete="tel"></label><label>Дата рождения<input name="birth_date" type="date" required autocomplete="bday"></label><label>Пароль<input name="password" type="password" minlength="10" required autocomplete="new-password"></label><label class="profileConsent"><input name="consent" type="checkbox" required> Согласен на <a href="buyer-info.html#privacy" target="_blank">обработку персональных данных</a></label><button>Создать кабинет</button></form><div id="authMsg" class="profileMsg"></div></section></div>
     <div id="account" class="hidden">
-      <section class="profileDashboardHero">
+      <section class="profileCard" id="purchaseTier"><h3>Ваша скидка: <span id="purchaseTierPercent">0%</span></h3><p id="purchaseTierNext"></p><p>После одной покупки свыше 5 000 ₽ — 5%. Имея 5%, купите от 30 000 ₽ — получите 7%; имея 7%, от 50 000 ₽ — 10%. Новый уровень действует со следующей покупки бессрочно. Акционные товары не получают скидку и не учитываются в порогах. При возврате уровень пересчитывается.</p></section><section class="profileDashboardHero">
         <div class="profileIdentity">
           <div id="customerAvatar" class="profileAvatar" aria-hidden="true">PS</div>
           <div class="profileIdentityCopy">
@@ -540,6 +540,7 @@
       $('#ordersCount').textContent=orders.length;
       $('#favoritesCount').textContent=favoriteIds.length;
       $('#reviewsCount').textContent=reviewsCount;
+      const tier=j.loyalty_tier||{};$('#purchaseTierPercent').textContent=Number(tier.percent||0)+'%';$('#purchaseTierNext').textContent=tier.next_percent?'Для скидки '+tier.next_percent+'% нужна одна оплаченная покупка неакционных товаров '+(tier.first_threshold_exclusive?'свыше ':'от ')+Number(tier.next_purchase_rub).toLocaleString('ru-RU')+' ₽ до скидки.':'У вас максимальная скидка 10%.';
       renderCustomerLoyalty(j);
       renderVehiclesService(j);
 

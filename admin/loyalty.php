@@ -10,7 +10,7 @@
 <body class="motion-page motion-admin">
 <header><div class="top"><div class="brand">Профи<span>Спорт</span></div><a class="back" href="index.php">← Админка</a></div></header>
 <?php require __DIR__.'/menu.php'; ?><main>
-  <div class="pageHead"><div><h1>Центр лояльности</h1><p>Единственное место для категорийных скидок, персональных скидок и бонусных правил.</p></div><a class="customersLink" href="customers.php">Карточки клиентов →</a></div>
+  <div class="pageHead"><div><h1>Центр лояльности</h1><p>Категорийные скидки, персональные скидки и бонусные правила.</p><p>Постоянные уровни 5% → 7% → 10% действуют отдельно: свыше 5 000 ₽, затем от 30 000 ₽ и от 50 000 ₽ за одну покупку. Акционные товары исключены. <a href="orders.php">Подтвердить оплату или оформить возврат в заказах →</a></p></div><a class="customersLink" href="customers.php">Карточки клиентов →</a></div>
   <section id="programState" class="programState"><div><b>Загрузка…</b><p>Проверяем активную и черновую конфигурации.</p></div></section>
   <section id="stats" class="stats"></section>
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/order-schema.php';
 require_once __DIR__.'/loyalty.php';
 require_once __DIR__.'/loyalty-center.php';
+require_once __DIR__.'/loyalty-tiers.php';
 require_once __DIR__.'/customer-vehicles.php';
 require_once __DIR__.'/vehicle-passport.php';
 require_once __DIR__.'/equipment-care.php';
@@ -69,6 +70,7 @@ ensure_vehicle_spec_registry_schema($pdo);
 $pdo->exec("CREATE TABLE IF NOT EXISTS audit_log (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,admin_user_id INT UNSIGNED NULL,action VARCHAR(100) NOT NULL,entity_type VARCHAR(50) NULL,entity_id VARCHAR(100) NULL,payload LONGTEXT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,INDEX idx_created (created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 $pdo->exec("CREATE TABLE IF NOT EXISTS auth_rate_limits (scope VARCHAR(40) NOT NULL,subject_hash CHAR(64) NOT NULL,attempts SMALLINT UNSIGNED NOT NULL DEFAULT 0,window_started_at DATETIME NOT NULL,blocked_until DATETIME NULL,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY(scope,subject_hash),INDEX idx_blocked_until(blocked_until)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 ensure_order_columns($pdo);
+ensure_loyalty_tiers_schema($pdo);
 $stmt=$pdo->prepare("INSERT IGNORE INTO admin_users (username,password_hash,role,is_active,force_password_setup) VALUES (?,NULL,'owner',1,1)");$stmt->execute(['Иван Кириллов 414']);
 }
 function start_secure_session(): void { if(session_status()===PHP_SESSION_ACTIVE)return; ini_set('session.use_strict_mode','1'); ini_set('session.gc_maxlifetime',(string)(60*60*8)); session_name('PROFISPORT_ADMIN'); session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Strict']); session_start(); }

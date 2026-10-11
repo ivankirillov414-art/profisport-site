@@ -117,7 +117,7 @@ function customer_payload(PDO $pdo,array $u): array {
   $vehicles=customer_vehicle_rows($pdo,$customerId);
   $maintenanceAlerts=vehicle_maintenance_alerts_for_customer($pdo,$customerId,true);
   $replacementPurchases=vehicle_replacement_pending_for_customer($pdo,$customerId);
-  return ['ok'=>true,'customer'=>$u,'customer_discount'=>loyalty_customer_discount($pdo,$customerId),'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>$vehicles,'maintenance_alerts'=>$maintenanceAlerts,'replacement_purchases'=>$replacementPurchases,'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
+  return ['ok'=>true,'customer'=>$u,'loyalty_tier'=>loyalty_purchase_tier($pdo,$customerId),'customer_discount'=>loyalty_customer_discount($pdo,$customerId),'favorites'=>$favoriteIds,'favorite_details'=>customer_favorite_details($pdo,$customerId),'loyalty'=>$history->fetchAll(),'loyalty_program'=>$program,'orders'=>$orderRows,'reviews_count'=>$reviewsCount,'review_details'=>customer_review_details($pdo,$customerId),'review_eligible'=>customer_review_eligible($pdo,$customerId),'vehicles'=>$vehicles,'maintenance_alerts'=>$maintenanceAlerts,'replacement_purchases'=>$replacementPurchases,'service_requests'=>customer_service_rows($pdo,$customerId),'csrf'=>customer_csrf()];
 }
 
 $action=(string)($_GET['action']??'me');

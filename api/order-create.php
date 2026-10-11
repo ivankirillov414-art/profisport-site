@@ -23,8 +23,9 @@ try{
   $customerId=customer_id_from_session();
   if($customerId){$c=$pdo->prepare('SELECT id FROM customers WHERE id=? AND is_active=1');$c->execute([$customerId]);if(!$c->fetchColumn())$customerId=null;}
   $pdo->beginTransaction();
+  if($customerId)$pdo->prepare('SELECT id FROM customers WHERE id=? FOR UPDATE')->execute([$customerId]);
   $groups=$in['groups'];$marks=implode(',',array_fill(0,count($groups),'?'));
-  $s=$pdo->prepare("SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active,category_path FROM products WHERE id IN ($marks) ORDER BY id FOR UPDATE");
+  $s=$pdo->prepare("SELECT id,name,price_rub,old_price_rub,old_price,stock_qty,stock_status,availability,is_active,category_path FROM products WHERE id IN ($marks) ORDER BY id FOR UPDATE");
   $s->execute(array_keys($groups));$calculated=order_lines($s->fetchAll(),$groups);
   $priced=loyalty_discount_order_items($pdo,$calculated,$customerId);
   // This is a request for manager confirmation; stock remains owned by the 1C import.
@@ -39,7 +40,7 @@ try{
   foreach($priced['items'] as $x)insert_order_row($pdo,'order_items',[
     'order_id'=>$orderId,'product_id'=>$x['id'],'title'=>$x['title'],'base_price_rub'=>$x['base_price'],'price_rub'=>$x['price'],
     'discount_percent_bp'=>$x['discount_percent_bp'],'discount_rub'=>$x['discount_rub'],
-    'quantity'=>$x['qty'],'base_line_total_rub'=>$x['base_line'],'line_total_rub'=>$x['line'],'category_path'=>$x['category_path'],
+    'loyalty_promo'=>(int)$x['loyalty_promo'],'quantity'=>$x['qty'],'base_line_total_rub'=>$x['base_line'],'line_total_rub'=>$x['line'],'category_path'=>$x['category_path'],
   ]);
   $redemption=['points'=>0,'payable_rub'=>$priced['total']];
   if((int)$in['bonus_spend']>0){

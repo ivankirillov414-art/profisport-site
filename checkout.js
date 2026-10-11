@@ -8,14 +8,16 @@ form.elements.delivery.onchange=addressState;addressState();form.elements.phone.
 async function request(url,opts={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);try{const r=await fetch(url,{...opts,signal:controller.signal});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'server_error');return j}finally{clearTimeout(timer)}}
 function productCategoryPath(p){const raw=Array.isArray(p?.rawPath)&&p.rawPath.length?p.rawPath:(Array.isArray(p?.path)?p.path:[]);return raw.map(x=>String(x||'').trim()).filter(Boolean).join(' / ')}
 function productDiscount(p){
-  const program=accountData?.loyalty_program,cfg=program?.config||{};if(!program?.enabled)return {bp:0,group:null};
+  if(Number(p?.oldPrice||0)>Number(p?.price||0))return {bp:0,group:null};
+  const tierBp=Number(accountData?.loyalty_tier?.percent_bp||0);
+  const program=accountData?.loyalty_program,cfg=program?.config||{};if(!program?.enabled)return {bp:tierBp,group:null};
   const path=productCategoryPath(p),group=(Array.isArray(cfg.discount_groups)?cfg.discount_groups:[]).find(g=>Array.isArray(g.categories)&&g.categories.includes(path));
   const categoryBp=cfg.discounts_enabled&&group?Math.max(0,Number(group.percent_bp||0)):0;
   const personal=accountData?.customer_discount;let personalBp=0;
   if(accountData?.customer&&personal?.enabled){const scope=String(personal.group_key||'');if(!scope||(group&&scope===String(group.key||'')))personalBp=Math.max(0,Number(personal.percent_bp||0))}
   const rule=String(cfg.discount_stack_rule||'max');
   const bp=rule==='sum'?Math.min(9000,categoryBp+personalBp):(rule==='personal_overrides'&&personalBp>0?personalBp:Math.max(categoryBp,personalBp));
-  return {bp,group:group?.name||null};
+  return {bp:Math.max(bp,tierBp),group:group?.name||null};
 }
 function productPrice(p){const d=productDiscount(p);return {base:Number(p?.price||0),price:Math.max(0,Math.round(Number(p?.price||0)*(10000-d.bp)/10000)),discount:d}}
 function loyaltyNumbers(points){
@@ -44,7 +46,8 @@ const ids=[...new Set(cart.map(String))],all=[];
 for(let i=0;i<ids.length;i+=8){const batch=await Promise.all(ids.slice(i,i+8).map(loadProduct));all.push(...batch.filter(Boolean))}
 const byId=new Map(all.map(p=>[String(p.id),p])),groups=new Map;cart.forEach(id=>groups.set(String(id),(groups.get(String(id))||0)+1));let total=0,invalid=false;
 const rows=[...groups].map(([id,qty])=>{const p=byId.get(id),pricing=p?productPrice(p):{base:0,price:0,discount:{bp:0}};const bad=!p||p.stockCode==='out'||pricing.base<=0||(p.stockQty!==null&&qty>p.stockQty);if(bad)invalid=true;else{for(let i=0;i<qty;i++)validCart.push(p.id);total+=pricing.price*qty}const priceText=p?(pricing.discount.bp?'<del>'+rub(pricing.base*qty)+'</del> <b>'+rub(pricing.price*qty)+'</b> <small>−'+(pricing.discount.bp/100).toLocaleString('ru-RU')+'%</small>':rub(pricing.price*qty)):'';return `<div class="checkoutRow"><span>${esc(p?.name||'Недоступный товар')} × ${qty}${bad?'<br><strong>Товар недоступен, цена не задана или превышен остаток.</strong>':''}</span><span>${priceText} <button type="button" data-remove="${esc(id)}">Убрать</button></span></div>`}).join('');
-cartTotal=total;summary.innerHTML=rows?`${rows}<div class="checkoutTotal">Сумма доступных товаров: <b>${rub(total)}</b></div>`:'<p>Корзина пуста. <a href="index.html">Перейти в каталог</a></p>';
+const tierNote=accountData?.customer?'Ваша постоянная скидка: '+Number(accountData?.loyalty_tier?.percent||0)+'%. Акционные товары исключены. Новый уровень — после оплаты, на следующие покупки.':'Войдите в личный кабинет перед заказом, чтобы получить постоянную скидку 5% → 7% → 10%.';
+cartTotal=total;summary.innerHTML=rows?`<p>${esc(tierNote)}</p>${rows}<div class="checkoutTotal">Сумма доступных товаров: <b>${rub(total)}</b></div>`:'<p>Корзина пуста. <a href="index.html">Перейти в каталог</a></p>';
 summary.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart=cart.filter(id=>String(id)!==b.dataset.remove);localStorage.setItem('ps-cart',JSON.stringify(cart));location.reload()});
 button.disabled=invalid||!validCart.length;if(invalid)message.textContent='Уберите недоступные позиции перед оформлением.';renderLoyalty();
 }catch(e){summary.textContent='Не удалось загрузить корзину. Обновите страницу для повторной попытки.';button.disabled=true}})();

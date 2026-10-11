@@ -156,11 +156,11 @@ function loyalty_effective_discount(PDO $pdo,string $categoryPath,?int $customer
 }
 
 function loyalty_discount_order_items(PDO $pdo,array $calculated,?int $customerId): array {
-    $cfg=loyalty_config($pdo);$subtotal=0;$total=0;$discountTotal=0;$items=[];
+    $cfg=loyalty_config($pdo);$tier=loyalty_purchase_tier($pdo,(int)($customerId??0));$subtotal=0;$total=0;$discountTotal=0;$items=[];
     foreach($calculated['items'] as $item){
         $base=(int)$item['price'];$qty=(int)$item['qty'];$baseLine=$base*$qty;
         $discount=loyalty_effective_discount($pdo,(string)($item['category_path']??''),$customerId,$cfg);
-        $bp=(int)$discount['percent_bp'];$price=max(0,(int)round($base*(10000-$bp)/10000));$line=$price*$qty;
+        $bp=!empty($item['loyalty_promo'])?0:max((int)$discount['percent_bp'],(int)$tier['percent_bp']);$price=max(0,(int)round($base*(10000-$bp)/10000));$line=$price*$qty;
         $items[]=array_merge($item,[
             'base_price'=>$base,'base_line'=>$baseLine,'price'=>$price,'line'=>$line,
             'discount_percent_bp'=>$bp,'discount_rub'=>$baseLine-$line,'discount_group_key'=>$discount['group_key'],
