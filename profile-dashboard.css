@@ -264,3 +264,41 @@
 .passportNodeClose{float:right}
 .passportNodeDialog .equipmentCareItems{grid-template-columns:1fr}
 .passportNodeDialog .equipmentCare{margin:0;padding:0;border:0}
+
+/* Purchase discount tiers: same charcoal, white and yellow as the cabinet. */
+.profileDashboardPage #purchaseTier.purchaseTierCard{padding:24px;margin:0 0 20px;border:1px solid #e3e3df;border-radius:20px;background:#fff;box-shadow:0 8px 24px #22252a08}
+.purchaseTierHeader{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.purchaseTierEyebrow{color:#737a80;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.purchaseTierHeader h2{margin:5px 0 6px;font-size:26px;line-height:1.15}
+.purchaseTierHeader p{margin:0;color:#626a72;font-size:14px}
+.purchaseTierPercent{display:grid;place-items:center;flex-shrink:0;min-width:100px;min-height:88px;border-radius:16px;background:#222b32;color:#ffcf23;font-size:40px;line-height:1}
+.purchaseTierNext{margin:18px 0;padding:13px 16px;background:#fff8db;border-radius:12px;border-left:3px solid #ffcf23}
+.purchaseTierNext>span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;color:#65582c}
+.purchaseTierNext p{margin:5px 0 0;font-size:14px;line-height:1.5;color:#30373d}
+.purchaseTierSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;list-style:none;padding:0;margin:0}
+.purchaseTierSteps li{min-width:0;padding:16px;border:1px solid #e3e3df;border-radius:14px;background:#fafafa}
+.purchaseTierStepTop{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px}
+.purchaseTierStepTop strong{font-size:29px;line-height:1;color:#222b32}
+.purchaseTierStepTop span{font-size:11px;font-weight:700;color:#737a80}
+.purchaseTierSteps li p{margin:12px 0 10px;font-size:13px;line-height:1.65;color:#626a72}
+.purchaseTierSteps li b{font-size:16px;color:#222b32}
+.purchaseTierSteps li small{display:block;font-size:12px;color:#626a72;line-height:1.4}
+.purchaseTierSteps li.isReached{background:#fffdf3;border-color:#e6d997}
+.purchaseTierSteps li.isCurrent{background:#ffcf23;border-color:#ffcf23}
+.purchaseTierSteps li.isCurrent p,.purchaseTierSteps li.isCurrent small,.purchaseTierSteps li.isCurrent span{color:#30373d}
+.purchaseTierTiming{margin:16px 0 0;font-size:13px;line-height:1.6;color:#626a72}
+.purchaseTierTiming b{color:#222b32}
+.purchaseTierRules{margin-top:12px;border-top:1px solid #ecece8;padding-top:12px;color:#626a72;font-size:12px;line-height:1.65}
+.purchaseTierRules summary{cursor:pointer;color:#30373d;font-weight:750;width:fit-content}
+.purchaseTierRules summary:focus-visible{outline:2px solid #b28500;outline-offset:4px}
+.purchaseTierRules p{margin:10px 0 0}
+@media(max-width:600px){
+ .profileDashboardPage #purchaseTier.purchaseTierCard{padding:18px;border-radius:16px}
+ .purchaseTierHeader{gap:12px;align-items:flex-start}
+ .purchaseTierHeader h2{font-size:23px}
+ .purchaseTierEyebrow{font-size:10px}
+ .purchaseTierPercent{min-width:78px;min-height:78px;font-size:32px}
+ .purchaseTierSteps{grid-template-columns:1fr;gap:9px}
+ .purchaseTierSteps li{padding:14px}
+ .purchaseTierSteps li p{margin:8px 0}
+}

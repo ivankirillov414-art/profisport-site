@@ -16,6 +16,7 @@ on:
       - 'assets/categories/subsections/scooter-*.webp'
       - 'assets/categories/subsections/rollers-*.webp'
       - 'profile.html'
+      - 'profile-dashboard.css'
       - 'checkout.html'
       - 'service.html'
       - 'product.html'
@@ -111,7 +112,7 @@ jobs:
           cp admin/legal.php admin/legal.js admin/index.php admin/sections.php hotfix-upload/admin/
           cp api/legal-admin.php api/legal-public.php hotfix-upload/api/
           cp server/legal-documents.php server/legal-defaults.php server/api.php hotfix-upload/server/
-          cp header-visibility-v2.css storefront-v2.css category-tiles.css index.html profile.html checkout.html service.html product.html product-kant.js shop.html workshop.html buyer-info.html app.js subcategory-art.js winter-category-art.js motion.js sport-energy.css catalog-loader.js catalog-live-paged.js psf-final-motion.css psf-final-motion.js hotfix-upload/
+          cp profile-dashboard.css header-visibility-v2.css storefront-v2.css category-tiles.css index.html profile.html checkout.html service.html product.html product-kant.js shop.html workshop.html buyer-info.html app.js subcategory-art.js winter-category-art.js motion.js sport-energy.css catalog-loader.js catalog-live-paged.js psf-final-motion.css psf-final-motion.js hotfix-upload/
           cp assets/hero/reference-bike-amber-v2.webp hotfix-upload/assets/hero/
           cp assets/hero/workshop-background-v6.webp hotfix-upload/assets/hero/
           cp assets/hero/*-v11.webp assets/hero/*-v12.webp hotfix-upload/assets/hero/

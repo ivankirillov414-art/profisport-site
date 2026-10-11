@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="ui-refinements-v4.css?v=8">
 <link rel="stylesheet" href="hero-slides-v5.css?v=2">
 <link rel="stylesheet" href="storefront-v2.css?v=50">
-  <link rel="stylesheet" href="profile-dashboard.css?v=9">
+  <link rel="stylesheet" href="profile-dashboard.css?v=10">
 
   <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-profisport-v1.svg">
   <link rel="alternate icon" type="image/png" href="assets/brand/favicon-profisport-v1.png">
@@ -29,7 +29,21 @@
     <div class="profileDashboardTitle"><div><h1>Личный кабинет</h1><p>Заказы, избранное и всё важное по вашему аккаунту.</p></div></div>
     <div id="guest"><section class="profileCard"><div class="authTabs"><button id="loginTab">Войти</button><button id="registerTab" class="secondary">Регистрация</button></div><form id="loginForm" class="profileForm"><label>Email или телефон / логин администратора<input name="login" type="text" required autocomplete="username" placeholder="Email, телефон или логин администратора"></label><label>Пароль<input name="password" type="password" required autocomplete="current-password"></label><button>Войти</button></form><form id="registerForm" class="profileForm hidden"><label>Имя<input name="name" required minlength="2" maxlength="120" autocomplete="given-name"></label><label>Фамилия<input name="last_name" required minlength="2" maxlength="120" autocomplete="family-name"></label><label>Email<input name="email" type="email" required autocomplete="email"></label><label>Телефон<input name="phone" type="tel" required autocomplete="tel"></label><label>Дата рождения<input name="birth_date" type="date" required autocomplete="bday"></label><label>Пароль<input name="password" type="password" minlength="10" required autocomplete="new-password"></label><label class="profileConsent"><input name="consent" type="checkbox" required> Согласен на <a href="buyer-info.html#privacy" target="_blank">обработку персональных данных</a></label><button>Создать кабинет</button></form><div id="authMsg" class="profileMsg"></div></section></div>
     <div id="account" class="hidden">
-      <section class="profileCard" id="purchaseTier"><h3>Ваша скидка: <span id="purchaseTierPercent">0%</span></h3><p id="purchaseTierNext"></p><p>После одной покупки свыше 5 000 ₽ — 5%. Имея 5%, купите от 30 000 ₽ — получите 7%; имея 7%, от 50 000 ₽ — 10%. Новый уровень действует со следующей покупки бессрочно. Акционные товары не получают скидку и не учитываются в порогах. При возврате уровень пересчитывается.</p></section><section class="profileDashboardHero">
+      <section class="profileCard purchaseTierCard" id="purchaseTier" aria-labelledby="purchaseTierHeading">
+        <div class="purchaseTierHeader">
+          <div><span class="purchaseTierEyebrow">Скидка постоянного покупателя</span><h2 id="purchaseTierHeading">Ваша скидка</h2><p id="purchaseTierCurrentNote">На следующие покупки неакционных товаров</p></div>
+          <strong class="purchaseTierPercent" id="purchaseTierPercent">0%</strong>
+        </div>
+        <div class="purchaseTierNext"><span>Следующая ступень</span><p id="purchaseTierNext"></p></div>
+        <ol class="purchaseTierSteps" aria-label="Как растёт ваша скидка">
+          <li data-tier="5"><div class="purchaseTierStepTop"><strong>5%</strong><span data-tier-state>Первая ступень</span></div><p>Одна оплаченная покупка<br><b>свыше 5 000 ₽</b></p><small>Скидка со следующей покупки</small></li>
+          <li data-tier="7"><div class="purchaseTierStepTop"><strong>7%</strong><span data-tier-state>Вторая ступень</span></div><p>При скидке 5% — одна покупка<br><b>от 30 000 ₽</b></p><small>Скидка со следующей покупки</small></li>
+          <li data-tier="10"><div class="purchaseTierStepTop"><strong>10%</strong><span data-tier-state>Третья ступень</span></div><p>При скидке 7% — одна покупка<br><b>от 50 000 ₽</b></p><small>Скидка со следующей покупки</small></li>
+        </ol>
+        <p class="purchaseTierTiming"><b>Новый процент — со следующей покупки.</b> Покупка, которая повышает уровень, оплачивается с вашей прежней скидкой.</p>
+        <details class="purchaseTierRules"><summary>Условия программы</summary><p>Считается сумма неакционных товаров в одной оплаченной покупке до скидки. Акционные товары не получают скидку и не учитываются для повышения уровня. Покупки не суммируются; за одну покупку можно подняться только на одну ступень. Полученная скидка действует бессрочно. При возврате уровень пересчитывается.</p></details>
+      </section>
+      <section class="profileDashboardHero">
         <div class="profileIdentity">
           <div id="customerAvatar" class="profileAvatar" aria-hidden="true">PS</div>
           <div class="profileIdentityCopy">
@@ -544,7 +558,17 @@
       $('#ordersCount').textContent=orders.length;
       $('#favoritesCount').textContent=favoriteIds.length;
       $('#reviewsCount').textContent=reviewsCount;
-      const tier=j.loyalty_tier||{};$('#purchaseTierPercent').textContent=Number(tier.percent||0)+'%';$('#purchaseTierNext').textContent=tier.next_percent?'Для скидки '+tier.next_percent+'% нужна одна оплаченная покупка неакционных товаров '+(tier.first_threshold_exclusive?'свыше ':'от ')+Number(tier.next_purchase_rub).toLocaleString('ru-RU')+' ₽ до скидки.':'У вас максимальная скидка 10%.';
+      const tier=j.loyalty_tier||{},tierPercent=Number(tier.percent||0);
+      $('#purchaseTierPercent').textContent=tierPercent+'%';
+      $('#purchaseTierCurrentNote').textContent=tierPercent?'На следующие покупки неакционных товаров':'Получите первую скидку после оплаченной покупки';
+      $('#purchaseTierNext').textContent=tier.next_percent?'Купите неакционные товары '+(tier.first_threshold_exclusive?'свыше ':'от ')+Number(tier.next_purchase_rub).toLocaleString('ru-RU')+' ₽ за один раз — получите '+tier.next_percent+'% со следующей покупки.':'Максимальная скидка 10% уже действует на ваши покупки.';
+      $('#purchaseTierNext').parentElement.querySelector('span').textContent=tier.next_percent?'Следующая ступень':'Максимальный уровень';
+      document.querySelectorAll('#purchaseTier [data-tier]').forEach(step=>{
+        const percent=Number(step.dataset.tier),current=percent===tierPercent,reached=percent<=tierPercent;
+        step.classList.toggle('isCurrent',current);step.classList.toggle('isReached',reached);
+        if(current)step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');
+        step.querySelector('[data-tier-state]').textContent=current?'Ваша ступень':reached?'Получено':(percent===5?'Первая ступень':percent===7?'Вторая ступень':'Третья ступень');
+      });
       renderCustomerLoyalty(j);
       renderVehiclesService(j);
 
