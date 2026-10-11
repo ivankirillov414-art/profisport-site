@@ -3,6 +3,9 @@ declare(strict_types=1);
 require __DIR__.'/../server/legal-documents.php';
 function check(bool $condition,string $message):void{if(!$condition)throw new RuntimeException($message);}
 $s=legal_defaults();check(count($s['documents'])===14,'complete document set');check(legal_public_documents($s)===[],'drafts private by default');
+check($s['seller']['inn']==='561201892940'&&$s['seller']['ogrn']==='304561213800112','verified business identifiers');
+check($s['seller']['phone']==='','missing phone not invented');
+check(str_contains($s['seller']['stores'],'118, строение 2'),'both stores seeded');
 $payload=['revision'=>0,'action'=>'save','slug'=>'reviews','title'=>'Отзывы','body'=>'Это новый черновик документа, который не должен сразу появиться на сайте.'];
 $s=legal_apply($s,$payload,1);check(legal_public_documents($s)===[],'draft save not published');
 try{legal_apply($s,$payload,1);throw new Exception('accepted stale write');}catch(RuntimeException $e){check($e->getMessage()==='conflict','conflict guard');}

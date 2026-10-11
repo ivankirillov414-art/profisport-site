@@ -6,7 +6,7 @@ function legal_fields(): array {
     return ['seller_type'=>'Форма: ИП или ООО','seller_name'=>'ФИО ИП / полное наименование ООО','inn'=>'ИНН','ogrn'=>'ОГРН / ОГРНИП','address'=>'Адрес продавца','registration'=>'Регистрация ИП: дата и регистрирующий орган','claims_address'=>'Адрес возвратов и письменных обращений','phone'=>'Телефон','email'=>'Email обращений и персональных данных','hours'=>'Режим работы','stores'=>'Магазины и пункты выдачи','bank_details'=>'Банковские реквизиты (если нужны)'];
 }
 function legal_defaults(): array {
-    $state=['revision'=>0,'seller'=>array_fill_keys(array_keys(legal_fields()),''),'documents'=>[]];
+    $state=['revision'=>0,'seller'=>array_replace(array_fill_keys(array_keys(legal_fields()),''),require __DIR__.'/legal-seller.php'),'documents'=>[]];
     foreach((require __DIR__.'/legal-defaults.php') as $d){
         $state['documents'][$d['slug']]=['slug'=>$d['slug'],'title'=>$d['title'],'body'=>$d['body'],'note'=>$d['note'],'published'=>null,'history'=>[]];
     }
@@ -18,7 +18,7 @@ function legal_load(PDO $pdo, bool $lock=false): array {
     if($raw!==false){
         $saved=json_decode((string)$raw,true,512,JSON_THROW_ON_ERROR);
         if(!is_array($saved)||!isset($saved['revision'],$saved['documents'],$saved['seller']))throw new RuntimeException('legal_storage_invalid');
-        $state['revision']=(int)$saved['revision'];$state['seller']=array_replace($state['seller'],$saved['seller']);
+        $state['revision']=(int)$saved['revision'];$state['seller']=array_replace($state['seller'],array_filter($saved['seller'],static fn($value)=>is_string($value)&&trim($value)!==''));
         foreach($saved['documents'] as $slug=>$d)if(isset($state['documents'][$slug]))$state['documents'][$slug]=array_replace($state['documents'][$slug],$d);
     }
     return $state;
