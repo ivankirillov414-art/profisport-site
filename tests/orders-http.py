@@ -115,7 +115,7 @@ assert call('api/customer.php?action=me')[1]['customer'] is None
 print('PASS: authenticated checkout, vehicle ownership, linked service history and safe repeat-order preview')
 for page in ['photos.php','customers.php','reviews.php','health.php','orders.php','categories.php','stats.php','loyalty.php']:
     with urllib.request.urlopen(BASE+'admin/'+page,timeout=15) as r:
-        assert r.geturl().endswith('/admin/login.php'),page
+        assert r.geturl().endswith('/profile.html'),page
 print('PASS: protected admin pages redirect unauthenticated visitors')
 stats=call('server/api.php?action=stats',cookie=cookie)[1]
 assert stats['customers']==1 and stats['new_service']==0

@@ -12,6 +12,20 @@ def call(path,data=None,cookie=None,csrf=None):
     raw=r.read()
     return r.status,json.loads(raw),r.headers
 
+# The same form must authenticate the existing admin, never an unverified name.
+status,result,_=call('api/customer.php?action=login',{'login':'Иван Кириллов 414','password':'wrong-password'})
+assert status==401 and result['error']=='invalid_credentials',(status,result)
+status,result,h=call('api/customer.php?action=login',{'login':'Иван Кириллов 414','password':'test-only-password'})
+assert status==200 and result['admin']['role']=='owner' and result['redirect']=='admin/index.php',(status,result)
+admin_cookie=next(c.split(';')[0] for c in reversed(h.get_all('Set-Cookie')) if c.startswith('PROFISPORT_ADMIN='))
+assert 'Secure' in h.get('Set-Cookie','') and 'HttpOnly' in h.get('Set-Cookie','')
+assert call('server/api.php?action=stats',cookie=admin_cookie)[0]==200
+assert call('server/api.php?action=stats')[0]==401
+with urllib.request.urlopen(BASE+'admin/login.php',timeout=15) as r:
+    assert r.geturl().endswith('/profile.html')
+    assert 'логин администратора' in r.read().decode()
+print('PASS: unified form authenticates admin with secure cookie, rejects wrong password and preserves protected access')
+
 registration={'name':'Phone','last_name':'Login','email':'phone-login@example.test','phone':'+79998887766','birth_date':'1992-03-04','password':PASSWORD,'consent':True}
 status,created,h=call('api/customer.php?action=register',registration)
 assert status==200,(status,created)
