@@ -21,6 +21,8 @@ on:
       - 'service.html'
       - 'product.html'
       - 'product-kant.js'
+      - 'checkout.js'
+      - 'api/order-create.php'
       - 'shop.html'
       - 'workshop.html'
       - 'buyer-info.html'
@@ -69,6 +71,10 @@ jobs:
       - name: Validate motion hotfix files
         run: |
           set -euo pipefail
+          php -l api/order-create.php
+          php tests/order-validation.php
+          node --check checkout.js
+          node --check product-kant.js
           php -l legal.php
           php -l server/legal-documents.php
           php -l server/legal-defaults.php
@@ -115,7 +121,8 @@ jobs:
           mkdir -p hotfix-upload/admin hotfix-upload/api hotfix-upload/server
           cp legal.php legal.css buyer-legal.js hotfix-upload/
           cp admin/seller.php admin/seller.js hotfix-upload/admin/
-          cp api/seller-discount.php hotfix-upload/api/
+          cp api/order-create.php api/seller-discount.php hotfix-upload/api/
+          cp checkout.js hotfix-upload/
           cp admin/legal.php admin/legal.js admin/index.php admin/sections.php hotfix-upload/admin/
           cp api/legal-admin.php api/legal-public.php hotfix-upload/api/
           cp server/legal-documents.php server/legal-defaults.php server/api.php hotfix-upload/server/
