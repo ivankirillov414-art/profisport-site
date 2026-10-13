@@ -11,7 +11,7 @@
   if(frame)add('Ростовка (в названии)',frame[1]+' мм',['ростов','размер рам','высота рам']);
  }
  return entries;
-}function galleryHtml(p){const imgs=[...new Set([p.image,...(p.images||[])].filter(Boolean))];if(!imgs.length)return'<div class="galleryMain"><span class="imagePlaceholder">Фото уточняется</span></div>';return`<div><div class="galleryMain"><img id="mainProductImg" src="${esc(imgs[0])}" alt="${esc(p.name)}"></div>${imgs.length>1?`<div class="galleryThumbs">${imgs.map((u,i)=>`<button type="button" class="${i===0?'active':''}" data-img="${esc(u)}"><img src="${esc(u)}" alt=""></button>`).join('')}</div>`:''}</div>`}function bindGallery(){
+}function galleryHtml(p){const imgs=[...new Set([p.image,...(p.images||[])].filter(Boolean))];if(!imgs.length)return'<div class="galleryMain"><span class="imagePlaceholder">Фото уточняется</span></div>';return`<div><div class="galleryMain"><img id="mainProductImg" src="${esc(imgs[0])}" alt="${esc(p.name)}"></div><p class="productImageNotice" style="margin:12px 4px;color:#596974;font-size:12px;line-height:1.5">Изображение товара может отличаться от его фактического внешнего вида.</p>${imgs.length>1?`<div class="galleryThumbs">${imgs.map((u,i)=>`<button type="button" class="${i===0?'active':''}" data-img="${esc(u)}"><img src="${esc(u)}" alt=""></button>`).join('')}</div>`:''}</div>`}function bindGallery(){
 const main=$('#mainProductImg');if(!main)return;
 const thumbs=[...document.querySelectorAll('.galleryThumbs button')];
 const failed=new Set();
