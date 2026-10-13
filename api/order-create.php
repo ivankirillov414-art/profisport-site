@@ -28,6 +28,7 @@ try{
   $s=$pdo->prepare("SELECT id,name,price_rub,old_price_rub,old_price,stock_qty,stock_status,availability,is_active,category_path FROM products WHERE id IN ($marks) ORDER BY id FOR UPDATE");
   $s->execute(array_keys($groups));$calculated=order_lines($s->fetchAll(),$groups);
   $priced=loyalty_discount_order_items($pdo,$calculated,$customerId);
+  if($in['delivery']==='orenburg_delivery' && (float)$priced['total']<1000)throw new DomainException('delivery_minimum_not_met');
   // This is a request for manager confirmation; stock remains owned by the 1C import.
   $number='PS-'.date('ymd').'-'.strtoupper(bin2hex(random_bytes(5)));
   insert_order_row($pdo,'orders',[
