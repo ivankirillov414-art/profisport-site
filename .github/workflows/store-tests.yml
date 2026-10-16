@@ -137,7 +137,7 @@ jobs:
           php tests/loyalty-live.php
           php tests/vehicle-passport.php
           php tests/vehicle-spec-registry.php
-          php -d opcache.enable_cli=0 -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
+          php -d opcache.enable=0 -d opcache.enable_cli=0 -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID"' EXIT
           for attempt in 1 2 3 4 5; do
