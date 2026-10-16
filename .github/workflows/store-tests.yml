@@ -58,6 +58,7 @@ jobs:
           node --check service.js
           node --check service-guide.js
           node --check product-kant.js
+          php tests/seo.php
           php tests/order-validation.php
           php tests/import-upload.php
           php tests/catalog-quality.php
@@ -116,7 +117,7 @@ jobs:
         run: |
           grep -Fq 'source_hash,catalog_snapshot,name,slug,sku' api/import-apply.php
           grep -Fq "COALESCE(stock_qty,0)>0" api/catalog.php
-          grep -Fq 'SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active,category_path FROM products' api/order-create.php
+          grep -Fq 'SELECT id,name,price_rub,old_price_rub,old_price,stock_qty,stock_status,availability,is_active,category_path FROM products' api/order-create.php
           grep -Fq "action==='favorites_merge'" api/customer.php
           grep -Fq "action==='order'" api/customer.php
           grep -Fq "COALESCE(price_rub,0)>0" api/catalog.php
@@ -136,13 +137,14 @@ jobs:
           php tests/loyalty-live.php
           php tests/vehicle-passport.php
           php tests/vehicle-spec-registry.php
-          php -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
+          php -d opcache.enable=0 -d opcache.enable_cli=0 -S 127.0.0.1:8080 > /tmp/profisport-test.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID"' EXIT
           for attempt in 1 2 3 4 5; do
             curl -s http://127.0.0.1:8080/ > /dev/null && break
             sleep 1
           done
+          python3 tests/seo-http.py
           python3 tests/legal-http.py
           python3 tests/bicycle-fit-http.py
           python3 tests/orders-http.py
