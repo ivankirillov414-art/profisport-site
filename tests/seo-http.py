@@ -36,7 +36,7 @@ try:
     assert n==1
     config.write_text(configured)
     status,body,_=get('server/seo-product.php?id=1&utm_source=test')
-    assert status==200 and 'index, follow, max-image-preview:large' in body
+    assert status==200 and 'index, follow, max-image-preview:large' in body, (status, body[:500])
     assert 'href="https://example.test/product.html?id=1"' in body
     schema=json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>',body).group(1))
     _,api,_=get('api/catalog.php?id=1')
