@@ -1,3 +1,36 @@
+/* Connection draft: never read, store or prefill password fields. */
+(()=>{
+ const form=document.getElementById('migrationForm');if(!form)return;
+ const note=document.getElementById('migrationDraftStatus');
+ const fields=['target_url','ftp_host','ftp_port','ftp_user','ftp_root','db_host','db_port','db_name','db_user'];
+ const key='profisport-migration-connection-v1';
+ function apply(data){
+  if(!data||typeof data!=='object'||Array.isArray(data))return 0;
+  let count=0;
+  for(const name of fields){
+   if(!Object.prototype.hasOwnProperty.call(data,name)||typeof data[name]!=='string'||data[name].length>2048)continue;
+   if(name.endsWith('_port')&&!/^(?:[1-9][0-9]{0,4})$/.test(data[name]))continue;
+   if(name.endsWith('_port')&&Number(data[name])>65535)continue;
+   const input=form.elements.namedItem(name);if(!input||input.type==='password')continue;
+   input.value=data[name];count++;
+  }
+  return count;
+ }
+ function save(){
+  const data={};for(const name of fields){const input=form.elements.namedItem(name);if(input&&input.type!=='password')data[name]=input.value;}
+  try{localStorage.setItem(key,JSON.stringify(data));}catch{}
+ }
+ let restored=0;try{restored=apply(JSON.parse(localStorage.getItem(key)||'null'));}catch{}
+ const hash=new URLSearchParams(location.hash.slice(1));
+ if(hash.has('setup')){
+  try{restored=apply(JSON.parse(hash.get('setup')))||restored;}catch{}
+  // Keep connection identifiers out of subsequently copied page addresses.
+  history.replaceState(null,'',location.pathname+location.search);
+ }
+ if(restored){save();if(note)note.textContent='Параметры подключения заполнены. Проверьте папку назначения. Пароли вводятся отдельно; перенос не запущен.';}
+ form.addEventListener('input',save);form.addEventListener('change',save);
+})();
+/* Migration request controller */
 (()=>{
 const $=id=>document.getElementById(id),form=$('migrationForm'),msg=$('migrationMessage'),jobs=$('migrationJobs');let csrf='';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
