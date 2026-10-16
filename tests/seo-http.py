@@ -35,6 +35,11 @@ try:
     configured,n=re.subn(r'(return\s*\[)',r"\1'seo_public_url'=>'https://example.test','seo_indexing'=>true,",original,count=1)
     assert n==1
     config.write_text(configured)
+    import subprocess
+    flags=subprocess.check_output(['php','-r',"$c=require 'server/config.php';echo json_encode([$c['seo_public_url']??null,$c['seo_indexing']??null]);"],text=True)
+    assert json.loads(flags)==['https://example.test',True], flags
+    status,robot_text,_=get('robots.php')
+    assert 'Sitemap: https://example.test/sitemap.xml' in robot_text, robot_text
     status,body,_=get('server/seo-product.php?id=1&utm_source=test')
     assert status==200 and 'index, follow, max-image-preview:large' in body, (status, re.findall(r'<meta[^>]+(?:robots|canonical)[^>]*>|<link[^>]+canonical[^>]*>',body), 'offers' in body)
     assert 'href="https://example.test/product.html?id=1"' in body
