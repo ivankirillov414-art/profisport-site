@@ -87,6 +87,7 @@ jobs:
           node tests/catalog-live-source-regression.js
           node tests/current-export-regression.js
           node tests/migration-readiness.js
+          node tests/migration-draft.js
           node tests/photo-source-ownership.js
           node tests/catalog-startup-regression.js
           node tests/security-regression.js
@@ -116,7 +117,7 @@ jobs:
         run: |
           grep -Fq 'source_hash,catalog_snapshot,name,slug,sku' api/import-apply.php
           grep -Fq "COALESCE(stock_qty,0)>0" api/catalog.php
-          grep -Fq 'SELECT id,name,price_rub,stock_qty,stock_status,availability,is_active,category_path FROM products' api/order-create.php
+          grep -Fq 'SELECT id,name,price_rub,old_price_rub,old_price,stock_qty,stock_status,availability,is_active,category_path FROM products' api/order-create.php
           grep -Fq "action==='favorites_merge'" api/customer.php
           grep -Fq "action==='order'" api/customer.php
           grep -Fq "COALESCE(price_rub,0)>0" api/catalog.php

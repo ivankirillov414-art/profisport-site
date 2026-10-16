@@ -11,7 +11,7 @@
 body{background:#f5f5f3;color:#202124;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .wrap{width:min(980px,calc(100% - 28px));margin:24px auto 70px}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px}.card{background:#fff;border:1px solid #e3e3df;border-radius:18px;padding:20px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:6px}.field input,.field select{width:100%;padding:12px;border:1px solid #ccd0d3;border-radius:10px;font:inherit}.wide{grid-column:1/-1}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800;cursor:pointer;background:#f2c94c;color:#111}.btn.secondary{background:#e9e9e5}.btn.danger{background:#bd3a31;color:#fff}.muted{color:#747a80}.ok{color:#19763b}.bad{color:#a92b20}.status{display:grid;gap:8px}.job{border-top:1px solid #eee;padding:12px 0}.job:first-child{border-top:0}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eee;font-size:12px;font-weight:800}@media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}
 </style>
-<script src="migration.js?v=1" defer></script>
+<script src="migration.js?v=2" defer></script>
 <link rel="stylesheet" href="../motion.css?v=1"><style>@view-transition{navigation:none}</style><link rel="stylesheet" href="layout.css?v=2"></head>
 <body class="motion-page motion-admin">
 <?php require __DIR__.'/menu.php'; ?><main class="wrap">
@@ -19,14 +19,15 @@ body{background:#f5f5f3;color:#202124;font-family:system-ui,-apple-system,"Segoe
 <section class="card">
 <h2>Новый хостинг</h2>
 <p class="muted">Поддерживается защищённый FTPS и MySQL. Целевая база должна быть пустой. Пароли шифруются на текущем сервере и удаляются из задания после успешного переноса.</p>
-<form id="migrationForm">
+<p id="migrationDraftStatus" class="muted" role="status">Параметры подключения сохраняются в этом браузере, чтобы не вводить их повторно. Пароли не сохраняются.</p>
+<form id="migrationForm" autocomplete="off">
 <div class="grid">
 <label class="field wide">Публичный HTTPS-адрес нового сайта (необязательно)<input name="target_url" type="url" placeholder="https://shop.example.ru"></label>
 <label class="field">FTPS-сервер<input name="ftp_host" required placeholder="ftp.example.ru"></label>
 <label class="field">FTPS-порт<input name="ftp_port" type="number" min="1" max="65535" value="21" required></label>
-<label class="field">FTPS-логин<input name="ftp_user" autocomplete="username" required></label>
+<label class="field">FTPS-логин<input name="ftp_user" autocomplete="off" required></label>
 <label class="field">FTPS-пароль<input name="ftp_pass" type="password" autocomplete="new-password" required></label>
-<label class="field wide">Папка сайта на новом сервере<input name="ftp_root" value="/htdocs" required></label>
+<label class="field wide">Папка сайта на новом сервере<input name="ftp_root" placeholder="Путь к отдельной папке нового сайта" required></label>
 <label class="field">MySQL-сервер<input name="db_host" required placeholder="localhost"></label>
 <label class="field">MySQL-порт<input name="db_port" type="number" min="1" max="65535" value="3306" required></label>
 <label class="field">Имя базы<input name="db_name" required></label>
