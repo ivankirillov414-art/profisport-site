@@ -186,6 +186,14 @@ jobs:
               exec apache2-foreground
             '
           python3 tests/hosting-apache.py 'http://127.0.0.1:18080/kosmoport/' || { docker logs "$container"; exit 1; }
+      - name: Real Chromium setup form and strict Origin/CSRF regression
+        env:
+          KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-form-browser/node_modules/playwright
+        run: |
+          set -euo pipefail
+          npm --prefix "$RUNNER_TEMP/kosmoport-form-browser" install --no-save --ignore-scripts 'playwright@1.62.1'
+          "$RUNNER_TEMP/kosmoport-form-browser/node_modules/.bin/playwright" install --with-deps chromium
+          KCRM_TEST_PHP="$(command -v php)" node tests/setup-form-browser.mjs
       - name: Upload only the verified source ZIP and its checksum
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # existing repository pin
         with:

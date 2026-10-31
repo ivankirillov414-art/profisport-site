@@ -7,7 +7,7 @@ try {
     if (crm_config('environment') === 'production' && !crm_is_https()) crm_fail('HTTPS_REQUIRED', 'Откройте установку через HTTPS.', 403);
     header('Cache-Control: no-store'); header('X-Frame-Options: DENY'); header('X-Content-Type-Options: nosniff');
     header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
-    header('Referrer-Policy: no-referrer');
+    header('Referrer-Policy: same-origin');
     $csrf = crm_csrf_token();
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if ($method === 'POST') {
