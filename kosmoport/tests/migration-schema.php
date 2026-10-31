@@ -156,7 +156,7 @@ try {
     $assert($source->query('SELECT version,checksum FROM kcrm_migrations ORDER BY version')->fetchAll(PDO::FETCH_KEY_PAIR) === $migrationHashes, 'source journal matches every captured actual SQL checksum');
     $assert($target->query('SELECT version,checksum FROM kcrm_migrations ORDER BY version')->fetchAll(PDO::FETCH_KEY_PAIR) === $migrationHashes, 'target journal matches the same captured actual SQL checksums');
     $assert((int)$source->query('SELECT COUNT(*) FROM kcrm_users')->fetchColumn() === 0, 'migrate-only creates no initial owner');
-    $assert($target->query('SELECT id,owner_id,completed_at FROM kcrm_setup')->fetchAll(PDO::FETCH_NUM) === [['1', null, null]], 'actual target keeps the trusted pristine setup seed');
+    $assert($target->query('SELECT id,owner_id,completed_at FROM kcrm_setup')->fetchAll(PDO::FETCH_NUM) === [], 'actual migrate-only target leaves owner setup unclaimed and empty');
     $assert($target->query('SELECT id,touched FROM kcrm_ticket_lock')->fetchAll(PDO::FETCH_NUM) === [['1', '0']], 'actual target keeps the trusted pristine ticket lock seed');
     $assert(count(kcrm_transfer_migrations($source)) === count($migrationFiles), 'actual journal covers every trusted source migration');
     $target->exec("UPDATE kcrm_migrations SET applied_at='2025-01-01 00:00:00'");
@@ -179,7 +179,8 @@ try {
     $now = '2026-10-31 10:00:00';
     $source->prepare('INSERT INTO kcrm_users (id,name,email,password_hash,role,active,session_version,revision,created_at,updated_at) VALUES (?,?,?,?,?,1,1,1,?,?)')
         ->execute([$actor, 'Владелец фикстуры', 'schema-fixture@example.invalid', 'fixture-hash-not-a-real-password', 'owner', $now, $now]);
-    $source->prepare('UPDATE kcrm_setup SET owner_id=?,completed_at=? WHERE id=1 AND owner_id IS NULL AND completed_at IS NULL')->execute([$actor, $now]);
+    // Current Core creates this row only when an independent owner is installed.
+    $source->prepare('INSERT INTO kcrm_setup (id,owner_id,completed_at) VALUES (1,?,?)')->execute([$actor, $now]);
     $source->exec('UPDATE kcrm_ticket_lock SET touched=7 WHERE id=1 AND touched=0');
     $document = str_repeat('ab', 16);
     $source->prepare('INSERT INTO kcrm_documents (id,title,category,current_version,created_by,created_by_name,updated_by,updated_by_name,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)')
