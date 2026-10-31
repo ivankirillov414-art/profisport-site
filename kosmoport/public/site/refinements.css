@@ -1,0 +1,36 @@
+/* User review: plain wordmark, no arrows or ornamental symbols. */
+:root{--button-bg:#edf2fa;--button-text:#152039}
+body{font-family:Manrope,Arial,sans-serif;font-weight:500;letter-spacing:0}
+h1,h2,h3,.brand,.button,.boarding-type{font-family:Manrope,Arial,sans-serif}
+h1,h2{font-weight:750;letter-spacing:-.035em}
+h1 span+span,h2 span+span{margin-left:.16em}h1 span:empty,h2 span:empty{display:none}
+p{color:#dce3f0}
+.brand{gap:0;font-weight:800;letter-spacing:.015em}
+.brand small{font-weight:650;letter-spacing:.1em}
+.brand-symbol,.location-pin,.feature-icon,.expedition-icon,.button-spark,.art-note{display:none!important}
+.button,.button-sm,.button-dark{background:var(--button-bg)!important;background-image:none!important;color:var(--button-text)!important;border:1px solid #d9e2f1!important;border-radius:10px!important;box-shadow:none!important;text-shadow:none!important;font-weight:750;gap:0}
+.button:hover,.button-sm:hover,.button-dark:hover{background:#d7e3f6!important;color:#101a2d!important;box-shadow:none!important;filter:none}
+.button::before,.button::after{content:none!important;display:none!important}
+.button:focus-visible{outline:3px solid #93b8f6;outline-offset:4px}
+.event-strip{font-size:14px;font-weight:650;line-height:1.5}
+.event-strip .container{gap:10px 24px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.event-strip span,.event-strip strong{font-size:inherit;font-weight:650;letter-spacing:0;color:#e7eefb}
+.hero-benefits{gap:28px}
+.hero-benefits>div{padding:0;background:none;border:0;border-radius:0;box-shadow:none}
+.hero-benefits strong{font-weight:650;color:#e8eef8;line-height:1.5}
+.hero-location{box-shadow:none}
+.hero-location>div>span{font-size:12px;font-weight:650;letter-spacing:.08em;color:#bdcce3}
+.hero-location strong{font-size:16px;font-weight:700}
+.mission-features{gap:32px}
+.mission-features article{background:none;border:0;border-top:1px solid #33415e;border-radius:0;box-shadow:none;padding:22px 0}
+.mission-features h3{font-size:18px;font-weight:700;letter-spacing:0}
+.mission-features p{font-size:15px;font-weight:500;line-height:1.65;color:#ccd7eb}
+.family-copy h2{font-size:clamp(36px,4.3vw,60px);line-height:1.12;max-width:570px}
+.family-copy p{font-size:17px;line-height:1.75;max-width:440px}
+.family-reasons{display:none}
+.boarding-edge{display:none}.small-note:empty,.visit-note:empty{display:none}
+.portal-arrow{width:76px;height:40px;min-width:76px;font-family:Manrope,Arial,sans-serif;font-size:13px;font-weight:700;border-radius:8px;letter-spacing:0;line-height:1}
+.portal-arrow.previous{left:-14px}.portal-arrow.next{right:-14px}
+.organizer-contacts{max-width:1160px;margin:20px auto;padding:0 24px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.organizer-contacts h3{font-size:16px;margin:0}.organizer-contacts a{color:#e4edff}
+@media(max-width:600px){.event-strip{font-size:13px}.event-strip .container{justify-content:center;gap:5px 14px}.hero-benefits{gap:16px;flex-wrap:wrap}.hero-benefits strong{font-size:13px}.family-copy h2{font-size:36px}.portal-arrow.previous{left:-4px}.portal-arrow.next{right:-4px}.portal-arrow{width:68px;min-width:68px;height:36px}.brand small{font-size:9px}}
