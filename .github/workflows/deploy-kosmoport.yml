@@ -163,6 +163,29 @@ jobs:
           php tools/package.php --output "$RUNNER_TEMP/kosmoport-bundle/source.zip"
           php deploy/verify-source-package.php "$RUNNER_TEMP/kosmoport-bundle/source.zip"
           php -r 'file_put_contents(getenv("GITHUB_OUTPUT"), "sha256=".hash_file("sha256",$argv[1])."\n", FILE_APPEND);' "$RUNNER_TEMP/kosmoport-bundle/source.zip"
+      - name: Verify the packaged layout with actual Apache and mod_rewrite
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, zipfile
+          from pathlib import Path
+          folder = Path(os.environ['RUNNER_TEMP']) / 'kosmoport-apache/htdocs/kosmoport'
+          folder.mkdir(parents=True)
+          with zipfile.ZipFile(Path(os.environ['RUNNER_TEMP']) / 'kosmoport-bundle/source.zip') as archive:
+              archive.extractall(folder)  # Paths/checksums were checked by verify-source-package.php.
+          (folder/'public/host-control.json').write_bytes(b'{"synthetic":true}\n')
+          PY
+          container="kosmoport-apache-$GITHUB_RUN_ID"
+          trap 'docker stop "$container" >/dev/null 2>&1 || true' EXIT
+          docker run --detach --name "$container" --publish 127.0.0.1:18080:80 \
+            --volume "$RUNNER_TEMP/kosmoport-apache/htdocs:/var/www/html:ro" \
+            php:8.2-apache bash -ec '
+              a2enmod rewrite >/dev/null
+              printf "%s\n" "<Directory /var/www/html>" "AllowOverride All" "Require all granted" "</Directory>" > /etc/apache2/conf-available/kosmoport.conf
+              a2enconf kosmoport >/dev/null
+              exec apache2-foreground
+            '
+          python3 tests/hosting-apache.py 'http://127.0.0.1:18080/kosmoport/' || { docker logs "$container"; exit 1; }
       - name: Upload only the verified source ZIP and its checksum
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # existing repository pin
         with:
@@ -278,7 +301,7 @@ jobs:
             --package "$RUNNER_TEMP/kosmoport-release/source.zip" \
             --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
             --apply \
-            --report "$RUNNER_TEMP/kosmoport-release/readback.private.json"
+            --report "$RUNNER_TEMP/kosmoport-release/readback.private.json" >/dev/null
       - name: Retain only nonsecret readback metadata
         env:
           EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
@@ -337,7 +360,7 @@ jobs:
             --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
             --privacy-proof "$RUNNER_TEMP/kosmoport-release/browser-proof.private.json" \
             --confirm-browser-checks --apply \
-            --report "$RUNNER_TEMP/kosmoport-release/storage-activation.json"
+            --report "$RUNNER_TEMP/kosmoport-release/storage-activation.json" >/dev/null
       - name: Verify website, anonymous session and independent owner setup before alias
         env:
           KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-browser/node_modules/playwright
@@ -358,7 +381,7 @@ jobs:
             --package "$RUNNER_TEMP/kosmoport-release/source.zip" \
             --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
             --redirect-kosmosfera --apply \
-            --report "$RUNNER_TEMP/kosmoport-release/alias-result.json"
+            --report "$RUNNER_TEMP/kosmoport-release/alias-result.json" >/dev/null
       - name: Verify former Kosmosfera URL in real Chromium
         env:
           KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-browser/node_modules/playwright
