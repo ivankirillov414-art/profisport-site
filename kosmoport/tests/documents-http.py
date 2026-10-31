@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+from contextlib import closing
 from datetime import datetime, timezone
 import hashlib
 import io
@@ -182,7 +183,7 @@ class DocumentsHTTP(unittest.TestCase):
     def audit(self):
         if OPTIONS.mysql_runtime:
             return self.mysql("audit")["items"]
-        with sqlite3.connect(self.directory / "fixture.sqlite") as db:
+        with closing(sqlite3.connect(self.directory / "fixture.sqlite")) as db:
             return list(db.execute("select action,entity_id,details,role from documents_test_audit"))
 
     def test_auth_every_route_and_role(self):
