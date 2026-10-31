@@ -31,7 +31,7 @@ for attempt in range(100):
     try:
         root = get('')
         break
-    except urllib.error.URLError:
+    except (urllib.error.URLError, ConnectionError, TimeoutError):
         time.sleep(0.1)
 else:
     raise SystemExit('Disposable Apache did not start')
