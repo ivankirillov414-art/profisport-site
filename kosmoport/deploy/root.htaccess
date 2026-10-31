@@ -2,7 +2,10 @@
 # Put this file at the extracted release root, e.g. htdocs/kosmoport/. The package
 # also adds independent deny rules to each private top-level directory.
 Options -Indexes
-DirectoryIndex public/index.php
+DirectoryIndex index.php index.html
+# Keep denial and missing-file status codes on this application origin.
+ErrorDocument 403 "Forbidden"
+ErrorDocument 404 "Not found"
 
 <FilesMatch "(?i)^(?:CHECKSUMS\.sha256|SOURCE-PACKAGE\.json|config\.php|\.env.*)$">
     <IfModule mod_authz_core.c>
@@ -19,6 +22,6 @@ DirectoryIndex public/index.php
     RewriteRule ^(?:app|config|storage|migrations|bin|tools|docs|deploy|integrations)(?:/|$) - [F,L,NC]
     RewriteRule (^|/)\. - [F,L]
     RewriteRule ^public(?:/|$) - [L]
-    RewriteRule ^$ public/ [L]
+    RewriteRule ^$ public/index.php [L]
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

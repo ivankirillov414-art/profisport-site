@@ -21,7 +21,7 @@ try{
  const page=await context.newPage();
  const root=await page.goto(base.href,{waitUntil:'networkidle',timeout:60000});
  title=await page.title();
- if(root.status()!==200||!/космопорт/i.test(title)||new URL(page.url()).origin!==base.origin)throw Error('The real public Kosmoport page was not reached; no guard proof can be issued');
+ if(root.status()!==200||!/космопорт/i.test(title)||new URL(page.url()).origin!==base.origin)throw Error('The real public Kosmoport page was not reached; no guard proof can be issued: '+JSON.stringify({status:root.status(),title,url:page.url()}));
  if(receipt){
   const relative=receipt.public_control?.path;
   if(typeof relative!=='string'||!relative.startsWith('public/')||relative.includes('..')||relative.includes('\\'))throw Error('Invalid public canary metadata');
