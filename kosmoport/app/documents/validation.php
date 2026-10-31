@@ -292,11 +292,9 @@ function crm_documents_validate_file(string $path, mixed $originalName, int $max
         }
     } else {
         $body = (string)file_get_contents($path);
-        if (!in_array($detected, ['text/plain', 'text/csv', 'application/csv'], true) || !preg_match('//u', $body) || preg_match('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/', $body) || preg_match('/<\?(?:php|=)|<!\s*(?:doctype|entity)|<\s*(?:html|script|svg|iframe)\b/i', $body)) {
-            crm_documents_error('unsafe_text', 'Разрешён только обычный текст UTF-8 без исполняемой разметки.');
-        }
         if ($metadata['extension'] === 'csv') {
-            // Fail closed for spreadsheet formula execution when CSV is opened by staff.
+            // Apply cheap structural limits before MIME classification: libmagic
+            // versions differ on oversized single-line text. Both paths reject it.
             if (substr_count($body, "\n") > 100000) {
                 crm_documents_error('csv_too_large', 'CSV содержит слишком много строк.', 413);
             }
@@ -310,6 +308,12 @@ function crm_documents_validate_file(string $path, mixed $originalName, int $max
             if (strlen($body) - $offset > 65536) {
                 crm_documents_error('csv_too_large', 'Строка CSV слишком длинная.', 413);
             }
+        }
+        if (!in_array($detected, ['text/plain', 'text/csv', 'application/csv'], true) || !preg_match('//u', $body) || preg_match('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/', $body) || preg_match('/<\?(?:php|=)|<!\s*(?:doctype|entity)|<\s*(?:html|script|svg|iframe)\b/i', $body)) {
+            crm_documents_error('unsafe_text', 'Разрешён только обычный текст UTF-8 без исполняемой разметки.');
+        }
+        if ($metadata['extension'] === 'csv') {
+            // Fail closed for spreadsheet formula execution when CSV is opened by staff.
             foreach ([',', ';', "\t"] as $delimiter) {
                 $stream = fopen($path, 'rb');
                 try {
