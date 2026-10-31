@@ -1,0 +1,24 @@
+# Shared-host source layout: keep app/, public/, config/ and storage/ as siblings.
+# Put this file at the extracted release root, e.g. htdocs/kosmoport/. The package
+# also adds independent deny rules to each private top-level directory.
+Options -Indexes
+DirectoryIndex public/index.php
+
+<FilesMatch "(?i)^(?:CHECKSUMS\.sha256|SOURCE-PACKAGE\.json|config\.php|\.env.*)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:app|config|storage|migrations|bin|tools|docs|deploy|integrations)(?:/|$) - [F,L,NC]
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule ^public(?:/|$) - [L]
+    RewriteRule ^$ public/ [L]
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

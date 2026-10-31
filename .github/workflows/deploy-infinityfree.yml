@@ -3,12 +3,12 @@ name: Deploy ProfiSport to InfinityFree
 on:
   push:
     branches: [main]
-    paths-ignore: ['cms/**', '.github/workflows/deploy-cms.yml']
+    paths-ignore: ['cms/**', 'kosmoport/**', '.github/workflows/deploy-cms.yml', '.github/workflows/deploy-kosmoport.yml', '.github/workflows/deploy-infinityfree.yml']
   workflow_dispatch:
 
 concurrency:
   group: infinityfree-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   preflight:
@@ -240,6 +240,7 @@ jobs:
           security: strict
           server-dir: /htdocs/
           exclude: |
+            kosmoport/**
             **/.git*
             **/.git*/**
             **/node_modules/**
@@ -451,4 +452,5 @@ jobs:
         run: |
           echo "Catalog writes are manual only."
           echo "The importer validates the verified stock field before changing product availability."
+
 

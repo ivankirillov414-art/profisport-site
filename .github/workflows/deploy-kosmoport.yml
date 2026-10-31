@@ -1,0 +1,396 @@
+# Template only: copy to the PARENT storefront repository as
+# .github/workflows/deploy-kosmoport.yml, with this application under kosmoport/.
+# Apply the storefront ignore/exclude/concurrency changes in hosting-workflow-notes.md first.
+name: Kosmoport checks and isolated FTPS release
+
+'on':
+  pull_request:
+    paths: ['kosmoport/**', '.github/workflows/deploy-kosmoport.yml']
+  push:
+    branches: [main]
+    paths: ['kosmoport/**', '.github/workflows/deploy-kosmoport.yml']
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: kosmoport
+
+jobs:
+  test_package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    concurrency:
+      group: kosmoport-tests-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    outputs:
+      sha256: ${{ steps.bundle.outputs.sha256 }}
+    services:
+      mysql:
+        image: mariadb:10.11
+        env:
+          # This public bootstrap password belongs ONLY to this disposable CI service.
+          MARIADB_ROOT_PASSWORD: kosmoport-ci-bootstrap-only
+          MARIADB_ROOT_HOST: '%'
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - name: Checkout unprivileged source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2; existing repository pin
+        with:
+          persist-credentials: false
+      - name: PHP 8.2 with the actual database and file modules
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, pdo_sqlite, zip, fileinfo, mbstring, dom
+          coverage: none
+          tools: none
+      - name: Refuse committed runtime, credentials and release archives
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import PurePosixPath
+          import subprocess
+          paths = subprocess.check_output(['git', 'ls-files', '-z', '--', '.']).decode().split('\0')
+          for name in filter(None, paths):
+              p = PurePosixPath(name)
+              lower = name.lower()
+              directories = [part.lower() for part in p.parts[:-1]]
+              private_directory = any(part in ('fixtures.private', 'private', 'runtime', '.runtime', 'uploads',
+                  'attachments', 'backups', 'archives', 'exports', 'cache', '__pycache__', 'node_modules')
+                  or part.endswith('-runtime') for part in directories)
+              forbidden = (p.name.lower().startswith('.env') or lower.endswith(('.private.json', '.private.php'))
+                  or private_directory
+                  or lower.endswith(('.zip', '.zip.sha256', '.7z', '.tar', '.gz', '.xz', '.bz2', '.zst',
+                      '.sqlite', '.sqlite3', '.db', '.dump', '.dmp', '.dump.sql', '.sql.dump', '.bak', '.backup',
+                      '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.odt', '.ods', '.odp', '.rtf', '.csv', '.tsv'))
+                  or (p.suffix.lower() == '.sql' and not lower.startswith('migrations/') and lower != 'tests/core-fixture.sql')
+                  or lower == 'deploy/ci_source_notes.md'
+                  or (lower.startswith('config/') and p.name not in ('config.example.php', 'infinityfree.example.php', '.htaccess', '.gitkeep'))
+                  or (p.name.lower() == 'config.php' and lower != 'app/core/config.php')
+                  or p.name.lower() in ('restore-target.php', 'backup-target.php', 'target-config.php')
+                  or lower.startswith(('tests/migration-runtime/', 'tests/e2e/.runtime/',
+                      'tests/tickets-runtime/', 'tests/migration-web-runtime/', 'tests/migration-web-profile-runtime/',
+                      'deploy/artifacts/', 'build/', 'node_modules/'))
+                  or (lower.startswith('storage/') and p.name not in ('.htaccess', '.gitkeep', 'index.php')))
+              if forbidden:
+                  raise SystemExit('Refusing committed private/runtime/artifact path: ' + name)
+          PY
+      - name: Isolated Python image-check runtime
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/kosmoport-python"
+          "$RUNNER_TEMP/kosmoport-python/bin/python" -m pip install --disable-pip-version-check --no-input 'Pillow==12.3.0'
+          echo "$RUNNER_TEMP/kosmoport-python/bin" >> "$GITHUB_PATH"
+      - name: Syntax, source-package and isolated module checks
+        run: |
+          set -euo pipefail
+          php -v
+          php -r 'foreach (["pdo_mysql","pdo_sqlite","zip","fileinfo","mbstring","dom"] as $e) if (!extension_loaded($e)) {fwrite(STDERR,"Missing required extension: ".$e."\n");exit(1);}'
+          PYTHONPYCACHEPREFIX="$RUNNER_TEMP/kosmoport-python-cache" python3 -m py_compile deploy/ftp-release.py
+          find app public config bin tools deploy tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          node --check public/assets/crm.js
+          node --check public/assets/crm-api.js
+          node --check public/assets/crm-utils.js
+          node tests/ui/client.test.mjs
+          php tests/tickets-service.php
+          php tests/tickets-routes.php
+          php tests/website.php
+          php tests/migration-package.php
+      - name: Generate credentials for the isolated loopback service
+        env:
+          CI_DB_BOOTSTRAP_PASSWORD: kosmoport-ci-bootstrap-only
+        run: |
+          set -euo pipefail
+          umask 077
+          php <<'PHP'
+          <?php
+          $root = getcwd();
+          $temporary = getenv('RUNNER_TEMP') . '/kosmoport-ci';
+          if (!is_dir($temporary)) mkdir($temporary, 0700, true);
+          $db = new PDO('mysql:host=127.0.0.1;port=3306;charset=utf8mb4', 'root', getenv('CI_DB_BOOTSTRAP_PASSWORD'), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+          $user = 'kcrm_ci_' . bin2hex(random_bytes(4));
+          $password = bin2hex(random_bytes(24));
+          echo '::add-mask::' . $password . "\n";
+          $account = $db->quote($user) . "@'%'";
+          $db->exec('CREATE USER ' . $account . ' IDENTIFIED BY ' . $db->quote($password));
+          $db->exec('GRANT ALL PRIVILEGES ON *.* TO ' . $account);
+          foreach (['kcrm_migration_source_test', 'kcrm_migration_target_test'] as $name) {
+              $db->exec('CREATE DATABASE `' . $name . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+          }
+          $runtimeDirectory = $root . '/tests/migration-runtime';
+          if (!is_dir($runtimeDirectory)) mkdir($runtimeDirectory, 0700, true);
+          $runtimeFile = $runtimeDirectory . '/local-runtime.private.json';
+          $runtime = ['host' => '127.0.0.1', 'port' => 3306, 'user' => $user, 'password' => $password,
+              'database_source' => 'kcrm_migration_source_test', 'database_target' => 'kcrm_migration_target_test',
+              'runtime_path' => $runtimeDirectory . '/'];
+          file_put_contents($runtimeFile, json_encode($runtime, JSON_THROW_ON_ERROR));
+          $qaFile = $temporary . '/local-db.json';
+          file_put_contents($qaFile, json_encode(['marker' => 'KCRM_QA_LOCAL_SERVER', 'host' => '127.0.0.1', 'port' => 3306,
+              'username' => $user, 'password' => $password], JSON_THROW_ON_ERROR));
+          $unitFile = $temporary . '/core-unit.php';
+          $unit = ['environment' => 'test', 'base_path' => '/kosmoport-test', 'storage_path' => $temporary . '/storage',
+              'timezone' => 'Asia/Yekaterinburg', 'app_key' => bin2hex(random_bytes(32)), 'setup_key_hash' => '',
+              'database' => ['driver' => 'sqlite_test', 'path' => $temporary . '/core.sqlite', 'allow_test_driver' => true]];
+          file_put_contents($unitFile, '<?php return ' . var_export($unit, true) . ';');
+          foreach ([$runtimeFile, $qaFile, $unitFile] as $file) chmod($file, 0600);
+          file_put_contents(getenv('GITHUB_ENV'), 'KCRM_QA_DB_FILE=' . $qaFile . "\nKCRM_CI_RUNTIME=" . $runtimeFile
+              . "\nKCRM_CORE_UNIT_CONFIG=" . $unitFile . "\nKCRM_CI_DB_USER=" . $user . "\nKCRM_CI_DB_PASSWORD=" . $password . "\n", FILE_APPEND);
+          echo "Created fresh loopback fixture credentials; no application/hosting credentials were used.\n";
+          PHP
+      - name: Actual MySQL/MariaDB module and transfer checks, sequentially
+        run: |
+          set -euo pipefail
+          KCRM_CONFIG="$KCRM_CORE_UNIT_CONFIG" php tests/core-unit.php
+          php tests/core-mysql.php
+          python3 tests/documents-http.py --php "$(command -v php)" --mysql-runtime "$KCRM_CI_RUNTIME"
+          php tests/migration-roundtrip.php --runtime-config "$KCRM_CI_RUNTIME"
+          php tests/migration-schema.php --runtime-config "$KCRM_CI_RUNTIME" --confirm-fixture-reset
+      - name: Offline FTPS path, preservation and image verification tests
+        run: |
+          set -euo pipefail
+          KCRM_QA_PHP="$(command -v php)" python3 tests/migration-ftp.py
+      - name: Build and verify the source-only artifact
+        id: bundle
+        run: |
+          set -euo pipefail
+          php tools/package.php --check
+          php tools/package.php --output "$RUNNER_TEMP/kosmoport-bundle/source.zip"
+          php deploy/verify-source-package.php "$RUNNER_TEMP/kosmoport-bundle/source.zip"
+          php -r 'file_put_contents(getenv("GITHUB_OUTPUT"), "sha256=".hash_file("sha256",$argv[1])."\n", FILE_APPEND);' "$RUNNER_TEMP/kosmoport-bundle/source.zip"
+      - name: Upload only the verified source ZIP and its checksum
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # existing repository pin
+        with:
+          name: kosmoport-source-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/kosmoport-bundle/source.zip
+            ${{ runner.temp }}/kosmoport-bundle/source.zip.sha256
+          if-no-files-found: error
+          retention-days: 7
+      - name: Remove generated fixture credential files
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          # Only the known files created in this job; never recurse into source/storage.
+          for key in ('KCRM_QA_DB_FILE', 'KCRM_CI_RUNTIME', 'KCRM_CORE_UNIT_CONFIG'):
+              name = os.environ.get(key)
+              if name:
+                  Path(name).unlink(missing_ok=True)
+          PY
+
+  php84:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    concurrency:
+      group: kosmoport-php84-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: PHP 8.4 compatibility lane
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, zip, fileinfo, mbstring, dom
+          coverage: none
+          tools: none
+      - name: PHP 8.4 syntax, isolated SQLite modules and package contract
+        run: |
+          set -euo pipefail
+          php -v
+          find app public config bin tools deploy tests -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          php tests/tickets-service.php
+          php tests/tickets-routes.php
+          php tests/website.php
+          php tests/migration-package.php
+
+  deploy:
+    needs: [test_package, php84]
+    if: >-
+      ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+          github.repository == 'ivankirillov414-art/profisport-site' && needs.test_package.result == 'success' &&
+          needs.php84.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    # SAME repository-wide group as the existing storefront workflow. That
+    # workflow must also use cancel-in-progress:false before activation.
+    concurrency:
+      group: infinityfree-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Checkout the exact trusted main commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: PHP for independent source-artifact verification
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.2'
+          extensions: zip
+          coverage: none
+          tools: none
+      - name: Download this run's tested source artifact only
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kosmoport-source-${{ github.sha }}
+          path: ${{ runner.temp }}/kosmoport-release
+      - name: Isolated Python runtime for measured image readback
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/kosmoport-python"
+          "$RUNNER_TEMP/kosmoport-python/bin/python" -m pip install --disable-pip-version-check --no-input 'Pillow==12.3.0'
+          echo "$RUNNER_TEMP/kosmoport-python/bin" >> "$GITHUB_PATH"
+      - name: Install real Chromium verifier before credentials are available
+        run: |
+          set -euo pipefail
+          npm --prefix "$RUNNER_TEMP/kosmoport-browser" install --no-save --ignore-scripts 'playwright@1.62.1'
+          "$RUNNER_TEMP/kosmoport-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Recheck hashes and source dependencies before credentials are available
+        env:
+          EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_SOURCE_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          printf '%s  %s\n' "$EXPECTED_SOURCE_SHA256" "$RUNNER_TEMP/kosmoport-release/source.zip" | sha256sum --check --strict
+          php deploy/verify-source-package.php "$RUNNER_TEMP/kosmoport-release/source.zip"
+          test -f config/infinityfree.example.php
+          test -f deploy/install-public.json
+          python3 deploy/ftp-release.py --help >/dev/null
+      - name: Upload only the locked Kosmoport subtree with verified FTPS
+        env:
+          FTP_HOST: ftpupload.net
+          FTP_USER: if0_42771076
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          test -n "$FTP_PASS"
+          python3 deploy/ftp-release.py \
+            --package "$RUNNER_TEMP/kosmoport-release/source.zip" \
+            --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
+            --apply \
+            --report "$RUNNER_TEMP/kosmoport-release/readback.private.json"
+      - name: Retain only nonsecret readback metadata
+        env:
+          EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          folder = Path(os.environ['RUNNER_TEMP']) / 'kosmoport-release'
+          data = json.loads((folder / 'readback.private.json').read_text(encoding='utf-8'))
+          assert data.get('ok') is True and data.get('network_used') is True
+          assert data.get('root') == '/htdocs/kosmoport'
+          assert data.get('package_sha256') == os.environ['EXPECTED_SOURCE_SHA256']
+          assert data.get('origin') == 'https://ferryffggg.infinityfreeapp.com'
+          assert re.fullmatch('[a-f0-9]{32}', data.get('deployment_nonce', ''))
+          assert isinstance(data.get('verified_at'), str) and data['verified_at']
+          assert data.get('browser_privacy_verified') is False
+          assert data.get('storage_preserved') is True
+          assert isinstance(data.get('readbacks'), dict) and data['readbacks']
+          hashes = {}
+          for name, item in data['readbacks'].items():
+              assert re.fullmatch('[a-f0-9]{64}', item.get('source_sha256', ''))
+              assert re.fullmatch('[a-f0-9]{64}', item.get('remote_sha256', ''))
+              hashes[name] = {key: item[key] for key in ('source_sha256', 'remote_sha256', 'bytes', 'mode', 'dimensions', 'rgba_rms') if key in item}
+          public = {key: data[key] for key in ('ok', 'root', 'package_sha256', 'deployment_nonce', 'origin', 'verified_at', 'files_verified', 'config_preserved', 'storage_preserved', 'browser_privacy_verified')}
+          public.update(format='kosmoport-ftps-readback-v1', readback_hashes=hashes,
+              runtime_or_browser_ui_verified=False)
+          (folder / 'readback-public.json').write_text(json.dumps(public, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Upload the successful nonsecret readback receipt only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kosmoport-readback-${{ github.sha }}
+          path: ${{ runner.temp }}/kosmoport-release/readback-public.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Observe fresh HTTPS control and private file denials in real Chromium
+        env:
+          KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-browser/node_modules/playwright
+        run: |
+          set -euo pipefail
+          node tools/probe-host.mjs \
+            'https://ferryffggg.infinityfreeapp.com/kosmoport/' \
+            "$RUNNER_TEMP/kosmoport-release/browser-proof.private.json" \
+            "$RUNNER_TEMP/kosmoport-release/readback.private.json"
+      - name: Enable storage for only the browser-verified release
+        env:
+          FTP_HOST: ftpupload.net
+          FTP_USER: if0_42771076
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          python3 deploy/ftp-release.py \
+            --package "$RUNNER_TEMP/kosmoport-release/source.zip" \
+            --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
+            --privacy-proof "$RUNNER_TEMP/kosmoport-release/browser-proof.private.json" \
+            --confirm-browser-checks --apply \
+            --report "$RUNNER_TEMP/kosmoport-release/storage-activation.json"
+      - name: Verify website, anonymous session and independent owner setup before alias
+        env:
+          KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-browser/node_modules/playwright
+        run: |
+          set -euo pipefail
+          node tools/verify-host-public.mjs \
+            'https://ferryffggg.infinityfreeapp.com/kosmoport/' \
+            "$RUNNER_TEMP/kosmoport-release/readiness-public.json"
+      - name: Redirect former Kosmosfera homepage after verified release and privacy
+        env:
+          FTP_HOST: ftpupload.net
+          FTP_USER: if0_42771076
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          python3 deploy/ftp-release.py \
+            --package "$RUNNER_TEMP/kosmoport-release/source.zip" \
+            --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
+            --redirect-kosmosfera --apply \
+            --report "$RUNNER_TEMP/kosmoport-release/alias-result.json"
+      - name: Verify former Kosmosfera URL in real Chromium
+        env:
+          KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-browser/node_modules/playwright
+        run: |
+          set -euo pipefail
+          node tools/verify-host-public.mjs \
+            'https://ferryffggg.infinityfreeapp.com/kosmoport/' \
+            "$RUNNER_TEMP/kosmoport-release/readiness-public.json" --alias
+      - name: Retain only nonsecret host guard result
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          folder = Path(os.environ['RUNNER_TEMP']) / 'kosmoport-release'
+          proof = json.loads((folder / 'browser-proof.private.json').read_text())
+          activation = json.loads((folder / 'storage-activation.json').read_text())
+          result = {'format':'kosmoport-live-guard-result-v1', 'origin':proof['origin'],
+              'checked_at':proof['checked_at'], 'package_sha256':proof['package_sha256'],
+              'browser_navigation':True, 'private_denials':[item['status'] for item in proof['private_gets']],
+              'fresh_public_control':proof['public_control']['status']==200,
+              'storage_activation':activation.get('document_storage_opt_in_written') is True}
+          assert all(status in (403,404) for status in result['private_denials'])
+          assert result['fresh_public_control'] and result['storage_activation']
+          (folder/'public-guard-result.json').write_text(json.dumps(result,indent=2)+'\n')
+          PY
+      - name: Upload nonsensitive live guard result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kosmoport-live-guard-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/kosmoport-release/public-guard-result.json
+            ${{ runner.temp }}/kosmoport-release/readiness-public.json
+          if-no-files-found: error
+          retention-days: 7
