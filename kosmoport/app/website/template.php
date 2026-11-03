@@ -12,7 +12,7 @@
 <title><?= $brand ?> — интерактивная выставка для всей семьи</title>
 <link href="site/favicon.svg" rel="icon" type="image/svg+xml"/>
 <link as="image" fetchpriority="high" href="site/assets/hero-brand.webp" rel="preload"/>
-<link href="site/styles.css" rel="stylesheet"/><link href="site/refinements.css" rel="stylesheet"/>
+<link href="site/styles.css" rel="stylesheet"/><link href="site/refinements.css?v=20261103-layout" rel="stylesheet"/>
 <script>window.KOSMOPORT_CONFIG=<?= json_encode($clientConfig,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_THROW_ON_ERROR) ?>;</script>
 <script defer="" src="site/script.js"></script>
 </head>
@@ -21,12 +21,12 @@
 <header class="header">
 <div class="container nav">
 <a aria-label="Космопорт — на главную" class="brand" href="#top"><span><?= $brand ?><small><?= kp_escape($content['tagline']) ?></small></span></a>
-<nav aria-label="Основная навигация" class="desktop-nav"><a href="#program">Приключения</a><a href="#gallery">Атмосфера</a><a href="#tickets">Билеты</a><a href="#visit">Где мы</a></nav>
+<nav aria-label="Основная навигация" class="desktop-nav"><a href="#program">Что внутри</a><a href="#gallery">Атмосфера</a><a href="#tickets">Билеты</a><a href="#visit">Где мы</a></nav>
 <a class="button button-sm nav-ticket" href="#tickets"><span aria-hidden="true"></span> Выбрать билеты</a>
 <button aria-controls="mobile-menu" aria-expanded="false" aria-label="Открыть меню" class="menu-toggle"><span></span> <span></span> <span></span></button>
 </div>
 <div class="event-strip"><div class="container"><span><?= $venue ?></span><strong><?= $dates ?></strong><span class="season-label">ИНТЕРАКТИВНАЯ ВЫСТАВКА</span></div></div>
-<nav aria-label="Мобильная навигация" class="mobile-menu" hidden="" id="mobile-menu"><a href="#program">Космические приключения</a><a href="#gallery">Атмосфера выставки</a><a href="#tickets">Билеты</a><a href="#groups">Школам и группам</a><a href="#faq">Вопросы и ответы</a><a href="#visit">Как добраться</a></nav>
+<nav aria-label="Мобильная навигация" class="mobile-menu" hidden="" id="mobile-menu"><a href="#program">Что внутри</a><a href="#gallery">Атмосфера выставки</a><a href="#tickets">Билеты</a><a href="#groups">Школам и группам</a><a href="#faq">Вопросы и ответы</a><a href="#visit">Как добраться</a></nav>
 </header>
 <main id="main">
 <section class="hero starfield" id="top">
@@ -34,17 +34,17 @@
 <div class="container hero-inner">
 <div class="hero-copy">
 <p class="eyebrow"><?= $field('k3-text') ?></p>
-<h1><span><?= $field('k4-text') ?></span><br/><span><?= $field('k5-text') ?></span> <span><?= $field('k6-text') ?></span></h1>
+<h1><span><?= $field('k4-text') ?></span> <span><?= $field('k5-text') ?></span> <span><?= $field('k6-text') ?></span></h1>
 <p class="hero-description">Открывай, исследуй, удивляйся.<br/>Большое космическое приключение<br class="desktop-break"/> для детей и взрослых!</p>
 <div class="hero-actions"><a class="button" href="#tickets"> Выбрать билеты <span aria-hidden="true"></span></a><a class="text-link" href="#program">Что внутри <span aria-hidden="true"></span></a></div>
-<div class="hero-benefits"><div><span aria-hidden="true"></span><strong>Интерактивные<br/>приключения</strong></div><div><span aria-hidden="true"></span><strong>Наука<br/>в игре</strong></div><div><span aria-hidden="true"></span><strong>Для всей<br/>семьи</strong></div></div>
+<div class="hero-benefits"><div><strong>Интерактивные<br/>приключения</strong></div><div><strong>Наука<br/>в игре</strong></div><div><strong>Для всей<br/>семьи</strong></div></div>
 </div>
 <div class="hero-location"><div><span>МЕСТО ПРОВЕДЕНИЯ</span><strong><?= $field('k7-text') ?></strong></div></div>
 </div>
 </section>
 <section class="section program starfield" id="program">
 <div class="container">
-<div class="section-heading center"><p class="eyebrow"><?= $field('k8-text') ?></p><h2><span><?= $field('k9-text') ?></span><br/><span><?= $field('k10-text') ?></span></h2><p><?= $field('k11-text') ?></p></div>
+<div class="section-heading center"><p class="eyebrow"><?= $field('k8-text') ?></p><h2><span><?= $field('k9-text') ?></span> <span><?= $field('k10-text') ?></span></h2><p><?= $field('k11-text') ?></p></div>
 <div aria-label="Приключения Космопорта" aria-roledescription="карусель" class="adventure-stage">
 <div class="adventure-copy"><span class="mission-label" id="mission-label">ЗНАКОМСТВО С ВЫСТАВКОЙ</span><h3 id="adventure-title"><span><?= $field('k12-text') ?></span><br/><span><?= $field('k13-text') ?></span></h3><p id="adventure-description"><?= $field('k14-text') ?></p><span class="activity-note" id="adventure-note">Интерактивная выставка для детей и взрослых</span><a class="button" href="#tickets">Посмотреть билеты <span aria-hidden="true"></span></a></div>
 <div class="adventure-view"><div class="portal"><img alt="<?= $field('k15-alt') ?>" height="1024" id="adventure-image" loading="lazy" src="<?= $field('k15-image') ?>" width="1536"/><div class="portal-shine"></div><span aria-live="polite" class="portal-count"><span id="adventure-index">1</span> / 3</span></div><button aria-label="Предыдущее приключение" class="portal-arrow previous" id="adventure-prev">Назад</button><button aria-label="Следующее приключение" class="portal-arrow next" id="adventure-next">Далее</button><div aria-label="Выбор приключения" class="adventure-dots"><button aria-label="Исследовать космос" aria-pressed="true" data-slide="0"></button><button aria-label="Виртуальная реальность" aria-pressed="false" data-slide="1"></button><button aria-label="Приключение всей семьёй" aria-pressed="false" data-slide="2"></button></div></div>
