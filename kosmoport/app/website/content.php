@@ -28,6 +28,13 @@ function kp_validate_content(array $input): array {
         $input['fields']['k10-text']=$defaults['fields']['k10-text'];
         if (($input['fields']['k8-text']??null)==='НАУКА × ИГРА × ОТКРЫТИЯ') $input['fields']['k8-text']=$defaults['fields']['k8-text'];
     }
+    foreach ([
+        'k20-text'=>'Посещение выставки вместе с детьми.',
+        'k22-text'=>'Посещение школьным классом по предварительному согласованию.',
+        'k48-text'=>'ТАК НАЧИНАЕТСЯ УДИВЛЕНИЕ',
+    ] as $id=>$formerText) {
+        if (($input['fields'][$id]??null)===$formerText) $input['fields'][$id]=$defaults['fields'][$id];
+    }
     if (array_diff(array_keys($input), array_keys($defaults))) kp_content_error('В содержимом сайта есть неизвестные разделы.');
     foreach (array_keys($defaults) as $key) if (!array_key_exists($key, $input)) kp_content_error('Не хватает раздела сайта: '.$key);
     $out = $defaults;

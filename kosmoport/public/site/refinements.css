@@ -93,3 +93,17 @@ h1 span+span,h2 span+span{margin-left:0}
  .adventure-copy .button{max-width:none;min-height:52px;font-size:16px}
  .mission-features{gap:8px}.mission-features article{padding:20px 0;border-radius:0}
 }
+
+/* Visitor review: crisp text, plain links and a quiet floating return control. */
+a,a:hover,a:focus,button,summary{text-decoration:none}
+.text-link{border-bottom:0}
+.expedition-card h3{font-family:Manrope,Arial,sans-serif;font-weight:800;letter-spacing:0;line-height:1.3;text-shadow:none;-webkit-font-smoothing:antialiased}
+.expedition-card li>span{font-family:Manrope,Arial,sans-serif;font-weight:750}
+.faq-list details[open]{background:#132345;border-color:#54759d}
+.faq-list summary:focus-visible,.text-link:focus-visible,.back-top:focus-visible{outline:3px solid #93b8f6;outline-offset:4px}
+.back-top{position:fixed;right:24px;bottom:24px;z-index:18;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 20px;border:1px solid #607eab99;border-radius:100px;background:#11223eef;color:#e7f0ff;font-family:Manrope,Arial,sans-serif;font-size:14px;font-weight:700;box-shadow:0 6px 24px #02071966;transition:background .18s,border-color .18s}
+.back-top:hover{background:#203b60;border-color:#9abce2}
+.back-top[hidden]{display:none}
+body.modal-open .back-top{visibility:hidden}
+@media(max-width:640px){.back-top{right:18px;bottom:calc(92px + env(safe-area-inset-bottom));min-height:44px;padding:11px 18px}.faq-list summary{gap:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.back-top{transition:none}}

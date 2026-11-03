@@ -52,10 +52,15 @@ check_website('former program heading upgrades without resetting edited content'
     $legacy['fields']['k8-text']='НАУКА × ИГРА × ОТКРЫТИЯ';
     $legacy['fields']['k9-text']='НЕ ПРОСТО СМОТРЕТЬ.';
     $legacy['fields']['k10-text']='БЫТЬ ВНУТРИ СОБЫТИЙ!';
+    $legacy['fields']['k20-text']='Посещение выставки вместе с детьми.';
+    $legacy['fields']['k22-text']='Посещение школьным классом по предварительному согласованию.';
+    $legacy['fields']['k48-text']='ТАК НАЧИНАЕТСЯ УДИВЛЕНИЕ';
     $legacy['fields']['k14-text']='Текст программы, сохранённый редактором.';
     $expected=$default; $expected['fields']['k14-text']=$legacy['fields']['k14-text'];
     expect_website(kp_validate_content($legacy)===$expected);
     $custom=$default; $custom['fields']['k9-text']='Наш заголовок'; $custom['fields']['k10-text']='Наша программа';
+    $custom['fields']['k20-text']='Собственный текст для родителей';
+    $custom['fields']['k48-text']='Авторский заголовок галереи';
     expect_website(kp_validate_content($custom)===$custom);
 });
 check_website('traversal and missing images rejected',static function()use($default):void {

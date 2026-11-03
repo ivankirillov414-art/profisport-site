@@ -1,6 +1,11 @@
 'use strict';
 (() => {
   const config = window.KOSMOPORT_CONFIG;
+  const backTop = document.querySelector('.back-top');
+  const updateBackTop = () => { backTop.hidden = window.scrollY < Math.max(420, window.innerHeight * 0.65); };
+  window.addEventListener('scroll', updateBackTop, {passive:true});
+  window.addEventListener('resize', updateBackTop);
+  updateBackTop();
   const money = value => value === null ? 'Стоимость появится позже' : new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
   const menuToggle = document.querySelector('.menu-toggle');
   const mobileMenu = document.querySelector('#mobile-menu');
