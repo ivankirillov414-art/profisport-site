@@ -97,10 +97,12 @@ jobs:
           node --check public/assets/crm.js
           node --check public/assets/crm-api.js
           node --check public/assets/crm-utils.js
+          node --check public/site/script.js
           node tests/ui/client.test.mjs
           php tests/tickets-service.php
           php tests/tickets-routes.php
           php tests/website.php
+          php tests/website-funnel.php
           php tests/migration-package.php
       - name: Generate credentials for the isolated loopback service
         env:
@@ -241,6 +243,7 @@ jobs:
           php tests/tickets-service.php
           php tests/tickets-routes.php
           php tests/website.php
+          php tests/website-funnel.php
           php tests/migration-package.php
 
   deploy:
@@ -377,20 +380,7 @@ jobs:
           node tools/verify-host-public.mjs \
             'https://ferryffggg.infinityfreeapp.com/kosmoport/' \
             "$RUNNER_TEMP/kosmoport-release/readiness-public.json"
-      - name: Redirect former Kosmosfera homepage after verified release and privacy
-        env:
-          FTP_HOST: ftpupload.net
-          FTP_USER: if0_42771076
-          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
-          EXPECTED_SOURCE_SHA256: ${{ needs.test_package.outputs.sha256 }}
-        run: |
-          set -euo pipefail
-          python3 deploy/ftp-release.py \
-            --package "$RUNNER_TEMP/kosmoport-release/source.zip" \
-            --expected-sha256 "$EXPECTED_SOURCE_SHA256" \
-            --redirect-kosmosfera --apply \
-            --report "$RUNNER_TEMP/kosmoport-release/alias-result.json" >/dev/null
-      - name: Verify former Kosmosfera URL in real Chromium
+      - name: Verify existing former Kosmosfera URL without changing its files
         env:
           KCRM_PLAYWRIGHT_MODULE: ${{ runner.temp }}/kosmoport-browser/node_modules/playwright
         run: |

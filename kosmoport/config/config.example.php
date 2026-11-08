@@ -17,6 +17,12 @@ return [
         'allow_webroot_storage' => false, 'http_denial_verified' => false,
     ],
     'http' => ['max_json_bytes' => 8388608, 'max_multipart_bytes' => 25165824],
+    'website' => [
+        'public_url' => '', // HTTPS URL of the exhibition, no trailing slash.
+        'requests_enabled' => false, // Enable after migration 050, privacy and staff acceptance.
+        'organizer_name' => '', // Verified legal name of the personal-data operator.
+        'privacy_url' => '', // Published HTTPS policy approved by the organizer.
+    ],
     'database' => [
         'driver' => 'mysql', 'host' => 'YOUR_MYSQL_HOST', 'port' => 3306,
         'name' => 'YOUR_DATABASE_NAME', 'username' => 'YOUR_DATABASE_USER',

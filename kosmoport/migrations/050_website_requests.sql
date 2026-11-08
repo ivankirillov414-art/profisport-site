@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS kcrm_visit_requests (
+    id CHAR(32) NOT NULL PRIMARY KEY,
+    dedupe_key CHAR(64) NOT NULL UNIQUE,
+    kind VARCHAR(20) NOT NULL,
+    name VARCHAR(200) NOT NULL,
+    contact VARCHAR(254) NOT NULL,
+    organization VARCHAR(300) NOT NULL,
+    guest_count INT UNSIGNED NOT NULL,
+    visit_date DATE NOT NULL,
+    message TEXT NOT NULL,
+    source VARCHAR(300) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'new',
+    revision INT UNSIGNED NOT NULL DEFAULT 1,
+    consent_at DATETIME NOT NULL,
+    privacy_url VARCHAR(1500) NOT NULL,
+    ip_hash CHAR(64) NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    KEY kcrm_visit_request_time (created_at,id),
+    KEY kcrm_visit_request_status (status,created_at),
+    KEY kcrm_visit_request_rate (ip_hash,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

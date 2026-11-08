@@ -1,8 +1,13 @@
 <?php
 declare(strict_types=1);
 require_once dirname(__DIR__).'/website/content.php';
+require_once dirname(__DIR__).'/website/funnel.php';
 
 return [
+    'GET website/request-config'=>static fn():array=>['enabled'=>kp_requests_ready(),'csrf'=>kp_requests_ready()?crm_csrf_token():null],
+    'POST website/request'=>static fn():array=>kp_visit_request(crm_input()),
+    'GET website/requests'=>static fn():array=>kp_visit_requests(),
+    'POST website/request/status'=>static fn():array=>kp_visit_request_status(crm_input()),
     'GET website/content'=>static function(): void {
         header('Cache-Control: no-cache');
         crm_json(['ok'=>true,'data'=>kp_read_published()]);
