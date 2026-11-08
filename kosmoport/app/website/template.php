@@ -22,7 +22,7 @@
 <title><?= $brand ?> — интерактивная выставка для всей семьи</title>
 <link href="site/favicon.svg" rel="icon" type="image/svg+xml"/>
 <link as="image" fetchpriority="high" href="<?= $field('k1-image') ?>" rel="preload"/>
-<link href="site/styles.css" rel="stylesheet"/><link href="site/refinements.css?v=20261108-funnel" rel="stylesheet"/>
+<link href="site/styles.css" rel="stylesheet"/><link href="site/refinements.css?v=20261108-mobile-wrap" rel="stylesheet"/>
 <script>window.KOSMOPORT_CONFIG=<?= json_encode($clientConfig,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_THROW_ON_ERROR) ?>;</script>
 <script defer="" src="site/script.js?v=20261108-funnel"></script>
 </head>
