@@ -117,3 +117,12 @@ body.modal-open .back-top{visibility:hidden}
 .request-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
 .form-status{overflow-wrap:anywhere}
 dialog input,dialog textarea{min-height:48px}
+
+/* Long price announcements must fit the same dialog as numeric prices. */
+.total-row{align-items:flex-start;flex-wrap:wrap}
+.total-row>span{flex:1 1 10rem;min-width:0}
+.total-row output{min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.25;text-align:right}
+@media(max-width:600px){
+ #ticket-dialog .total-row{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ #ticket-dialog .total-row output{font-size:clamp(1.125rem,5.5vw,1.5rem);text-align:left}
+}

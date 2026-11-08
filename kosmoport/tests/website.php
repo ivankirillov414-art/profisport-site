@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 // Isolated website-module behaviour. Integrated auth/HTTP/MySQL tests are separate.
 if (PHP_SAPI!=='cli') { http_response_code(404); exit; }
+ob_start(); // Keep entrypoint header checks valid while rendering after PASS lines.
 final class KpReply extends RuntimeException {
     public function __construct(public array $payload, public int $status) { parent::__construct((string)$status); }
 }
@@ -115,5 +116,36 @@ check_website('scalar content and unknown fields rejected',static function()use(
 check_website('public output escapes HTML metacharacters',static function():void {
     expect_website(kp_escape('" onload="x <test>')==='&quot; onload=&quot;x &lt;test&gt;');
 });
+function rendered_website_headings(): array {
+    ob_start();
+    require dirname(__DIR__).'/public/index.php';
+    $html=(string)ob_get_clean();
+    preg_match_all('~<h([1-6])\b[^>]*>(.*?)</h\1>~su',$html,$matches);
+    return array_map(static fn(string $markup):string=>trim((string)preg_replace('/\s+/u',' ',html_entity_decode(strip_tags($markup),ENT_QUOTES|ENT_HTML5,'UTF-8'))),$matches[2]);
+}
+check_website('packaged page headings keep word boundaries when line breaks are hidden',static function():void {
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $db->exec('UPDATE kcrm_website SET published=NULL WHERE id=1');
+        $headings=rendered_website_headings();
+        foreach (['ПРИХОДИТЕ ВМЕСТЕ','БОЛЬШИЕ ОТКРЫТИЯ НАЧИНАЮТСЯ С ОДНОГО БИЛЕТА','ВОПРОСЫ И ОТВЕТЫ'] as $heading) {
+            expect_website(in_array($heading,$headings,true),'Missing spaced packaged heading: '.$heading);
+        }
+    } finally { $db->rollBack(); }
+});
+check_website('public entry renders edited CMS heading fragments with spaces',static function()use($default):void {
+    $edited=$default;
+    foreach (['k27-text'=>'НОВЫЕ','k28-text'=>'СОБЫТИЯ','k29-text'=>'ДЛЯ','k30-text'=>'ВСЕХ','k66-text'=>'ВАШИ','k67-text'=>'ВОПРОСЫ','k68-text'=>'И ОТВЕТЫ'] as $id=>$text) $edited['fields'][$id]=$text;
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $stmt=$db->prepare('UPDATE kcrm_website SET published=? WHERE id=1');
+        $stmt->execute([json_encode($edited,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)]);
+        $headings=rendered_website_headings();
+        foreach (['НОВЫЕ СОБЫТИЯ ДЛЯ ВСЕХ','ВАШИ ВОПРОСЫ И ОТВЕТЫ'] as $heading) {
+            expect_website(in_array($heading,$headings,true),'Missing spaced CMS heading: '.$heading);
+        }
+    } finally { $db->rollBack(); }
+});
 expect_website(count($kpAudits)===2,'Only successful save/publish should be audited');
 echo 'Website module: '.$count.' behaviour checks passed (isolated SQLite fixture).'.PHP_EOL;
+ob_end_flush();
