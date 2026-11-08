@@ -121,7 +121,8 @@
       status.textContent='Заявка сохранена. Номер '+result.data.id.slice(0,8).toUpperCase()+'. Организатор увидит её в CRM. Посещение пока не забронировано, оплата не проводилась.';
       form.dataset.saved='true';funnel('request_saved');
     } catch(error) {
-      status.textContent=error.name==='AbortError'?'Сервер не успел ответить. Повторите отправку: одинаковая заявка сохранится один раз.':(error.message || 'Не удалось отправить заявку. Повторите позже.');
+      const connectionError=['TypeError','SyntaxError'].includes(error.name);
+      status.textContent=error.name==='AbortError'?'Сервер не успел ответить. Повторите отправку: одинаковая заявка сохранится один раз.':connectionError?'Не удалось получить ответ сервера. Проверьте соединение и повторите отправку.':(error.message || 'Не удалось отправить заявку. Повторите позже.');
     } finally {clearTimeout(timer);delete form.dataset.busy;if(form.dataset.dirty)delete form.dataset.saved;delete form.dataset.dirty;button.disabled=form.dataset.saved==='true';button.removeAttribute('aria-busy');}
   }
   function sourceTag() {const p=new URL(location.href).searchParams;return ['utm_source','utm_medium','utm_campaign'].map(k=>p.get(k)?.slice(0,70)).filter(Boolean).join(' / ').slice(0,300);}
