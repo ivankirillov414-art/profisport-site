@@ -9,7 +9,7 @@ const notice = document.querySelector('#notice');
 const rootUrl = new URL('../', document.baseURI).href;
 const state = {user:null, route:'overview', epoch:0, editor:null, ticket:null, admission:null, ticketCode:'', requestId:null, users:[]};
 let toastTimer, modalId=0;
-const labels = {overview:'Обзор',partners:'Партнёры',tasks:'Задачи',tickets:'Билеты',documents:'Документы',website:'Сайт',settings:'Настройки'};
+const labels = {overview:'Обзор',partners:'Партнёры',tasks:'Задачи',tickets:'Билеты',documents:'Документы',website:'Сайт',requests:'Заявки сайта',settings:'Настройки'};
 const staffRoles={owner:'Владелец',admin:'Администратор',manager:'Менеджер',cashier:'Кассир',editor:'Редактор сайта',document_manager:'Документы',reader:'Просмотр'};
 const canManageUsers=()=>canManageStaff(state.user?.role);
 const canManageRecords=()=>['owner','admin','manager'].includes(state.user?.role);
@@ -120,7 +120,7 @@ async function navigate(focus = true) {
   main.innerHTML='<div class="loading" role="status">Загружаем данные…</div>';
   if(focus)main.focus({preventScroll:true});
   try {
-    const render={overview:renderOverview,partners:renderPartners,tasks:renderTasks,tickets:()=>renderTickets(sub),documents:renderDocuments,website:renderWebsite,settings:renderSettings}[section];
+    const render={overview:renderOverview,partners:renderPartners,tasks:renderTasks,tickets:()=>renderTickets(sub),documents:renderDocuments,website:renderWebsite,requests:renderWebsiteRequests,settings:renderSettings}[section];
     if(!render){main.innerHTML=heading('Раздел не найден','Выберите раздел в меню.')+'<a href="#overview">Вернуться к обзору</a>';return;}
     await render(epoch);
   } catch(err){
@@ -305,6 +305,19 @@ async function documentVersions(id){
   const list=items(data);modal.innerHTML=`<header><h2 id="modal-title">Версии документа</h2><button data-action="close-modal" aria-label="Закрыть">×</button></header>${list.length?`<ol class="version-list">${list.map(version=>`<li><strong>Версия ${e(version.version ?? version.version_number ?? version.id)}</strong><p class="meta">${e(date(version.created_at,true))}${version.author_name?' · '+e(version.author_name):''}</p><p class="hint">${e(version.filename || version.original_name || '')}</p><button class="small" data-download="${e(id)}" data-download-version="${e(version.version ?? version.version_number ?? version.id)}">Скачать эту версию</button></li>`).join('')}</ol>`:empty('История версий пуста')}`;
 }
 async function downloadDocument(id,version){const result=await api.download('documents/download',{id,version});download(result.blob,filename(result.disposition));}
+
+async function renderWebsiteRequests(epoch,query={status:'new',offset:0}) {
+  const data=await api.get('website/requests',{limit:50,...query});
+  const kinds={visit:'Семейный визит',group:'Группа',notify:'Открытие продаж'};
+  const statuses={new:'Новая',contacted:'Связались',confirmed:'Визит согласован',cancelled:'Отменена'};
+  if(!setPage(heading('Заявки сайта','Обращения посетителей. Заявка не является билетом или подтверждением оплаты.')+`<section class="panel"><form id="request-filter" class="toolbar"><label>Статус<select name="status">${options(statuses,query.status,'Все')}</select></label><button type="submit">Показать</button></form>${items(data).length?`<div class="table-wrap"><table><thead><tr><th>Обращение</th><th>Контакт</th><th>Посещение</th><th>Статус</th></tr></thead><tbody>${items(data).map(row=>`<tr><td class="wrap"><strong>${e(kinds[row.kind]||row.kind)}</strong><small>${e(date(row.created_at,true))}</small><p>${e(row.organization)}</p><p>${e(row.message)}</p></td><td class="wrap">${e(row.name)}<small>${e(row.contact)}</small></td><td>${e(row.visit_date)}<small>Гостей: ${e(row.guest_count)}</small></td><td><span>${e(statuses[row.status]||row.status)}</span>${canManageRecords()?`<button class="small" data-request-id="${e(row.id)}">Изменить статус</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:empty('Заявок по этим условиям нет')}${pagination(data)}</section>`,epoch))return;
+  document.querySelector('#request-filter').addEventListener('submit',event=>{event.preventDefault();renderWebsiteRequests(epoch,{status:new FormData(event.currentTarget).get('status'),offset:0}).catch(err=>toast(err.message,true));});
+  bindPagination(offset=>renderWebsiteRequests(epoch,{...query,offset}));
+  document.querySelectorAll('[data-request-id]').forEach(button=>button.addEventListener('click',()=>{
+    const row=items(data).find(x=>x.id===button.dataset.requestId);
+    dialog('Статус заявки',`<form><p>${e(row.name)} · ${e(row.contact)}</p><label>Статус<select name="status">${options(statuses,row.status)}</select></label>${formFooter()}</form>`,async form=>{await api.post('website/request/status',{id:row.id,status:new FormData(form).get('status'),expected_revision:Number(row.revision)});modal.close();toast('Статус заявки сохранён.');await navigate(false);});
+  }));
+}
 
 async function renderWebsite(epoch){
   const data=await api.get('website/draft');

@@ -107,3 +107,13 @@ a,a:hover,a:focus,button,summary{text-decoration:none}
 body.modal-open .back-top{visibility:hidden}
 @media(max-width:640px){.back-top{right:18px;bottom:calc(92px + env(safe-area-inset-bottom));min-height:44px;padding:11px 18px}.faq-list summary{gap:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.back-top{transition:none}}
+
+/* Request forms use explicit consent and never masquerade as a paid ticket. */
+.visit-request-form{margin-top:28px;padding-top:24px;border-top:1px solid #47618d}
+.visit-request-form h3{font-size:20px;line-height:1.4;margin-bottom:12px}
+.consent{display:flex!important;align-items:flex-start;gap:12px;font-size:13px!important;line-height:1.6;margin:18px 0!important;font-weight:500!important}
+.consent input{width:20px!important;min-width:20px;height:20px;margin:3px 0 0!important;padding:0!important;accent-color:#152039}
+.consent a{color:inherit;font-weight:750}
+.request-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.form-status{overflow-wrap:anywhere}
+dialog input,dialog textarea{min-height:48px}

@@ -12,7 +12,7 @@ header('X-Content-Type-Options: nosniff');
   <meta name="robots" content="noindex, nofollow">
   <title>Космопорт — CRM</title>
   <link rel="stylesheet" href="../assets/crm.css?v=20261031">
-  <script type="module" src="../assets/crm.js?v=20261031"></script>
+  <script type="module" src="../assets/crm.js?v=20261108-requests"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержимому</a>

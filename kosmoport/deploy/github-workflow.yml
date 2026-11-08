@@ -97,10 +97,12 @@ jobs:
           node --check public/assets/crm.js
           node --check public/assets/crm-api.js
           node --check public/assets/crm-utils.js
+          node --check public/site/script.js
           node tests/ui/client.test.mjs
           php tests/tickets-service.php
           php tests/tickets-routes.php
           php tests/website.php
+          php tests/website-funnel.php
           php tests/migration-package.php
       - name: Generate credentials for the isolated loopback service
         env:
@@ -241,6 +243,7 @@ jobs:
           php tests/tickets-service.php
           php tests/tickets-routes.php
           php tests/website.php
+          php tests/website-funnel.php
           php tests/migration-package.php
 
   deploy:
