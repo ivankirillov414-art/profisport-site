@@ -5,6 +5,13 @@ function kp_default_content(): array {
     return json_decode((string)file_get_contents(__DIR__.'/default-content.json'), true, 64, JSON_THROW_ON_ERROR);
 }
 
+function kp_phone_href(string $phone): string {
+    $number=(string)preg_replace('/[^+0-9]/','',$phone);
+    // The organizer confirmed these six local Orenburg digits for public use.
+    if ($number==='580022') $number='+73532580022';
+    return $number===''?'':'tel:'.$number;
+}
+
 function kp_content_error(string $message): never {
     throw new InvalidArgumentException($message);
 }

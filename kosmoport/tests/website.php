@@ -116,10 +116,13 @@ check_website('scalar content and unknown fields rejected',static function()use(
 check_website('public output escapes HTML metacharacters',static function():void {
     expect_website(kp_escape('" onload="x <test>')==='&quot; onload=&quot;x &lt;test&gt;');
 });
-function rendered_website_headings(): array {
+function rendered_website_html(): string {
     ob_start();
     require dirname(__DIR__).'/public/index.php';
-    $html=(string)ob_get_clean();
+    return (string)ob_get_clean();
+}
+function rendered_website_headings(): array {
+    $html=rendered_website_html();
     preg_match_all('~<h([1-6])\b[^>]*>(.*?)</h\1>~su',$html,$matches);
     return array_map(static fn(string $markup):string=>trim((string)preg_replace('/\s+/u',' ',html_entity_decode(strip_tags($markup),ENT_QUOTES|ENT_HTML5,'UTF-8'))),$matches[2]);
 }
@@ -145,6 +148,37 @@ check_website('public entry renders edited CMS heading fragments with spaces',st
             expect_website(in_array($heading,$headings,true),'Missing spaced CMS heading: '.$heading);
         }
     } finally { $db->rollBack(); }
+});
+check_website('confirmed local organizer phone has its international dial link',static function()use($default):void {
+    expect_website($default['contact']['phone']==='58-00-22');
+    expect_website(kp_phone_href($default['contact']['phone'])==='tel:+73532580022');
+});
+check_website('packaged contact is callable in visitor information and ticket enquiry',static function():void {
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $db->exec('UPDATE kcrm_website SET published=NULL WHERE id=1');
+        $html=rendered_website_html();
+        expect_website(substr_count($html,'href="tel:+73532580022"')===3,'Expected footer, visitor information and ticket contact links');
+        expect_website(str_contains($html,'Позвонить: 58-00-22'));
+        expect_website(str_contains($html,'Продажи скоро откроются'));
+    } finally { $db->rollBack(); }
+});
+check_website('nonempty CMS contacts retain their own number and links',static function()use($default):void {
+    $edited=$default;$edited['contact']=['phone'=>'+7 (3532) 58-00-22','email'=>'organizer@example.com','vk_url'=>'https://vk.com/example'];
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $stmt=$db->prepare('UPDATE kcrm_website SET published=? WHERE id=1');
+        $stmt->execute([json_encode($edited,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)]);
+        expect_website(kp_read_published()['content']['contact']===$edited['contact'],'Custom CMS contacts overwritten');
+        $html=rendered_website_html();
+        expect_website(str_contains($html,'href="tel:+73532580022"'));
+        expect_website(str_contains($html,'Позвонить: +7 (3532) 58-00-22'));
+        expect_website(!str_contains($html,'Позвонить: 58-00-22'));
+    } finally { $db->rollBack(); }
+});
+check_website('an explicitly empty CMS contact is not filled by a default overwrite',static function()use($default):void {
+    $empty=$default;$empty['contact']['phone']='';
+    expect_website(kp_validate_content($empty)['contact']['phone']==='');
 });
 expect_website(count($kpAudits)===2,'Only successful save/publish should be audited');
 echo 'Website module: '.$count.' behaviour checks passed (isolated SQLite fixture).'.PHP_EOL;
