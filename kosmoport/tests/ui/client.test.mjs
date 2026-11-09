@@ -72,3 +72,4 @@ await test('import conflict list survives the transport envelope',async()=>{
  await second.get('auth/me');await assert.rejects(second.post('tickets/import',{}),error=>error.status===409 && error.details?.[0]?.id==='test');
 });
 console.log(`${passed} UI client checks passed. Mock transport only; no production operations.`);
+await import('./forms.test.mjs');

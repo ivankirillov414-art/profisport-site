@@ -1,6 +1,6 @@
 import {createApi, ApiError} from './crm-api.js';
 import {escapeHtml as e, number, date, filename, items, objectJson, canAdmit, sourceUsed} from './crm-utils.js';
-import {recordPayload, staffPayload, websiteFields, splitWebsiteContent, composeWebsiteContent, canManageStaff} from './crm-forms.js';
+import {recordPayload, staffPayload, websiteFields, splitWebsiteContent, composeWebsiteContent, canManageStaff} from './crm-forms.js?v=20261109-contacts';
 
 const api = createApi(new URL('../api/index.php', document.baseURI));
 const app = document.querySelector('#app');

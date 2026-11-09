@@ -6,10 +6,14 @@ function kp_default_content(): array {
 }
 
 function kp_phone_href(string $phone): string {
+    $phone=trim($phone);
+    if ($phone==='' || !preg_match('/^\+?[0-9\s().-]+$/D',$phone)) return '';
     $number=(string)preg_replace('/[^+0-9]/','',$phone);
     // The organizer confirmed these six local Orenburg digits for public use.
     if ($number==='580022') $number='+73532580022';
-    return $number===''?'':'tel:'.$number;
+    if (preg_match('/^8[0-9]{10}$/D',$number)) $number='+7'.substr($number,1);
+    elseif (preg_match('/^7[0-9]{10}$/D',$number)) $number='+'.$number;
+    return preg_match('/^\+[1-9][0-9]{6,14}$/D',$number)?'tel:'.$number:'';
 }
 
 function kp_content_error(string $message): never {
@@ -28,6 +32,8 @@ function kp_text_value(mixed $value, int $max, bool $empty = true): string {
 
 function kp_validate_content(array $input): array {
     $defaults = kp_default_content();
+    // Older saved content has one phone; preserve it and add only an empty field.
+    if (is_array($input['contact']??null) && !array_key_exists('phone_secondary',$input['contact'])) $input['contact']['phone_secondary']='';
     // Upgrade only the former packaged heading. Keep all custom editor content
     // and the existing publication/draft revisions unchanged.
     if (($input['fields']['k9-text']??null)==='НЕ ПРОСТО СМОТРЕТЬ.' && ($input['fields']['k10-text']??null)==='БЫТЬ ВНУТРИ СОБЫТИЙ!') {
@@ -69,9 +75,9 @@ function kp_validate_content(array $input): array {
     if ($out['tickets']['sales_open'] && ($url === '' || $price === null)) kp_content_error('Для открытия продажи нужны цена и адрес покупки.');
     $out['tickets']['checkout_url'] = $url;
     $out['tickets']['invitation_terms'] = kp_text_value($input['tickets']['invitation_terms'], 2500, false);
-    foreach (['phone'=>100,'email'=>254,'vk_url'=>1500] as $key=>$max) $out['contact'][$key] = kp_text_value($input['contact'][$key], $max);
+    foreach (['phone'=>100,'phone_secondary'=>100,'email'=>254,'vk_url'=>1500] as $key=>$max) $out['contact'][$key] = kp_text_value($input['contact'][$key], $max);
     if ($out['contact']['email']!=='' && !filter_var($out['contact']['email'],FILTER_VALIDATE_EMAIL)) kp_content_error('Проверьте электронную почту организатора.');
-    if ($out['contact']['phone']!=='' && !preg_match('/^[+\d\s()\-]{5,100}$/D',$out['contact']['phone'])) kp_content_error('Проверьте номер телефона организатора.');
+    foreach (['phone','phone_secondary'] as $key) if ($out['contact'][$key]!=='' && !preg_match('/^[+\d\s()\-]{5,100}$/D',$out['contact'][$key])) kp_content_error('Проверьте номер телефона организатора.');
     if ($out['contact']['vk_url']!=='' && (!filter_var($out['contact']['vk_url'],FILTER_VALIDATE_URL) || strtolower((string)parse_url($out['contact']['vk_url'],PHP_URL_SCHEME))!=='https')) kp_content_error('Ссылка сообщества должна начинаться с https://.');
     $schema = json_decode((string)file_get_contents(__DIR__.'/field-schema.json'),true,32,JSON_THROW_ON_ERROR);
     foreach ($schema as $id=>$kind) {
