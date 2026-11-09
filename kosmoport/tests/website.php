@@ -116,10 +116,13 @@ check_website('scalar content and unknown fields rejected',static function()use(
 check_website('public output escapes HTML metacharacters',static function():void {
     expect_website(kp_escape('" onload="x <test>')==='&quot; onload=&quot;x &lt;test&gt;');
 });
-function rendered_website_headings(): array {
+function rendered_website_html(): string {
     ob_start();
     require dirname(__DIR__).'/public/index.php';
-    $html=(string)ob_get_clean();
+    return (string)ob_get_clean();
+}
+function rendered_website_headings(): array {
+    $html=rendered_website_html();
     preg_match_all('~<h([1-6])\b[^>]*>(.*?)</h\1>~su',$html,$matches);
     return array_map(static fn(string $markup):string=>trim((string)preg_replace('/\s+/u',' ',html_entity_decode(strip_tags($markup),ENT_QUOTES|ENT_HTML5,'UTF-8'))),$matches[2]);
 }
@@ -146,6 +149,84 @@ check_website('public entry renders edited CMS heading fragments with spaces',st
         }
     } finally { $db->rollBack(); }
 });
-expect_website(count($kpAudits)===2,'Only successful save/publish should be audited');
+check_website('confirmed organizer phones have separate international dial links',static function()use($default):void {
+    expect_website($default['contact']['phone']==='+7 (992) 080-02-28');
+    expect_website($default['contact']['phone_secondary']==='58-00-22');
+    expect_website(kp_phone_href($default['contact']['phone'])==='tel:+79920800228');
+    expect_website(kp_phone_href($default['contact']['phone_secondary'])==='tel:+73532580022');
+});
+check_website('packaged contact is callable in visitor information and ticket enquiry',static function():void {
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $db->exec('UPDATE kcrm_website SET published=NULL WHERE id=1');
+        $html=rendered_website_html();
+        expect_website(substr_count($html,'href="tel:+79920800228"')===3,'Expected three separate mobile phone links');
+        expect_website(substr_count($html,'href="tel:+73532580022"')===3,'Expected footer, visitor information and ticket contact links');
+        expect_website(str_contains($html,'Позвонить: +7 (992) 080-02-28'));
+        expect_website(str_contains($html,'Продажи скоро откроются'));
+    } finally { $db->rollBack(); }
+});
+check_website('nonempty CMS contacts retain their own number and links',static function()use($default):void {
+    $edited=$default;$edited['contact']=['phone'=>'+7 (3532) 58-00-22','phone_secondary'=>'+7 (992) 080-02-28','email'=>'organizer@example.com','vk_url'=>'https://vk.com/example'];
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $stmt=$db->prepare('UPDATE kcrm_website SET published=? WHERE id=1');
+        $stmt->execute([json_encode($edited,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)]);
+        expect_website(kp_read_published()['content']['contact']===$edited['contact'],'Custom CMS contacts overwritten');
+        $html=rendered_website_html();
+        expect_website(str_contains($html,'href="tel:+73532580022"'));
+        expect_website(str_contains($html,'Позвонить: +7 (3532) 58-00-22'));
+        expect_website(!str_contains($html,'Позвонить: 58-00-22'));
+    } finally { $db->rollBack(); }
+});
+check_website('an explicitly empty CMS contact is not filled by a default overwrite',static function()use($default):void {
+    $empty=$default;$empty['contact']['phone']='';$empty['contact']['phone_secondary']='';
+    expect_website(kp_validate_content($empty)['contact']===$empty['contact']);
+});
+check_website('legacy one-phone CMS content keeps its phone and an empty new field',static function()use($default):void {
+    $legacy=$default;unset($legacy['contact']['phone_secondary']);$legacy['contact']['phone']='58-00-22';
+    $expected=$legacy['contact'];$expected['phone_secondary']='';
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $stmt=$db->prepare('UPDATE kcrm_website SET published=? WHERE id=1');$stmt->execute([json_encode($legacy,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)]);
+        $actual=kp_read_published()['content']['contact'];ksort($actual);ksort($expected);
+        expect_website($actual===$expected);
+        $html=rendered_website_html();expect_website(str_contains($html,'Позвонить: 58-00-22'));
+        expect_website(!str_contains($html,'href="tel:+79920800228"'),'Packaged mobile overwrote legacy contact');
+    } finally { $db->rollBack(); }
+});
+check_website('ambiguous multiple phone strings never become concatenated tel links',static function():void {
+    foreach (['+79920800228, 580022','+79920800228 +73532580022','79920800228580022','javascript:alert(1)'] as $value) expect_website(kp_phone_href($value)==='');
+});
+check_website('secondary phone can be the call action without duplicating its link',static function()use($default):void {
+    $edited=$default;$edited['contact']['phone']='';
+    $db=crm_db();$db->beginTransaction();
+    try {
+        $stmt=$db->prepare('UPDATE kcrm_website SET published=? WHERE id=1');$stmt->execute([json_encode($edited,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)]);
+        $html=rendered_website_html();expect_website(str_contains($html,'Позвонить: 58-00-22'));
+        expect_website(substr_count($html,'href="tel:+73532580022"')===3);
+    } finally { $db->rollBack(); }
+});
+function website_api_result(callable $route,array $input=[]): array {
+    $GLOBALS['kpInput']=$input;
+    try { $route(); } catch (KpReply $reply) { if ($reply->status===200) return $reply->payload['data']; throw $reply; }
+    throw new RuntimeException('API did not return a JSON envelope');
+}
+check_website('two phone fields save and publish through the API with revision protection',static function()use($routes,$default):void {
+    $edited=$default;$edited['contact']['phone']='58-00-22';$edited['contact']['phone_secondary']='+7 (992) 080-02-28';
+    $saved=website_api_result($routes['POST website/save'],['content'=>$edited,'expected_revision'=>2]);
+    expect_website($saved['revision']===3 && $saved['content']['contact']===$edited['contact']);
+    $published=website_api_result($routes['POST website/publish'],['expected_revision'=>3]);expect_website($published['revision']===4);
+    expect_website(website_api_result($routes['GET website/content'])['content']['contact']===$edited['contact']);
+    expect_website(website_api_result($routes['GET website/draft'])['content']['contact']===$edited['contact']);
+    rejects_website(static fn()=>website_api_result($routes['POST website/save'],['content'=>$default,'expected_revision'=>2]),KpReply::class,409);
+    expect_website(kp_website_row()['revision']==4);
+});
+check_website('malformed secondary phone returns validation without changing the saved pair',static function()use($routes,$default):void {
+    $bad=$default;$bad['contact']['phone_secondary']=['unexpected'];
+    rejects_website(static fn()=>website_api_result($routes['POST website/save'],['content'=>$bad,'expected_revision'=>4]),KpReply::class,422);
+    expect_website(kp_website_row()['revision']==4);
+});
+expect_website(count($kpAudits)===4,'Only successful save/publish should be audited');
 echo 'Website module: '.$count.' behaviour checks passed (isolated SQLite fixture).'.PHP_EOL;
 ob_end_flush();

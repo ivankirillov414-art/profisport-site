@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {recordPayload,staffPayload,splitWebsiteContent,composeWebsiteContent,canManageStaff} from '../../public/assets/crm-forms.js';
+import {recordPayload,staffPayload,websiteFields,splitWebsiteContent,composeWebsiteContent,canManageStaff} from '../../public/assets/crm-forms.js';
 let passed=0;function test(name,fn){fn();passed++;console.log('PASS '+name);}
 test('partner/task update includes numeric loaded revision without mutating input',()=>{
  const old=Object.freeze({id:'test-id',revision:4,name:'Старое'}),values=Object.freeze({name:'Моё изменение'});
@@ -53,5 +53,19 @@ test('owned CRM interface contains no arrow glyphs',()=>{
  for(const file of ['index.php','../assets/crm.js','../assets/crm-api.js','../assets/crm-utils.js','../assets/crm-forms.js','../assets/crm.css']){
   const source=fs.readFileSync(new URL('../../public/crm/'+file,import.meta.url),'utf8');assert.doesNotMatch(source,/[\u2190-\u21ff\u27f0-\u27ff]/u,file);
  }
+});
+test('primary and secondary phone fields are edited and saved independently',()=>{
+ const split=splitWebsiteContent(content);
+ for(const path of ['contact.phone','contact.phone_secondary'])assert.equal(websiteFields.find(f=>f.path===path)?.type,'tel');
+ assert.equal(split.values['contact.phone'],'+7 (992) 080-02-28');assert.equal(split.values['contact.phone_secondary'],'58-00-22');
+ const values={...split.values,'contact.phone':'58-00-22','contact.phone_secondary':'+7 (992) 080-02-28'};
+ const full=composeWebsiteContent(split.extraText,values);
+ assert.equal(full.contact.phone,'58-00-22');assert.equal(full.contact.phone_secondary,'+7 (992) 080-02-28');assert.deepEqual(full.fields,content.fields);
+});
+test('legacy contact editing preserves its primary phone and adds only an empty secondary',()=>{
+ const legacy=structuredClone(content);delete legacy.contact.phone_secondary;legacy.contact.phone='58-00-22';
+ const split=splitWebsiteContent(legacy);assert.equal(split.values['contact.phone_secondary'],'');
+ const full=composeWebsiteContent(split.extraText,split.values);
+ assert.deepEqual(full,{...legacy,contact:{...legacy.contact,phone_secondary:''}});
 });
 console.log(`${passed} form/schema checks passed. No backend or production records changed.`);

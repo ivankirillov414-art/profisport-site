@@ -29,7 +29,8 @@ export const websiteFields = [
   {path:'event.venue', label:'Площадка', type:'text', max:240},
   {path:'event.address', label:'Адрес', type:'text', max:400},
   {path:'tickets.price', label:'Стоимость билета, ₽', type:'number'},
-  {path:'contact.phone', label:'Телефон', type:'tel', max:100},
+  {path:'contact.phone', label:'Основной телефон', type:'tel', max:100},
+  {path:'contact.phone_secondary', label:'Дополнительный телефон', type:'tel', max:100},
   {path:'contact.email', label:'Электронная почта', type:'email', max:254},
   {path:'contact.vk_url', label:'Сообщество ВКонтакте', type:'url', max:1500},
 ];

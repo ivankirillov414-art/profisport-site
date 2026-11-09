@@ -24,6 +24,12 @@ Requests use same-origin cookies, CSRF and Origin checks, explicit consent, boun
 
 Private identity, storage and DB credentials stay outside the release ZIP. The frontend sends no contact data to an analytics service. Local `kosmoport:funnel` events only identify the step; UTM source/medium/campaign are saved with an enquiry. No external analytics service is configured by this release.
 
+## Organizer phones
+
+Public content and the website editor expose `contact.phone` (primary) and `contact.phone_secondary` (additional), each as a separate bounded string. The primary call action uses the first callable number; the other number has its own link. The confirmed defaults are the mobile `+7 (992) 080-02-28` and local Orenburg `58-00-22`, linked separately as `tel:+79920800228` and `tel:+73532580022`. No messenger accounts or corporate telecom contract are implied.
+
+Legacy saved content without `phone_secondary` receives only an empty additional field when validated; its existing primary number and other contact values remain unchanged. Explicit empty overrides are preserved. Editing/saving/publishing both phone fields uses the existing website revision and role checks; no schema migration or production data rewrite is needed. Ambiguous combined phone strings are displayed without a generated dial link rather than concatenated into a new number. The before-release public content readback had revision 0 and empty contacts, so the packaged defaults apply on that installation.
+
 ## Hosted payment link
 
 The website editor already exposes `tickets.price`, `tickets.sales_open` and `tickets.checkout_url`. `public/checkout.php` reads the published configuration on every request. It only redirects with HTTP 303 when sales are enabled, a numeric price exists and the destination is an absolute HTTPS URL without embedded credentials. Otherwise it returns HTTP 503 and a clear closed-sales page. It never marks a payment or issues a ticket.
