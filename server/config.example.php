@@ -1,6 +1,9 @@
 <?php
 // Copy to config.php outside version control. Use the destination host's values.
 return [
+    // Fill only after the permanent HTTPS domain is connected and verified.
+    'seo_public_url' => '',
+    'seo_indexing' => false,
     'timezone' => 'Asia/Yekaterinburg',
     'db_timezone' => '+05:00',
     'db_host' => 'localhost',

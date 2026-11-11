@@ -7,6 +7,12 @@ ErrorDocument 500 /500.html
   RewriteEngine On
   RewriteCond %{HTTPS} !=on
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+  # Metadata is rendered by PHP, with no dependence on the temporary hostname.
+  RewriteRule ^robots\.txt$ robots.php [L]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+  RewriteRule ^product\.html$ server/seo-product.php [L]
+  RewriteRule ^(?:index|shop|workshop|service|buyer-info)\.html$ server/seo-static.php [L]
+  RewriteRule ^$ server/seo-static.php [L]
 </IfModule>
 
 <IfModule mod_headers.c>
@@ -16,6 +22,9 @@ ErrorDocument 500 /500.html
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; frame-src https://yandex.ru https://yandex.com; upgrade-insecure-requests"
+  <FilesMatch "^(profile\.html|checkout\.html|404\.html|500\.html)$">
+    Header always set X-Robots-Tag "noindex, follow"
+  </FilesMatch>
   <FilesMatch "\\.(html|htm)$">
     Header always set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
