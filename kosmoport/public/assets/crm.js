@@ -1,15 +1,16 @@
 import {createApi, ApiError} from './crm-api.js';
 import {escapeHtml as e, number, date, filename, items, objectJson, canAdmit, sourceUsed} from './crm-utils.js';
 import {recordPayload, staffPayload, websiteFields, splitWebsiteContent, composeWebsiteContent, canManageStaff} from './crm-forms.js';
+import {mountMarketing} from './marketing.js?v=20261112';
 
 const api = createApi(new URL('../api/index.php', document.baseURI));
 const app = document.querySelector('#app');
 const modal = document.querySelector('#modal');
 const notice = document.querySelector('#notice');
 const rootUrl = new URL('../', document.baseURI).href;
-const state = {user:null, route:'overview', epoch:0, editor:null, ticket:null, admission:null, ticketCode:'', requestId:null, users:[]};
+const state = {user:null, route:'marketing', epoch:0, editor:null, ticket:null, admission:null, ticketCode:'', requestId:null, users:[]};
 let toastTimer, modalId=0;
-const labels = {overview:'Обзор',partners:'Партнёры',tasks:'Задачи',tickets:'Билеты',documents:'Документы',website:'Сайт',requests:'Заявки сайта',settings:'Настройки'};
+const labels = {marketing:'Маркетинг',website:'Сайт',requests:'Заявки сайта',settings:'Настройки',overview:'Прежний обзор',partners:'Партнёры',tasks:'Прежние задачи',tickets:'Билеты и проход',documents:'Прежние документы'};
 const staffRoles={owner:'Владелец',admin:'Администратор',manager:'Менеджер',cashier:'Кассир',editor:'Редактор сайта',document_manager:'Документы',reader:'Просмотр'};
 const canManageUsers=()=>canManageStaff(state.user?.role);
 const canManageRecords=()=>['owner','admin','manager'].includes(state.user?.role);
@@ -35,7 +36,7 @@ function download(blob, name) {
 }
 function login(message = '') {
   state.user=null; state.epoch++; modal.close(); state.editor=null;
-  app.innerHTML=`<div class="login"><aside class="login-brand"><div><div class="wordmark">КОСМОПОРТ<small>Рабочее пространство выставки</small></div><h1>Всё для работы.<br>В одном месте.</h1><p>Партнёры, приглашения, задачи и документы команды.</p></div><p class="login-footer">Доступ только для сотрудников</p></aside><main id="main" class="login-main" tabindex="-1"><h2>Вход в CRM</h2><p class="muted">Используйте учётную запись сотрудника.</p><div id="login-message">${message ? errorBox({message}) : ''}</div><form id="login-form">${field('email','Электронная почта','','email','required autocomplete="username" maxlength="254"')}${field('password','Пароль','','password','required autocomplete="current-password" maxlength="1024"')}<div class="form-error" hidden role="alert"></div><button class="primary" type="submit">Войти</button></form><p class="hint">Если доступа ещё нет, обратитесь к администратору.</p></main></div>`;
+  app.innerHTML=`<div class="login"><aside class="login-brand"><div><div class="wordmark">КОСМОПОРТ<small>Сайт и маркетинг</small></div><h1>Команда.<br>Материалы.<br>Результат.</h1><p>Рабочее пространство отдела: задачи, база знаний, утверждённые визуалы и показатели.</p></div><p class="login-footer">Доступ только для подключённых сотрудников</p></aside><main id="main" class="login-main" tabindex="-1"><h2>Вход в рабочее пространство</h2><p class="muted">Используйте учётную запись сотрудника.</p><div id="login-message">${message ? errorBox({message}) : ''}</div><form id="login-form">${field('email','Электронная почта','','email','required autocomplete="username" maxlength="254"')}${field('password','Пароль','','password','required autocomplete="current-password" maxlength="1024"')}<div class="form-error" hidden role="alert"></div><button class="primary" type="submit">Войти</button></form><p class="hint">Если доступа ещё нет, обратитесь к владельцу.</p></main></div>`;
   document.querySelector('#login-form').addEventListener('submit',event=>{
     event.preventDefault(); const form=event.currentTarget;
     formRun(form,async()=>{
@@ -48,7 +49,8 @@ function login(message = '') {
   });
 }
 function shell() {
-  app.innerHTML=`<div class="shell"><aside class="sidebar"><div class="wordmark">КОСМОПОРТ<small>CRM · команда выставки</small></div><nav class="nav" aria-label="Разделы CRM">${Object.entries(labels).filter(([key])=>key!=='settings' || canManageUsers()).map(([key,label])=>`<a href="#${key}" data-nav="${key}">${icons[key]?icon(key):''}${label}</a>`).join('')}</nav><div class="sidebar-foot">Время: Екатеринбург<a href="${e(rootUrl)}" target="_blank" rel="noopener">Открыть сайт</a></div></aside><div class="workspace"><header class="topbar"><div class="user">${e(state.user.name || state.user.email)}<small>${e(roleLabels[state.user.role] || 'Сотрудник')}</small></div><button class="text small" data-action="logout">Выйти</button></header><main id="main" class="content" tabindex="-1"></main></div></div>`;
+  const navLink=([key,label])=>`<a href="#${key}" data-nav="${key}">${icons[key]?icon(key):''}${label}</a>`;
+  app.innerHTML=`<div class="shell"><aside class="sidebar"><div class="wordmark">КОСМОПОРТ<small>Сайт и маркетинг</small></div><nav class="nav" aria-label="Разделы CRM">${Object.entries(labels).filter(([key])=>['marketing','website','requests','settings'].includes(key)&&(key!=='settings'||canManageUsers())).map(navLink).join('')}</nav><details class="legacy-nav"><summary>Прежние разделы</summary><nav class="nav" aria-label="Прежние разделы CRM">${Object.entries(labels).filter(([key])=>!['marketing','website','requests','settings'].includes(key)).map(navLink).join('')}</nav></details><div class="sidebar-foot">Время: Екатеринбург<a href="${e(rootUrl)}" target="_blank" rel="noopener">Открыть сайт</a></div></aside><div class="workspace"><header class="topbar"><div class="user">${e(state.user.name || state.user.email)}<small>${e(roleLabels[state.user.role] || 'Сотрудник')}</small></div><button class="text small" data-action="logout">Выйти</button></header><main id="main" class="content" tabindex="-1"></main></div></div>`;
 }
 async function formRun(form, callback) {
   if(form.dataset.busy) return;
@@ -108,7 +110,7 @@ async function saveRecord(form,route,record,values){
 function isDirty(){return !!state.editor && state.editor.inputSignature!==state.editor.savedSignature;}
 async function navigate(focus = true) {
   if(!state.user)return;
-  const requested=location.hash.slice(1) || 'overview';
+  const requested=location.hash.slice(1) || 'marketing';
   if(isDirty() && requested!==state.route){
     if(!window.confirm('В редакторе есть несохранённые изменения. Выйти без сохранения?')){history.replaceState(null,'',`#${state.route}`);return;}
   }
@@ -120,7 +122,7 @@ async function navigate(focus = true) {
   main.innerHTML='<div class="loading" role="status">Загружаем данные…</div>';
   if(focus)main.focus({preventScroll:true});
   try {
-    const render={overview:renderOverview,partners:renderPartners,tasks:renderTasks,tickets:()=>renderTickets(sub),documents:renderDocuments,website:renderWebsite,requests:renderWebsiteRequests,settings:renderSettings}[section];
+    const render={marketing:renderMarketing,overview:renderOverview,partners:renderPartners,tasks:renderTasks,tickets:()=>renderTickets(sub),documents:renderDocuments,website:renderWebsite,requests:renderWebsiteRequests,settings:renderSettings}[section];
     if(!render){main.innerHTML=heading('Раздел не найден','Выберите раздел в меню.')+'<a href="#overview">Вернуться к обзору</a>';return;}
     await render(epoch);
   } catch(err){
@@ -130,6 +132,10 @@ async function navigate(focus = true) {
   }
 }
 function setPage(html, epoch) {if(epoch!==state.epoch)return false;document.querySelector('#main').innerHTML=html;return true;}
+
+async function renderMarketing(epoch){
+  await mountMarketing({container:document.querySelector('#main'),api,user:state.user,dialog,formFooter,toast,apiUrl:new URL('../api/index.php',document.baseURI).href,isCurrent:()=>epoch===state.epoch});
+}
 
 async function renderOverview(epoch) {
   const data=await api.get('dashboard');
@@ -327,7 +333,7 @@ async function renderWebsite(epoch){
   const model=splitWebsiteContent(content),text=JSON.stringify(content,null,2);
   state.editor={text,savedText:text,revision,conflict:false,valid:true,inputSignature:'',savedSignature:''};
   const basicFields=websiteFields.map(item=>`<div class="${['brand','event.address','contact.vk_url'].includes(item.path)?'span-2':''}">${field(item.path,item.label+(item.required?' *':''),model.values[item.path],item.type,`${item.required?'required ':''}${item.max?`maxlength="${item.max}" `:''}${item.type==='number'?'min="0" max="1000000" step="0.01" ':''}`)}</div>`).join('');
-  setPage(heading('Сайт','Данные выставки и тексты для публикации.')+`<section class="panel"><div class="website-info"><span>Черновик · версия <strong id="website-revision">${e(revision)}</strong></span><span id="website-state">Все изменения сохранены</span></div><form id="website-form"><div class="form-grid">${basicFields}</div><p class="hint">Подтверждённый период выставки: 24.11.2026–18.01.2027. Пустая стоимость означает, что цена пока не указана.</p><details class="json-details"><summary>Тексты и другие настройки сайта (JSON)</summary><label>Содержимое сайта (JSON)<textarea class="json-editor" name="content" spellcheck="false">${e(model.extraText)}</textarea></label><p class="hint">Основные данные заполните в полях выше. Здесь остаются остальные тексты и настройки.</p></details><p id="website-json-state" class="hint" role="status"></p><div class="form-error" hidden role="alert"></div><div id="website-conflict"></div><div class="actions"><button type="submit" class="primary">Сохранить черновик</button><button type="button" data-action="preview-website">Просмотреть изменения</button><button type="button" data-action="publish-website" id="publish-button">Опубликовать</button><a href="${e(rootUrl)}" target="_blank" rel="noopener">Открыть сайт</a></div></form><p class="hint">Сохранение черновика не меняет публичный сайт.</p></section>`,epoch);
+  setPage(heading('Сайт','Данные выставки и тексты для публикации.')+`<section class="panel"><div class="website-info"><span>Черновик · версия <strong id="website-revision">${e(revision)}</strong></span><span id="website-state">Все изменения сохранены</span></div><form id="website-form"><div class="form-grid">${basicFields}</div><p class="hint">Подтверждённый период выставки: 24.11.2026–18.01.2027. Подтверждённые тарифы для детей, взрослых, активностей и комбо задаются отдельным прайсом сайта. Прежнее поле стоимости в этом черновике не меняет этот прайс. Флаг продажи и ссылка в JSON не подтверждают подключение платёжного сервиса.</p><details class="json-details"><summary>Тексты и другие настройки сайта (JSON)</summary><label>Содержимое сайта (JSON)<textarea class="json-editor" name="content" spellcheck="false">${e(model.extraText)}</textarea></label><p class="hint">Основные данные заполните в полях выше. Здесь остаются остальные тексты и настройки.</p></details><p id="website-json-state" class="hint" role="status"></p><div class="form-error" hidden role="alert"></div><div id="website-conflict"></div><div class="actions"><button type="submit" class="primary">Сохранить черновик</button><button type="button" data-action="preview-website">Просмотреть изменения</button><button type="button" data-action="publish-website" id="publish-button">Опубликовать</button><a href="${e(rootUrl)}" target="_blank" rel="noopener">Открыть сайт</a></div></form><p class="hint">Сохранение черновика не меняет публичный сайт.</p></section>`,epoch);
   const form=document.querySelector('#website-form');
   state.editor.inputSignature=websiteInput(form).signature;state.editor.savedSignature=state.editor.inputSignature;updateEditorState();
   form.addEventListener('input',()=>syncWebsiteEditor(form));

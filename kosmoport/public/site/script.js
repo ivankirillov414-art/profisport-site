@@ -24,7 +24,7 @@
     event.preventDefault();
     const dialog = document.getElementById(button.dataset.open);
     if (!dialog) return;
-    if (button.dataset.ticketCount) { count = Math.min(20, Math.max(1, Number(button.dataset.ticketCount))); update(); }
+    if(dialog.id==='ticket-dialog'){ if(button.dataset.ticketChildren!==undefined){childInput.value=button.dataset.ticketChildren;adultInput.value=button.dataset.ticketAdults;planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);} planner?.goToStep(1);update(); }
     dialog.showModal();
     funnel(button.dataset.open === 'group-dialog' ? 'group_open' : 'ticket_open');
     document.body.classList.add('modal-open');
@@ -39,23 +39,85 @@
     });
   });
   let count = 2;
-  const minus = document.querySelector('#minus');
-  const plus = document.querySelector('#plus');
+  let currentQuote = null;
+  let currentBasket = null;
+  const childInput = document.querySelector('#children-quantity');
+  const adultInput = document.querySelector('#adults-quantity');
+  const visitDate = document.querySelector('#visit-date');
+  const pricingEvent={opening_date:config.openingDate,closing_date:config.closingDate};
+  const planner=window.KosmoportPricing?.createPlanner(config.priceCatalog,pricingEvent);
+  const plannerDialog=document.querySelector('#ticket-dialog');
+  const selectionFields=[...document.querySelectorAll('.selection-input')];
   function resetSavedRequest(form) {
     if(!form) return;
     if(form.dataset.busy) form.dataset.dirty='true';
     delete form.dataset.saved;
     if(!form.dataset.busy) form.querySelector('[type="submit"]').disabled=false;
   }
-  const update = () => {
-    if(document.querySelector('#quantity').textContent!==String(count)) resetSavedRequest(document.querySelector('#visit-request-form'));
-    document.querySelector('#quantity').textContent = count;
-    document.querySelector('#total').textContent = money(config.ticketPrice === null ? null : count * config.ticketPrice);
-    minus.disabled = count <= 1;
-    plus.disabled = count >= 20;
+  const quoteError=code=>code==='invalid_quantity'?'Укажите от 1 до 200 гостей: отдельно детей и взрослых.':code==='invalid_selection'?'Укажите от 0 до 20 наборов или активностей.':'Выберите действительную дату в период выставки.';
+  const fieldStep=field=>Number(field.closest('[data-planner-panel]').dataset.plannerPanel);
+  const invalidSelections=()=>selectionFields.filter(field=>!Number.isInteger(field.valueAsNumber)||field.valueAsNumber<0||field.valueAsNumber>20);
+  const resetPlannerScroll=()=>{document.querySelector('.planner-scroll').scrollTop=0;};
+  const update=()=>{
+    const state=planner?.getState()||{step:1,date:visitDate.value,children:1,adults:1,combos:{},extras:{}};
+    const previous=JSON.stringify(currentBasket);
+    childInput.setCustomValidity('');adultInput.setCustomValidity('');visitDate.setCustomValidity('');
+    currentQuote=window.KosmoportPricing?window.KosmoportPricing.quote(config.priceCatalog,pricingEvent,state):{ok:false,error:'unavailable'};
+    currentBasket=planner?.summary()||{ok:false,error:'unavailable'};
+    const invalidFields=invalidSelections();
+    const valid=currentBasket.ok&&invalidFields.length===0;
+    if(previous!==JSON.stringify(currentBasket))resetSavedRequest(document.querySelector('#visit-request-form'));
+    count=currentQuote.ok?currentQuote.guest_count:0;
+    document.querySelector('#quantity').textContent=currentQuote.ok?String(count):'—';
+    document.querySelector('#total').textContent=currentQuote.ok?money(currentQuote.admission_total):'Проверьте данные';
+    document.querySelector('#quote-status').textContent=currentQuote.ok?'':currentQuote.error==='unavailable'?'Не удалось загрузить расчёт. Обновите страницу.':quoteError(currentQuote.error);
+    if(currentQuote.ok){
+      document.querySelector('#child-rate').textContent=money(currentQuote.unit_prices.child)+' за билет';
+      document.querySelector('#adult-rate').textContent=money(currentQuote.unit_prices.adult)+' за билет';
+      document.querySelector('#price-day').textContent=(currentQuote.day_type==='weekend'?'Выходной день':'Будний день')+': детский '+money(currentQuote.unit_prices.child)+', взрослый '+money(currentQuote.unit_prices.adult);
+    }else{
+      document.querySelector('#price-day').textContent='Стоимость зависит от выбранной даты';
+      if(currentQuote.error==='invalid_quantity')childInput.setCustomValidity(quoteError(currentQuote.error));
+      else if(currentQuote.error!=='unavailable')visitDate.setCustomValidity(quoteError(currentQuote.error));
+    }
+    document.querySelectorAll('[data-guest-change]').forEach(button=>{const[kind,delta]=button.dataset.guestChange.split(':');const value=(kind==='children'?childInput:adultInput).valueAsNumber;button.disabled=Number(delta)<0?!(value>0):currentQuote.ok&&count>=200;});
+    document.querySelectorAll('[data-selection-change]').forEach(button=>{const[kind,id,delta]=button.dataset.selectionChange.split(':');const value=state[kind][id];button.disabled=Number(delta)<0?value<=0:value>=20;});
+    document.querySelectorAll('[data-planner-panel]').forEach(panel=>panel.hidden=Number(panel.dataset.plannerPanel)!==state.step);
+    document.querySelectorAll('[data-planner-step]').forEach(button=>{const active=Number(button.dataset.plannerStep)===state.step;button.classList.toggle('is-active',active);if(active)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');});
+    const cartLines=document.querySelector('#cart-lines');cartLines.replaceChildren();
+    if(currentBasket.ok)currentBasket.lines.forEach(line=>{const item=document.createElement('li'),label=document.createElement('span'),amount=document.createElement('strong');label.textContent=line.label+' × '+line.quantity;amount.textContent=money(line.total);item.append(label,amount);cartLines.append(item);});
+    document.querySelector('#cart-date').textContent=currentQuote.ok?new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',weekday:'short',timeZone:'UTC'}).format(new Date(state.date+'T12:00:00Z')):'Выберите дату посещения';
+    for(const[id,key]of[['cart-admission','admission_total'],['cart-bundles','bundles_total'],['cart-extras','extras_total']])document.getElementById(id).textContent=currentBasket.ok?money(currentBasket[key]):'—';
+    const totalText=valid?money(currentBasket.planned_total):!currentQuote.ok&&currentQuote.error!=='invalid_quantity'?'Выберите дату':'Проверьте количество';
+    document.querySelector('#planner-total').textContent=totalText;document.querySelector('#mobile-planner-total').textContent=totalText;
+    document.querySelector('#mobile-cart-guests').textContent=currentQuote.ok?'Гостей: '+count:'Выберите билеты';
+    document.querySelector('#cart-note').textContent=currentBasket.ok&&currentBasket.requires_terms_confirmation?'Включение входного билета в наборы уточняется. Сумма позиций предварительная; это не билет и не подтверждение оплаты.':'План не является билетом или подтверждением оплаты.';
+    const nextLabels=['Выбрать наборы','Добавить активности','Перейти к контактам','Онлайн-оплата скоро'];
+    const blocked=!currentQuote.ok||invalidFields.some(field=>fieldStep(field)<=state.step)||state.step===4;
+    for(const id of['planner-next','cart-next','mobile-planner-next']){const button=document.getElementById(id);button.textContent=nextLabels[state.step-1];button.disabled=blocked;}
+    document.querySelector('#planner-next').hidden=state.step===4;document.querySelector('#planner-back').disabled=state.step===1;
+    document.querySelector('#planner-status').textContent=invalidFields.length?quoteError('invalid_selection'):'';
+    const submit=document.querySelector('#visit-request-form [type="submit"]');if(submit&&!submit.closest('form').dataset.busy)submit.disabled=!valid||submit.closest('form').dataset.saved==='true';
   };
-  minus.addEventListener('click', () => { count = Math.max(1, count - 1); update(); });
-  plus.addEventListener('click', () => { count = Math.min(20, count + 1); update(); });
+  const navigate=step=>{
+    if(!planner)return;
+    const current=planner.getState();
+    if(step>current.step){
+      const invalid=invalidSelections().find(field=>fieldStep(field)<step);
+      if(invalid){planner.goToStep(fieldStep(invalid));update();invalid.reportValidity();return;}
+      if(!currentQuote?.ok){planner.goToStep(1);update();visitDate.reportValidity();childInput.reportValidity();return;}
+    }
+    if(planner.goToStep(step)){update();resetPlannerScroll();}
+  };
+  document.querySelectorAll('[data-planner-step]').forEach(button=>button.addEventListener('click',()=>navigate(Number(button.dataset.plannerStep))));
+  for(const id of['planner-next','cart-next','mobile-planner-next'])document.getElementById(id).addEventListener('click',()=>navigate((planner?.getState().step||1)+1));
+  document.querySelector('#planner-back').addEventListener('click',()=>navigate((planner?.getState().step||1)-1));
+  document.querySelectorAll('[data-guest-change]').forEach(button=>button.addEventListener('click',()=>{const[kind,delta]=button.dataset.guestChange.split(':');const input=kind==='children'?childInput:adultInput;const value=Number.isInteger(input.valueAsNumber)?input.valueAsNumber:0;input.value=String(Math.max(0,Math.min(200,value+Number(delta))));planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);update();}));
+  [childInput,adultInput].forEach(input=>input.addEventListener('input',()=>{planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);update();}));
+  visitDate.addEventListener('change',()=>{planner?.setDate(visitDate.value);update();});
+  selectionFields.forEach(input=>input.addEventListener('input',()=>{input.setCustomValidity('');if(!planner?.setQuantity(input.dataset.selectionKind,input.dataset.selectionId,input.valueAsNumber))input.setCustomValidity(quoteError('invalid_selection'));update();}));
+  document.querySelectorAll('[data-selection-change]').forEach(button=>button.addEventListener('click',()=>{const[kind,id,delta]=button.dataset.selectionChange.split(':');const state=planner?.getState();if(!state)return;const value=Math.max(0,Math.min(20,state[kind][id]+Number(delta)));planner.setQuantity(kind,id,value);const field=selectionFields.find(input=>input.dataset.selectionKind===kind&&input.dataset.selectionId===id);field.value=String(value);field.setCustomValidity('');update();}));
+  document.querySelector('#planner-cart-toggle').addEventListener('click',()=>{const expanded=plannerDialog.classList.toggle('cart-expanded');document.querySelector('#planner-cart-toggle').setAttribute('aria-expanded',String(expanded));if(expanded)resetPlannerScroll();});
   update();
   function downloadFile(text, filename, type) {
     const url = URL.createObjectURL(new Blob([text], {type}));
@@ -64,6 +126,12 @@
     document.body.append(link); link.click(); link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
+  const basketDescription=()=>currentBasket?.ok?currentBasket.lines.map(line=>line.label+' × '+line.quantity+' — '+money(line.total)).join('\n')+'\nПредварительная сумма выбранных позиций: '+money(currentBasket.planned_total)+(currentBasket.requires_terms_confirmation?'\nВключение входа в наборы уточняется.':''):'Проверьте выбранные позиции.';
+  document.querySelector('#planner-download').addEventListener('click',()=>{
+    if(!currentBasket?.ok||invalidSelections().length)return;
+    const text=['КОСМОПОРТ — ПЛАН ПОСЕЩЕНИЯ',config.venue,'Дата: '+planner.getState().date,'',basketDescription(),'','Это план, не покупка, не бронь и не билет. Оплата не проводилась. Условия наборов уточняются.'].join('\n');
+    downloadFile('\uFEFF'+text,'kosmoport-visit-plan.txt','text/plain;charset=utf-8');
+  });
   const escapeICS = text => String(text).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');
   function calendar(date) {
     const next = new Date(date + 'T12:00:00Z');
@@ -129,8 +197,8 @@
   document.querySelectorAll('#group-form,#visit-request-form').forEach(form=>form.addEventListener('input',()=>resetSavedRequest(form)));
   document.querySelector('#visit-request-form')?.addEventListener('submit',event=>{
     event.preventDefault();const form=event.currentTarget,data=new FormData(form),date=document.querySelector('#visit-date');
-    if(!date.reportValidity())return;
-    sendRequest(form,{kind:config.salesOpen?'visit':'notify',name:String(data.get('name')).trim(),contact:String(data.get('contact')).trim(),org:'',date:date.value,quantity:count,message:'',source:sourceTag(),consent:data.get('consent')==='on',website:String(data.get('website')||'')},document.querySelector('#visit-request-status'));
+    if(!date.reportValidity() || !childInput.reportValidity() || !adultInput.reportValidity() || !currentBasket?.ok || invalidSelections().length)return;
+    sendRequest(form,{kind:config.salesOpen?'visit':'notify',name:String(data.get('name')).trim(),contact:String(data.get('contact')).trim(),org:'',date:date.value,quantity:count,message:basketDescription(),source:sourceTag(),consent:data.get('consent')==='on',website:String(data.get('website')||'')},document.querySelector('#visit-request-status'));
   });
   document.querySelector('#group-form').addEventListener('submit', event => {
     event.preventDefault();

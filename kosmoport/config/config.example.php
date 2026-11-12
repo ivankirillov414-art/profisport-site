@@ -22,6 +22,17 @@ return [
         'requests_enabled' => false, // Enable after migration 050, privacy and staff acceptance.
         'organizer_name' => '', // Verified legal name of the personal-data operator.
         'privacy_url' => '', // Published HTTPS policy approved by the organizer.
+        'contact_email' => '',
+        'contact_phone' => '',
+    ],
+    'payments' => [
+        // Inventory for owner setup. Fields alone do not enable/verify payments.
+        'provider' => '', // yookassa, tbank, alfabank, hosted_link; leave empty until selected.
+        'mode' => 'disabled', // disabled, test, live.
+        'merchant_status' => 'not_started', // Declared setup status, NOT provider verification.
+        'merchant_id' => '', 'secret_key' => '', // ONLY in PRIVATE config; never commit real values.
+        'return_url' => '', 'webhook_url' => '', 'offer_url' => '',
+        'fiscalization' => '', // provider_receipts or own_online_register after selection.
     ],
     'database' => [
         'driver' => 'mysql', 'host' => 'YOUR_MYSQL_HOST', 'port' => 3306,

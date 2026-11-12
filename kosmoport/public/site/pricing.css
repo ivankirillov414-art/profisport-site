@@ -1,0 +1,77 @@
+.boarding-info strong small{display:block;font-size:.68em;font-weight:500;line-height:1.5;margin-top:.3rem}
+.activity-prices{margin-top:3rem;padding-top:2rem;border-top:1px solid #29416c}
+.activity-prices .section-heading h3,.combo-heading{font-size:clamp(1.4rem,3vw,2rem);line-height:1.2}
+.activity-price-grid,.combo-price-grid{display:grid;gap:1rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+.combo-price-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.activity-price-grid article,.combo-price-grid article{background:#10203e;border:1px solid #36598a;border-radius:18px;padding:1.4rem}
+.activity-prices h4{font-size:1.1rem;line-height:1.4;margin:0 0 .7rem}
+.catalog-price,.combo-price-grid strong{font-size:1.55rem;font-weight:700;color:#8be1ff}
+.activity-price-grid p{line-height:1.6;margin:.3rem 0}
+.combo-heading{margin:2rem 0 1rem}.catalog-note{color:#c5d5ed;line-height:1.6;margin-top:1rem;max-width:75ch}
+.guest-price-row{display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid #d7e0ec}
+.guest-price-row label{margin:0!important;font-size:1rem!important;font-weight:700}
+.guest-price-row span{display:block;font-size:.9rem;line-height:1.5;color:#435575;margin-top:.3rem}
+.guest-price-row .stepper{display:flex;flex:0 0 auto;gap:.35rem;align-items:center}
+.guest-price-row .stepper input{width:3.8rem!important;min-width:0;text-align:center;padding:.6rem .25rem!important;margin:0!important}
+.guest-price-row .stepper button{width:2.2rem;height:2.2rem;padding:0;flex:none}
+.price-day-note{font-size:.95rem;line-height:1.5;color:#324b72;background:#edf4fc;padding:.85rem;border-radius:10px}
+.guest-count{margin-top:1rem;font-size:1rem}.guest-count output{font-weight:700}
+#ticket-dialog .total-row{gap:1rem;flex-wrap:wrap}#ticket-dialog #total{white-space:normal;overflow-wrap:anywhere}
+.mobile-ticket-bar strong{font-size:.9rem;line-height:1.4}
+@media(max-width:600px){.combo-price-grid{grid-template-columns:1fr}.activity-price-grid{grid-template-columns:1fr}.activity-prices{margin-top:2rem}.guest-price-row{align-items:flex-start;flex-wrap:wrap}.guest-price-row>div:first-child{min-width:8rem}.guest-price-row .stepper{margin-left:auto}.mobile-ticket-bar>div{min-width:0}.mobile-ticket-bar strong{max-width:13rem}.boarding-info strong small{font-size:.65em}}
+
+/* A branded, four-step planner; payment controls stay unavailable. */
+#ticket-dialog.purchase-dialog{width:min(1120px,calc(100vw - 36px));height:min(850px,94dvh);max-height:94dvh;padding:0;border-radius:24px;background:#08162f;color:#eaf3ff;overflow:hidden}
+#ticket-dialog.purchase-dialog[open]{display:flex;flex-direction:column}
+.planner-header{padding:26px 32px 16px;border-bottom:1px solid #294769;background:radial-gradient(ellipse at top right,#163c70,transparent 65%),#091a35;flex:none}
+.planner-header .eyebrow{margin:0 0 10px;font-size:.72rem!important;color:#8edff9;letter-spacing:.12em}
+.planner-header h2{font-size:clamp(1.5rem,3.6vw,2.1rem);line-height:1.15;text-transform:none;letter-spacing:-.02em;margin:0 34px 8px 0}
+.planner-header p.dialog-subtitle{margin:0;font-size:.9rem;line-height:1.5}
+#ticket-dialog .dialog-close{z-index:4;top:14px;right:14px}
+.planner-steps{flex:none;padding:14px 32px;background:#0a1c38;border-bottom:1px solid #294769}
+.planner-steps ol{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0;margin:0;gap:10px}
+.planner-steps button{display:flex;align-items:center;gap:8px;width:100%;padding:8px;border:0;border-radius:10px;background:transparent;color:#a9bfdc;font-size:.9rem;line-height:1.3;text-align:left;min-height:42px;cursor:pointer}
+.planner-steps button span{display:grid;place-items:center;width:27px;height:27px;flex:none;border:1px solid #58779a;border-radius:50%;font-size:.8rem;font-weight:700}
+.planner-steps button[aria-current=step]{color:#fff;background:#173a63}.planner-steps button[aria-current=step] span{background:#a7e7ff;color:#07152c;border-color:#a7e7ff}
+.planner-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:26px 32px 32px}
+.planner-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start;gap:28px}
+.planner-main{min-width:0}.planner-panel[hidden]{display:none!important}.planner-panel h3{margin:0 0 8px;font-size:clamp(1.4rem,2.4vw,1.8rem);line-height:1.25}
+#ticket-dialog .planner-kicker{color:#8adcf8;font-size:.72rem;letter-spacing:.12em;margin:0 0 12px;font-weight:700}
+.planner-panel>p{margin:8px 0 18px;font-size:.98rem;line-height:1.6;color:#c5d7ed}
+.purchase-dialog .price-day-note{background:#122f52;color:#adeaff;border:1px solid #2b6088}
+.purchase-dialog .guest-price-row{border-color:#2a4668}.purchase-dialog .guest-price-row span{color:#b6cde8}.purchase-dialog .guest-price-row label{color:#edf7ff}
+.purchase-dialog .stepper{display:flex;align-items:center;gap:5px;flex:none}.purchase-dialog .stepper button{width:38px;min-height:42px;border:1px solid #41678d;border-radius:11px;background:#183556;color:#fff;font-size:1.35rem;line-height:1;cursor:pointer}
+.purchase-dialog .stepper button:disabled{opacity:.35;cursor:default}.purchase-dialog .stepper input{margin:0!important;padding:8px 2px!important;min-height:42px;width:3.5rem!important;text-align:center;appearance:textfield}
+.purchase-dialog .stepper input::-webkit-inner-spin-button,.purchase-dialog .stepper input::-webkit-outer-spin-button{appearance:none;margin:0}
+.purchase-dialog .guest-count{color:#bfd5ee}.purchase-dialog .total-row{margin-top:18px;border-color:#2e5277}.purchase-dialog .total-row output{color:#a7e7ff;font-size:1.7rem}
+.planner-selection-grid{display:grid;gap:12px;margin-top:22px}
+.planner-selection-card{display:flex;gap:14px;align-items:center;justify-content:space-between;background:#11294a;border:1px solid #35597e;border-radius:16px;padding:18px}
+.selection-tag{font-size:.66rem;line-height:1.5;letter-spacing:.08em;color:#9fc4e8;font-weight:700;display:block;margin-bottom:6px}
+.planner-selection-card h4{font-size:1rem;line-height:1.5;margin:0 0 8px;color:#edf7ff}.planner-selection-card strong{font-size:1.35rem;line-height:1.2;color:#a7e7ff}
+#ticket-dialog .planner-caution{border-left:3px solid #e9a455;background:#342b28;color:#f5d4ae;border-radius:0 10px 10px 0;padding:14px;font-size:.86rem;line-height:1.6;margin-top:20px}
+.planner-cart{position:sticky;top:0;background:#132f50;border:1px solid #42698e;border-radius:20px;padding:22px;min-width:0;max-height:calc(94dvh - 220px);overflow:auto}
+.planner-cart h3{font-size:1.25rem;line-height:1.3;margin:0 0 5px}.planner-cart p#cart-date{font-size:.9rem;margin:6px 0 18px;color:#bce6fb}
+#cart-lines{list-style:none;margin:0;padding:0 0 12px;border-bottom:1px solid #3a5b7c}#cart-lines li{display:flex;justify-content:space-between;gap:12px;margin:0 0 13px;font-size:.85rem;line-height:1.5}#cart-lines li span{min-width:0;color:#d6e7f8}#cart-lines li strong{font-size:.9rem;white-space:nowrap;flex:none}
+.cart-totals{margin:16px 0}.cart-totals>div{display:flex;gap:12px;justify-content:space-between;font-size:.82rem;line-height:1.5;margin:7px 0}.cart-totals dt{color:#b8d0e9}.cart-totals dd{margin:0;white-space:nowrap}
+.cart-grand-total{border-top:1px solid #3a5b7c;padding-top:16px;display:grid;gap:6px}.cart-grand-total>span{font-size:.8rem;color:#bfd4e9}.cart-grand-total strong{font-size:1.9rem;line-height:1.3;color:#a7e7ff;overflow-wrap:anywhere}
+#ticket-dialog .cart-note{font-size:.75rem;line-height:1.55;color:#b9cee5;margin:12px 0 18px}
+.planner-navigation{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid #2c496b}
+.planner-navigation .button{width:auto;min-width:180px;font-size:.95rem;min-height:48px;padding:12px 20px}
+.planner-back{border:1px solid #416486;border-radius:12px;padding:12px 20px;min-height:48px;color:#d6e9fa;background:#122c4b;cursor:pointer}.planner-back:disabled{opacity:.35;cursor:default}
+.purchase-dialog button:focus-visible,.purchase-dialog input:focus-visible{outline:3px solid #9ce9ff;outline-offset:3px}
+#ticket-dialog button:disabled{cursor:default}.planner-cart .button:disabled{background:#29435c;opacity:.65}
+#ticket-dialog .sales-status{border:1px solid #4d7297;background:#143152;padding:18px;margin:18px 0}#ticket-dialog .sales-status strong{font-size:1rem}
+#ticket-dialog .planner-save{margin-top:20px}.planner-mobile-bar{display:none}
+@media(max-width:850px){.planner-layout{grid-template-columns:minmax(0,1fr) 260px;gap:18px}.planner-scroll{padding:22px}.planner-header{padding:24px 22px 16px}.planner-steps{padding:12px 20px}.planner-cart{padding:18px}.planner-selection-card{flex-wrap:wrap}.planner-selection-card .stepper{margin-left:auto}.planner-cart h3{font-size:1.1rem}}
+@media(max-width:650px){
+ #ticket-dialog.purchase-dialog{width:100vw;height:100dvh;max-height:100dvh;max-width:none;margin:0;border-radius:0;border:0}
+ .planner-header{padding:20px 16px 14px}.planner-header h2{font-size:1.5rem;max-width:18ch}.planner-header .eyebrow{font-size:.6rem!important;letter-spacing:.05em}.planner-header p.dialog-subtitle{font-size:.78rem;margin:0}
+ .planner-steps{padding:9px 10px}.planner-steps ol{gap:2px}.planner-steps button{display:grid;justify-items:center;gap:4px;text-align:center;font-size:.68rem;padding:6px 2px}.planner-steps button span{width:24px;height:24px}
+ .planner-scroll{padding:20px 16px 24px}.planner-layout{display:flex;flex-direction:column;gap:18px}.planner-main{width:100%}.planner-panel h3{font-size:1.35rem}.planner-panel>p{font-size:.9rem}
+ .planner-selection-card{padding:16px;gap:12px}.planner-selection-card h4{font-size:.95rem}.planner-selection-card .stepper{margin-left:auto}.purchase-dialog .stepper button{width:36px;min-height:42px}.purchase-dialog .stepper input{width:3rem!important}
+ .planner-cart{display:none;position:static;max-height:none;width:100%;order:-1;padding:18px}.purchase-dialog.cart-expanded .planner-cart{display:block}.planner-cart #cart-next{display:none}
+ .planner-navigation{margin-top:22px}.planner-navigation .button{display:none}.planner-back{font-size:.9rem;min-height:44px}
+ .planner-mobile-bar{display:grid;grid-template-columns:minmax(0,1fr) 120px;flex:none;gap:10px;padding:10px 12px max(10px,env(safe-area-inset-bottom));background:#0b203b;border-top:1px solid #46698f;box-shadow:0 -12px 26px #040b1c77}
+ #planner-cart-toggle{display:flex;gap:8px;align-items:center;justify-content:space-between;min-width:0;color:#edf7ff;background:#163756;border:1px solid #46698f;border-radius:12px;padding:8px 10px;font-size:.72rem;text-align:left}#planner-cart-toggle>span:first-child{display:grid;gap:3px}#planner-cart-toggle small{font-size:.62rem;color:#b8cee8}#planner-cart-toggle strong{font-size:.95rem;line-height:1.2;overflow-wrap:anywhere}
+ #ticket-dialog .planner-mobile-bar .button{margin:0;min-width:0;width:100%;min-height:50px;padding:9px;font-size:.75rem;line-height:1.4;border-radius:12px}
+}

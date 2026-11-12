@@ -103,6 +103,13 @@ jobs:
           php tests/tickets-routes.php
           php tests/website.php
           php tests/website-funnel.php
+          php tests/pricing.php
+          node --test tests/pricing-js.test.mjs tests/pricing-parity.test.mjs
+          php tests/payments-readiness.php
+          php tests/marketing-acl.php
+          php tests/marketing-bundle.php
+          node --check public/assets/marketing.js
+          node --check public/site/pricing.js
           php tests/migration-package.php
       - name: Generate credentials for the isolated loopback service
         env:
@@ -244,6 +251,13 @@ jobs:
           php tests/tickets-routes.php
           php tests/website.php
           php tests/website-funnel.php
+          php tests/pricing.php
+          node --test tests/pricing-js.test.mjs tests/pricing-parity.test.mjs
+          php tests/payments-readiness.php
+          php tests/marketing-acl.php
+          php tests/marketing-bundle.php
+          node --check public/assets/marketing.js
+          node --check public/site/pricing.js
           php tests/migration-package.php
 
   deploy:
