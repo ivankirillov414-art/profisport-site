@@ -10,9 +10,10 @@ header('X-Content-Type-Options: nosniff');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <meta name="robots" content="noindex, nofollow">
-  <title>Космопорт — CRM</title>
+  <title>Космопорт — сайт и маркетинг</title>
   <link rel="stylesheet" href="../assets/crm.css?v=20261031">
-  <script type="module" src="../assets/crm.js?v=20261108-requests"></script>
+  <link rel="stylesheet" href="../assets/marketing.css?v=20261112">
+  <script type="module" src="../assets/crm.js?v=20261112-marketing"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержимому</a>

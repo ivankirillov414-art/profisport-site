@@ -104,6 +104,8 @@ function kp_visit_request_status(array $input): array {
 }
 
 function kp_checkout_target(array $content): ?string {
+    require_once __DIR__.'/pricing.php';
+    if (!kp_catalog_live_sales_ready()) return null;
     if ($content['tickets']['sales_open']!==true || !is_numeric($content['tickets']['price'])) return null;
     $url=$content['tickets']['checkout_url'];
     if (!is_string($url) || !filter_var($url,FILTER_VALIDATE_URL) || strtolower((string)parse_url($url,PHP_URL_SCHEME))!=='https' || parse_url($url,PHP_URL_USER)!==null || parse_url($url,PHP_URL_PASS)!==null) return null;
