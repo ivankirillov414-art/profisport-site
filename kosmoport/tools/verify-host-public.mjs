@@ -27,7 +27,9 @@ try{
  result.anonymous_session_and_csrf=true;
  const crm=await page.goto(new URL('crm/',base).href,{waitUntil:'networkidle',timeout:45000});
  if(crm.status()!==200)throw Error('CRM public entry unavailable');
- await page.getByRole('heading',{name:'Вход в CRM',exact:true}).waitFor();
+ await page.getByRole('heading',{name:'Вход в рабочее пространство',exact:true}).waitFor();
+ await page.locator('input[autocomplete="username"]').waitFor();
+ await page.locator('input[autocomplete="current-password"]').waitFor();
  result.crm_login_page=true;
  const setup=await page.goto(new URL('setup.php',base).href,{waitUntil:'networkidle',timeout:45000});
  if(setup.status()!==200||await page.locator('input[name="setup_key"]').count()!==1)throw Error('Independent owner setup form unavailable');
