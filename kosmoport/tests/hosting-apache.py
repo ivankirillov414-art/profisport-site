@@ -54,8 +54,12 @@ def check(relative, status, needle=None):
 for relative in ['', 'index.php', 'public/index.php']:
     check(relative, 200, 'КОСМОПОРТ'.encode())
 for relative in ['crm/', 'crm/index.php']:
-    check(relative, 200, 'Космопорт — CRM'.encode())
+    check(relative, 200, 'Космопорт — сайт и маркетинг'.encode())
 check('assets/crm.js', 200, b'login')
+check('assets/marketing.js', 200, b'mountMarketing')
+check('assets/marketing.css', 200, b'marketing-sections')
+check('site/pricing.js', 200, b'planned_total')
+check('site/pricing.css', 200, b'planner')
 check('host-control.json', 200, b'{"synthetic":true}\n')
 for relative in ['app/bootstrap.php', 'config/config.example.php', 'storage/.gitkeep',
                  'migrations/001_core.sql', 'tools/package.php', 'docs/QA-RESULTS.md']:
