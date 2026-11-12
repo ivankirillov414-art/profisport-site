@@ -103,6 +103,7 @@ jobs:
           php tests/tickets-routes.php
           php tests/website.php
           php tests/website-funnel.php
+          php tests/website-contact.php
           php tests/pricing.php
           node --test tests/pricing-js.test.mjs tests/pricing-parity.test.mjs
           php tests/payments-readiness.php
@@ -251,6 +252,7 @@ jobs:
           php tests/tickets-routes.php
           php tests/website.php
           php tests/website-funnel.php
+          php tests/website-contact.php
           php tests/pricing.php
           node --test tests/pricing-js.test.mjs tests/pricing-parity.test.mjs
           php tests/payments-readiness.php
