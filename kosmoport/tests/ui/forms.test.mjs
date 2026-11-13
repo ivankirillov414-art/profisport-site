@@ -27,7 +27,7 @@ const content=JSON.parse(fs.readFileSync(new URL('../../app/website/default-cont
 test('split and recombine the actual site content without losing other text',()=>{
  const original=JSON.stringify(content),split=splitWebsiteContent(content);
  assert.deepEqual(composeWebsiteContent(split.extraText,split.values),content);assert.equal(JSON.stringify(content),original);
- assert.equal(split.values['event.opening_date'],'2026-11-24');assert.equal(split.values['event.closing_date'],'2027-01-18');
+ assert.equal(split.values['event.opening_date'],'2026-11-25');assert.equal(split.values['event.closing_date'],'2027-01-18');
  const extra=JSON.parse(split.extraText);assert.equal(Object.hasOwn(extra,'brand'),false);assert.equal(Object.hasOwn(extra.event,'opening_date'),false);assert.ok(extra.fields);
 });
 test('ordinary fields update nested content and leave JSON-owned fields intact',()=>{

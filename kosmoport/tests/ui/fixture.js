@@ -3,7 +3,7 @@
   const calls=[];let user=null;let revision=1;let forceConflict=true;let admitted=false;
   const staff=[{id:'test-user',name:'Тестовый сотрудник',email:'test@example.invalid',role:'owner',active:true,revision:1}];
   const ticket={code:'TEST-001',source_name:'Тестовая точка',status:'available'};
-  const content={brand:'Космопорт — тестовый черновик',event:{opening_date:'2026-11-24',closing_date:'2027-01-18',venue:'Тестовая площадка',address:'Тестовый адрес',city:'Тестовый город',hours:''},tickets:{price:null,sales_open:false,checkout_url:''},contact:{phone:'',email:'',vk_url:''},fields:{intro:'Проверка редактора. Это не публичный контент.'}};
+  const content={brand:'Космопорт — тестовый черновик',event:{opening_date:'2026-11-25',closing_date:'2027-01-18',venue:'Тестовая площадка',address:'Тестовый адрес',city:'Тестовый город',hours:''},tickets:{price:null,sales_open:false,checkout_url:''},contact:{phone:'',email:'',vk_url:''},fields:{intro:'Проверка редактора. Это не публичный контент.'}};
   const tasks=[{id:'task-test',revision:1,created_by:'test-user',title:'Тестовая задача <img src=x onerror=alert(1)>',status:'todo',due_date:'2026-11-01',assignee_name:'Тестовый сотрудник'}];
   const partners=[];
   const documents=[{id:'doc-test',title:'Тестовый акт',category:'Договоры',current_version:2,updated_at:'2026-10-31T06:00:00Z',author_name:'Тестовый сотрудник'}];

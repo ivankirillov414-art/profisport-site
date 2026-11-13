@@ -15,7 +15,7 @@ return [
     'GET website/draft'=>static function(): void {
         crm_require_roles(['editor']);
         $row=kp_website_row();
-        crm_json(['ok'=>true,'data'=>['content'=>$row?json_decode($row['draft'],true,64,JSON_THROW_ON_ERROR):kp_default_content(),'revision'=>(int)($row['revision']??0),'published_revision'=>(int)($row['published_revision']??0)]]);
+        crm_json(['ok'=>true,'data'=>['content'=>$row?kp_upgrade_event_dates(json_decode($row['draft'],true,64,JSON_THROW_ON_ERROR)):kp_default_content(),'revision'=>(int)($row['revision']??0),'published_revision'=>(int)($row['published_revision']??0)]]);
     },
     'POST website/save'=>static function(): void {
         try { $result=kp_website_change(crm_input(),false); }

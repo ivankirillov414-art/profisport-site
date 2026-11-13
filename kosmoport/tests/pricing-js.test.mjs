@@ -32,7 +32,7 @@ const catalog = freeze({
     { id: 'combo1999', master_classes: 3, vr: 3, price: 1999, includes_admission: null }
   ]
 });
-const event = freeze({ opening_date: '2026-11-24', closing_date: '2027-01-18' });
+const event = freeze({ opening_date: '2026-11-25', closing_date: '2027-01-18' });
 const quote = (input) => pricing.quote(catalog, event, input);
 const validInput = { date: '2026-11-27', children: 1, adults: 1 };
 
@@ -79,7 +79,7 @@ test('Friday to Saturday changes only admission unit prices and the total', () =
 test('event boundaries are inclusive and New Year uses its weekday rate', () => {
   assert.equal(quote({ ...validInput, date: event.opening_date }).ok, true);
   assert.equal(quote({ ...validInput, date: event.closing_date }).ok, true);
-  assert.deepEqual(quote({ ...validInput, date: '2026-11-23' }), { ok: false, error: 'outside_event' });
+  assert.deepEqual(quote({ ...validInput, date: '2026-11-24' }), { ok: false, error: 'outside_event' });
   assert.deepEqual(quote({ ...validInput, date: '2027-01-19' }), { ok: false, error: 'outside_event' });
   assert.equal(quote({ ...validInput, date: '2027-01-01' }).day_type, 'weekday');
   assert.equal(quote({ ...validInput, date: '2027-01-01' }).admission_total, 1680);
