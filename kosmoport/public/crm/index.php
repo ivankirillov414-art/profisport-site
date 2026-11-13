@@ -13,7 +13,7 @@ header('X-Content-Type-Options: nosniff');
   <title>Космопорт — сайт и маркетинг</title>
   <link rel="stylesheet" href="../assets/crm.css?v=20261031">
   <link rel="stylesheet" href="../assets/marketing.css?v=20261112">
-  <script type="module" src="../assets/crm.js?v=20261112-marketing"></script>
+  <script type="module" src="../assets/crm.js?v=20261113-dates"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержимому</a>

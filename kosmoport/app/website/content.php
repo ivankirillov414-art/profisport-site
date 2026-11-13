@@ -19,8 +19,22 @@ function kp_text_value(mixed $value, int $max, bool $empty = true): string {
     return trim($value);
 }
 
+function kp_upgrade_event_dates(array $input): array {
+    $event = $input['event'] ?? null;
+    // Only known former dates of this exhibition are upgraded. Other editor
+    // periods and every non-date field are preserved; reads do not write rows.
+    if (is_array($event)
+        && in_array($event['opening_date'] ?? null, ['2026-11-24','2026-11-25'], true)
+        && in_array($event['closing_date'] ?? null, ['2027-01-18','2027-01-20'], true)) {
+        $input['event']['opening_date'] = '2026-11-25';
+        $input['event']['closing_date'] = '2027-01-18';
+    }
+    return $input;
+}
+
 function kp_validate_content(array $input): array {
     $defaults = kp_default_content();
+    $input = kp_upgrade_event_dates($input);
     // Upgrade only the former packaged heading. Keep all custom editor content
     // and the existing publication/draft revisions unchanged.
     if (($input['fields']['k9-text']??null)==='НЕ ПРОСТО СМОТРЕТЬ.' && ($input['fields']['k10-text']??null)==='БЫТЬ ВНУТРИ СОБЫТИЙ!') {

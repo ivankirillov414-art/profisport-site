@@ -10,10 +10,10 @@ $cases=[
  ['date'=>'2026-11-28','children'=>1,'adults'=>1],
  ['date'=>'2026-11-29','children'=>0,'adults'=>1],
  ['date'=>'2026-11-30','children'=>1,'adults'=>0],
- ['date'=>'2026-11-24','children'=>1,'adults'=>2],
+ ['date'=>'2026-11-25','children'=>1,'adults'=>2],
  ['date'=>'2027-01-18','children'=>2,'adults'=>1],
  ['date'=>'2027-01-01','children'=>1,'adults'=>1],
- ['date'=>'2026-11-23','children'=>1,'adults'=>1],
+ ['date'=>'2026-11-24','children'=>1,'adults'=>1],
  ['date'=>'2027-01-19','children'=>1,'adults'=>1],
  ['date'=>'2026-02-30','children'=>1,'adults'=>1],
  ['date'=>'2026-11-28','children'=>0,'adults'=>0],
@@ -22,7 +22,7 @@ $cases=[
  ['date'=>'2026-11-28','children'=>'1','adults'=>1],
  ['date'=>'2026-11-28','children'=>1.5,'adults'=>1],
  ['date'=>'0000-01-01','children'=>1,'adults'=>1],
- ['date'=>"2026-11-24\n",'children'=>1,'adults'=>1],
+ ['date'=>"2026-11-25\n",'children'=>1,'adults'=>1],
  ['date'=>'2026-02-29','children'=>1,'adults'=>1],
 ];
 $quotes=array_map(static fn(array $input):array=>kp_price_quote($catalog,$event,$input),$cases);

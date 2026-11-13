@@ -41,8 +41,45 @@ function rejects_website(callable $operation,string $exception=InvalidArgumentEx
 $default=kp_default_content();
 check_website('packaged content validates and confirmed event is preserved',static function()use($default):void {
     expect_website(kp_validate_content($default)===$default);
-    expect_website($default['brand']==='КОСМОПОРТ' && $default['event']['opening_date']==='2026-11-24');
+    expect_website($default['brand']==='КОСМОПОРТ' && $default['event']['opening_date']==='2026-11-25');
     expect_website($default['tickets']['price']===null && $default['event']['closing_date']==='2027-01-18');
+});
+check_website('known former event pairs upgrade only their dates and remain idempotent',static function()use($default):void {
+    foreach (['2026-11-24','2026-11-25'] as $opening) foreach (['2027-01-18','2027-01-20'] as $closing) {
+        $legacy=$default; $legacy['event']['opening_date']=$opening; $legacy['event']['closing_date']=$closing;
+        $legacy['brand']='Название редактора'; $legacy['event']['hours']='12:00–19:00';
+        $legacy['fields']['k14-text']='Авторская программа'; $legacy['tickets']['price']=950;
+        $expected=$legacy; $expected['event']['opening_date']='2026-11-25'; $expected['event']['closing_date']='2027-01-18';
+        $upgraded=kp_validate_content($legacy);
+        expect_website($upgraded===$expected,'Only the known date pair may change');
+        expect_website(kp_validate_content($upgraded)===$upgraded,'Date upgrade must be idempotent');
+    }
+});
+check_website('other editor event periods are preserved',static function()use($default):void {
+    foreach ([['2026-11-24','2027-01-19'],['2026-11-26','2027-01-20'],['2026-11-24',null]] as [$opening,$closing]) {
+        $custom=$default; $custom['event']['opening_date']=$opening; $custom['event']['closing_date']=$closing;
+        expect_website(kp_validate_content($custom)===$custom,'Do not migrate an unrelated editor period');
+    }
+});
+check_website('legacy published and draft reads upgrade dates without writes or revision changes',static function()use($default,$routes):void {
+    $db=crm_db(); $db->beginTransaction();
+    try {
+        $legacy=$default; $legacy['event']['opening_date']='2026-11-24'; $legacy['event']['closing_date']='2027-01-20';
+        $legacy['fields']['k14-text']='Сохранённая авторская программа'; $legacy['contact']['phone']='+7 992 080-02-28';
+        $json=json_encode($legacy,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
+        $db->prepare('INSERT INTO kcrm_website(id,draft,published,revision,published_revision) VALUES(1,?,?,17,12)')->execute([$json,$json]);
+        $before=kp_website_row(); $audits=count($GLOBALS['kpAudits']);
+        $expected=$legacy; $expected['event']['opening_date']='2026-11-25'; $expected['event']['closing_date']='2027-01-18';
+        $published=kp_read_published();
+        expect_website($published['content']===$expected && $published['revision']===12);
+        $reply=null;
+        try { $routes['GET website/draft'](); } catch (KpReply $error) { $reply=$error; }
+        expect_website($reply instanceof KpReply && $reply->status===200);
+        expect_website($reply->payload['data']['content']===$expected);
+        expect_website($reply->payload['data']['revision']===17 && $reply->payload['data']['published_revision']===12);
+        expect_website(kp_website_row()===$before,'A content read must not update stored JSON or revisions');
+        expect_website(count($GLOBALS['kpAudits'])===$audits,'A content read must not create audit writes');
+    } finally { $db->rollBack(); }
 });
 check_website('script and HTML injection rejected',static function()use($default):void {
     $bad=$default; $bad['fields']['k4-text']='<img src=x onerror=alert(1)>';
