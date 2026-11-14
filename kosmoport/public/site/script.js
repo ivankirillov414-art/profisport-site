@@ -24,7 +24,7 @@
     event.preventDefault();
     const dialog = document.getElementById(button.dataset.open);
     if (!dialog) return;
-    if(dialog.id==='ticket-dialog'){ if(button.dataset.ticketChildren!==undefined){childInput.value=button.dataset.ticketChildren;adultInput.value=button.dataset.ticketAdults;planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);} planner?.goToStep(1);update(); }
+    if(dialog.id==='ticket-dialog'){ if(button.dataset.ticketChildren!==undefined){childInput.value=button.dataset.ticketChildren;adultInput.value=button.dataset.ticketAdults;planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);} plannerHistory=[];dialog.classList.remove('cart-expanded');document.querySelector('#planner-cart-toggle').setAttribute('aria-expanded','false');planner?.goToStep(1);update(); }
     dialog.showModal();
     funnel(button.dataset.open === 'group-dialog' ? 'group_open' : 'ticket_open');
     document.body.classList.add('modal-open');
@@ -38,6 +38,7 @@
       if(event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
     });
   });
+  let plannerHistory = [];
   let count = 2;
   let currentQuote = null;
   let currentBasket = null;
@@ -92,26 +93,37 @@
     document.querySelector('#planner-total').textContent=totalText;document.querySelector('#mobile-planner-total').textContent=totalText;
     document.querySelector('#mobile-cart-guests').textContent=currentQuote.ok?'Гостей: '+count:'Выберите билеты';
     document.querySelector('#cart-note').textContent=currentBasket.ok&&currentBasket.requires_terms_confirmation?'Включение входного билета в наборы уточняется. Сумма позиций предварительная; это не билет и не подтверждение оплаты.':'План не является билетом или подтверждением оплаты.';
-    const nextLabels=['Выбрать наборы','Добавить активности','Перейти к контактам','Онлайн-оплата скоро'];
-    const blocked=!currentQuote.ok||invalidFields.some(field=>fieldStep(field)<=state.step)||state.step===4;
+    const nextLabels=['Выбрать наборы','Добавить активности',document.querySelector('#visit-request-form')?'Перейти к контактам':'Перейти к итогу','Сохранить план'];
+    const blocked=!currentQuote.ok||invalidFields.some(field=>fieldStep(field)<=state.step);
     for(const id of['planner-next','cart-next','mobile-planner-next']){const button=document.getElementById(id);button.textContent=nextLabels[state.step-1];button.disabled=blocked;}
+    document.querySelectorAll('[data-planner-summary]').forEach(button=>button.disabled=!valid);
+    document.querySelector('#price-day').dataset.dayType=currentQuote.ok?currentQuote.day_type:'';
     document.querySelector('#planner-next').hidden=state.step===4;document.querySelector('#planner-back').disabled=state.step===1;
     document.querySelector('#planner-status').textContent=invalidFields.length?quoteError('invalid_selection'):'';
     const submit=document.querySelector('#visit-request-form [type="submit"]');if(submit&&!submit.closest('form').dataset.busy)submit.disabled=!valid||submit.closest('form').dataset.saved==='true';
   };
-  const navigate=step=>{
-    if(!planner)return;
+  const navigate=(step,recordHistory=true)=>{
+    if(!planner)return false;
     const current=planner.getState();
     if(step>current.step){
       const invalid=invalidSelections().find(field=>fieldStep(field)<step);
-      if(invalid){planner.goToStep(fieldStep(invalid));update();invalid.reportValidity();return;}
-      if(!currentQuote?.ok){planner.goToStep(1);update();visitDate.reportValidity();childInput.reportValidity();return;}
+      if(invalid){planner.goToStep(fieldStep(invalid));update();invalid.reportValidity();return false;}
+      if(!currentQuote?.ok){planner.goToStep(1);update();visitDate.reportValidity();childInput.reportValidity();return false;}
     }
-    if(planner.goToStep(step)){update();resetPlannerScroll();}
+    if(planner.goToStep(step)){
+      if(recordHistory&&step!==current.step)plannerHistory.push(current.step);
+      update();resetPlannerScroll();
+      const heading=document.querySelector(`[data-planner-panel="${step}"] h3`);
+      if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}
+      funnel('planner_step_'+step);
+      return true;
+    }
+    return false;
   };
   document.querySelectorAll('[data-planner-step]').forEach(button=>button.addEventListener('click',()=>navigate(Number(button.dataset.plannerStep))));
-  for(const id of['planner-next','cart-next','mobile-planner-next'])document.getElementById(id).addEventListener('click',()=>navigate((planner?.getState().step||1)+1));
-  document.querySelector('#planner-back').addEventListener('click',()=>navigate((planner?.getState().step||1)-1));
+  for(const id of['planner-next','cart-next','mobile-planner-next'])document.getElementById(id).addEventListener('click',()=>{const step=planner?.getState().step||1;if(step===4)document.querySelector('#planner-download').click();else navigate(step+1);});
+  document.querySelectorAll('[data-planner-summary]').forEach(button=>button.addEventListener('click',()=>navigate(4)));
+  document.querySelector('#planner-back').addEventListener('click',()=>{const previous=plannerHistory.at(-1)??(planner?.getState().step||1)-1;if(navigate(previous,false))plannerHistory.pop();});
   document.querySelectorAll('[data-guest-change]').forEach(button=>button.addEventListener('click',()=>{const[kind,delta]=button.dataset.guestChange.split(':');const input=kind==='children'?childInput:adultInput;const value=Number.isInteger(input.valueAsNumber)?input.valueAsNumber:0;input.value=String(Math.max(0,Math.min(200,value+Number(delta))));planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);update();}));
   [childInput,adultInput].forEach(input=>input.addEventListener('input',()=>{planner?.setGuests(childInput.valueAsNumber,adultInput.valueAsNumber);update();}));
   visitDate.addEventListener('change',()=>{planner?.setDate(visitDate.value);update();});
@@ -126,10 +138,10 @@
     document.body.append(link); link.click(); link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
-  const basketDescription=()=>currentBasket?.ok?currentBasket.lines.map(line=>line.label+' × '+line.quantity+' — '+money(line.total)).join('\n')+'\nПредварительная сумма выбранных позиций: '+money(currentBasket.planned_total)+(currentBasket.requires_terms_confirmation?'\nВключение входа в наборы уточняется.':''):'Проверьте выбранные позиции.';
+  const basketDescription=()=>currentBasket?.ok?currentBasket.lines.map(line=>line.label+' × '+line.quantity+' — '+money(line.total)).join('\n')+'\nСумма выбранных позиций: '+money(currentBasket.planned_total)+(currentBasket.requires_terms_confirmation?'\nВключение входа в наборы уточняется.':''):'Проверьте выбранные позиции.';
   document.querySelector('#planner-download').addEventListener('click',()=>{
     if(!currentBasket?.ok||invalidSelections().length)return;
-    const text=['КОСМОПОРТ — ПЛАН ПОСЕЩЕНИЯ',config.venue,'Дата: '+planner.getState().date,'',basketDescription(),'','Это план, не покупка, не бронь и не билет. Оплата не проводилась. Условия наборов уточняются.'].join('\n');
+    const text=['КОСМОПОРТ — ПЛАН ПОСЕЩЕНИЯ',config.venue,'Дата: '+planner.getState().date,'',basketDescription(),'','Это план, не покупка, не бронь и не билет. Оплата не проводилась. Наборы активностей оплачиваются дополнительно к входным билетам.'].join('\n');
     downloadFile('\uFEFF'+text,'kosmoport-visit-plan.txt','text/plain;charset=utf-8');
   });
   const escapeICS = text => String(text).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');

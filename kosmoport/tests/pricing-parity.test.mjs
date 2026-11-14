@@ -30,7 +30,9 @@ test('Rendered public page carries the canonical catalog and separate child/adul
  assert.ok(html.includes('id="children-quantity"') && html.includes('id="adults-quantity"'));
  assert.ok(html.indexOf('src="site/pricing.js')<html.indexOf('src="site/script.js'));
  assert.ok(html.includes('ДЕТСКИЙ<br/>БИЛЕТ') && html.includes('ВЗРОСЛЫЙ<br/>БИЛЕТ'));
- assert.ok(html.includes('Включение входного билета в наборы и правила выбора мастер-классов уточняются.'));
+ assert.ok(html.includes('Вход на выставку оплачивается отдельно.'));
+ assert.ok(config.priceCatalog.combos.every(combo=>combo.includes_admission===false),'All confirmed bundles require separate admission');
+ assert.equal(config.priceCatalog.version,2);
  assert.ok(!html.includes('data-ticket-count="3"'),'No invented family-discount calculator');
  assert.equal((html.match(/data-planner-panel="[1-4]"/g)||[]).length,4,'Four stages');
  assert.equal((html.match(/class="selection-input"[^>]+value="0"/g)||[]).length,7,'All seven optional selections start empty');

@@ -75,3 +75,21 @@
  #planner-cart-toggle{display:flex;gap:8px;align-items:center;justify-content:space-between;min-width:0;color:#edf7ff;background:#163756;border:1px solid #46698f;border-radius:12px;padding:8px 10px;font-size:.72rem;text-align:left}#planner-cart-toggle>span:first-child{display:grid;gap:3px}#planner-cart-toggle small{font-size:.62rem;color:#b8cee8}#planner-cart-toggle strong{font-size:.95rem;line-height:1.2;overflow-wrap:anywhere}
  #ticket-dialog .planner-mobile-bar .button{margin:0;min-width:0;width:100%;min-height:50px;padding:9px;font-size:.75rem;line-height:1.4;border-radius:12px}
 }
+
+/* Explicit day rates: each label stays with its own price at every width. */
+.boarding-info .ticket-price-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px;max-width:360px;width:100%}
+.boarding-info .ticket-day-rate{display:flex;flex-direction:column;gap:7px;min-width:0;padding:12px 14px;border:1px solid #ffffff65;border-radius:12px;background:#07163230}
+.boarding-info .ticket-day-rate>span{font-size:.82rem;line-height:1.35;font-weight:650;color:#fff}
+.boarding-info .ticket-day-rate strong{font-size:clamp(1.35rem,2.5vw,1.85rem);line-height:1.15;white-space:nowrap;color:#fff}
+.boarding-info .ticket-choice-hint{display:block;font-size:.8rem;font-weight:650;line-height:1.5;margin-top:14px;color:#fff}
+.boarding-ticket{min-height:280px}.boarding-ticket .boarding-info{min-width:0}
+.purchase-dialog .price-day-note[data-day-type=weekend]{background:#24335b;border-color:#728ec2;color:#e4edff}
+.planner-summary-link{display:inline-block;padding:12px 0;margin-top:8px;min-height:44px;background:transparent;border:0;color:#b5eaff;font:inherit;font-weight:650;text-align:left;cursor:pointer}
+.planner-summary-link:hover{color:#fff}.planner-summary-link:disabled{opacity:.4;cursor:default}
+#ticket-dialog .planner-organizer-contact{margin-top:16px;width:100%;font-size:.9rem}
+.planner-panel h3:focus{outline:none}.planner-panel h3:focus-visible{outline:2px solid #9ce9ff;outline-offset:5px;border-radius:3px}
+@media(max-width:1100px){.boarding-info .ticket-price-options{gap:8px}.boarding-info .ticket-day-rate{padding:10px}.boarding-info .ticket-day-rate strong{font-size:1.4rem}}
+@media(max-width:600px){.boarding-ticket{min-height:245px}.boarding-info .ticket-price-options{gap:7px;margin-top:12px}.boarding-info .ticket-day-rate{padding:9px 8px}.boarding-info .ticket-day-rate>span{font-size:.72rem}.boarding-info .ticket-day-rate strong{font-size:1.2rem}.boarding-info .ticket-choice-hint{font-size:.72rem}}
+@media(max-width:370px){.boarding-info .ticket-price-options{grid-template-columns:1fr}.boarding-info .ticket-day-rate{flex-direction:row;justify-content:space-between;align-items:center;gap:6px}.boarding-info .ticket-day-rate>span{font-size:.72rem}.boarding-info .ticket-day-rate strong{font-size:1.1rem}.boarding-ticket{min-height:280px}}
+
+#ticket-dialog .planner-bundle-note{padding:14px 16px;border:1px solid #385b7b;border-radius:12px;background:#112d47;color:#d6eafb;font-size:.9rem;line-height:1.6}

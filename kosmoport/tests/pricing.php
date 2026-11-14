@@ -38,7 +38,7 @@ expect_price($quotes[10]['error']==='invalid_quantity' && $quotes[12]['error']==
 expect_price($quotes[11]['guest_count']===200 && $quotes[11]['admission_total']===178000,'Largest permitted count');
 expect_price($quotes[13]['error']==='invalid_quantity' && $quotes[14]['error']==='invalid_quantity','Strict numeric integer input');
 expect_price(array_column($catalog['activities']['master_classes'],'price')===[399,499,599] && $catalog['activities']['vr']['price']===499,'Activity rates');
-expect_price(array_column($catalog['combos'],'price')===[999,1499,1999] && array_column($catalog['combos'],'includes_admission')===[null,null,null],'Bundles never imply entry included');
+expect_price(array_column($catalog['combos'],'price')===[999,1499,1999] && array_column($catalog['combos'],'includes_admission')===[false,false,false],'Owner confirmed bundles are additional to admission');
 expect_price(!kp_catalog_live_sales_ready() && !$catalog['sales_enabled'],'Payment closed pending actual provider integration');
 $legacy=kp_default_content();$legacy['fields']['k14-text']='Мой сохранённый текст программы';$legacy['tickets']['price']=null;
 expect_price(kp_validate_content($legacy)['fields']['k14-text']==='Мой сохранённый текст программы','Legacy CMS schema/custom content remains valid');
@@ -52,7 +52,7 @@ expect_price($baskets[0]['planned_total']===1680 && $baskets[0]['extras_total']=
 expect_price($baskets[1]['planned_total']===2679 && count($baskets[1]['lines'])===3,'Bundle charged once without adding included MC and VR unit prices');
 expect_price($baskets[2]['planned_total']===3577 && $baskets[2]['extras_total']===898,'Explicit additional activities remain separate from bundle');
 expect_price($baskets[3]['planned_total']-$baskets[2]['planned_total']===200 && $baskets[3]['extras_total']===$baskets[2]['extras_total'] && $baskets[3]['bundles_total']===$baskets[2]['bundles_total'],'Date changes admission only');
-expect_price($baskets[4]['bundles_total']===4497 && $baskets[4]['payable_total']===null && $baskets[4]['requires_terms_confirmation'],'Bundle composition is a plan, not an approved payable total');
+expect_price($baskets[4]['bundles_total']===4497 && $baskets[4]['payable_total']===null && !$baskets[4]['requires_terms_confirmation'],'Bundle composition is a plan, not an approved payable total');
 foreach(array_slice($baskets,5) as $invalid)expect_price(!$invalid['ok'] && $invalid['error']==='invalid_selection','Invalid selection cannot change totals');
 if(in_array('--matrix',$argv,true)){echo json_encode(['catalog'=>$catalog,'event'=>$event,'cases'=>$cases,'quotes'=>$quotes,'basket_cases'=>$basketCases,'baskets'=>$baskets],JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR)."\n";exit;}
 echo json_encode(['pass'=>true,'checks'=>$checks,'quote_cases'=>count($cases)],JSON_THROW_ON_ERROR)."\n";
