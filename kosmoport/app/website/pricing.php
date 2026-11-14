@@ -5,7 +5,7 @@ declare(strict_types=1);
 function kp_price_catalog(): array
 {
     return [
-        'version'=>1, 'currency'=>'RUB', 'confirmed_on'=>'2026-11-12',
+        'version'=>2, 'currency'=>'RUB', 'confirmed_on'=>'2026-11-14',
         'admission'=>['weekday'=>['child'=>790,'adult'=>890], 'weekend'=>['child'=>890,'adult'=>990]],
         'weekend_iso_days'=>[6,7],
         'activities'=>[
@@ -13,9 +13,9 @@ function kp_price_catalog(): array
             'vr'=>['price'=>499],
         ],
         'combos'=>[
-            ['id'=>'combo999','master_classes'=>2,'vr'=>1,'price'=>999,'includes_admission'=>null],
-            ['id'=>'combo1499','master_classes'=>3,'vr'=>1,'price'=>1499,'includes_admission'=>null],
-            ['id'=>'combo1999','master_classes'=>3,'vr'=>3,'price'=>1999,'includes_admission'=>null],
+            ['id'=>'combo999','master_classes'=>2,'vr'=>1,'price'=>999,'includes_admission'=>false],
+            ['id'=>'combo1499','master_classes'=>3,'vr'=>1,'price'=>1499,'includes_admission'=>false],
+            ['id'=>'combo1999','master_classes'=>3,'vr'=>3,'price'=>1999,'includes_admission'=>false],
         ],
         'child_age_range'=>null, 'free_entry_terms'=>null, 'holiday_override'=>null,
         'sales_enabled'=>false,
